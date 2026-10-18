@@ -1,0 +1,9 @@
+# Evacuation-map photos: shared outside the repo, never committed or shipped (PLAN §4)
+data-src/photos/
+
+# Reference images we do not own (official campus map, licensed style photo), D6/D13
+docs/reference/
+
+node_modules/
+dist/
+.env*
