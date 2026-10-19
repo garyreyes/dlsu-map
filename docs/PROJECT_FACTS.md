@@ -8,6 +8,9 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 
 - The repo is `github.com/garyreyes/dlsu-map`, public, default branch `main`. Gary Reyes owns it, so only Gary's
   account can change settings such as branch protection. (2026-10-19)
+- `main` is protected by a repository ruleset (id 25407958), on since 2026-10-19: PR required with 0 approvals,
+  `gates` required and the branch up to date with `main`, no force-push, no deletion. Without `gh`, a branch is
+  pushed from the terminal and the PR is opened and merged on github.com. (2026-10-19)
 - The required CI check is named **`gates`**. Renaming the job breaks branch protection until the rule is updated
   to match. (2026-10-19)
 

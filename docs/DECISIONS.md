@@ -589,6 +589,8 @@ another AI tool. Running the full build on a docs-only PR wastes minutes. Skippi
   when a contributor joins whose review is meant as a real second opinion.
 - **When:** at the start of Phase 1, when app code arrives (decided 2026-10-19). While the repo is docs only, `gates`
   reports but doesn't block, and a bad docs commit is easy to fix.
+- **Update 2026-10-19:** turned on early, as a repository ruleset: PR required (0 approvals), `gates` required with
+  the branch up to date, no force-push, no deletion.
 
 **Alternatives.** The full suite on every PR (slow for docs); `paths-ignore` (blocks merges, above);
 `dorny/paths-filter` (works, but adds a third-party action); 1 required review now (a second click on GitHub for a
