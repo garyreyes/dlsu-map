@@ -22,9 +22,18 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   `export PATH="/c/Program Files/nodejs:$PATH"`. PowerShell finds it normally. (2026-10-19)
 - The GitHub CLI (`gh` 2.102.0) is installed on Charles's laptop at `C:\Program Files\GitHub CLI\gh.exe`. A Git Bash
   session opened before the install doesn't have it on PATH; use the full path or open a new terminal. Gary's laptop
-  still needs `winget install GitHub.cli` and `gh auth login`. (2026-10-19)
+  has `gh` 2.96.0, signed in as `garyreyes` with admin on the repo. (2026-10-19)
 - Git converts line endings (`core.autocrlf`), so "LF will be replaced by CRLF" warnings are expected and harmless.
   (2026-10-19)
+
+## Cloudflare
+
+- The free Cloudflare account is Gary's, signed in with GitHub. Never upgrade it to Workers Paid (D11).
+- `CLOUDFLARE_API_TOKEN` is a user API token made from the **Edit Cloudflare Workers** template, scoped to this one
+  account (My Profile → API Tokens). Tokens in the current format start with `cfut_`. Both it and
+  `CLOUDFLARE_ACCOUNT_ID` are GitHub Actions secrets only. (2026-10-19)
+- Adding a secret on github.com: the token goes in the **Secret** box, not **Name**. A secret whose name looks like
+  random characters is a pasted token: delete it and roll the token in Cloudflare. (2026-10-19)
 
 ## Tool versions pinned in CI
 
