@@ -13,10 +13,18 @@ session needs to know. Search this file; it isn't required reading (the reading 
 - The team approved the plan. D15–D24 are now *agreed* in `docs/DECISIONS.md`; D14 (GPS) stays proposed because
   GPS moved out of v1.
 - The lanes in `docs/SPLIT.md` are agreed: Lane A Gary, Lane B Charles.
-- `CLAUDE.md` status now says the build follows `docs/ROADMAP.md` from 1a. `SUMMARY.md` and `docs/PLAN.md` got a
-  status note pointing to the current docs and listing what changed; they were not rewritten.
+- `CLAUDE.md` status now says the build follows `docs/ROADMAP.md` from 1a. `docs/PLAN.md` got a status note pointing
+  to the current docs; `SUMMARY.md` was rewritten in the entry below (PR #4).
 - GitHub CLI installed on Charles's laptop. Gate 0 still open: `gh` on Gary's laptop, the Cloudflare account and
   secrets.
+
+## 2026-10-19: SUMMARY and README brought up to date
+
+- `SUMMARY.md` rewritten to match the PRD, ARCHITECTURE and D15–D24: v1 includes 10 full interiors, plain From / To
+  fields (no sentence parser), no GPS in v1, real room-code formats (`ST311`, `AG1104`) instead of `B305`/`G304`, the
+  Google-Maps-style interface and black map ground, the 11-phase roadmap and the two lanes.
+- `README.md`: status, a reading order that includes the PRD, ARCHITECTURE, user flows, roadmap and split, and a short
+  contributing note about the protected `main`.
 
 ## 2026-10-19: Roadmap and work split
 
