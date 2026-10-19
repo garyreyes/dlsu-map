@@ -31,7 +31,7 @@ with a full-app polish.
 
 | ID | Sub-phase | Lane | Depends on | Status |
 |---|---|---|---|---|
-| 1a | Project scaffold: Vite + React ~19.3 + TS (tsc 7 / TS 6 API, D1), the ARCHITECTURE §7 folders, ESLint + Prettier, Vitest, `lint`/`typecheck`/`test`/`build` scripts, Husky + lint-staged, Dependabot npm block | A | Gate 0 | not started |
+| 1a | Project scaffold: Vite + React ~19.3 + TS (tsc 7 / TS 6 API, D1), the ARCHITECTURE §7 folders, ESLint + Prettier, Vitest, `lint`/`typecheck`/`test`/`build` scripts, Husky + lint-staged, Dependabot npm block | A | Gate 0 | done |
 | 1b | Hosting: Cloudflare Workers static assets, a preview link per PR, CSP + security headers in `_headers`, `noindex` + disallow-all `robots.txt` (D19), Playwright test that fails on any request to another site | A | 1a | not started |
 | 1c | App shell: R3F canvas with the prototype's gestures (pan, pinch, twist, tilt, compass); search bar, sheet and map buttons from DESIGN.md tokens; fix DESIGN.md's open items (16 px text, 48 px tap targets) | A | 1a | not started |
 | 1d | Basic offline: precache with `globPatterns` widened to `.json/.woff2/.glb` + a CI check, "Ready offline" (O2), "Open this once with internet" (O1) | A | 1a | not started |

@@ -1,0 +1,6 @@
+{
+  // D1: the editor uses the workspace's TypeScript 6.0 API (same as ESLint). Type-checking runs on tsc 7.
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
+}

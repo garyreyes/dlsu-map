@@ -26,6 +26,21 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - Git converts line endings (`core.autocrlf`), so "LF will be replaced by CRLF" warnings are expected and harmless.
   (2026-10-19)
 
+## Working on the code
+
+- Setup after cloning: Node 24, then `npm ci` (also installs the Husky hook). `npm run dev` starts Vite.
+- Before a PR: `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, which are the same commands CI runs.
+- **TypeScript (D1):** `@typescript/typescript6@6.0.2` is the package version but it contains compiler 6.0.3; ESLint
+  and the editor use it. `@typescript/native` is `typescript@7`, and `npm run typecheck` calls its `tsc` by full
+  path. `tsc` 7 runs in build mode (`-b`) over `tsconfig.app.json` (src/) and `tsconfig.node.json` (configs, tests,
+  scripts, tools). (2026-10-19)
+- **Line endings:** `.gitattributes` forces LF in the working copy on every OS. Without it, Windows checkouts get CRLF
+  and `prettier --check` fails locally while passing in Linux CI. (2026-10-19)
+- **Layer rules** (`eslint.boundaries.js`) use built-in ESLint rules only. They cover static and dynamic `import()`,
+  but not CommonJS `require` or aliasing `window` to a variable before calling `.fetch`; review catches those.
+  Feature code lives either at the feature's top level (logic) or under `components/` (UI); any other subfolder is
+  treated as logic. (2026-10-19)
+
 ## Cloudflare
 
 - The free Cloudflare account is Gary's, signed in with GitHub. Never upgrade it to Workers Paid (D11).
@@ -37,8 +52,9 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 
 ## Tool versions pinned in CI
 
-- `markdownlint-cli2@0.23.3`, run through `npx` until Phase 1 adds it as a devDependency. Use the same version
-  locally so local and CI results match. (2026-10-19)
+- `markdownlint-cli2@0.23.3`: an exact-pinned devDependency since 1a, and CI's `npx` step uses the same version. Bump
+  both together. Its dependencies carry dev-only `npm audit` warnings (braces, katex, smol-toml); the shipped app has
+  none (`npm audit --omit=dev` is clean). (2026-10-19)
 - `impeccable@4.6.0` for the design detector, to match the locally installed Impeccable plugin. Bump both together.
   Exit 0 = clean, 2 = findings (fails CI), 1 = couldn't scan. Telemetry is off in CI (`DO_NOT_TRACK=1`).
   (2026-10-19)

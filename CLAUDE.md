@@ -101,15 +101,18 @@ One CI job, **`gates`** (`.github/workflows/ci.yml`), runs on every PR and every
 (D22, on since 2026-10-19) requires it by that name, so the job must always run and report. Never add `paths-ignore`
 to its trigger, and never rename the job without updating the ruleset in the same change.
 
-- **Every PR:** markdown lint (`.markdownlint-cli2.jsonc`). Run it locally before committing docs:
-  `npx markdownlint-cli2@0.23.3 "**/*.md"` (add `--fix` for blank-line issues).
+- **Every PR:** markdown lint (`.markdownlint-cli2.jsonc`). Locally: `npx markdownlint-cli2 "**/*.md"` (add `--fix`
+  for blank-line issues); it's a devDependency pinned to the same 0.23.3 as CI.
 - **PRs that touch code** (anything not `.md` and not under `docs/`), once `package-lock.json` exists: `npm ci`,
   `npm ls --all` (fails on peer conflicts), `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, then
   the Impeccable design detector on `src/` and `index.html`.
-- **The root `package.json` must define `lint`, `typecheck`, `test` and `build`.** CI calls them by name. `build`
-  runs the data compiler, so a broken data constraint fails CI.
-- **Local hooks arrive in Phase 1** with the root `package.json` (Husky + lint-staged, D2). Until then CI is the
-  only automatic gate. Phase 1 also uncomments the npm block in `.github/dependabot.yml`.
+- **The root `package.json` must define `lint`, `typecheck`, `test` and `build`.** CI calls them by name. From 2b,
+  `build` runs the data compiler, so a broken data constraint fails CI. `lint` = ESLint, Prettier check and markdown
+  lint. `typecheck` = tsc 7 (D1); CI also fails if that binary isn't 7.x.
+- **Layer rules are lint rules:** `eslint.boundaries.js` enforces ARCHITECTURE §6, and `tests/boundaries.test.ts`
+  proves it. Change both together; never loosen a rule to get a file through without asking.
+- **Local hooks:** Husky runs lint-staged on every commit (D2): ESLint + Prettier on staged code, markdownlint on
+  staged `.md`. `npm ci` installs the hook. Don't bypass it with `--no-verify`.
 
 ## Commits and docs
 

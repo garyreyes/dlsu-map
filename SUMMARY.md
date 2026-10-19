@@ -1,7 +1,7 @@
 # DLSU 3D Campus Navigator: Project Summary
 
-> **Status:** plan approved on 2026-10-19 (D15–D24 agreed); no app code yet. Next is the rest of "Gate 0" in
-> [`docs/ROADMAP.md`](docs/ROADMAP.md) (`gh` on both laptops, the Cloudflare account), then Phase 1 starts with 1a.
+> **Status:** plan approved on 2026-10-19 (D15–D24 agreed); Gate 0 done; the project scaffold (1a) is in. Next are
+> 1b–1d (Lane A) and 2a/3a (Lane B), per [`docs/ROADMAP.md`](docs/ROADMAP.md).
 > **Looking for:** a second pair of eyes on the plan. See [How you can help](#how-you-can-help).
 
 Detailed docs: [`docs/PRD.md`](docs/PRD.md) (what and for whom) · [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)

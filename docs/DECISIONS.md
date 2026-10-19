@@ -27,12 +27,15 @@ Zustand 5, ngraph, Vite 8, Tailwind 4, vite-plugin-pwa 2):
 
 ```jsonc
 // package.json (devDependencies)
-"typescript": "npm:@typescript/typescript6@^6.0.3",   // tools import "typescript" and get the 6.0 API
+"typescript": "npm:@typescript/typescript6@~6.0.2",   // tools import "typescript" and get the 6.0 API
 "@typescript/native": "npm:typescript@^7.0.2"          // provides the `tsc` binary = 7.0 (fast)
 // scripts
 "typecheck": "tsc --noEmit -p ."
 ```
 
+- **Correction (2026-10-19, 1a):** this first said `@typescript/typescript6@^6.0.3`, which can't install: that
+  package stops at 6.0.2 (6.0.3 exists only as plain `typescript`). It also names its command `tsc6`, so the
+  install-order clash below can't happen with it; the full-path call and CI version check stay as a guard.
 - **Both packages may install a `tsc` command**, and which one lands in `node_modules/.bin` depends on install
   order. So in Phase 1 the `typecheck` script calls the TS 7 binary by its full path inside
   `node_modules/@typescript/native/`, and CI runs a version check that fails unless it reports 7.x.
