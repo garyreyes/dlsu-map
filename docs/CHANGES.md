@@ -8,6 +8,19 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-19: Prototype feedback, round 1 (owner tested on a phone)
+
+- Green fog: the distance and sky fade into a soft green in every map palette.
+- Every off-campus building is see-through (35%), replacing "see-through only while blocking". Only campus buildings
+  can now hide the selection.
+- Rotating on a phone: the map library only rotated when two fingers slid sideways together. A two-finger twist now
+  turns the map with the fingers, like Google Maps (checked with a simulated twist: 60° in, 59.9° turned). A compass
+  button appears while the map is turned and turns it back.
+- `docs/DESIGN.md` updated (map depth, compass, gestures). No new finish review: these are owner-directed refinements.
+- Owner confirmed all three on a real phone. Then asked for a black ground like Waze's dark mode: palette A is now
+  near-black (#121614) with soft grey paths and a dark green haze, replacing D13's orange. Green and grey stay in
+  the switcher for comparison. Recorded in `docs/PRODUCT.md` and `docs/DESIGN.md`.
+
 ## 2026-10-19: Design direction and map home prototype
 
 - The owner pinned the direction: the Google Maps interface convention (quality bar Google Maps, Apple Maps, Waze)

@@ -105,7 +105,11 @@ svg.i { width: 24px; height: 24px; flex: none; stroke: currentColor; fill: none;
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); }
 /* Map buttons and the credit ride just above the sheet's top edge (--sheet-visible is set by ui.js). */
 .map-btns, .credit { position: fixed; z-index: 3; transition: bottom 260ms cubic-bezier(0.16, 1, 0.3, 1); }
-.map-btns { right: var(--gutter-r); bottom: calc(var(--sheet-visible, 96px) + 12px); display: flex; gap: 12px; }
+.map-btns { right: var(--gutter-r); bottom: calc(var(--sheet-visible, 96px) + 12px); display: flex; flex-direction: column;
+  gap: 12px; }
+.needle { stroke-width: 1.5; }
+.needle path { fill: var(--surface-2); stroke: var(--ink-3); }
+.needle path.n { fill: var(--accent); stroke: var(--accent); }
 .fab { width: 48px; height: 48px; border-radius: 50%; background: var(--surface); box-shadow: var(--shadow-1);
   display: grid; place-items: center; color: var(--ink); }
 .credit { left: var(--gutter-l); bottom: calc(var(--sheet-visible, 96px) + 8px); font-size: 12px; color: var(--ink-2);
@@ -221,6 +225,9 @@ mark { background: none; color: var(--accent-ink); font-weight: 700; }
 
 <div class="credit">© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a></div>
 <div class="map-btns">
+  <button class="fab" id="compass" aria-label="Turn the map back to its usual direction" hidden>
+    <svg class="i needle" viewBox="0 0 24 24"><path d="M12 3 8.5 12h7z" class="n"/><path d="M12 21l3.5-9h-7z"/></svg>
+  </button>
   <button class="fab" id="recenter" aria-label="Show the whole campus">
     <svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7"/></svg>
   </button>

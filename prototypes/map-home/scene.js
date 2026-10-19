@@ -6,15 +6,18 @@ window.MapScene = (() => {
   // D13's three palette options. One green (the interface green, owner's choice) marks the selected building, its
   // floor band and "you are here" in every palette; the band sits on pale walls, so it reads even on the green ground.
   // `cityMix` is how far the off-campus city leans toward the ground colour, so the campus stays the brightest mass.
+  // `fog` is the green haze (owner's choice) the distance and sky fade into.
   const ACCENT = "#00703c";
   const PALETTES = {
     // Grounds are drawn unlit, so each swatch in the ⓘ sheet is exactly the colour on the map.
-    A: { label: "Orange", ground: "#cf6530", building: "#e8edf3", path: "#f3d9c4", road: "#f7e6d8", cityMix: 0.32 },
-    B: { label: "Green", ground: "#175f3c", building: "#f2eee5", path: "#5f9c7c", road: "#7fb396", cityMix: 0.5 },
-    C: { label: "Grey", ground: "#c4c7c6", building: "#fbfbfa", path: "#ffffff", road: "#ffffff", cityMix: 0.32 },
+    // A: near-black ground like Waze's dark mode (owner's choice, replaces D13's orange). Paths are soft grey, the
+    // haze dark green so the horizon doesn't glow.
+    A: { label: "Black", ground: "#121614", building: "#e8edf3", path: "#56645d", road: "#77857e", cityMix: 0.4, fog: "#163326" },
+    B: { label: "Green", ground: "#175f3c", building: "#f2eee5", path: "#5f9c7c", road: "#7fb396", cityMix: 0.5, fog: "#4f9a72" },
+    C: { label: "Grey", ground: "#c4c7c6", building: "#fbfbfa", path: "#ffffff", road: "#ffffff", cityMix: 0.32, fog: "#cfe5d7" },
   };
   const AO_HEIGHT = 6; // metres of soft darkening where walls meet the ground
-  const TALL_CITY = 45; // off-campus towers above this height are drawn see-through so the campus leads
+  const CITY_OPACITY = 0.35; // the city around campus is see-through (owner's choice), so the campus leads
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const FOV = 40, TILT = 0.9; // radians from straight down
@@ -24,7 +27,7 @@ window.MapScene = (() => {
   const mats = {};
   const picks = []; // { mesh, info }
   let selected = null, ring = null, ringLabel = null, here = null, homeView = null, flight = null;
-  let pickHandler = () => {};
+  let pickHandler = () => {}, headingHandler = () => {};
   let needsRender = true;
 
   // ---------- geometry ----------
@@ -95,8 +98,7 @@ window.MapScene = (() => {
   // ---------- scene ----------
   function makeMaterials() {
     mats.campus = new T.MeshLambertMaterial({ vertexColors: true });
-    mats.city = new T.MeshLambertMaterial({ vertexColors: true });
-    mats.seeThrough = new T.MeshLambertMaterial({ vertexColors: true, transparent: true, opacity: 0.3 });
+    mats.city = new T.MeshLambertMaterial({ vertexColors: true, transparent: true, opacity: CITY_OPACITY });
     mats.selected = new T.MeshLambertMaterial({ vertexColors: true });
     mats.ground = new T.MeshBasicMaterial();
     mats.foot = new T.MeshBasicMaterial({ depthWrite: false });
@@ -108,14 +110,13 @@ window.MapScene = (() => {
     const g = new T.Color(palette.ground), b = new T.Color(palette.building), a = new T.Color(ACCENT);
     mats.campus.color.copy(b);
     mats.city.color.copy(b).lerp(g, palette.cityMix);
-    mats.seeThrough.color.copy(b).lerp(g, palette.cityMix);
     mats.selected.color.copy(b).lerp(a, 0.22);
     mats.ground.color.copy(g);
     mats.foot.color.set(palette.path);
     mats.road.color.set(palette.road);
     mats.ring.color.copy(a);
-    scene.background = g.clone();
-    scene.fog.color.copy(g);
+    scene.background = new T.Color(palette.fog);
+    scene.fog.color.set(palette.fog);
     hemi.groundColor.set("#ffffff").lerp(g, 0.18);
     needsRender = true;
   }
@@ -153,12 +154,6 @@ window.MapScene = (() => {
     for (const b of buildings) {
       const pts = toPts(b.p);
       if (pts.length < 3) continue;
-      if (b.t === "city" && b.h > TALL_CITY) {
-        // Tall towers stay separate meshes: solid by default, see-through only while they hide the target.
-        const m = new T.Mesh(toGeometry(massGeometry(pts, b.m, b.h)), mats.city);
-        tallMeshes.push(m); scene.add(m);
-        continue;
-      }
       if (b.t === "city") {
         const g = massGeometry(pts, b.m, b.h);
         for (const k of ["pos", "nor", "col"]) city[k].push(...g[k]);
@@ -171,36 +166,15 @@ window.MapScene = (() => {
       picks.push({ mesh, info });
       scene.add(mesh);
     }
-    cityMesh = new T.Mesh(toGeometry(city), mats.city);
+    const cityMesh = new T.Mesh(toGeometry(city), mats.city);
+    cityMesh.renderOrder = 5; // after the opaque campus, so campus buildings show through it
     scene.add(cityMesh);
   }
 
   // ---------- occlusion ----------
-  let cityMesh = null, seeThroughChecked = 0;
-  const tallMeshes = [];
+  // Only campus buildings can hide something: the city is see-through.
   const occRay = new T.Raycaster();
-  const blockers = () => [...picks.map((p) => p.mesh), cityMesh, ...tallMeshes];
-
-  function targetPoints() {
-    const pts = bandPoints();
-    if (!pts.length && selected) pts.push({ p: new T.Vector3(selected.cx, selected.h, selected.cz), ignore: [] });
-    if (here) pts.push({ p: new T.Vector3(here.x, here.y, here.z), ignore: [] });
-    return pts;
-  }
-
-  // A tower turns see-through only while it stands between the camera and the selection or "you are here".
-  function updateSeeThrough() {
-    const pts = targetPoints().map((t) => t.p);
-    for (const m of tallMeshes) {
-      const blocks = pts.some((p) => {
-        const dir = p.clone().sub(camera.position), dist = dir.length();
-        occRay.set(camera.position, dir.normalize()); occRay.far = dist;
-        return occRay.intersectObject(m, false).length > 0;
-      });
-      const mat = blocks ? mats.seeThrough : mats.city;
-      if (m.material !== mat) { m.material = mat; m.renderOrder = blocks ? 5 : 0; needsRender = true; }
-    }
-  }
+  const blockers = () => picks.map((p) => p.mesh);
 
   function visibleFrom(from, point, ignore = []) {
     const dir = point.clone().sub(from), dist = dir.length();
@@ -422,10 +396,61 @@ window.MapScene = (() => {
     needsRender = false;
     // Fog tracks the camera so the edge of the map data fades out instead of ending in cut-off roads.
     const d = camera.position.distanceTo(controls.target);
-    scene.fog.near = d * 0.9; scene.fog.far = d * 1.55;
-    if (!flight && now - seeThroughChecked > 150) { seeThroughChecked = now; updateSeeThrough(); }
+    scene.fog.near = d * 0.8; scene.fog.far = d * 1.5;
+    headingHandler(headingDeg());
     renderer.render(scene, camera);
     placeLabels();
+  }
+
+  // ---------- rotation: twist two fingers, like Google Maps ----------
+  // The map library only rotates when two fingers slide together; a twist is what people actually try.
+  const UP = new T.Vector3(0, 1, 0);
+  function rotateBy(rad) {
+    const offset = camera.position.clone().sub(controls.target).applyAxisAngle(UP, rad);
+    camera.position.copy(controls.target).add(offset);
+    controls.update();
+    needsRender = true;
+  }
+
+  function setupTwist() {
+    const el = renderer.domElement, touches = new Map();
+    let lastAngle = null;
+    const angle = () => { const [a, b] = [...touches.values()]; return Math.atan2(b.y - a.y, b.x - a.x); };
+    el.addEventListener("pointerdown", (e) => {
+      if (e.pointerType !== "touch") return;
+      touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      lastAngle = touches.size === 2 ? angle() : null;
+    });
+    el.addEventListener("pointermove", (e) => {
+      if (!touches.has(e.pointerId)) return;
+      touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (touches.size !== 2 || lastAngle === null) return;
+      const a = angle();
+      let d = a - lastAngle;
+      if (d > Math.PI) d -= 2 * Math.PI; else if (d < -Math.PI) d += 2 * Math.PI;
+      lastAngle = a;
+      rotateBy(d); // the map turns with the fingers
+    });
+    const lift = (e) => { touches.delete(e.pointerId); lastAngle = touches.size === 2 ? angle() : null; };
+    el.addEventListener("pointerup", lift);
+    el.addEventListener("pointercancel", lift);
+  }
+
+  // Degrees the map is turned away from the home heading (Taft Avenue at the bottom). Drives the compass button.
+  function headingDeg() {
+    if (!homeView) return 0;
+    const now = camera.position.clone().sub(controls.target).setY(0);
+    const home = homeView.pos.clone().sub(homeView.target).setY(0);
+    if (now.lengthSq() < 1e-6 || home.lengthSq() < 1e-6) return 0;
+    const deg = (Math.atan2(now.x, now.z) - Math.atan2(home.x, home.z)) * (180 / Math.PI);
+    return ((deg + 540) % 360) - 180;
+  }
+
+  function resetHeading() {
+    const target = controls.target.clone(), dist = camera.position.distanceTo(target);
+    const tilt = Math.acos(Math.min(1, (camera.position.y - target.y) / dist));
+    const dir = homeView.pos.clone().sub(homeView.target).setY(0).normalize();
+    flyTo(target, placeCamera(target, dir, dist, tilt), 400);
   }
 
   function setupPicking() {
@@ -467,6 +492,7 @@ window.MapScene = (() => {
     ringLabel = document.createElement("div"); ringLabel.className = "lbl floor"; ringLabel.hidden = true; labels.appendChild(ringLabel);
     setPalette(paletteKey);
     setupPicking();
+    setupTwist();
     window.addEventListener("resize", resize); resize();
     homeView = defaultView();
     camera.position.copy(homeView.pos); controls.target.copy(homeView.target); controls.update();
@@ -523,6 +549,8 @@ window.MapScene = (() => {
     PALETTES, init, setPalette, select, setHere, setInsets,
     flyHome: (ms) => { homeView = defaultView(); flyTo(homeView.target, homeView.pos, ms); },
     onPick: (fn) => { pickHandler = fn; },
+    onHeading: (fn) => { headingHandler = fn; },
+    resetHeading,
     buildings: () => picks.map((p) => p.info),
   };
 })();

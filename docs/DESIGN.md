@@ -20,10 +20,10 @@ colors:
   line-dark: "rgba(255, 255, 255, 0.12)"
   accent-ink-dark: "#58c48f"
   danger-dark: "#f2b8b5"
-  map-a-ground: "#cf6530"
+  map-a-ground: "#121614"
   map-a-building: "#e8edf3"
-  map-a-path: "#f3d9c4"
-  map-a-road: "#f7e6d8"
+  map-a-path: "#56645d"
+  map-a-road: "#77857e"
   map-b-ground: "#175f3c"
   map-b-building: "#f2eee5"
   map-b-path: "#5f9c7c"
@@ -240,8 +240,8 @@ after the finish review shipped it. The build is the source; where the direction
 The interface is the map app every student already knows: a full-screen map, a floating search pill on top, one
 bottom sheet, round map buttons. It is executed straight, in the phone's own system face, with white floating chrome
 on soft shadows. Nothing in the chrome needs learning. Under it sits something no other map of the campus has: a pale
-massing model of DLSU Manila, every building one colour and shaped by light alone, on a flat saturated ground with
-thin bright paths, the city around it muted so the campus leads.
+massing model of DLSU Manila, every building one colour and shaped by light alone, on a flat ground with
+thin paths, the city around it muted so the campus leads.
 
 Colour does one job. A single fixed green marks the selection, the found floor, "you are here" and the one primary
 action, in both themes and on every map palette. Everything else is green-tinted neutral. Density is a phone map's
@@ -249,8 +249,9 @@ density: one primary action per sheet, rows at least 56px tall, groups made by s
 boxes. The signature is the found floor drawn as a solid green band one storey tall around the building, with a
 floor chip beside it.
 
-The map palette is still open (D13 options A orange, B green, C grey); the prototype ships A as the default and a
-switcher in the info sheet to compare them on phones. The interface never changes with it.
+The map palette is still open between D13 options B green and C grey and the owner's black (A, like Waze's dark
+mode, which replaced D13's orange); the prototype ships A as the default and a switcher in the info sheet. The
+interface never changes with it.
 
 **Key Characteristics:**
 
@@ -295,8 +296,8 @@ map palette that the interface never borrows from.
 The 3D map has its own four colours per palette (ground, building, path, road), applied in scene.js. Grounds are
 drawn unlit, so the swatch in the info sheet is exactly the colour on screen.
 
-- **A, Orange** (`map-a-*`): burnt-orange ground, cool white blocks, peach paths. Off-campus blocks lean 32% toward
-  the ground.
+- **A, Black** (`map-a-*`): near-black ground like Waze's dark mode (owner's choice), cool white blocks, soft grey
+  paths and roads. Off-campus blocks lean 40% toward the ground.
 - **B, Green** (`map-b-*`): deep green ground, warm white blocks, sage paths. Off-campus blocks lean 50%.
 - **C, Grey** (`map-c-*`): light grey ground, near-white blocks, white paths. Off-campus blocks lean 32%.
 
@@ -383,10 +384,11 @@ The map has its own depth model, made by light, not by shadows or outlines.
   (#fff4e6, 0.46) from the upper left. Buildings use Lambert shading with no texture, windows or edge lines.
 - **Wall-foot darkening:** the bottom 6m of every wall darkens to 70% and grades up to full, so blocks sit on the
   ground.
-- **Ground:** unlit and flat, exactly the palette colour. Fog in the ground colour fades the edge of the data,
-  tracking the camera (0.9 to 1.55 times its distance).
-- **Campus leads:** off-campus blocks are tinted toward the ground; towers over 45m turn 30% see-through only while
-  they stand between the camera and the selection or "you are here".
+- **Ground:** unlit and flat, exactly the palette colour. A green haze (owner's choice) fades the distance and fills
+  the sky: #163326 (dark green) over black, #4f9a72 over green, #cfe5d7 over grey. It tracks the camera (0.8 to 1.5
+  times its distance).
+- **Campus leads:** every off-campus building is see-through (35% opacity, owner's choice) and tinted toward the
+  ground, so campus buildings show through it and only campus buildings can hide the selection.
 - **Camera:** 40° field of view, about 52° from straight down for the overview with Taft Avenue toward the bottom;
   a closer, lower angle (about 58°) for a selected building, from the first heading that sees its floor band.
 
@@ -427,7 +429,10 @@ It is the screen's primary action at home.
   Start on the route preview. Pressed state darkens to 94% brightness.
 - **Secondary:** 44px pill, 1px hairline, green 16px semibold text, no fill ("Pick another building", "Back").
 - **Icon button:** 48px circle, Mid Ink icon, Pale Leaf on hover (share, close, back, clear, info).
-- **Map button:** 48px white circle with Float shadow, Deep Ink icon (recenter: "Show the whole campus").
+- **Map button:** 48px white circle with Float shadow, Deep Ink icon (recenter: "Show the whole campus"). Buttons
+  stack in a column, 12px apart.
+- **Compass:** a map button that appears above recenter only while the map is turned more than 4°. Its needle (green
+  tip) points where the usual "up" now is; tapping it turns the map back in 400ms, keeping zoom and tilt.
 - **Focus:** a 2px outline in green ink, offset 2px, on every control.
 
 ### Chips
@@ -501,6 +506,8 @@ band.
 - **Sheet snap:** 260ms `cubic-bezier(0.16, 1, 0.3, 1)`; the map buttons and credit ride the same curve. Dragging
   disables the transition.
 - **Camera flight:** 650ms, exponential ease-out; recenter flies home. Map controls use 0.12 damping.
+- **Gestures (phone):** one finger pans, pinch zooms, a two-finger twist turns the map with the fingers (as in Google
+  Maps), and two fingers dragged up or down tilt it.
 - **Toast:** 160ms ease-out fade and 8px rise.
 - **Reduced motion:** every transition is removed and camera flights become cuts.
 

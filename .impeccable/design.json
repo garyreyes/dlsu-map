@@ -4,73 +4,390 @@
   "title": "Design System: DLSU 3D Campus Navigator",
   "extensions": {
     "colorMeta": {
-      "accent": { "role": "primary", "displayName": "Campus Green", "canonical": "#00703c", "tonalRamp": ["oklch(15% 0.05 152)", "oklch(27% 0.08 152)", "oklch(38% 0.11 152)", "oklch(47% 0.12 152)", "oklch(61% 0.13 152)", "oklch(72% 0.12 152)", "oklch(84% 0.08 152)", "oklch(95% 0.03 152)"] },
-      "accent-ink-dark": { "role": "primary", "displayName": "Lit Campus Green", "canonical": "#58c48f", "tonalRamp": ["oklch(15% 0.04 158)", "oklch(27% 0.07 158)", "oklch(38% 0.09 158)", "oklch(50% 0.11 158)", "oklch(61% 0.12 158)", "oklch(73% 0.13 158)", "oklch(84% 0.09 158)", "oklch(95% 0.03 158)"] },
-      "accent-wash": { "role": "primary", "displayName": "Green Wash", "canonical": "rgba(0, 112, 60, 0.1)" },
-      "on-accent": { "role": "neutral", "displayName": "On Green", "canonical": "#ffffff" },
-      "surface": { "role": "neutral", "displayName": "Sheet White", "canonical": "#ffffff", "tonalRamp": ["oklch(15% 0.01 155)", "oklch(27% 0.01 155)", "oklch(38% 0.01 155)", "oklch(50% 0.01 155)", "oklch(61% 0.01 155)", "oklch(72% 0.01 155)", "oklch(84% 0.01 155)", "oklch(100% 0 0)"] },
-      "surface-2": { "role": "neutral", "displayName": "Pale Leaf", "canonical": "#edf4ef", "tonalRamp": ["oklch(15% 0.012 155)", "oklch(27% 0.012 155)", "oklch(38% 0.012 155)", "oklch(50% 0.012 155)", "oklch(61% 0.012 155)", "oklch(72% 0.012 155)", "oklch(84% 0.012 155)", "oklch(96% 0.012 155)"] },
-      "ink": { "role": "neutral", "displayName": "Deep Ink", "canonical": "#17201b", "tonalRamp": ["oklch(15% 0.015 155)", "oklch(22% 0.015 155)", "oklch(38% 0.015 155)", "oklch(50% 0.015 155)", "oklch(61% 0.015 155)", "oklch(72% 0.015 155)", "oklch(84% 0.015 155)", "oklch(95% 0.01 155)"] },
-      "ink-2": { "role": "neutral", "displayName": "Mid Ink", "canonical": "#44534b", "tonalRamp": ["oklch(15% 0.022 158)", "oklch(27% 0.022 158)", "oklch(42% 0.022 158)", "oklch(50% 0.022 158)", "oklch(61% 0.022 158)", "oklch(72% 0.022 158)", "oklch(84% 0.02 158)", "oklch(95% 0.01 158)"] },
-      "ink-3": { "role": "neutral", "displayName": "Soft Ink", "canonical": "#5c6b63", "tonalRamp": ["oklch(15% 0.02 158)", "oklch(27% 0.02 158)", "oklch(38% 0.02 158)", "oklch(50% 0.02 158)", "oklch(61% 0.02 158)", "oklch(72% 0.02 158)", "oklch(84% 0.018 158)", "oklch(95% 0.01 158)"] },
-      "line": { "role": "neutral", "displayName": "Green Hairline", "canonical": "rgba(0, 64, 32, 0.13)" },
-      "danger": { "role": "neutral", "displayName": "Signal Red", "canonical": "#b3261e", "tonalRamp": ["oklch(15% 0.06 28)", "oklch(27% 0.1 28)", "oklch(38% 0.15 28)", "oklch(50% 0.18 28)", "oklch(61% 0.17 28)", "oklch(72% 0.12 28)", "oklch(84% 0.07 28)", "oklch(95% 0.02 28)"] },
-      "surface-dark": { "role": "neutral", "displayName": "Night Sheet", "canonical": "#18201b" },
-      "surface-2-dark": { "role": "neutral", "displayName": "Night Leaf", "canonical": "#233028" },
-      "ink-dark": { "role": "neutral", "displayName": "Deep Ink (dark)", "canonical": "#ecf3ee" },
-      "ink-2-dark": { "role": "neutral", "displayName": "Mid Ink (dark)", "canonical": "#b2c0b8" },
-      "ink-3-dark": { "role": "neutral", "displayName": "Soft Ink (dark)", "canonical": "#95a59c" },
-      "line-dark": { "role": "neutral", "displayName": "Night Hairline", "canonical": "rgba(255, 255, 255, 0.12)" },
-      "danger-dark": { "role": "neutral", "displayName": "Signal Red (dark)", "canonical": "#f2b8b5" },
-      "map-a-ground": { "role": "tertiary", "displayName": "Map A Burnt Orange Ground", "canonical": "#cf6530", "tonalRamp": ["oklch(15% 0.05 45)", "oklch(27% 0.09 45)", "oklch(38% 0.12 45)", "oklch(50% 0.14 45)", "oklch(62% 0.15 45)", "oklch(72% 0.12 45)", "oklch(84% 0.07 45)", "oklch(95% 0.02 45)"] },
-      "map-a-building": { "role": "tertiary", "displayName": "Map A Cool White Block", "canonical": "#e8edf3" },
-      "map-a-path": { "role": "tertiary", "displayName": "Map A Peach Path", "canonical": "#f3d9c4" },
-      "map-a-road": { "role": "tertiary", "displayName": "Map A Pale Peach Road", "canonical": "#f7e6d8" },
-      "map-b-ground": { "role": "tertiary", "displayName": "Map B Deep Green Ground", "canonical": "#175f3c", "tonalRamp": ["oklch(15% 0.04 158)", "oklch(27% 0.06 158)", "oklch(38% 0.08 158)", "oklch(43% 0.09 158)", "oklch(61% 0.09 158)", "oklch(72% 0.08 158)", "oklch(84% 0.05 158)", "oklch(95% 0.02 158)"] },
-      "map-b-building": { "role": "tertiary", "displayName": "Map B Warm White Block", "canonical": "#f2eee5" },
-      "map-b-path": { "role": "tertiary", "displayName": "Map B Sage Path", "canonical": "#5f9c7c" },
-      "map-b-road": { "role": "tertiary", "displayName": "Map B Light Sage Road", "canonical": "#7fb396" },
-      "map-c-ground": { "role": "tertiary", "displayName": "Map C Light Grey Ground", "canonical": "#c4c7c6", "tonalRamp": ["oklch(15% 0.003 180)", "oklch(27% 0.003 180)", "oklch(38% 0.003 180)", "oklch(50% 0.003 180)", "oklch(61% 0.003 180)", "oklch(72% 0.003 180)", "oklch(82% 0.003 180)", "oklch(95% 0.003 180)"] },
-      "map-c-building": { "role": "tertiary", "displayName": "Map C Near-White Block", "canonical": "#fbfbfa" },
-      "map-c-path": { "role": "tertiary", "displayName": "Map C White Path", "canonical": "#ffffff" },
-      "map-c-road": { "role": "tertiary", "displayName": "Map C White Road", "canonical": "#ffffff" }
+      "accent": {
+        "role": "primary",
+        "displayName": "Campus Green",
+        "canonical": "#00703c",
+        "tonalRamp": [
+          "oklch(15% 0.05 152)",
+          "oklch(27% 0.08 152)",
+          "oklch(38% 0.11 152)",
+          "oklch(47% 0.12 152)",
+          "oklch(61% 0.13 152)",
+          "oklch(72% 0.12 152)",
+          "oklch(84% 0.08 152)",
+          "oklch(95% 0.03 152)"
+        ]
+      },
+      "accent-ink-dark": {
+        "role": "primary",
+        "displayName": "Lit Campus Green",
+        "canonical": "#58c48f",
+        "tonalRamp": [
+          "oklch(15% 0.04 158)",
+          "oklch(27% 0.07 158)",
+          "oklch(38% 0.09 158)",
+          "oklch(50% 0.11 158)",
+          "oklch(61% 0.12 158)",
+          "oklch(73% 0.13 158)",
+          "oklch(84% 0.09 158)",
+          "oklch(95% 0.03 158)"
+        ]
+      },
+      "accent-wash": {
+        "role": "primary",
+        "displayName": "Green Wash",
+        "canonical": "rgba(0, 112, 60, 0.1)"
+      },
+      "on-accent": {
+        "role": "neutral",
+        "displayName": "On Green",
+        "canonical": "#ffffff"
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Sheet White",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "oklch(15% 0.01 155)",
+          "oklch(27% 0.01 155)",
+          "oklch(38% 0.01 155)",
+          "oklch(50% 0.01 155)",
+          "oklch(61% 0.01 155)",
+          "oklch(72% 0.01 155)",
+          "oklch(84% 0.01 155)",
+          "oklch(100% 0 0)"
+        ]
+      },
+      "surface-2": {
+        "role": "neutral",
+        "displayName": "Pale Leaf",
+        "canonical": "#edf4ef",
+        "tonalRamp": [
+          "oklch(15% 0.012 155)",
+          "oklch(27% 0.012 155)",
+          "oklch(38% 0.012 155)",
+          "oklch(50% 0.012 155)",
+          "oklch(61% 0.012 155)",
+          "oklch(72% 0.012 155)",
+          "oklch(84% 0.012 155)",
+          "oklch(96% 0.012 155)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Deep Ink",
+        "canonical": "#17201b",
+        "tonalRamp": [
+          "oklch(15% 0.015 155)",
+          "oklch(22% 0.015 155)",
+          "oklch(38% 0.015 155)",
+          "oklch(50% 0.015 155)",
+          "oklch(61% 0.015 155)",
+          "oklch(72% 0.015 155)",
+          "oklch(84% 0.015 155)",
+          "oklch(95% 0.01 155)"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Mid Ink",
+        "canonical": "#44534b",
+        "tonalRamp": [
+          "oklch(15% 0.022 158)",
+          "oklch(27% 0.022 158)",
+          "oklch(42% 0.022 158)",
+          "oklch(50% 0.022 158)",
+          "oklch(61% 0.022 158)",
+          "oklch(72% 0.022 158)",
+          "oklch(84% 0.02 158)",
+          "oklch(95% 0.01 158)"
+        ]
+      },
+      "ink-3": {
+        "role": "neutral",
+        "displayName": "Soft Ink",
+        "canonical": "#5c6b63",
+        "tonalRamp": [
+          "oklch(15% 0.02 158)",
+          "oklch(27% 0.02 158)",
+          "oklch(38% 0.02 158)",
+          "oklch(50% 0.02 158)",
+          "oklch(61% 0.02 158)",
+          "oklch(72% 0.02 158)",
+          "oklch(84% 0.018 158)",
+          "oklch(95% 0.01 158)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Green Hairline",
+        "canonical": "rgba(0, 64, 32, 0.13)"
+      },
+      "danger": {
+        "role": "neutral",
+        "displayName": "Signal Red",
+        "canonical": "#b3261e",
+        "tonalRamp": [
+          "oklch(15% 0.06 28)",
+          "oklch(27% 0.1 28)",
+          "oklch(38% 0.15 28)",
+          "oklch(50% 0.18 28)",
+          "oklch(61% 0.17 28)",
+          "oklch(72% 0.12 28)",
+          "oklch(84% 0.07 28)",
+          "oklch(95% 0.02 28)"
+        ]
+      },
+      "surface-dark": {
+        "role": "neutral",
+        "displayName": "Night Sheet",
+        "canonical": "#18201b"
+      },
+      "surface-2-dark": {
+        "role": "neutral",
+        "displayName": "Night Leaf",
+        "canonical": "#233028"
+      },
+      "ink-dark": {
+        "role": "neutral",
+        "displayName": "Deep Ink (dark)",
+        "canonical": "#ecf3ee"
+      },
+      "ink-2-dark": {
+        "role": "neutral",
+        "displayName": "Mid Ink (dark)",
+        "canonical": "#b2c0b8"
+      },
+      "ink-3-dark": {
+        "role": "neutral",
+        "displayName": "Soft Ink (dark)",
+        "canonical": "#95a59c"
+      },
+      "line-dark": {
+        "role": "neutral",
+        "displayName": "Night Hairline",
+        "canonical": "rgba(255, 255, 255, 0.12)"
+      },
+      "danger-dark": {
+        "role": "neutral",
+        "displayName": "Signal Red (dark)",
+        "canonical": "#f2b8b5"
+      },
+      "map-a-ground": {
+        "role": "tertiary",
+        "displayName": "Map A Near-Black Ground",
+        "canonical": "#121614",
+        "tonalRamp": [
+          "oklch(12% 0.01 160)",
+          "oklch(18% 0.012 160)",
+          "oklch(26% 0.015 160)",
+          "oklch(36% 0.015 160)",
+          "oklch(48% 0.015 160)",
+          "oklch(62% 0.012 160)",
+          "oklch(78% 0.008 160)",
+          "oklch(93% 0.004 160)"
+        ]
+      },
+      "map-a-building": {
+        "role": "tertiary",
+        "displayName": "Map A Cool White Block",
+        "canonical": "#e8edf3"
+      },
+      "map-a-path": {
+        "role": "tertiary",
+        "displayName": "Map A Soft Grey Path",
+        "canonical": "#56645d"
+      },
+      "map-a-road": {
+        "role": "tertiary",
+        "displayName": "Map A Soft Grey Road",
+        "canonical": "#77857e"
+      },
+      "map-b-ground": {
+        "role": "tertiary",
+        "displayName": "Map B Deep Green Ground",
+        "canonical": "#175f3c",
+        "tonalRamp": [
+          "oklch(15% 0.04 158)",
+          "oklch(27% 0.06 158)",
+          "oklch(38% 0.08 158)",
+          "oklch(43% 0.09 158)",
+          "oklch(61% 0.09 158)",
+          "oklch(72% 0.08 158)",
+          "oklch(84% 0.05 158)",
+          "oklch(95% 0.02 158)"
+        ]
+      },
+      "map-b-building": {
+        "role": "tertiary",
+        "displayName": "Map B Warm White Block",
+        "canonical": "#f2eee5"
+      },
+      "map-b-path": {
+        "role": "tertiary",
+        "displayName": "Map B Sage Path",
+        "canonical": "#5f9c7c"
+      },
+      "map-b-road": {
+        "role": "tertiary",
+        "displayName": "Map B Light Sage Road",
+        "canonical": "#7fb396"
+      },
+      "map-c-ground": {
+        "role": "tertiary",
+        "displayName": "Map C Light Grey Ground",
+        "canonical": "#c4c7c6",
+        "tonalRamp": [
+          "oklch(15% 0.003 180)",
+          "oklch(27% 0.003 180)",
+          "oklch(38% 0.003 180)",
+          "oklch(50% 0.003 180)",
+          "oklch(61% 0.003 180)",
+          "oklch(72% 0.003 180)",
+          "oklch(82% 0.003 180)",
+          "oklch(95% 0.003 180)"
+        ]
+      },
+      "map-c-building": {
+        "role": "tertiary",
+        "displayName": "Map C Near-White Block",
+        "canonical": "#fbfbfa"
+      },
+      "map-c-path": {
+        "role": "tertiary",
+        "displayName": "Map C White Path",
+        "canonical": "#ffffff"
+      },
+      "map-c-road": {
+        "role": "tertiary",
+        "displayName": "Map C White Road",
+        "canonical": "#ffffff"
+      }
     },
     "typographyMeta": {
-      "display": { "displayName": "Display", "purpose": "The room code or building short name at the top of a card." },
-      "headline": { "displayName": "Headline", "purpose": "Sheet step headings: Where are you?, Your route." },
-      "title": { "displayName": "Title", "purpose": "Room or building name under the code." },
-      "search-input": { "displayName": "Search input", "purpose": "The full-screen search field." },
-      "body": { "displayName": "Body", "purpose": "Default text, fields, hints." },
-      "body-strong": { "displayName": "Body strong", "purpose": "Row titles, chips, segments, secondary buttons." },
-      "button": { "displayName": "Button", "purpose": "The primary button only." },
-      "label": { "displayName": "Label", "purpose": "List section labels in Mid Ink; major map building labels." },
-      "label-strong": { "displayName": "Label strong", "purpose": "The floor chip." },
-      "caption": { "displayName": "Caption", "purpose": "Row subtitles, notes, asides." },
-      "code-tag": { "displayName": "Code tag", "purpose": "Building prefixes beside building rows." },
-      "micro": { "displayName": "Micro", "purpose": "Beta tag, OSM credit, minor map labels, sample marker. Open against the 16px floor." }
+      "display": {
+        "displayName": "Display",
+        "purpose": "The room code or building short name at the top of a card."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Sheet step headings: Where are you?, Your route."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Room or building name under the code."
+      },
+      "search-input": {
+        "displayName": "Search input",
+        "purpose": "The full-screen search field."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Default text, fields, hints."
+      },
+      "body-strong": {
+        "displayName": "Body strong",
+        "purpose": "Row titles, chips, segments, secondary buttons."
+      },
+      "button": {
+        "displayName": "Button",
+        "purpose": "The primary button only."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "List section labels in Mid Ink; major map building labels."
+      },
+      "label-strong": {
+        "displayName": "Label strong",
+        "purpose": "The floor chip."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Row subtitles, notes, asides."
+      },
+      "code-tag": {
+        "displayName": "Code tag",
+        "purpose": "Building prefixes beside building rows."
+      },
+      "micro": {
+        "displayName": "Micro",
+        "purpose": "Beta tag, OSM credit, minor map labels, sample marker. Open against the 16px floor."
+      }
     },
     "shadows": [
-      { "name": "float", "value": "0 1px 2px rgba(16, 24, 20, 0.16), 0 3px 10px rgba(16, 24, 20, 0.12)", "purpose": "Search pill, map buttons, map labels, you-are-here dot, toast, desktop panel, selected segment." },
-      { "name": "sheet-lift", "value": "0 -1px 2px rgba(16, 24, 20, 0.08), 0 -4px 16px rgba(16, 24, 20, 0.1)", "purpose": "The phone bottom sheet; casts upward." },
-      { "name": "float-dark", "value": "0 1px 2px rgba(0, 0, 0, 0.4), 0 3px 10px rgba(0, 0, 0, 0.35)", "purpose": "Float in dark mode." },
-      { "name": "sheet-lift-dark", "value": "0 -1px 2px rgba(0, 0, 0, 0.3), 0 -4px 16px rgba(0, 0, 0, 0.35)", "purpose": "Sheet lift in dark mode." },
-      { "name": "focus-field", "value": "inset 0 0 0 2px var(--accent-ink)", "purpose": "Field focus ring (focus-within)." }
+      {
+        "name": "float",
+        "value": "0 1px 2px rgba(16, 24, 20, 0.16), 0 3px 10px rgba(16, 24, 20, 0.12)",
+        "purpose": "Search pill, map buttons, map labels, you-are-here dot, toast, desktop panel, selected segment."
+      },
+      {
+        "name": "sheet-lift",
+        "value": "0 -1px 2px rgba(16, 24, 20, 0.08), 0 -4px 16px rgba(16, 24, 20, 0.1)",
+        "purpose": "The phone bottom sheet; casts upward."
+      },
+      {
+        "name": "float-dark",
+        "value": "0 1px 2px rgba(0, 0, 0, 0.4), 0 3px 10px rgba(0, 0, 0, 0.35)",
+        "purpose": "Float in dark mode."
+      },
+      {
+        "name": "sheet-lift-dark",
+        "value": "0 -1px 2px rgba(0, 0, 0, 0.3), 0 -4px 16px rgba(0, 0, 0, 0.35)",
+        "purpose": "Sheet lift in dark mode."
+      },
+      {
+        "name": "focus-field",
+        "value": "inset 0 0 0 2px var(--accent-ink)",
+        "purpose": "Field focus ring (focus-within)."
+      }
     ],
     "motion": [
-      { "name": "sheet-snap", "value": "260ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Sheet snaps between peek, half and full; map buttons and credit ride the same curve. Off while dragging." },
-      { "name": "camera-flight", "value": "650ms, ease 1 - 2^(-10t)", "purpose": "Camera flies to a selection, a route preview or home. A cut under reduced motion." },
-      { "name": "toast", "value": "160ms ease-out (opacity, 8px rise); 2600ms dwell", "purpose": "Confirms an action or explains a limit." },
-      { "name": "map-damping", "value": "0.12", "purpose": "Map control damping for pan, rotate, zoom." },
-      { "name": "reduced-motion", "value": "transition: none; flights cut", "purpose": "Under prefers-reduced-motion every transition is removed." }
+      {
+        "name": "sheet-snap",
+        "value": "260ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Sheet snaps between peek, half and full; map buttons and credit ride the same curve. Off while dragging."
+      },
+      {
+        "name": "camera-flight",
+        "value": "650ms, ease 1 - 2^(-10t)",
+        "purpose": "Camera flies to a selection, a route preview or home. A cut under reduced motion."
+      },
+      {
+        "name": "toast",
+        "value": "160ms ease-out (opacity, 8px rise); 2600ms dwell",
+        "purpose": "Confirms an action or explains a limit."
+      },
+      {
+        "name": "map-damping",
+        "value": "0.12",
+        "purpose": "Map control damping for pan, rotate, zoom."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "transition: none; flights cut",
+        "purpose": "Under prefers-reduced-motion every transition is removed."
+      }
     ],
     "breakpoints": [
-      { "name": "wide", "value": "768px", "purpose": "Bottom sheet becomes a 400px left panel; map buttons move bottom right." }
+      {
+        "name": "wide",
+        "value": "768px",
+        "purpose": "Bottom sheet becomes a 400px left panel; map buttons move bottom right."
+      }
     ],
     "map": {
       "materials": "Lambert, vertex-coloured, one building colour; unlit flat ground; unlit path and road ribbons (foot 1.6m, service 3.6m, road 7m).",
-      "lights": { "hemisphere": "0xffffff sky, ground tinted 18% toward palette ground, 0.72", "sun": "#fff4e6, 0.46, from upper left" },
+      "lights": {
+        "hemisphere": "0xffffff sky, ground tinted 18% toward palette ground, 0.72",
+        "sun": "#fff4e6, 0.46, from upper left"
+      },
       "wallFootDarkening": "Bottom 6m of each wall darkens to 0.7 and grades to full.",
-      "cityMix": { "A": 0.32, "B": 0.5, "C": 0.32 },
+      "cityMix": {
+        "A": 0.32,
+        "B": 0.5,
+        "C": 0.32
+      },
       "tallCity": "Off-campus towers over 45m turn 30% opaque only while occluding the selection or you-are-here.",
       "selectedTint": "Selected building lerps 22% toward the accent.",
       "floorBand": "Solid accent band one storey tall, 0.6m outside the walls, inset 0.1m top and bottom.",
@@ -179,14 +496,46 @@
       "Motion confirms: a 260ms sheet snap and 650ms camera flights, both cuts under reduced motion."
     ],
     "rules": [
-      { "name": "The One Green Rule", "body": "Campus Green means \"this is yours\": the selection, its floor, where you are, the next step. It never decorates, and no map palette may change it or add a second accent.", "section": "colors" },
-      { "name": "The Fill-Versus-Ink Rule", "body": "Green fills stay `accent` in both themes; green text and strokes switch to `accent-ink-dark` on dark surfaces. Never put `accent` text on a dark surface.", "section": "colors" },
-      { "name": "The Two Worlds Rule", "body": "Interface colours live in CSS tokens; map colours live in the palette table. The interface never samples the map palette, and the map never uses interface neutrals except the accent.", "section": "colors" },
-      { "name": "The Code Is the Headline Rule", "body": "On a room card the code is the largest thing on screen and the floor words are the only green text. Building and floor arrive before anything else.", "section": "typography" },
-      { "name": "The Tabular Code Rule", "body": "Any room code or floor number sits in tabular figures so codes line up in lists.", "section": "typography" },
-      { "name": "The Sixteen Floor Rule", "body": "PRODUCT.md sets 16px as the text floor. The 12–14px roles above shipped in the prototype and are open against that floor; do not add new roles below 16px, and reconcile the existing ones before the real app.", "section": "typography" },
-      { "name": "The Float-Only-Chrome Rule", "body": "Shadows belong to things floating over the map. Inside the sheet, use space and weight, not shadowed cards.", "section": "elevation" },
-      { "name": "The Shaped-by-Light Rule", "body": "Map buildings get one colour and the lights. No outlines, windows, textures or per-building colours; the only exception is the selected building's 22% tint toward the accent.", "section": "elevation" }
+      {
+        "name": "The One Green Rule",
+        "body": "Campus Green means \"this is yours\": the selection, its floor, where you are, the next step. It never decorates, and no map palette may change it or add a second accent.",
+        "section": "colors"
+      },
+      {
+        "name": "The Fill-Versus-Ink Rule",
+        "body": "Green fills stay `accent` in both themes; green text and strokes switch to `accent-ink-dark` on dark surfaces. Never put `accent` text on a dark surface.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two Worlds Rule",
+        "body": "Interface colours live in CSS tokens; map colours live in the palette table. The interface never samples the map palette, and the map never uses interface neutrals except the accent.",
+        "section": "colors"
+      },
+      {
+        "name": "The Code Is the Headline Rule",
+        "body": "On a room card the code is the largest thing on screen and the floor words are the only green text. Building and floor arrive before anything else.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Code Rule",
+        "body": "Any room code or floor number sits in tabular figures so codes line up in lists.",
+        "section": "typography"
+      },
+      {
+        "name": "The Sixteen Floor Rule",
+        "body": "PRODUCT.md sets 16px as the text floor. The 12–14px roles above shipped in the prototype and are open against that floor; do not add new roles below 16px, and reconcile the existing ones before the real app.",
+        "section": "typography"
+      },
+      {
+        "name": "The Float-Only-Chrome Rule",
+        "body": "Shadows belong to things floating over the map. Inside the sheet, use space and weight, not shadowed cards.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Shaped-by-Light Rule",
+        "body": "Map buildings get one colour and the lights. No outlines, windows, textures or per-building colours; the only exception is the selected building's 22% tint toward the accent.",
+        "section": "elevation"
+      }
     ],
     "dos": [
       "Do keep exactly one primary button per sheet, Campus Green, full width, 52px.",

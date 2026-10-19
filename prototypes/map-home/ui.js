@@ -353,6 +353,13 @@
     $("q").addEventListener("keydown", (e) => { if (e.key === "Enter") { const first = $("results").querySelector("[data-act]"); if (first) first.click(); } });
     $("openInfo").addEventListener("click", () => render("info"));
     $("recenter").addEventListener("click", () => Scene.flyHome());
+    // Compass: appears once the map is turned, points to where Taft Avenue normally sits, and turns it back on tap.
+    const compass = $("compass"), needle = compass.querySelector(".needle");
+    Scene.onHeading((deg) => {
+      compass.hidden = Math.abs(deg) < 4;
+      needle.style.transform = `rotate(${deg}deg)`; // the map turned clockwise by `deg`, so "usual up" did too
+    });
+    compass.addEventListener("click", () => Scene.resetHeading());
     window.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("search").hidden) closeSearch(); });
     setupSheetDrag();
     render("home");

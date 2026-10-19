@@ -69,6 +69,8 @@ signal at all. It does this with no account, no backend and no cost.
 - **Green interface (owner's choice, 2026-10-19):** the interface colour is a fixed green ("since it's for DLSU"),
   on green-tinted neutrals, whichever map palette is shown. It's a colour, not a DLSU mark, so the "not official"
   rule still holds. This replaces D13 option B's gold accent: one green marks the selection in every palette.
+- **Black map ground (owner's choice, 2026-10-19):** the default ground is near-black like Waze's dark mode, with
+  soft grey paths and a dark green haze. It replaced D13's orange option; green and grey stay for comparison.
 - **Credit:** "Map data © OpenStreetMap contributors" stays on the map (ODbL).
 - **Voice:** plain English, short sentences, the words on room signs and schedules. No slang, no jokes in error
   messages.
