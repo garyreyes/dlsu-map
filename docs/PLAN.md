@@ -31,6 +31,7 @@ graph search, fuzzy search, sheets, drawing tools, and PWA.
 | 11 | **`react-modal-sheet` instead of building sheets** (not `vaul`) | vaul's last release was Dec 2024. react-modal-sheet is active (Mar 2026) |
 | 12 | **Outdoor first, indoor later:** ship a full outdoor campus with building-to-building routing as v1, then add interiors, starting with Andrew | Campus is closed, so evacuation maps can't be photographed yet. Outdoor data needs no site visit (D12) |
 | 13 | **"Massing model" look** instead of toon shading: one pale tone for all buildings, a flat colored ground, thin line paths | Matches the chosen style reference, and is cheaper to render (D13) |
+| 14 | **GPS for the outdoor leg only (proposed):** a live avatar that walks along the route Waze-style when GPS is good, snapped to the route; indoors stays a "mall directory" view where you tap "You are here" | GPS works without internet but not indoors, so the split is outdoor vs indoor, not online vs offline (D14) |
 
 ---
 
@@ -362,6 +363,9 @@ access only via `shared/data`. Added rule: **feature folders only import from `s
 - New: OSM counts the ground floor as `level=0`. The compiler needs a per-building floor-offset table (D4).
 
 **Still open:**
+- **GPS (D14):** accuracy near tall buildings and under covered walks is unknown until tested on site. The `_headers`
+  `Permissions-Policy` must allow `geolocation=(self)` or GPS fails silently. iPhone needs a separate, tap-triggered
+  permission for the compass. Stop `watchPosition` whenever no route is active, to save battery.
 - **Room-code prefixes:** "B = Andrew" may be wrong. The handover rightly says not to guess. The most reliable source
   is the room column in the official enlistment and class-schedule system, which shows the exact strings students
   will type. Build the parser to be table-driven with many aliases per building.
@@ -395,8 +399,8 @@ access only via `shared/data`. Added rule: **feature folders only import from `s
 | 2. Outdoor campus | OSM footprints, walkways, covered walks, roads, gates, skybridges, surrounding blocks → `data-src/campus/*.geojson`; `compile-data.ts`; merged scene in the massing-model look (D13), palette compared on real phones; tap a building to see its name and floor count | + compiler, + look |
 | 3. Search + Ask | Room-code parser + tests (resolves to **building + floor**, no interiors needed), uFuzzy index, cmdk palette, **English/Taglish ask parser + phrase test set + confirm chips**, highlight building/floor | + Ask bar |
 | 4. Outdoor routing | Graph from walkway centerlines, gates, building entrances (`verified` flag), street crossings (Taft, Fidel Reyes/Agno), A* tests, route ribbon, directions ending in "G304 is on 3F" | **New split** (was part of Routing) |
-| 5. Location + player | Tap picker for building/gate (D8), deep links (QR optional), step carousel, follow-cam | QR demoted |
-| 6. Offline polish → **v1 release** | Update prompt, "Ready offline" toast, iOS hint, `storage.persist`, airplane-mode tests on iOS + Android | Moved up: v1 ships here |
+| 5. Location + player | Tap picker for building/gate (D8), deep links (QR optional), step carousel, follow-cam; **"Use my location" chip, live GPS follow mode with route snapping, off-route re-route, GPS-weak fallback to steps, walking avatar (D14)**, tested with DevTools location override and replayed GPS tracks | QR demoted, + GPS (D14) |
+| 6. Offline polish → **v1 release** | Update prompt, "Ready offline" toast, iOS hint, `storage.persist`, airplane-mode tests on iOS + Android (including GPS follow in airplane mode) | Moved up: v1 ships here |
 
 **Part B: interiors** (starts when the campus reopens and evacuation maps can be photographed)
 
@@ -419,6 +423,7 @@ access only via `shared/data`. Added rule: **feature folders only import from `s
 6. **Get the room-code prefixes** from the enlistment/class-schedule system. That's online, so it doesn't need the
    campus to be open.
 7. Create a free **Cloudflare account** before Phase 1 (we connect it together, no secrets in the repo).
+8. **Review D14** (live GPS avatar outdoors, mall-directory view indoors). It reverses "no GPS" for the outdoor leg.
 
 ---
 

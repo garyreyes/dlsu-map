@@ -29,7 +29,8 @@ A free, mobile-first 3D map of De La Salle University (Manila) that gets you to 
 ## Why
 
 New students, transferees and visitors get lost looking for rooms, and existing maps don't show floors or work
-indoors without signal. There's no GPS indoors, so the app lets you *say* where you are instead.
+indoors without signal. Outdoors the app can follow you by GPS (D14), but there's no GPS indoors, so inside a
+building you *say* where you are instead.
 
 ---
 
@@ -41,12 +42,18 @@ indoors without signal. There's no GPS indoors, so the app lets you *say* where 
    - **Tap:** pick a building, then a floor. It defaults to the main entrance (ground floor) or the elevator lobby.
      Optionally pick a specific spot: elevator, stairs, main/side/back entrance, near a room, or tap the map. If
      you're outside, pick a gate (Gate 1–6, Agno).
+   - **GPS:** "Use my location" when you're outdoors (D14, proposed). Still confirmed before routing.
    - **Type:** "I'm near B305", "nasa Gokongwei back entrance". English, Filipino and Taglish all work.
    - **Link:** a shared link like "meet me at G304" opens with the destination set.
 3. **Say where to.** Room code, building name, or things like "nearest CR".
 4. **Confirm:** the app shows *From [chip] → To [chip] → Go*. Tap a chip to fix it. It never routes on a silent
    guess.
-5. **Follow the route:** a glowing line plus step-by-step text ("Take the elevator to 5F", "Exit via the main
+5. **Follow the route** (two legs, D14):
+   - **Outdoor leg, to the building:** if you allow GPS, an avatar walks along the route as you move, Waze-style,
+     snapped to the path. This works without internet. If GPS is weak or off, you step through it instead.
+   - **Indoor leg, to the room (later):** a "mall directory" view. You tap where you are, and step floor by floor.
+
+   In both legs: a glowing line plus step-by-step text ("Take the elevator to 5F", "Exit via the main
    entrance", "Turn left after the CR"). Next/Back buttons move the camera, and the view switches between outdoor
    and indoor automatically.
    - **Route options** (collapsed by default): Stairs / Elevator / Auto for this route. Auto takes the elevator
@@ -128,9 +135,11 @@ Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md).
 | D11 | **Zero cost.** Only Claude Code is paid | Free tiers only, **no credit card on any service**, so limits block instead of bill |
 | D12 | **Outdoor first** (v1), then interiors starting with **Andrew** | Campus is closed; outdoor data needs no site visit |
 | D13 | **"Massing model" look:** pale blocks, flat colored ground, thin path lines, one accent color. Palette still open | Matches our style reference, and is cheap to render |
+| D14 | *(proposed)* **Live GPS avatar outdoors, "mall directory" view indoors** | GPS works offline but not indoors, so the split is outdoor vs indoor, not online vs offline |
 
 ### Things we chose *not* to do
-- No GPS or indoor positioning (Wi-Fi/Bluetooth beacons).
+- No indoor positioning (Wi-Fi/Bluetooth beacons). GPS is used outdoors only (D14, proposed), and your location never
+  leaves the phone.
 - No accounts, backend, database, analytics or trackers.
 - No cloud AI or API keys. Everything runs on the phone.
 - No app store release (fees), no custom domain (yearly fee), no paid map services.
@@ -150,7 +159,7 @@ We stop for review after each phase and test on a real iPhone and Android phone 
 | 2. Outdoor campus | Buildings, walkways, roads, gates and nearby city blocks in the massing-model look. Compare palettes on real phones. Tap a building to see its name |
 | 3. Search + Ask | Room-code parser (code → building + floor), typo-tolerant search, the English/Taglish sentence parser with a phrase test set |
 | 4. Outdoor routing | Walking graph between buildings, gates and entrances, street crossings, step-by-step directions ending in "G304 is on 3F" |
-| 5. Location + route player | "Where are you?" flow, deep links, Next/Back steps, follow camera |
+| 5. Location + route player | "Where are you?" flow, deep links, Next/Back steps, follow camera, "Use my location" and the live GPS walking avatar (D14) |
 | 6. Offline polish → **v1 release** | Update prompts, install hint, airplane-mode tests on iPhone and Android |
 
 **Part B: interiors** (after the campus reopens)
@@ -175,6 +184,8 @@ We stop for review after each phase and test on a real iPhone and Android phone 
   grey. See D13.
 - **Which extra buildings** from the official map to show (Retreat House, Legal Aid Clinic, Bahay Kanlungan, …).
 - **Evacuation-map photos** for each floor, named like `andrew_03F.jpg`, once the campus reopens. Andrew first.
+- **D14 (GPS outdoors):** is GPS steady enough between the tall buildings? Do we still want a Google-Maps-style
+  street map under the 3D view later?
 - **Facilities:** may we publish floor plans traced from the evacuation maps? (Needed before a public launch.)
   Would they share official plans or approve QR stickers? (Nice-to-have.)
 

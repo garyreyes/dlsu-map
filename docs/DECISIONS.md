@@ -393,3 +393,64 @@ real phones before choosing:
 | **C. Quiet** | Light warm grey | White | DLSU green | Calmest and most readable; least distinctive |
 
 **Revisit** after the Phase 2 side-by-side on real phones.
+
+---
+
+## D14. Two modes: live GPS avatar outdoors, "mall directory" indoors (2026-10-19, proposed)
+
+**Status:** proposed by the team on 2026-10-19, not yet reviewed. It **reverses "no GPS"** for the outdoor leg
+only. Indoor positioning stays out (no Wi-Fi/BLE beacons).
+
+**The idea as first described.** A route has two legs: *current location → the building*, then *building entrance →
+the room*. Offline, the app shows the route only, like a mall directory map. Online, it looks like Google Maps or
+Waze, with an avatar that walks along the route, Pokémon Go style.
+
+**What we changed, and why.** The split that works is **outdoor vs indoor, not online vs offline**:
+- **GPS doesn't need internet.** The phone's GPS chip works with no data, even in airplane mode. The first fix is
+  just slower without data. So the live avatar can work offline too, and the app stays offline-first (D10).
+- **GPS doesn't work indoors**, online or not. The building-to-room leg is always the "mall directory" style.
+- **Outdoor accuracy is roughly 5–15 m** in the open, and worse next to tall buildings, along Taft and under covered
+  walks (estimate; measure it on site). That places you on the right path but not at the right door.
+- **What "online" would add is a Google-Maps-style street basemap**, and that's the part that costs money or breaks
+  rules: Google and Mapbox need a card (D11), and the public OpenStreetMap tile servers forbid this kind of app
+  use. Our 3D scene already draws the streets and surrounding city blocks from the OSM snapshot (D4, D13), so the
+  "live" view reuses it with a Waze-style follow camera instead of a separate map.
+
+**Decision (proposed).**
+
+| Leg | Mode | How you're placed | What you see |
+|---|---|---|---|
+| **Outdoor:** where you are → building entrance | **Live follow** when GPS is good; **step mode** otherwise | GPS position snapped to the route line (like Waze snaps a car to the road) | Same 3D campus, low tilted camera behind the avatar, heading-up; the avatar walks along the route |
+| **Indoor:** entrance → room (Part B) | **Mall directory** always | You tap "You are here" (D8); the entrance you arrived at is the default | Cutaway floor (§5), route line, Next/Back steps, floor rail |
+
+Details:
+1. **"Use my location"** becomes one more chip in "Where are you?" (D8), only when you're outdoors. It still goes
+   through the From → To confirm screen. The app never routes on a silent guess.
+2. **Live follow** runs only while a route is active and the page is visible (`watchPosition`, stopped on route end,
+   on `visibilitychange`, and in step mode). This keeps battery use down.
+3. **Snapping:** if the GPS point is within a set distance of the route (config constant, start around 25 m), the
+   avatar snaps to the nearest point on the route line and walks there. Farther than that, show "You seem off the
+   route" with **Re-route from here**. If reported accuracy is worse than a threshold (start around 30 m), show
+   "GPS weak" and fall back to step mode (Next/Back) without losing your place.
+4. **Handoff to indoor:** within a set distance of the target entrance, or when you tap **I'm inside**, the app
+   switches to the indoor view at that entrance and stops using GPS. In v1 (outdoor only) this is the "G304 is on 3F"
+   arrival screen.
+5. **Facing direction:** use the compass when allowed, else the direction of the route. On iPhone the compass needs
+   its own permission prompt (`DeviceOrientationEvent.requestPermission()`, from a tap). Android doesn't.
+6. **Avatar:** an **original** or CC0 low-poly character with a walk cycle (Kenney/Quaternius, PLAN §5). No Pokémon
+   or other franchise look-alikes. It idles when you stop and walks when the snapped position moves.
+7. **Privacy:** positions live in memory only. They're never stored, logged or sent anywhere, and there's no
+   location history. The permission is asked the first time you tap "Use my location", never on first open.
+8. **Security headers:** the strict `_headers` policy (D5) must allow `Permissions-Policy: geolocation=(self)` (and
+   the device-orientation sensors), or the browser blocks GPS silently.
+9. **Testing while the campus is closed:** Chrome DevTools location override plus recorded GPS tracks replayed in
+   Playwright. Real accuracy checks on campus walkways happen once it reopens.
+
+**Not decided yet:** a real street basemap under the 3D scene. A small self-hosted **Protomaps (PMTiles)** file
+of just the campus area, served from our Cloudflare host, would be free and could be cached offline too. But it
+reopens the "MapLibre for the outdoor view" rejection in PLAN §1, so it waits until the 3D follow view has been
+tried on real phones.
+
+**Revisit if** on-site tests show GPS is too jumpy between the tall buildings to be useful (then keep step mode as
+the default and make live follow opt-in), or if the team still wants the Google-Maps look after seeing the 3D
+follow view.

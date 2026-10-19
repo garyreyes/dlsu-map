@@ -13,6 +13,8 @@ floor indoors. Runs in the phone browser on iPhone and Android.
 3. [`docs/DECISIONS.md`](docs/DECISIONS.md): each decision, with the evidence behind it
 4. [`docs/HANDOVER.md`](docs/HANDOVER.md): the original brief (PLAN.md overrides it)
 
+Using Claude Code? [`CLAUDE.md`](CLAUDE.md) gives it this context automatically.
+
 Feedback: open a GitHub issue.
 
 ---
