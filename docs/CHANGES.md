@@ -22,4 +22,5 @@ session needs to know. Search this file; it isn't required reading (the reading 
 - Verified locally: actionlint passes on the workflow; the change-detection rule classifies 10 sample cases
   correctly; a deliberately broken doc fails markdown lint (exit 1); a sample page with gradient text and a purple
   glow fails the detector (exit 2, 7 findings).
-- **Not done yet:** branch protection on `main` (needs the repo owner) and a first CI run on GitHub.
+- First CI run on GitHub passed (PR #2). Merged to `main` as a fast-forward.
+- **Deferred:** branch protection on `main` moves to the start of Phase 1 (D22). It needs the repo owner's account.

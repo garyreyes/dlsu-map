@@ -587,6 +587,8 @@ another AI tool. Running the full build on a docs-only PR wastes minutes. Skippi
 - Branch protection on `main`: require `gates` to pass, apply it to admins too, block force-pushes and deletion.
   **Required approving reviews: 0**, because the two of us review the diff together before merging. Raise it to 1
   when a contributor joins whose review is meant as a real second opinion.
+- **When:** at the start of Phase 1, when app code arrives (decided 2026-10-19). While the repo is docs only, `gates`
+  reports but doesn't block, and a bad docs commit is easy to fix.
 
 **Alternatives.** The full suite on every PR (slow for docs); `paths-ignore` (blocks merges, above);
 `dorny/paths-filter` (works, but adds a third-party action); 1 required review now (a second click on GitHub for a

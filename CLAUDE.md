@@ -93,7 +93,8 @@ plan. The planned folder structure is in `docs/ARCHITECTURE.md` §7.
 ## Gates
 
 One CI job, **`gates`** (`.github/workflows/ci.yml`), runs on every PR and every push to `main`. Branch protection
-requires it by that name, so the job must always run and report. Never add `paths-ignore` to its trigger (D22).
+will require it by that name (turned on at the start of Phase 1, D22), so the job must always run and report. Never
+add `paths-ignore` to its trigger. Until protection is on, a red `gates` warns but doesn't block: don't merge red.
 
 - **Every PR:** markdown lint (`.markdownlint-cli2.jsonc`). Run it locally before committing docs:
   `npx markdownlint-cli2@0.23.3 "**/*.md"` (add `--fix` for blank-line issues).
@@ -108,7 +109,7 @@ requires it by that name, so the job must always run and report. Never add `path
 ## Commits and docs
 
 - Conventional commits: `<type>: <description>`, types `feat` `fix` `refactor` `docs` `test` `chore` `perf` `ci`.
-- Work on a branch and open a PR. `main` is protected.
+- Work on a branch and open a PR. `main` isn't protected until Phase 1 starts, so nothing enforces this yet.
 - A new decision gets the next D-number at the end of `docs/DECISIONS.md`, marked *proposed* until the team
   agrees, then is reflected in `SUMMARY.md` and `docs/PLAN.md`.
 - A finished change gets a dated entry in `docs/CHANGES.md`. A durable, non-obvious fact goes in
