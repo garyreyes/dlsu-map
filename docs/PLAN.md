@@ -1,6 +1,8 @@
 # DLSU 3D Campus Navigator: Plan v2
 
-> **Status:** initial planning, under review. No app code yet.
+> **Status (2026-10-19):** history. The plan is approved, but its stack, scope and phases were replaced by
+> `docs/PRD.md`, `docs/ARCHITECTURE.md`, `docs/user-flows.md` and `docs/ROADMAP.md` (decisions D15–D24). Keep this
+> file for the rendering and data-pipeline reasoning; where it disagrees with those files, they win.
 
 This plan amends `docs/HANDOVER.md`. Where the two disagree, this file wins once approved.
 Versions below were checked on the npm registry on 2026-10-18.

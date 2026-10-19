@@ -11,6 +11,8 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - `main` is protected by a repository ruleset (id 25407958), on since 2026-10-19: PR required with 0 approvals,
   `gates` required and the branch up to date with `main`, no force-push, no deletion. Without `gh`, a branch is
   pushed from the terminal and the PR is opened and merged on github.com. (2026-10-19)
+- Charles's GitHub account is `charlesco-05`, with write access to the repo (can open and merge PRs, not change
+  settings). (2026-10-19)
 - The required CI check is named **`gates`**. Renaming the job breaks branch protection until the rule is updated
   to match. (2026-10-19)
 
@@ -18,8 +20,9 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 
 - Node 24 is installed (via winget) but isn't on the Git Bash PATH by default. Prepend it:
   `export PATH="/c/Program Files/nodejs:$PATH"`. PowerShell finds it normally. (2026-10-19)
-- The GitHub CLI (`gh`) isn't installed on this machine yet, so PRs can't be opened or merged from the terminal.
-  Fix once: `winget install GitHub.cli`, then `gh auth login`. (2026-10-19)
+- The GitHub CLI (`gh` 2.102.0) is installed on Charles's laptop at `C:\Program Files\GitHub CLI\gh.exe`. A Git Bash
+  session opened before the install doesn't have it on PATH; use the full path or open a new terminal. Gary's laptop
+  still needs `winget install GitHub.cli` and `gh auth login`. (2026-10-19)
 - Git converts line endings (`core.autocrlf`), so "LF will be replaced by CRLF" warnings are expected and harmless.
   (2026-10-19)
 
