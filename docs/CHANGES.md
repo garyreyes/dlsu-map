@@ -8,6 +8,14 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-19: User flows mapped
+
+- Added `docs/user-flows.md`: 11 screens, 6 system states and 1 dev-only page. Each screen has its one primary
+  action, its transitions and its empty, loading and error states, with Mermaid diagrams for the branching flows.
+- New proposed decisions: D23 (From can be typed as a room code) and D24 (beta reports via a pre-filled Google Form,
+  never including From). The PRD's UC1, UC2, UC6 and the §8 Must row were updated to match.
+- `CLAUDE.md` reading order now includes `docs/user-flows.md`. It supersedes `docs/PLAN.md` §6.2.
+
 ## 2026-10-19: Harness setup (CI gate, safety rules, project docs)
 
 - Added `.github/workflows/ci.yml`: one job, `gates`, on every PR and every push to `main`. Markdown lint always runs.

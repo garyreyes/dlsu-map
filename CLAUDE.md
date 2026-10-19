@@ -18,9 +18,10 @@ plan. The planned folder structure is in `docs/ARCHITECTURE.md` §7.
 | 1 | `SUMMARY.md` | The whole project on one page |
 | 2 | `docs/PRD.md` | Who it's for, use cases, scope, success metrics (draft) |
 | 3 | `docs/ARCHITECTURE.md` | **The** stack, entities, layer rules, folders. Wins over `docs/PLAN.md` §1 |
-| 4 | `docs/PROJECT_FACTS.md` | Durable facts about tools, repo and data that aren't obvious from the code |
-| 5 | `docs/DECISIONS.md` | Every decision (D1 onward) with its evidence. Newest last |
-| 6 | `docs/PLAN.md` | Rendering, UX and data-pipeline detail. Partly history now |
+| 4 | `docs/user-flows.md` | Every screen, transition and empty/loading/error state. Wins over `docs/PLAN.md` §6 |
+| 5 | `docs/PROJECT_FACTS.md` | Durable facts about tools, repo and data that aren't obvious from the code |
+| 6 | `docs/DECISIONS.md` | Every decision (D1 onward) with its evidence. Newest last |
+| 7 | `docs/PLAN.md` | Rendering and data-pipeline detail. Partly history now |
 | — | `docs/CHANGES.md` | Dated log of what changed. Search it; don't read it all |
 | — | `docs/HANDOVER.md` | The original brief, frozen for history. Everything above wins |
 

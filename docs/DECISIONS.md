@@ -595,3 +595,33 @@ another AI tool. Running the full build on a docs-only PR wastes minutes. Skippi
 change both people already read).
 
 **Revisit if** more contributors join, or CI minutes on a public repo stop being free.
+
+---
+
+## D23. From can be typed as a room code, not only tapped (2026-10-19, proposed)
+
+**Problem.** The PRD set From by tapping only (building → floor → spot). A freshman who just left class usually
+knows that room's code, because it's on their schedule.
+
+**Decision.** "Where are you?" has the same code box as To at the top, with the tap flow below it. A typed code sets
+From to that room's door. The tap flow stays for anyone outside, in a lobby or a hallway. This is not the dropped
+sentence parser (D16): it's one code, parsed the same way as To. Also decided in the same Q&A: the picker opens
+right away when a room is found and From is empty, and after arriving, From becomes that room until the app closes
+(memory only). Full flows in `docs/user-flows.md`.
+
+**Alternatives.** Tap only (three taps where two seconds of typing would do).
+
+---
+
+## D24. Beta reports go through a pre-filled Google Form link (2026-10-19, proposed)
+
+**Problem.** Testers need an easy way to report a wrong room or route (PRD UC6). Most blockmates have no GitHub
+account, and the app has no backend to send anything.
+
+**Decision.** "Report a problem" in the ⓘ sheet opens a Google Form in the browser, pre-filled with the room last
+searched (To), the app and data versions, and the phone type. **Never From**: it's the student's location (PRD §6).
+It's a plain link the tester taps, not a request the app makes, so the CSP and the offline rule (D10) are unchanged.
+Offline, the button says to send it once there's signal. Free, no card (D11).
+
+**Alternatives.** GitHub issues (testers lack accounts); a group chat link only (nothing pre-filled).
+**Revisit if** the public launch needs a channel that doesn't depend on Google.

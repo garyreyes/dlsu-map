@@ -37,14 +37,16 @@ Transferees and visitors will also benefit, but the app is designed for the fres
 
 1. The student opens the app and types `C311` in **To**.
 2. The app immediately shows **"C311 · Surface Physics Lab · STRC 3F"** and highlights the building.
-3. If **From** is empty, the app asks "Where are you?" (see UC2) so it can make a route. The building and floor stay
-   visible while it asks, which is what makes the 10-second target in §5 possible.
+3. If **From** is empty, the app asks "Where are you?" (see UC2) right away so it can make a route. The building and
+   floor stay visible while it asks, which is what makes the 10-second target in §5 possible.
 
 **UC2. Set where you are (From)**
 
-- **Tap on the map:** tap a building, then pick a floor, then optionally a spot (main entrance, elevator, stairs).
-  Ground floor defaults to the main entrance; other floors default to the elevator lobby.
-- If outside: tap a gate (Gate 1–6, Agno).
+- **Type the room you're in** (`AG1104`), in the same code box as To (D23).
+- **Or tap:** pick a building (list or map), then a floor. Ground floor defaults to the main entrance; other floors
+  default to the elevator lobby. "Change spot" (entrance, elevator, stairs) is optional.
+- If outside: pick a gate (Gate 1–6, Agno) or "Next to a building".
+- After arriving, From becomes the room you reached, until the app closes. Flows: `docs/user-flows.md`.
 
 **UC3. Follow the route**
 
@@ -70,7 +72,8 @@ Transferees and visitors will also benefit, but the app is designed for the fres
 
 **UC6. Beta tester reports a problem**
 
-- Through a GitHub issue or the team's group chat. The app itself sends nothing (no backend).
+- "Report a problem" (ⓘ) opens a pre-filled Google Form (D24), or they use the team's group chat. The form carries
+  the destination and app version, never From. The app itself sends nothing (no backend).
 
 ## 4. Out of scope
 
@@ -151,7 +154,7 @@ against its evacuation maps on site before the public launch.
 
 | | Features |
 |---|---|
-| **Must** | **To** field: room code and building name, strict validation, typo-tolerant "Did you mean" · **From** by tapping the map (building → floor → spot, or a gate) · ask "Where are you?" when From is empty · show the room's name and floor from the directory · 3D outdoor campus · outdoor routing with step directions · **full 3D interiors (cutaway) and indoor routing for every building** · Stairs / Elevator / Auto per route · offline after first open · text-only fallback |
+| **Must** | **To** field: room code and building name, strict validation, typo-tolerant "Did you mean" · **From** by typing a room code or tapping the map (building → floor, or a gate) · ask "Where are you?" when From is empty · show the room's name and floor from the directory · 3D outdoor campus · outdoor routing with step directions · **full 3D interiors (cutaway) and indoor routing for every building** · Stairs / Elevator / Auto per route · offline after first open · text-only fallback |
 | **Should** | Shareable deep links ("meet me at C311") · reduced-motion mode |
 | **Could** | Saved avoid-stairs / accessibility mode · search by room name ("Biology Lab") · D-pad explore mode · time-of-day elevator cost · QR stickers (only with Facilities' approval) |
 | **Won't (v1)** | Sentence parser and on-device AI model (dropped) · live GPS avatar (later) · everything else in §4 "Later" |
