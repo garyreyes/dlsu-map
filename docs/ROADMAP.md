@@ -24,8 +24,8 @@ with a full-app polish.
 | D15–D24 move from *proposed* to agreed in `docs/DECISIONS.md` | done (2026-10-19) |
 | Lanes in `docs/SPLIT.md` agreed (A Gary, B Charles) | done (2026-10-19) |
 | Branch protection on `main` (D22): PR required, `gates` required, no force-push or deletion | done (2026-10-19) |
-| GitHub CLI installed and signed in on both laptops (`winget install GitHub.cli`, `gh auth login`) | in progress (Charles's laptop done; Gary's to do) |
-| Free Cloudflare account created (Gary, repo owner) and its token + account id saved as GitHub Actions secrets | not started |
+| GitHub CLI installed and signed in on both laptops (`winget install GitHub.cli`, `gh auth login`) | done (2026-10-19) |
+| Free Cloudflare account created (Gary, repo owner) and its token + account id saved as GitHub Actions secrets | done (2026-10-19) |
 
 ## Phase 1: Skeleton ▸
 

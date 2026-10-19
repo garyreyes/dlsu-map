@@ -8,6 +8,13 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-19: Gate 0 done (gh, Cloudflare)
+
+- `gh` checked on Gary's laptop (2.96.0, signed in, admin on the repo).
+- Free Cloudflare account created. `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` saved as GitHub Actions
+  secrets. The first try put the token in the secret's name field; that secret was deleted and the token rolled.
+- The token is only proven by the first deploy in 1b. Next: 1a scaffold (Lane A).
+
 ## 2026-10-19: Plan approved (Gate 0)
 
 - The team approved the plan. D15–D24 are now *agreed* in `docs/DECISIONS.md`; D14 (GPS) stays proposed because
