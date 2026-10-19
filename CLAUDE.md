@@ -21,7 +21,9 @@ plan. The planned folder structure is in `docs/ARCHITECTURE.md` §7.
 | 4 | `docs/user-flows.md` | Every screen, transition and empty/loading/error state. Wins over `docs/PLAN.md` §6 |
 | 5 | `docs/PROJECT_FACTS.md` | Durable facts about tools, repo and data that aren't obvious from the code |
 | 6 | `docs/DECISIONS.md` | Every decision (D1 onward) with its evidence. Newest last |
-| 7 | `docs/PLAN.md` | Rendering and data-pipeline detail. Partly history now |
+| 7 | `docs/ROADMAP.md` | The build queue: sub-phases with status. Work on one sub-phase at a time |
+| 8 | `docs/SPLIT.md` | Who owns which lane and folders, and how the two lanes meet |
+| 9 | `docs/PLAN.md` | Rendering and data-pipeline detail. Partly history now |
 | — | `docs/PRODUCT.md` | The PRD translated for Impeccable (design work). The PRD wins where they differ |
 | — | `docs/CHANGES.md` | Dated log of what changed. Search it; don't read it all |
 | — | `docs/HANDOVER.md` | The original brief, frozen for history. Everything above wins |
@@ -94,9 +96,9 @@ plan. The planned folder structure is in `docs/ARCHITECTURE.md` §7.
 
 ## Gates
 
-One CI job, **`gates`** (`.github/workflows/ci.yml`), runs on every PR and every push to `main`. Branch protection
-will require it by that name (turned on at the start of Phase 1, D22), so the job must always run and report. Never
-add `paths-ignore` to its trigger. Until protection is on, a red `gates` warns but doesn't block: don't merge red.
+One CI job, **`gates`** (`.github/workflows/ci.yml`), runs on every PR and every push to `main`. A ruleset on `main`
+(D22, on since 2026-10-19) requires it by that name, so the job must always run and report. Never add `paths-ignore`
+to its trigger, and never rename the job without updating the ruleset in the same change.
 
 - **Every PR:** markdown lint (`.markdownlint-cli2.jsonc`). Run it locally before committing docs:
   `npx markdownlint-cli2@0.23.3 "**/*.md"` (add `--fix` for blank-line issues).
@@ -111,7 +113,9 @@ add `paths-ignore` to its trigger. Until protection is on, a red `gates` warns b
 ## Commits and docs
 
 - Conventional commits: `<type>: <description>`, types `feat` `fix` `refactor` `docs` `test` `chore` `perf` `ci`.
-- Work on a branch and open a PR. `main` isn't protected until Phase 1 starts, so nothing enforces this yet.
+- **`main` is protected:** every change goes through a branch and a PR; `gates` must pass and the branch must be up
+  to date with `main`. No direct pushes, force-pushes or deletion. One branch per roadmap sub-phase, named after its
+  ID (`3a-room-code-parser`); see `docs/SPLIT.md`.
 - A new decision gets the next D-number at the end of `docs/DECISIONS.md`, marked *proposed* until the team
   agrees, then is reflected in `SUMMARY.md` and `docs/PLAN.md`.
 - A finished change gets a dated entry in `docs/CHANGES.md`. A durable, non-obvious fact goes in

@@ -8,6 +8,16 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-19: Roadmap and work split
+
+- Added `docs/ROADMAP.md`: ARCHITECTURE §10's 11 phases split into 38 sub-phases with a lane, dependencies and
+  status each, plus Gate 0 and the Impeccable cadence. Two reorders from `docs/user-flows.md` §8: the steps list
+  before the 3D player (5c), and the floor builder moved up to Phase 6 (6c).
+- Added `docs/SPLIT.md`: two lanes (A: platform, screens, 3D; B: data, logic, campus), folder ownership, the five
+  points where the lanes meet, the order of work side by side, and working rules. Lane names are proposed.
+- Branch protection is on (ruleset on `main`), earlier than D22 planned. `CLAUDE.md`, D22 and
+  `docs/PROJECT_FACTS.md` updated to match.
+
 ## 2026-10-19: Prototype feedback, round 1 (owner tested on a phone)
 
 - Green fog: the distance and sky fade into a soft green in every map palette.
