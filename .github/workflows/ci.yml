@@ -1,0 +1,97 @@
+# The one required check. Branch protection requires the job named "gates", so the job must always run and always
+# report. Only the expensive steps inside it are conditional. Never add `paths-ignore` to `on:`: a required check
+# that never posts blocks every merge. See docs/DECISIONS.md D22.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gates:
+    name: gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DO_NOT_TRACK: "1"
+      IMPECCABLE_NO_TELEMETRY: "1"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      # "Code" = any changed file that is not a .md file and not under docs/. CI config, package.json and lockfiles
+      # count as code on purpose: they change what the gates check.
+      - name: Detect what changed
+        id: changes
+        env:
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if files=$(git diff --name-only "$BASE_SHA" HEAD 2>/dev/null); then
+            echo "Changed files:"
+            echo "$files"
+          else
+            echo "No usable base commit, so this counts as a code change."
+            files="(unknown)"
+          fi
+          if printf '%s\n' "$files" | grep -vE '\.md$|^docs/' | grep -q .; then code=true; else code=false; fi
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "Code changed: $code"
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: ${{ hashFiles('package-lock.json') != '' && 'npm' || '' }}
+
+      # Runs on every PR: it takes seconds and is the only gate until app code exists.
+      - name: Lint markdown
+        run: npx --yes markdownlint-cli2@0.23.3 "**/*.md"
+
+      - name: Note skipped app gates
+        if: steps.changes.outputs.code == 'true' && hashFiles('package-lock.json') == ''
+        run: echo "::notice::No package-lock.json yet, so lint, typecheck, test and build were skipped."
+
+      # App gates. package.json must define lint, typecheck, test and build (CLAUDE.md, "Gates").
+      - name: Install dependencies
+        if: steps.changes.outputs.code == 'true' && hashFiles('package-lock.json') != ''
+        run: npm ci
+
+      - name: Check dependency tree (fails on peer-dependency conflicts)
+        if: steps.changes.outputs.code == 'true' && hashFiles('package-lock.json') != ''
+        run: npm ls --all > /dev/null
+
+      - name: Lint
+        if: steps.changes.outputs.code == 'true' && hashFiles('package-lock.json') != ''
+        run: npm run lint
+
+      - name: Type-check
+        if: steps.changes.outputs.code == 'true' && hashFiles('package-lock.json') != ''
+        run: npm run typecheck
+
+      - name: Test
+        if: steps.changes.outputs.code == 'true' && hashFiles('package-lock.json') != ''
+        run: npm test
+
+      # Includes the data compiler, whose constraints (ARCHITECTURE §3.4) fail the build.
+      - name: Build
+        if: steps.changes.outputs.code == 'true' && hashFiles('package-lock.json') != ''
+        run: npm run build
+
+      # Deterministic design-slop rules (Impeccable). Exit 2 = findings, which fails the job.
+      - name: Design detector
+        if: >-
+          steps.changes.outputs.code == 'true' && hashFiles('package-lock.json') != '' &&
+          hashFiles('src/**/*.tsx', 'src/**/*.css', 'index.html') != ''
+        run: |
+          targets=(src)
+          if [ -f index.html ]; then targets+=(index.html); fi
+          npx --yes impeccable@4.6.0 detect "${targets[@]}"

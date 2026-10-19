@@ -24,6 +24,7 @@ Zustand 5, ngraph, Vite 8, Tailwind 4, vite-plugin-pwa 2):
 | Two type errors from `three-stdlib` (a drei dependency) vs `@types/three` 0.186 | Happen on **both** TS 6 and 7. A library mismatch, not a TS issue |
 
 **Decision.**
+
 ```jsonc
 // package.json (devDependencies)
 "typescript": "npm:@typescript/typescript6@^6.0.3",   // tools import "typescript" and get the 6.0 API
@@ -31,6 +32,7 @@ Zustand 5, ngraph, Vite 8, Tailwind 4, vite-plugin-pwa 2):
 // scripts
 "typecheck": "tsc --noEmit -p ."
 ```
+
 - **Both packages may install a `tsc` command**, and which one lands in `node_modules/.bin` depends on install
   order. So in Phase 1 the `typecheck` script calls the TS 7 binary by its full path inside
   `node_modules/@typescript/native/`, and CI runs a version check that fails unless it reports 7.x.
@@ -45,6 +47,7 @@ Zustand 5, ngraph, Vite 8, Tailwind 4, vite-plugin-pwa 2):
 ## D2. Lint/format: keep ESLint + Prettier as the handover says (withdraws my Biome suggestion) (2026-10-18)
 
 **Evidence from the same test project:**
+
 - typescript-eslint `strictTypeChecked` caught a real bug class that **Biome missed** (`string + number` in a label).
 - `eslint-plugin-react-hooks` v7 flagged `gl.localClippingEnabled = true` inside a component (mutating a hook value).
   That is a real R3F anti-pattern. The fix is `<Canvas gl={{ localClippingEnabled: true }}>`.
@@ -65,6 +68,7 @@ Scene files may disable `react-hooks/immutability` per line, with a comment, onl
 today, but an unpinned `^19` would break installs the day React 19.4 ships.
 
 **Decision.**
+
 - `"react": "~19.3.1"`, `"react-dom": "~19.3.1"` (patch updates only). Commit `package-lock.json` and use `npm ci` in CI.
 - Dependabot **groups** `react`, `react-dom`, `@types/react*`, `@react-three/*`, `three`, `@types/three` into one PR,
   so the 3D stack upgrades together or not at all.
@@ -77,6 +81,7 @@ today, but an unpinned `^19` would break installs the day React 19.4 ships.
 ## D4. Map data: OpenStreetMap footprints under ODbL (2026-10-18)
 
 **Evidence.** Queried OSM (Overpass) for the DLSU area on 2026-10-18. OSM already has:
+
 - **The campus boundary** (relation 11126048, "De La Salle University Manila").
 - **All 16 buildings** from the handover list, as real footprints with `building:levels` (table below).
 - **4 skybridges** between buildings (tagged `building:part=bridge` with levels), **9 named gates**,
@@ -84,11 +89,13 @@ today, but an unpinned `^19` would break installs the day React 19.4 ships.
   steps, and fire-equipment points.
 
 **License facts** (not legal advice):
+
 - OSM data is **ODbL**. Rendered maps need the credit "© OpenStreetMap contributors".
 - Our compiled `campus.json` mixes OSM footprints with our own data and is shipped publicly, so it is a
   *derivative database* that must also be offered under ODbL.
 
 **Decision.**
+
 - **Code: MIT.** **Campus data (`data-src/`, `public/data/`): ODbL**, with a `data-src/LICENSE` and an
   `ATTRIBUTION.md`. One data license is simplest. (Indoor data has an extra condition, below.)
 - Credit "© OpenStreetMap contributors" on the map (small, bottom corner) and in an About screen. It works offline
@@ -106,6 +113,7 @@ today, but an unpinned `^19` would break installs the day React 19.4 ships.
   - We don't contribute indoor data to OSM unless Facilities agrees, because OSM requires a compatible source.
 
 **Gotchas found in the data:**
+
 - **Level numbering:** OSM uses `level=0` for the ground floor (Yuchengco's elevators list `0;1;2;3;4;5`). DLSU
   signage probably calls that "1F". The compiler maps `floor = level + offset` with a **per-building offset table**.
   Confirm on site.
@@ -146,6 +154,7 @@ Gates: 1 (South), 2 (North), 3 (Velasco), 4A/4B (Gokongwei), 5A, 5B (Andrew), 6 
 
 **Decision.** Cloudflare **Workers with static assets**. This is Cloudflare's recommended route for new projects;
 Pages is still supported and would work too.
+
 - `wrangler.jsonc`: `assets.directory = "./dist"`, `not_found_handling = "single-page-application"`.
 - `public/_headers` (supported for Workers static assets, up to 100 rules) carries the CSP and security headers.
 - Preview URL per PR via version aliases (`wrangler versions upload --preview-alias pr-<n>`) from GitHub Actions.
@@ -155,7 +164,8 @@ Pages is still supported and would work too.
   secrets). Collaborators get added to the repo and push branches here.
 
 **Starting CSP** (to be tested in Phase 1, not guessed later):
-```
+
+```text
 Content-Security-Policy: default-src 'self'; script-src 'self'; worker-src 'self' blob:;
   style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self';
   connect-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'
@@ -163,6 +173,7 @@ X-Content-Type-Options: nosniff
 Referrer-Policy: strict-origin-when-cross-origin
 Permissions-Policy: camera=(), microphone=(), geolocation=()
 ```
+
 - `worker-src blob:` is needed because drei `<Text>` (troika) runs its text layout in blob-URL web workers.
 - `style-src 'unsafe-inline'` is needed for the inline `style=""` attributes that animation/sheet libraries set.
   No inline *scripts* are allowed.
@@ -184,6 +195,7 @@ The CI Playwright test should fail on any request to a non-self origin.
 is public, so it lives in `docs/reference/` (gitignored) and in the shared folder, not in git.
 
 OSM gives real positions and footprints. The official map is used for:
+
 - **Local names** of paths and places: the covered walks, Central Plaza, Marian Quadrangle, the Amphitheater.
 - **Street context:** Taft Avenue in front; Fidel Reyes Street / Calle Agno and Castro Street separate Gokongwei
   and Andrew from the main campus, so routes to them **cross a street**.
@@ -202,6 +214,7 @@ It's **not to scale**, so footprints and positions always come from OSM, never f
 **Why.** Room stickers need university approval we may never get, so the app must not depend on them.
 
 **Decision.**
+
 - **Core:** tap-based location picking (D8) and typed or spoken input (D9).
 - **Kept, because they need no approval:** deep links (`?from=…&to=…`). A student can share "meet me at G304" in a
   group chat, and an org's link opens with the destination set. QR codes that just *open the app* can go on any
@@ -246,6 +259,7 @@ The same structure is what the text parser fills in (D9), so both inputs lead to
 
 **Evidence.** A 3 KB spike (`docs/spikes/ask-parser-spike.mjs`) correctly parsed all 9 phrases it was written
 against, including:
+
 - *"I am near B305 and I want to go to G304"* → from room B305, to room G304
 - *"nasa AG1104 ako, papuntang G304"* and *"papunta G304, nasa B305 ako"* (reversed order) → correct from/to
 - *"from the back entrance of gokongwei to velasco 3rd floor"* → from Gokongwei back entrance, to Velasco 3F
@@ -268,6 +282,7 @@ These go straight into the Phase 3 test set. The confirm screen (point 2 below) 
 parse shows up as a wrong chip, never as a silent wrong route.
 
 **Decision. Two tiers, one output format:**
+
 1. **Tier 1, ships in Phase 3:** a rule-based parser in `features/search/`. English + Filipino/Taglish cue words
    (`nasa`, `papunta`, `saan`, `likod`, `gilid`, …), room codes, building names and aliases, floors ("3rd floor",
    "3F"), amenities (CR/banyo, elevator, stairs), and entrances. Typos go through uFuzzy.
@@ -312,6 +327,7 @@ parse shows up as a wrong chip, never as a silent wrong route.
    open the app, so no per-room sticker approval is needed.
 
 **Risks and mitigations:**
+
 - iOS may clear stored data for web apps that go unused for a long time. Mitigations: ask for persistent storage
   (`navigator.storage.persist()`), keep the "Ready offline" badge honest by re-checking on launch, and the app
   re-downloads by itself the next time there's signal. Test in airplane mode on a real iPhone in Phase 6.
@@ -327,6 +343,7 @@ parse shows up as a wrong chip, never as a silent wrong route.
 service gets a credit card**, so hitting a limit stops the service instead of sending a bill.
 
 What that rules in and out:
+
 - **In:** Cloudflare free plan (D5), GitHub free (repo, Actions, Dependabot), OpenStreetMap data (D4), open-source
   libraries (PLAN §1), CC0 models.
 - **Out:** app store accounts (yearly/one-time fees, D10), a custom domain (yearly fee), paid map or AI APIs (D9),
@@ -342,6 +359,7 @@ What that rules in and out:
 them. In the old order, routing (Phase 6) came after the tracer and indoor view, so almost everything was blocked.
 
 **Decision.** Split the build in two (PLAN §10):
+
 - **Part A, outdoor v1 (Phases 1–6), needs no campus access.** Every building, walkway, covered walk, road, gate,
   crossing and skybridge, in 3D; search; door-to-door routing between buildings; offline. A route ends at the
   target building's entrance with "G304 is on 3F". For most students the hard part is *which building and which
@@ -369,6 +387,7 @@ them. In the old order, routing (Phase 6) came after the tracer and indoor view,
 shipped). Stored in `docs/reference/` (gitignored).
 
 **What's specific to it**, beyond "3D buildings":
+
 1. **Every building is one pale color.** Shape reads from light alone: roofs brightest, sunlit walls mid, shaded
    walls darkest. No windows, textures or outlines.
 2. **A flat, saturated ground** that contrasts strongly with the pale buildings.
@@ -406,6 +425,7 @@ the room*. Offline, the app shows the route only, like a mall directory map. Onl
 Waze, with an avatar that walks along the route, Pokémon Go style.
 
 **What we changed, and why.** The split that works is **outdoor vs indoor, not online vs offline**:
+
 - **GPS doesn't need internet.** The phone's GPS chip works with no data, even in airplane mode. The first fix is
   just slower without data. So the live avatar can work offline too, and the app stays offline-first (D10).
 - **GPS doesn't work indoors**, online or not. The building-to-room leg is always the "mall directory" style.
@@ -424,6 +444,7 @@ Waze, with an avatar that walks along the route, Pokémon Go style.
 | **Indoor:** entrance → room (Part B) | **Mall directory** always | You tap "You are here" (D8); the entrance you arrived at is the default | Cutaway floor (§5), route line, Next/Back steps, floor rail |
 
 Details:
+
 1. **"Use my location"** becomes one more chip in "Where are you?" (D8), only when you're outdoors. It still goes
    through the From → To confirm screen. The app never routes on a silent guess.
 2. **Live follow** runs only while a route is active and the page is visible (`watchPosition`, stopped on route end,
@@ -486,8 +507,8 @@ fields remove the guessing entirely.
 
 ## D17. Floors are extracted from photos by script, cleaned up by Claude (2026-10-19, proposed)
 
-**Problem.** Full interiors for 10 buildings is roughly 70 floors by OSM's counts. PLAN §10 Phase 7 planned a MapLibre + Terra Draw
-tracing tool, drawn by hand.
+**Problem.** Full interiors for 10 buildings is roughly 70 floors by OSM's counts. PLAN §10 Phase 7 planned a MapLibre +
+Terra Draw tracing tool, drawn by hand.
 
 **Evidence.** Spike `docs/spikes/wall-extract/` (Node + opencv-js + sharp) on STRC 4F (4032×3024) and 2F
 (2048×1536, angled): about 4 s per floor. The hallway line (the green evacuation route) came out clean on both, most
@@ -547,3 +568,28 @@ publishes floor plans on GitHub, which is searchable, before Facilities' OK (D4)
 **Alternatives.** A private repo (loses public review and free collaboration features); keep floor files out of git
 until approval (no history or CI checks on the hardest data). **Revisit if** Facilities objects: then remove the
 floor files and purge them from git history.
+
+---
+
+## D22. One CI gate for every contributor, scoped to what changed (2026-10-19, proposed)
+
+**Problem.** A gate only counts if nobody can skip it, whether the change comes from a person, Claude Code or
+another AI tool. Running the full build on a docs-only PR wastes minutes. Skipping CI for docs at the trigger
+(`paths-ignore`) blocks merging for good, because branch protection then waits for a required check that never posts.
+
+**Decision.**
+
+- One job, `gates`, runs on every PR and every push to `main`, and always reports. Markdown lint runs every time.
+  Lint, type-check, test, build and the design detector run only when a non-docs file changed (CI config and
+  lockfiles count as code) and `package-lock.json` exists.
+- Change detection is a short shell step (`git diff --name-only`), not a third-party action, to keep the supply
+  chain to official `actions/*` only.
+- Branch protection on `main`: require `gates` to pass, apply it to admins too, block force-pushes and deletion.
+  **Required approving reviews: 0**, because the two of us review the diff together before merging. Raise it to 1
+  when a contributor joins whose review is meant as a real second opinion.
+
+**Alternatives.** The full suite on every PR (slow for docs); `paths-ignore` (blocks merges, above);
+`dorny/paths-filter` (works, but adds a third-party action); 1 required review now (a second click on GitHub for a
+change both people already read).
+
+**Revisit if** more contributors join, or CI minutes on a public repo stop being free.

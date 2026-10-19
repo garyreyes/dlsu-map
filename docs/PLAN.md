@@ -115,7 +115,7 @@ easier to write directions like "turn left at…". Revisit if hallways get compl
 
 ## 4. Data pipeline
 
-```
+```text
 data-src/  (what you edit; committed)          scripts/compile-data.ts           public/data/  (generated)
   campus/buildings.geojson   ──┐               1. Zod-validate every Feature      campus.json        (outdoor + building index + version hash)
   campus/walkways.geojson    ──┤               2. Project lon/lat → local meters  buildings/<id>.json (all floors of one building)
@@ -208,7 +208,7 @@ interiors are added one building at a time:
 
 ### 6.1 Main screen (map-first, one sheet)
 
-```
+```text
 ┌───────────────────────────────┐
 │ ( 🔍  Where to?  e.g. B305  ) │ ← search pill → full-screen cmdk palette
 │ [📍 Andrew Hall · 3F  ▾]      │ ← "You are here" chip (tap to change)
@@ -261,6 +261,7 @@ tutorial.
    on Android (`navigator.vibrate`).
 
 ### 6.3 Direction text (generated, not hand-written)
+
 - Collapse straight runs, then classify the turn angle at each node: straight under 30°, slight 30–60°, turn 60–135°,
   sharp over 135°.
 - Attach the nearest labelled feature as a landmark: "Turn left after **CR**", "Pass **B310** on your right".
@@ -268,6 +269,7 @@ tutorial.
   **main entrance**"), crossings ("Cross **Taft Ave** at the crosswalk"), bridges.
 
 ### 6.4 Accessibility and comfort
+
 - **Avoid stairs** is a saved setting, separate from the per-route Stairs/Elevator choice. It removes *every* step
   from routing: stairwells, outdoor steps, and stepped skybridges. Routes then use elevators and ramps only, and if
   no step-free route exists the app says so instead of quietly using stairs.
@@ -298,7 +300,7 @@ tutorial.
 
 ## 8. Revised folder structure (for approval)
 
-```
+```text
 dlsu-map/
   src/
     app/                 App shell, providers, URL ↔ state sync (deep links)
@@ -353,6 +355,7 @@ access only via `shared/data`. Added rule: **feature folders only import from `s
 ## 9. Risks and gotchas
 
 **Resolved 2026-10-18. Details and evidence are in `docs/DECISIONS.md`:**
+
 - TypeScript 7 vs tooling → dual install: `tsc` = 7.0, tools = 6.0 (D1). Tested on the full stack.
 - Lint → ESLint + Prettier kept (D2). React → pinned `~19.3.1`, with the 3D stack grouped in Dependabot (D3).
 - OSM license → code MIT, all campus data ODbL, pinned snapshot, on-map credit (D4). OSM already has all 16
@@ -363,6 +366,7 @@ access only via `shared/data`. Added rule: **feature folders only import from `s
 - New: OSM counts the ground floor as `level=0`. The compiler needs a per-building floor-offset table (D4).
 
 **Still open:**
+
 - **GPS (D14):** accuracy near tall buildings and under covered walks is unknown until tested on site. The `_headers`
   `Permissions-Policy` must allow `geolocation=(self)` or GPS fails silently. iPhone needs a separate, tap-triggered
   permission for the compass. Stop `watchPosition` whenever no route is active, to save battery.

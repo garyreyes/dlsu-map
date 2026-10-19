@@ -138,6 +138,7 @@ Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md).
 | D14 | *(proposed)* **Live GPS avatar outdoors, "mall directory" view indoors** | GPS works offline but not indoors, so the split is outdoor vs indoor, not online vs offline |
 
 ### Things we chose *not* to do
+
 - No indoor positioning (Wi-Fi/Bluetooth beacons). GPS is used outdoors only (D14, proposed), and your location never
   leaves the phone.
 - No accounts, backend, database, analytics or trackers.

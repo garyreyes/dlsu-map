@@ -1,0 +1,19 @@
+// Markdown lint for every PR (the only gate until app code exists). Rules match how the docs are written:
+// 120-column wrap, compact pipe tables, bold use-case labels in the PRD.
+{
+  "config": {
+    "default": true,
+    "MD013": { "line_length": 120, "tables": false, "code_blocks": false },
+    "MD024": { "siblings_only": true },
+    "MD036": false,
+    "MD060": false
+  },
+  "ignores": [
+    "**/node_modules/**",
+    ".claude/**",
+    "docs/HANDOVER.md",
+    "data-src/photos/**",
+    "docs/reference/**",
+    "docs/spikes/*/out/**"
+  ]
+}

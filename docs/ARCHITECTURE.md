@@ -54,7 +54,7 @@ is entered at runtime, so "constraints" and "indexes" live in the compiler, not 
 
 ### 3.2 Relationships
 
-```
+```text
 Building 1---* Floor 1---* Room
                 Floor 1---* Hallway, Opening
 Vertical *---* Floor              (servesFloors[] is the join; checked by the compiler)
@@ -102,7 +102,7 @@ All are precached for offline use. Budget: under 15 MB total.
 
 ## 4. Data pipeline
 
-```
+```text
 Lobby directory photo ──(typed by Claude, checked by owner)──► data-src/rooms/<building>.csv
 Evacuation-map photo  ──► tools/floor-extract ──► draft floor ──(Claude cleanup + labels)──► data-src/floors/<b>/<NN>.geojson
 OSM (scripts/fetch-osm.ts, run locally) ──► data-src/campus/osm/snapshot-<date>.geojson
@@ -110,6 +110,7 @@ OSM (scripts/fetch-osm.ts, run locally) ──► data-src/campus/osm/snapshot-<
 ```
 
 **Floor extraction (D17), per floor:**
+
 1. Find the plan's 4 outer corners in the photo.
 2. Straighten, then split by colour: black = walls, saturated green = hallway route, red = ignored.
 3. Keep long straight runs (drops text and symbols) and merge each double-line wall into one.
@@ -145,7 +146,7 @@ modules are needed.
 
 ## 7. Folder structure
 
-```
+```text
 dlsu-map/
   src/
     app/                 App shell, providers, deep-link URL ↔ state
