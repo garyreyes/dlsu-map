@@ -5,6 +5,8 @@
     "default": true,
     "MD013": { "line_length": 120, "tables": false, "code_blocks": false },
     "MD024": { "siblings_only": true },
+    // Only a top-level `title:` in front matter counts as a title (DESIGN.md has a nested `typography.title`).
+    "MD025": { "front_matter_title": "^title\\s*[:=]" },
     "MD036": false,
     "MD060": false
   },

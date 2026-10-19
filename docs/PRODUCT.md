@@ -62,6 +62,13 @@ signal at all. It does this with no account, no backend and no cost.
 - **Not official.** No DLSU seal, logo or official marks anywhere. It must never pass as an official DLSU app. The
   line "Student project, not an official DLSU app" stays visible in the app, and a "Beta" label stays visible until
   the public launch.
+- **Interface convention (owner's choice, 2026-10-19):** the interface works like Google Maps: a full-screen map, a
+  floating search bar on top, a bottom sheet, round map buttons. The quality bar is Google Maps, Apple Maps and Waze.
+  It borrows the convention, never Google's identity: no Google logo, Google Sans or Google's map pin. The map
+  itself keeps the D13 look below.
+- **Green interface (owner's choice, 2026-10-19):** the interface colour is a fixed green ("since it's for DLSU"),
+  on green-tinted neutrals, whichever map palette is shown. It's a colour, not a DLSU mark, so the "not official"
+  rule still holds. This replaces D13 option B's gold accent: one green marks the selection in every palette.
 - **Credit:** "Map data © OpenStreetMap contributors" stays on the map (ODbL).
 - **Voice:** plain English, short sentences, the words on room signs and schedules. No slang, no jokes in error
   messages.

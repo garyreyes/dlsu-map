@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-19T21:00:00+08:00",
+  "title": "Design System: DLSU 3D Campus Navigator",
+  "extensions": {
+    "colorMeta": {
+      "accent": { "role": "primary", "displayName": "Campus Green", "canonical": "#00703c", "tonalRamp": ["oklch(15% 0.05 152)", "oklch(27% 0.08 152)", "oklch(38% 0.11 152)", "oklch(47% 0.12 152)", "oklch(61% 0.13 152)", "oklch(72% 0.12 152)", "oklch(84% 0.08 152)", "oklch(95% 0.03 152)"] },
+      "accent-ink-dark": { "role": "primary", "displayName": "Lit Campus Green", "canonical": "#58c48f", "tonalRamp": ["oklch(15% 0.04 158)", "oklch(27% 0.07 158)", "oklch(38% 0.09 158)", "oklch(50% 0.11 158)", "oklch(61% 0.12 158)", "oklch(73% 0.13 158)", "oklch(84% 0.09 158)", "oklch(95% 0.03 158)"] },
+      "accent-wash": { "role": "primary", "displayName": "Green Wash", "canonical": "rgba(0, 112, 60, 0.1)" },
+      "on-accent": { "role": "neutral", "displayName": "On Green", "canonical": "#ffffff" },
+      "surface": { "role": "neutral", "displayName": "Sheet White", "canonical": "#ffffff", "tonalRamp": ["oklch(15% 0.01 155)", "oklch(27% 0.01 155)", "oklch(38% 0.01 155)", "oklch(50% 0.01 155)", "oklch(61% 0.01 155)", "oklch(72% 0.01 155)", "oklch(84% 0.01 155)", "oklch(100% 0 0)"] },
+      "surface-2": { "role": "neutral", "displayName": "Pale Leaf", "canonical": "#edf4ef", "tonalRamp": ["oklch(15% 0.012 155)", "oklch(27% 0.012 155)", "oklch(38% 0.012 155)", "oklch(50% 0.012 155)", "oklch(61% 0.012 155)", "oklch(72% 0.012 155)", "oklch(84% 0.012 155)", "oklch(96% 0.012 155)"] },
+      "ink": { "role": "neutral", "displayName": "Deep Ink", "canonical": "#17201b", "tonalRamp": ["oklch(15% 0.015 155)", "oklch(22% 0.015 155)", "oklch(38% 0.015 155)", "oklch(50% 0.015 155)", "oklch(61% 0.015 155)", "oklch(72% 0.015 155)", "oklch(84% 0.015 155)", "oklch(95% 0.01 155)"] },
+      "ink-2": { "role": "neutral", "displayName": "Mid Ink", "canonical": "#44534b", "tonalRamp": ["oklch(15% 0.022 158)", "oklch(27% 0.022 158)", "oklch(42% 0.022 158)", "oklch(50% 0.022 158)", "oklch(61% 0.022 158)", "oklch(72% 0.022 158)", "oklch(84% 0.02 158)", "oklch(95% 0.01 158)"] },
+      "ink-3": { "role": "neutral", "displayName": "Soft Ink", "canonical": "#5c6b63", "tonalRamp": ["oklch(15% 0.02 158)", "oklch(27% 0.02 158)", "oklch(38% 0.02 158)", "oklch(50% 0.02 158)", "oklch(61% 0.02 158)", "oklch(72% 0.02 158)", "oklch(84% 0.018 158)", "oklch(95% 0.01 158)"] },
+      "line": { "role": "neutral", "displayName": "Green Hairline", "canonical": "rgba(0, 64, 32, 0.13)" },
+      "danger": { "role": "neutral", "displayName": "Signal Red", "canonical": "#b3261e", "tonalRamp": ["oklch(15% 0.06 28)", "oklch(27% 0.1 28)", "oklch(38% 0.15 28)", "oklch(50% 0.18 28)", "oklch(61% 0.17 28)", "oklch(72% 0.12 28)", "oklch(84% 0.07 28)", "oklch(95% 0.02 28)"] },
+      "surface-dark": { "role": "neutral", "displayName": "Night Sheet", "canonical": "#18201b" },
+      "surface-2-dark": { "role": "neutral", "displayName": "Night Leaf", "canonical": "#233028" },
+      "ink-dark": { "role": "neutral", "displayName": "Deep Ink (dark)", "canonical": "#ecf3ee" },
+      "ink-2-dark": { "role": "neutral", "displayName": "Mid Ink (dark)", "canonical": "#b2c0b8" },
+      "ink-3-dark": { "role": "neutral", "displayName": "Soft Ink (dark)", "canonical": "#95a59c" },
+      "line-dark": { "role": "neutral", "displayName": "Night Hairline", "canonical": "rgba(255, 255, 255, 0.12)" },
+      "danger-dark": { "role": "neutral", "displayName": "Signal Red (dark)", "canonical": "#f2b8b5" },
+      "map-a-ground": { "role": "tertiary", "displayName": "Map A Burnt Orange Ground", "canonical": "#cf6530", "tonalRamp": ["oklch(15% 0.05 45)", "oklch(27% 0.09 45)", "oklch(38% 0.12 45)", "oklch(50% 0.14 45)", "oklch(62% 0.15 45)", "oklch(72% 0.12 45)", "oklch(84% 0.07 45)", "oklch(95% 0.02 45)"] },
+      "map-a-building": { "role": "tertiary", "displayName": "Map A Cool White Block", "canonical": "#e8edf3" },
+      "map-a-path": { "role": "tertiary", "displayName": "Map A Peach Path", "canonical": "#f3d9c4" },
+      "map-a-road": { "role": "tertiary", "displayName": "Map A Pale Peach Road", "canonical": "#f7e6d8" },
+      "map-b-ground": { "role": "tertiary", "displayName": "Map B Deep Green Ground", "canonical": "#175f3c", "tonalRamp": ["oklch(15% 0.04 158)", "oklch(27% 0.06 158)", "oklch(38% 0.08 158)", "oklch(43% 0.09 158)", "oklch(61% 0.09 158)", "oklch(72% 0.08 158)", "oklch(84% 0.05 158)", "oklch(95% 0.02 158)"] },
+      "map-b-building": { "role": "tertiary", "displayName": "Map B Warm White Block", "canonical": "#f2eee5" },
+      "map-b-path": { "role": "tertiary", "displayName": "Map B Sage Path", "canonical": "#5f9c7c" },
+      "map-b-road": { "role": "tertiary", "displayName": "Map B Light Sage Road", "canonical": "#7fb396" },
+      "map-c-ground": { "role": "tertiary", "displayName": "Map C Light Grey Ground", "canonical": "#c4c7c6", "tonalRamp": ["oklch(15% 0.003 180)", "oklch(27% 0.003 180)", "oklch(38% 0.003 180)", "oklch(50% 0.003 180)", "oklch(61% 0.003 180)", "oklch(72% 0.003 180)", "oklch(82% 0.003 180)", "oklch(95% 0.003 180)"] },
+      "map-c-building": { "role": "tertiary", "displayName": "Map C Near-White Block", "canonical": "#fbfbfa" },
+      "map-c-path": { "role": "tertiary", "displayName": "Map C White Path", "canonical": "#ffffff" },
+      "map-c-road": { "role": "tertiary", "displayName": "Map C White Road", "canonical": "#ffffff" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The room code or building short name at the top of a card." },
+      "headline": { "displayName": "Headline", "purpose": "Sheet step headings: Where are you?, Your route." },
+      "title": { "displayName": "Title", "purpose": "Room or building name under the code." },
+      "search-input": { "displayName": "Search input", "purpose": "The full-screen search field." },
+      "body": { "displayName": "Body", "purpose": "Default text, fields, hints." },
+      "body-strong": { "displayName": "Body strong", "purpose": "Row titles, chips, segments, secondary buttons." },
+      "button": { "displayName": "Button", "purpose": "The primary button only." },
+      "label": { "displayName": "Label", "purpose": "List section labels in Mid Ink; major map building labels." },
+      "label-strong": { "displayName": "Label strong", "purpose": "The floor chip." },
+      "caption": { "displayName": "Caption", "purpose": "Row subtitles, notes, asides." },
+      "code-tag": { "displayName": "Code tag", "purpose": "Building prefixes beside building rows." },
+      "micro": { "displayName": "Micro", "purpose": "Beta tag, OSM credit, minor map labels, sample marker. Open against the 16px floor." }
+    },
+    "shadows": [
+      { "name": "float", "value": "0 1px 2px rgba(16, 24, 20, 0.16), 0 3px 10px rgba(16, 24, 20, 0.12)", "purpose": "Search pill, map buttons, map labels, you-are-here dot, toast, desktop panel, selected segment." },
+      { "name": "sheet-lift", "value": "0 -1px 2px rgba(16, 24, 20, 0.08), 0 -4px 16px rgba(16, 24, 20, 0.1)", "purpose": "The phone bottom sheet; casts upward." },
+      { "name": "float-dark", "value": "0 1px 2px rgba(0, 0, 0, 0.4), 0 3px 10px rgba(0, 0, 0, 0.35)", "purpose": "Float in dark mode." },
+      { "name": "sheet-lift-dark", "value": "0 -1px 2px rgba(0, 0, 0, 0.3), 0 -4px 16px rgba(0, 0, 0, 0.35)", "purpose": "Sheet lift in dark mode." },
+      { "name": "focus-field", "value": "inset 0 0 0 2px var(--accent-ink)", "purpose": "Field focus ring (focus-within)." }
+    ],
+    "motion": [
+      { "name": "sheet-snap", "value": "260ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Sheet snaps between peek, half and full; map buttons and credit ride the same curve. Off while dragging." },
+      { "name": "camera-flight", "value": "650ms, ease 1 - 2^(-10t)", "purpose": "Camera flies to a selection, a route preview or home. A cut under reduced motion." },
+      { "name": "toast", "value": "160ms ease-out (opacity, 8px rise); 2600ms dwell", "purpose": "Confirms an action or explains a limit." },
+      { "name": "map-damping", "value": "0.12", "purpose": "Map control damping for pan, rotate, zoom." },
+      { "name": "reduced-motion", "value": "transition: none; flights cut", "purpose": "Under prefers-reduced-motion every transition is removed." }
+    ],
+    "breakpoints": [
+      { "name": "wide", "value": "768px", "purpose": "Bottom sheet becomes a 400px left panel; map buttons move bottom right." }
+    ],
+    "map": {
+      "materials": "Lambert, vertex-coloured, one building colour; unlit flat ground; unlit path and road ribbons (foot 1.6m, service 3.6m, road 7m).",
+      "lights": { "hemisphere": "0xffffff sky, ground tinted 18% toward palette ground, 0.72", "sun": "#fff4e6, 0.46, from upper left" },
+      "wallFootDarkening": "Bottom 6m of each wall darkens to 0.7 and grades to full.",
+      "cityMix": { "A": 0.32, "B": 0.5, "C": 0.32 },
+      "tallCity": "Off-campus towers over 45m turn 30% opaque only while occluding the selection or you-are-here.",
+      "selectedTint": "Selected building lerps 22% toward the accent.",
+      "floorBand": "Solid accent band one storey tall, 0.6m outside the walls, inset 0.1m top and bottom.",
+      "fog": "Ground colour, near 0.9x and far 1.55x camera distance.",
+      "camera": "FOV 40; overview tilt 0.9 rad from straight down with Taft Avenue at the bottom; building tilt 1.02 rad."
+    },
+    "prototypeOnly": [
+      "three.js r147 and OrbitControls/MapControls loaded from jsDelivr; the real app self-hosts React Three Fiber and works offline.",
+      "Sample rooms and the 'Sample room: not from a real directory' marker; only ST311, ST402, ST404, ST406 are real.",
+      "The D13 map colour switcher in the info sheet; remove once the palette is decided.",
+      "'Prototype:' notes and the Start toast on the route preview.",
+      "Label collision box estimated from character count."
+    ]
+  },
+  "components": [
+    {
+      "name": "Search Pill",
+      "kind": "input",
+      "refersTo": "search-pill",
+      "description": "The floating 52px search pill at the top of the map; the home screen's primary action.",
+      "html": "<div class=\"ds-pill\"><button class=\"ds-pill-main\"><svg class=\"ds-i\" viewBox=\"0 0 24 24\"><circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"m20 20-3.6-3.6\"/></svg><span class=\"ds-pill-text\">Where to?</span></button><span class=\"ds-tag\">Beta</span><button class=\"ds-icon-btn\" aria-label=\"About\"><svg class=\"ds-i\" viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 11v5\"/><path d=\"M12 7.5v.01\"/></svg></button></div>",
+      "css": ".ds-pill { display: flex; align-items: center; height: 52px; width: 360px; border-radius: 26px; background: var(--surface, #ffffff); box-shadow: 0 1px 2px rgba(16, 24, 20, 0.16), 0 3px 10px rgba(16, 24, 20, 0.12); font: 16px/1.4 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; } .ds-pill-main { flex: 1; height: 100%; display: flex; align-items: center; gap: 12px; padding-left: 16px; background: none; border: 0; font: inherit; cursor: pointer; border-radius: 26px 0 0 26px; text-align: left; } .ds-pill-main > .ds-i { color: var(--accent-ink, #00703c); } .ds-pill-text { color: var(--ink-2, #44534b); } .ds-tag { font-size: 12px; font-weight: 600; letter-spacing: 0.02em; color: var(--accent-ink, #00703c); background: rgba(0, 112, 60, 0.1); border-radius: 6px; padding: 2px 6px; } .ds-icon-btn { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%; border: 0; background: none; color: var(--ink-2, #44534b); cursor: pointer; } .ds-icon-btn:hover { background: var(--surface-2, #edf4ef); } .ds-pill button:focus-visible { outline: 2px solid var(--accent-ink, #00703c); outline-offset: 2px; } .ds-i { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }"
+    },
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one primary action per sheet: Directions on a card, Start on a route preview.",
+      "html": "<button class=\"ds-btn-primary\">Directions</button>",
+      "css": ".ds-btn-primary { width: 320px; height: 52px; border-radius: 26px; border: 0; background: var(--accent, #00703c); color: var(--on-accent, #ffffff); font: 700 17px system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; cursor: pointer; } .ds-btn-primary:active { filter: brightness(0.94); } .ds-btn-primary:focus-visible { outline: 2px solid var(--accent-ink, #00703c); outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "A hairline pill for a step back, like Pick another building.",
+      "html": "<button class=\"ds-btn-secondary\">Pick another building</button>",
+      "css": ".ds-btn-secondary { height: 44px; padding: 0 16px; border-radius: 22px; border: 1px solid rgba(0, 64, 32, 0.13); background: none; color: var(--accent-ink, #00703c); font: 600 16px system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; cursor: pointer; } .ds-btn-secondary:hover { background: var(--surface-2, #edf4ef); } .ds-btn-secondary:focus-visible { outline: 2px solid var(--accent-ink, #00703c); outline-offset: 2px; }"
+    },
+    {
+      "name": "Map Button",
+      "kind": "button",
+      "refersTo": "map-button",
+      "description": "Round 48px floating map control; recenter shows the whole campus.",
+      "html": "<button class=\"ds-fab\" aria-label=\"Show the whole campus\"><svg class=\"ds-i\" viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M12 2v3M12 19v3M2 12h3M19 12h3\"/><circle cx=\"12\" cy=\"12\" r=\"7\"/></svg></button>",
+      "css": ".ds-fab { width: 48px; height: 48px; border-radius: 50%; border: 0; background: var(--surface, #ffffff); color: var(--ink, #17201b); display: grid; place-items: center; box-shadow: 0 1px 2px rgba(16, 24, 20, 0.16), 0 3px 10px rgba(16, 24, 20, 0.12); cursor: pointer; } .ds-fab:hover { background: var(--surface-2, #edf4ef); } .ds-fab:focus-visible { outline: 2px solid var(--accent-ink, #00703c); outline-offset: 2px; } .ds-i { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }"
+    },
+    {
+      "name": "Chips",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Floor choices and route ends; pressed fills Campus Green.",
+      "html": "<div class=\"ds-chips\"><button class=\"ds-chip\">G</button><button class=\"ds-chip\">2F</button><button class=\"ds-chip\" aria-pressed=\"true\">3F</button><button class=\"ds-chip\">4F</button></div>",
+      "css": ".ds-chips { display: flex; gap: 8px; } .ds-chip { min-width: 52px; height: 44px; padding: 0 14px; border-radius: 22px; border: 1px solid rgba(0, 64, 32, 0.13); background: none; color: var(--ink, #17201b); font: 600 16px system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; font-variant-numeric: tabular-nums; cursor: pointer; } .ds-chip:hover { background: var(--surface-2, #edf4ef); } .ds-chip[aria-pressed=\"true\"] { background: var(--accent, #00703c); border-color: var(--accent, #00703c); color: var(--on-accent, #ffffff); } .ds-chip:focus-visible { outline: 2px solid var(--accent-ink, #00703c); outline-offset: 2px; }"
+    },
+    {
+      "name": "Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Pale Leaf input for the room you're in; green inset ring on focus.",
+      "html": "<label class=\"ds-field\"><svg class=\"ds-i\" viewBox=\"0 0 24 24\"><circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"m20 20-3.6-3.6\"/></svg><input placeholder=\"I'm in room… like AG1104\"></label>",
+      "css": ".ds-field { display: flex; align-items: center; gap: 10px; height: 52px; width: 320px; padding: 0 14px; border-radius: 12px; background: var(--surface-2, #edf4ef); color: var(--ink-2, #44534b); } .ds-field input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: none; color: var(--ink, #17201b); caret-color: var(--accent-ink, #00703c); font: 16px system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; } .ds-field input::placeholder { color: var(--ink-3, #5c6b63); } .ds-field:focus-within { box-shadow: inset 0 0 0 2px var(--accent-ink, #00703c); } .ds-i { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }"
+    },
+    {
+      "name": "Building Row",
+      "kind": "custom",
+      "refersTo": "row",
+      "description": "56px list row: icon, title over subtitle, code tag; hover fill, no dividers.",
+      "html": "<button class=\"ds-row\"><svg class=\"ds-i\" viewBox=\"0 0 24 24\"><path d=\"M4 21V5l8-3 8 3v16\"/><path d=\"M9 21v-4h6v4M8 8h2M14 8h2M8 12h2M14 12h2\"/></svg><span class=\"ds-row-text\"><span class=\"ds-row-title\">Velasco Hall</span><span class=\"ds-row-sub\">5 floors</span></span><span class=\"ds-code-tag\">VL</span></button>",
+      "css": ".ds-row { display: flex; align-items: center; gap: 14px; width: 320px; min-height: 56px; padding: 6px 8px; border: 0; border-radius: 12px; background: none; color: var(--ink, #17201b); text-align: left; font: 16px/1.4 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; cursor: pointer; } .ds-row:hover { background: var(--surface-2, #edf4ef); } .ds-row:focus-visible { outline: 2px solid var(--accent-ink, #00703c); outline-offset: 2px; } .ds-row > .ds-i { color: var(--ink-3, #5c6b63); } .ds-row-text { flex: 1; display: flex; flex-direction: column; } .ds-row-title { font-weight: 600; } .ds-row-sub { font-size: 14px; color: var(--ink-2, #44534b); } .ds-code-tag { font-size: 13px; font-weight: 700; color: var(--ink-2, #44534b); background: var(--surface-2, #edf4ef); border-radius: 6px; padding: 2px 7px; } .ds-i { width: 24px; height: 24px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }"
+    },
+    {
+      "name": "Segmented Control",
+      "kind": "custom",
+      "refersTo": "segmented",
+      "description": "Stairs / Auto / Elevator inside Route options; selected segment lifts to white.",
+      "html": "<div class=\"ds-seg\" role=\"group\"><button>Stairs</button><button aria-pressed=\"true\">Auto</button><button>Elevator</button></div>",
+      "css": ".ds-seg { display: flex; width: 320px; padding: 4px; gap: 4px; border-radius: 24px; background: var(--surface-2, #edf4ef); } .ds-seg button { flex: 1; height: 40px; border: 0; border-radius: 20px; background: none; color: var(--ink-2, #44534b); font: 600 16px system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; cursor: pointer; } .ds-seg button[aria-pressed=\"true\"] { background: var(--surface, #ffffff); color: var(--ink, #17201b); box-shadow: 0 1px 2px rgba(16, 24, 20, 0.16), 0 3px 10px rgba(16, 24, 20, 0.12); } .ds-seg button:focus-visible { outline: 2px solid var(--accent-ink, #00703c); outline-offset: 2px; }"
+    },
+    {
+      "name": "Map Labels and Floor Chip",
+      "kind": "custom",
+      "refersTo": "map-label",
+      "description": "Building names on surface plates; the selected one turns green; the floor chip marks the found floor band.",
+      "html": "<div class=\"ds-map\"><span class=\"ds-lbl\">Mutien-Marie</span><span class=\"ds-lbl ds-sel\">STRC</span><span class=\"ds-lbl ds-floor\">3F</span><span class=\"ds-here\"></span></div>",
+      "css": ".ds-map { display: flex; align-items: center; gap: 12px; padding: 24px; background: #cf6530; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; } .ds-lbl { padding: 3px 8px; border-radius: 8px; background: var(--surface, #ffffff); color: var(--ink, #17201b); font-size: 14px; font-weight: 600; white-space: nowrap; box-shadow: 0 1px 2px rgba(16, 24, 20, 0.16), 0 3px 10px rgba(16, 24, 20, 0.12); } .ds-sel { background: var(--accent, #00703c); color: var(--on-accent, #ffffff); } .ds-floor { background: var(--accent, #00703c); color: var(--on-accent, #ffffff); font-weight: 700; } .ds-here { width: 18px; height: 18px; border-radius: 50%; background: var(--accent, #00703c); border: 3px solid #ffffff; box-shadow: 0 1px 2px rgba(16, 24, 20, 0.16), 0 3px 10px rgba(16, 24, 20, 0.12); }"
+    },
+    {
+      "name": "Toast",
+      "kind": "custom",
+      "refersTo": "toast",
+      "description": "Deep Ink confirmation that rises 8px and fades in over 160ms, gone after 2.6s.",
+      "html": "<div class=\"ds-toast\" role=\"status\">Link copied</div>",
+      "css": ".ds-toast { display: inline-block; max-width: 420px; padding: 12px 16px; border-radius: 12px; background: var(--ink, #17201b); color: var(--surface, #ffffff); font: 15px system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; box-shadow: 0 1px 2px rgba(16, 24, 20, 0.16), 0 3px 10px rgba(16, 24, 20, 0.12); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Architect's Model in a Familiar Map",
+    "overview": "The interface is the map app every student already knows: a full-screen map, a floating search pill on top, one bottom sheet, round map buttons. It is executed straight, in the phone's own system face, with white floating chrome on soft shadows. Nothing in the chrome needs learning. Under it sits something no other map of the campus has: a pale massing model of DLSU Manila, every building one colour and shaped by light alone, on a flat saturated ground with thin bright paths, the city around it muted so the campus leads.\n\nColour does one job. A single fixed green marks the selection, the found floor, \"you are here\" and the one primary action, in both themes and on every map palette. Everything else is green-tinted neutral. Density is a phone map's density: one primary action per sheet, rows at least 56px tall, groups made by spacing and type weight rather than boxes. The signature is the found floor drawn as a solid green band one storey tall around the building, with a floor chip beside it.\n\nThe map palette is still open (D13 options A orange, B green, C grey); the prototype ships A as the default and a switcher in the info sheet to compare them on phones. The interface never changes with it.",
+    "keyCharacteristics": [
+      "Google Maps convention, never Google's identity: no Google logo, Google Sans or Google pin.",
+      "One interface green (#00703c) on green-tinted neutrals, fixed across themes and map palettes.",
+      "White floating chrome with soft, low shadows; flat surfaces inside the sheet.",
+      "D13 massing model: one pale building colour, unlit flat ground, thin bright paths, soft wall-foot darkening.",
+      "Signature: the found floor as a solid accent band one storey tall, plus a floor chip.",
+      "Motion confirms: a 260ms sheet snap and 650ms camera flights, both cuts under reduced motion."
+    ],
+    "rules": [
+      { "name": "The One Green Rule", "body": "Campus Green means \"this is yours\": the selection, its floor, where you are, the next step. It never decorates, and no map palette may change it or add a second accent.", "section": "colors" },
+      { "name": "The Fill-Versus-Ink Rule", "body": "Green fills stay `accent` in both themes; green text and strokes switch to `accent-ink-dark` on dark surfaces. Never put `accent` text on a dark surface.", "section": "colors" },
+      { "name": "The Two Worlds Rule", "body": "Interface colours live in CSS tokens; map colours live in the palette table. The interface never samples the map palette, and the map never uses interface neutrals except the accent.", "section": "colors" },
+      { "name": "The Code Is the Headline Rule", "body": "On a room card the code is the largest thing on screen and the floor words are the only green text. Building and floor arrive before anything else.", "section": "typography" },
+      { "name": "The Tabular Code Rule", "body": "Any room code or floor number sits in tabular figures so codes line up in lists.", "section": "typography" },
+      { "name": "The Sixteen Floor Rule", "body": "PRODUCT.md sets 16px as the text floor. The 12–14px roles above shipped in the prototype and are open against that floor; do not add new roles below 16px, and reconcile the existing ones before the real app.", "section": "typography" },
+      { "name": "The Float-Only-Chrome Rule", "body": "Shadows belong to things floating over the map. Inside the sheet, use space and weight, not shadowed cards.", "section": "elevation" },
+      { "name": "The Shaped-by-Light Rule", "body": "Map buildings get one colour and the lights. No outlines, windows, textures or per-building colours; the only exception is the selected building's 22% tint toward the accent.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep exactly one primary button per sheet, Campus Green, full width, 52px.",
+      "Do use `accent` for green fills in both themes and `accent-ink-dark` for green text on dark surfaces.",
+      "Do put every map label on a surface plate with the Float shadow, so text reads on any ground colour.",
+      "Do frame selections in the uncovered map area and fly to a heading that sees the floor band.",
+      "Do show the building and floor first on any room result; the route comes after.",
+      "Do keep tap targets at 48px for icon and map buttons and 56px for rows.",
+      "Do cut every transition and camera flight under `prefers-reduced-motion`.",
+      "Do keep \"Map data © OpenStreetMap contributors\" visible on the map and the Beta tag in the pill."
+    ],
+    "donts": [
+      "Don't use Google's identity: no Google logo, Google Sans or Google map pin.",
+      "Don't use DLSU's seal, logo or official marks; the green is a colour, not a mark.",
+      "Don't add a second accent, or let a map palette change the interface green.",
+      "Don't give map buildings outlines, windows, textures or individual colours; light and the selection tint only.",
+      "Don't wrap sheet content in shadowed cards or add dividers between rows; group with spacing and weight.",
+      "Don't add entrance animations or motion that delays reading.",
+      "Don't copy prototype-only scaffolding into the real app: three.js r147 and its OrbitControls from a CDN (the app self-hosts React Three Fiber and works offline), the sample rooms and their \"Sample room\" marker, the D13 palette switcher (remove once the palette is decided), the \"Prototype:\" notes and the Start toast, and the label-collision width estimate.",
+      "Don't add new text roles below 16px or tap targets below 48px (chips and the secondary button at 44px and segments at 40px are open against PRODUCT.md's floor)."
+    ]
+  }
+}

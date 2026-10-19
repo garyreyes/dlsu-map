@@ -8,6 +8,22 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-19: Design direction and map home prototype
+
+- The owner pinned the direction: the Google Maps interface convention (quality bar Google Maps, Apple Maps, Waze)
+  over the D13 massing-model map, with a fixed green interface colour. Impeccable's random direction pick was skipped
+  because the direction was pinned; recorded in the surface brief.
+- Added `prototypes/map-home/`: a phone-testable prototype of S1–S5 (search, room card, Where are you, route
+  summary) on the real campus from an OpenStreetMap snapshot (2026-10-19). Signature move: the found room's floor
+  drawn as a green band one storey tall, with a floor chip. Only ST311, ST402, ST404 and ST406 are real rooms.
+  Not app code: three.js loads from a CDN here, which the real app must not do.
+- Finish review took four rounds (8 fixes, then 3 and 2 regressions); final disposition **ship** for the scored
+  fixes. Not reviewed: motion (every capture had reduced motion on), a night map, label style.
+- Added `docs/DESIGN.md` and `.impeccable/design.json` (written from the built prototype), the surface brief in
+  `.impeccable/surfaces/`, and two detector ignores for confirmed false positives in `.impeccable/config.json`.
+- `docs/PRODUCT.md` gained two owner commitments: the Google Maps convention and the green interface.
+- Published privately: <https://claude.ai/artifact/VXTeRoikyZv1bwGHotiSPo>.
+
 ## 2026-10-19: Product context for design (`/impeccable init`)
 
 - Added `docs/PRODUCT.md`, translated from the PRD. Impeccable finds it in `docs/`, so the root stays clean. No

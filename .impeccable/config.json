@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "prototypes/map-home/index.html"
+        ],
+        "createdAt": "2026-10-19T11:17:53.906Z",
+        "reason": "Finish reviewer confirmed: .pill is 52px tall and .pill-main is height:100% with vertically centred text (~14px inset); the detector reads full-height buttons as flush"
+      },
+      {
+        "rule": "low-contrast",
+        "value": "*",
+        "files": [
+          "prototypes/map-home/index.html"
+        ],
+        "createdAt": "2026-10-19T11:17:59.769Z",
+        "reason": "Finish reviewer confirmed: #b6bfba is the dark-theme --ink-2 token and #ffffff the light-theme --surface; no element pairs them in either theme"
+      }
+    ]
+  }
+}

@@ -7,3 +7,8 @@ docs/reference/
 node_modules/
 dist/
 .env*
+
+# Impeccable: review screenshots are regenerated each run; local config is per machine
+.impeccable/review/
+.impeccable/config.local.json
+.impeccable/hook.cache.json
