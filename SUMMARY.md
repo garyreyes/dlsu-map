@@ -1,7 +1,7 @@
 # DLSU 3D Campus Navigator: Project Summary
 
-> **Status:** planning done, no app code yet (as of 2026-10-19). Next is "Gate 0" in
-> [`docs/ROADMAP.md`](docs/ROADMAP.md): the team agrees the plan and D15–D24, then Phase 1 starts.
+> **Status:** plan approved on 2026-10-19 (D15–D24 agreed); no app code yet. Next is the rest of "Gate 0" in
+> [`docs/ROADMAP.md`](docs/ROADMAP.md) (`gh` on both laptops, the Cloudflare account), then Phase 1 starts with 1a.
 > **Looking for:** a second pair of eyes on the plan. See [How you can help](#how-you-can-help).
 
 Detailed docs: [`docs/PRD.md`](docs/PRD.md) (what and for whom) · [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
@@ -112,8 +112,8 @@ code (it loads three.js from a CDN, which the real app must not do).
 
 ## Key decisions (short version)
 
-Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24 are still *proposed* until the team
-agrees them (Gate 0).
+Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24 were agreed by the team on
+2026-10-19.
 
 | # | Decision | Why |
 |---|---|---|

@@ -20,10 +20,11 @@ with a full-app polish.
 
 | Item | Status |
 |---|---|
-| Team approves the plan (CLAUDE.md: no app code until then) | not started |
-| D15–D24 move from *proposed* to agreed in `docs/DECISIONS.md` | not started |
+| Team approves the plan (CLAUDE.md: no app code until then) | done (2026-10-19) |
+| D15–D24 move from *proposed* to agreed in `docs/DECISIONS.md` | done (2026-10-19) |
+| Lanes in `docs/SPLIT.md` agreed (A Gary, B Charles) | done (2026-10-19) |
 | Branch protection on `main` (D22): PR required, `gates` required, no force-push or deletion | done (2026-10-19) |
-| GitHub CLI installed and signed in on both laptops (`winget install GitHub.cli`, `gh auth login`) | not started |
+| GitHub CLI installed and signed in on both laptops (`winget install GitHub.cli`, `gh auth login`) | in progress (Charles's laptop done; Gary's to do) |
 | Free Cloudflare account created (Gary, repo owner) and its token + account id saved as GitHub Actions secrets | not started |
 
 ## Phase 1: Skeleton ▸

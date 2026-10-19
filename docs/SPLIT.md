@@ -1,11 +1,11 @@
 # Splitting the Work
 
 How two people build `docs/ROADMAP.md` in parallel without waiting on each other or editing the same files. Written
-2026-10-19. **Proposed, not agreed:** swap the names in the table below if they're the wrong way round.
+and agreed 2026-10-19.
 
 ## The two lanes
 
-| Lane | Owns | Who (proposed) | Why |
+| Lane | Owns | Who | Why |
 |---|---|---|---|
 | **A: what the student sees** | Platform (scaffold, CI, hosting, offline), every screen, the 3D scene, the indoor view | Gary | Owns the repo and the Cloudflare account, which the platform work needs |
 | **B: what the app knows** | Campus data, room lists, the room-code parser, routing, the floor pipeline, data rollout, on-site checks | Charles | Has campus access and the STRC photos; the data work happens on campus |
