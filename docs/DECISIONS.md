@@ -454,3 +454,96 @@ tried on real phones.
 **Revisit if** on-site tests show GPS is too jumpy between the tall buildings to be useful (then keep step mode as
 the default and make live follow opt-in), or if the team still wants the Google-Maps look after seeing the 3D
 follow view.
+
+**Update 2026-10-19:** moved to **later** (not v1) in the PRD. From is set by tapping the map only.
+
+---
+
+## D15. The campus is accessible; v1 includes full interiors (2026-10-19, proposed)
+
+**Problem.** D12 split the build into outdoor v1 and interiors later *because the campus was closed*. On 2026-10-19
+the owner confirmed campus access and shared STRC's lobby directory and evacuation maps for G, 2F, 3F and 4F.
+
+**Decision.** v1 is the outdoor campus **plus** every full-tier building's room list and 3D interior (PRD §8). Lobby
+directories are the main source of room codes. Release is a private beta, then a public launch (PRD §9).
+
+**Alternatives.** Keep outdoor-only v1 (fastest to ship, already solves "which building and floor"); rejected by
+the owner in favour of one complete public product. **Revisit if** data rollout stalls for months.
+
+---
+
+## D16. No sentence parser: plain From / To fields (2026-10-19, proposed)
+
+**Replaces D9.** The owner: "there's no sentence in the first place; the UI is From and To."
+
+**Decision.** To takes a room code or building name (strict, with "Did you mean"). From is set by the D8 tap flow.
+No English/Taglish parser, no phrase test set, no on-device AI model.
+
+**Alternatives.** D9's rule-based parser; it worked on its own 9 phrases but failed on fresh ones, and explicit
+fields remove the guessing entirely.
+
+---
+
+## D17. Floors are extracted from photos by script, cleaned up by Claude (2026-10-19, proposed)
+
+**Problem.** Full interiors for 10 buildings is roughly 70 floors by OSM's counts. PLAN §10 Phase 7 planned a MapLibre + Terra Draw
+tracing tool, drawn by hand.
+
+**Evidence.** Spike `docs/spikes/wall-extract/` (Node + opencv-js + sharp) on STRC 4F (4032×3024) and 2F
+(2048×1536, angled): about 4 s per floor. The hallway line (the green evacuation route) came out clean on both, most
+walls were found, and door gaps appeared on their own. Misses: some single-line walls, breaks at pillars.
+False positives: stair treads, lines outside the building. Not identified: room numbers, stairs, elevator.
+Not yet tested: fitting onto the OSM footprint.
+
+**Decision.** Per floor: script draft → Claude cleanup and labels → owner checks the 3D preview. The tracer tool is
+dropped. A small self-serve review page can be added later if maintainers other than the owner need it.
+
+**Alternatives.** Own tracer (a full phase of tool-building); QGIS (steep, no "copy floor"). **Revisit if** the OSM fit
+fails or cleanup takes longer than about 15 minutes per floor.
+
+---
+
+## D18. Every room number is its own room (2026-10-19, proposed)
+
+**Problem.** Directories list combined rooms (`C404/406 · Biology Lab`, `C102/104-106`).
+
+**Decision.** Each number becomes its own Room with the shared name. Typing `C404` resolves directly; `C404/406` is
+read as `C404`. Floor = room number ÷ 100. The confirmed prefix table is in `docs/ARCHITECTURE.md` §3.3.
+
+**Alternatives.** One room keyed `C404/406` (an extra "Did you mean" tap); one room with alias codes.
+
+---
+
+## D19. Private beta on an unlisted link (2026-10-19, proposed)
+
+**Decision.** Beta testers get an unlisted Cloudflare URL, with `noindex` headers and a visible beta label.
+
+**Accepted risk.** The app ships all data to every visitor, so if the link spreads, floor plans circulate before
+Facilities' OK (D4). **Alternatives.** Cloudflare Access login (not verified to be free without a card, D11);
+a beta without interiors (testers can't try half of v1).
+
+---
+
+## D20. Ten full buildings; the rest are blocks (2026-10-19, proposed)
+
+**Decision.** Full tier (searchable, room list, interior): St. La Salle, Yuchengco, St. Joseph, Velasco, St. Miguel,
+Andrew, STRC, Razon, Gokongwei, Mutien-Marie. Block tier (named 3D shape only, not searchable, outside the launch
+gate): Connon, Henry Sy, William Hall, Faculty Center, St. John Hall, Bloemen Hall and the official map's extras.
+
+**Alternatives.** The 16 OSM buildings only; all 23 with interiors (work on buildings students never enter).
+
+**Update 2026-10-19:** Connon and Henry Sy were first listed as full, then moved to block tier "for the mean time"
+because no classes are held there.
+
+---
+
+## D21. Traced floor files are committed to the public repo (2026-10-19, proposed)
+
+**Problem.** The repo is public (D6). `data-src/floors/` is derived from DLSU's evacuation maps, so committing it
+publishes floor plans on GitHub, which is searchable, before Facilities' OK (D4).
+
+**Decision.** Accept the risk and commit them. The photos themselves stay gitignored and are never committed.
+
+**Alternatives.** A private repo (loses public review and free collaboration features); keep floor files out of git
+until approval (no history or CI checks on the hardest data). **Revisit if** Facilities objects: then remove the
+floor files and purge them from git history.
