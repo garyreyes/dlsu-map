@@ -478,9 +478,12 @@ follow view.
 
 **Update 2026-10-19:** moved to **later** (not v1) in the PRD. From is set by tapping the map only.
 
+**Status 2026-10-19:** still proposed. The PRD moved GPS out of v1 (PRD §4 "Later"), so this is decided when GPS
+work starts, after the public launch.
+
 ---
 
-## D15. The campus is accessible; v1 includes full interiors (2026-10-19, proposed)
+## D15. The campus is accessible; v1 includes full interiors (2026-10-19, agreed)
 
 **Problem.** D12 split the build into outdoor v1 and interiors later *because the campus was closed*. On 2026-10-19
 the owner confirmed campus access and shared STRC's lobby directory and evacuation maps for G, 2F, 3F and 4F.
@@ -493,7 +496,7 @@ the owner in favour of one complete public product. **Revisit if** data rollout 
 
 ---
 
-## D16. No sentence parser: plain From / To fields (2026-10-19, proposed)
+## D16. No sentence parser: plain From / To fields (2026-10-19, agreed)
 
 **Replaces D9.** The owner: "there's no sentence in the first place; the UI is From and To."
 
@@ -505,7 +508,7 @@ fields remove the guessing entirely.
 
 ---
 
-## D17. Floors are extracted from photos by script, cleaned up by Claude (2026-10-19, proposed)
+## D17. Floors are extracted from photos by script, cleaned up by Claude (2026-10-19, agreed)
 
 **Problem.** Full interiors for 10 buildings is roughly 70 floors by OSM's counts. PLAN §10 Phase 7 planned a MapLibre +
 Terra Draw tracing tool, drawn by hand.
@@ -524,7 +527,7 @@ fails or cleanup takes longer than about 15 minutes per floor.
 
 ---
 
-## D18. Every room number is its own room (2026-10-19, proposed)
+## D18. Every room number is its own room (2026-10-19, agreed)
 
 **Problem.** Directories list combined rooms (`C404/406 · Biology Lab`, `C102/104-106`).
 
@@ -535,7 +538,7 @@ read as `C404`. Floor = room number ÷ 100. The confirmed prefix table is in `do
 
 ---
 
-## D19. Private beta on an unlisted link (2026-10-19, proposed)
+## D19. Private beta on an unlisted link (2026-10-19, agreed)
 
 **Decision.** Beta testers get an unlisted Cloudflare URL, with `noindex` headers and a visible beta label.
 
@@ -545,7 +548,7 @@ a beta without interiors (testers can't try half of v1).
 
 ---
 
-## D20. Ten full buildings; the rest are blocks (2026-10-19, proposed)
+## D20. Ten full buildings; the rest are blocks (2026-10-19, agreed)
 
 **Decision.** Full tier (searchable, room list, interior): St. La Salle, Yuchengco, St. Joseph, Velasco, St. Miguel,
 Andrew, STRC, Razon, Gokongwei, Mutien-Marie. Block tier (named 3D shape only, not searchable, outside the launch
@@ -558,7 +561,7 @@ because no classes are held there.
 
 ---
 
-## D21. Traced floor files are committed to the public repo (2026-10-19, proposed)
+## D21. Traced floor files are committed to the public repo (2026-10-19, agreed)
 
 **Problem.** The repo is public (D6). `data-src/floors/` is derived from DLSU's evacuation maps, so committing it
 publishes floor plans on GitHub, which is searchable, before Facilities' OK (D4).
@@ -571,7 +574,7 @@ floor files and purge them from git history.
 
 ---
 
-## D22. One CI gate for every contributor, scoped to what changed (2026-10-19, proposed)
+## D22. One CI gate for every contributor, scoped to what changed (2026-10-19, agreed)
 
 **Problem.** A gate only counts if nobody can skip it, whether the change comes from a person, Claude Code or
 another AI tool. Running the full build on a docs-only PR wastes minutes. Skipping CI for docs at the trigger
@@ -600,7 +603,7 @@ change both people already read).
 
 ---
 
-## D23. From can be typed as a room code, not only tapped (2026-10-19, proposed)
+## D23. From can be typed as a room code, not only tapped (2026-10-19, agreed)
 
 **Problem.** The PRD set From by tapping only (building → floor → spot). A freshman who just left class usually
 knows that room's code, because it's on their schedule.
@@ -615,7 +618,7 @@ right away when a room is found and From is empty, and after arriving, From beco
 
 ---
 
-## D24. Beta reports go through a pre-filled Google Form link (2026-10-19, proposed)
+## D24. Beta reports go through a pre-filled Google Form link (2026-10-19, agreed)
 
 **Problem.** Testers need an easy way to report a wrong room or route (PRD UC6). Most blockmates have no GitHub
 account, and the app has no backend to send anything.

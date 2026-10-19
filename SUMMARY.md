@@ -1,7 +1,12 @@
 # DLSU 3D Campus Navigator: Project Summary
 
-> **Status:** initial planning, under review. No app code yet (as of 2026-10-18).
-> **Looking for:** a second pair of eyes on the plan before we start building. See [How you can help](#how-you-can-help).
+> **Status (2026-10-19):** plan approved; building starts with `docs/ROADMAP.md` sub-phase 1a. This page was
+> written on 2026-10-18 and parts are out of date. **Current truth:** [`docs/PRD.md`](docs/PRD.md) (what and for
+> whom), [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) (stack), [`docs/user-flows.md`](docs/user-flows.md)
+> (screens), [`docs/DESIGN.md`](docs/DESIGN.md) (look), [`docs/ROADMAP.md`](docs/ROADMAP.md) (build order).
+> Changed since: v1 includes full interiors (D15); no sentence parser, plain From / To fields with From typed or
+> tapped (D16, D23); GPS moved to later; floors are extracted from photos by script (D17); real room prefixes such
+> as `ST311` and `AG1104` (ARCHITECTURE §3.3); a Google Maps-style interface over a black-ground 3D campus.
 
 Detailed docs: [`docs/PLAN.md`](docs/PLAN.md) (full plan) · [`docs/DECISIONS.md`](docs/DECISIONS.md) (every
 decision, with evidence) · [`docs/HANDOVER.md`](docs/HANDOVER.md) (the original brief; PLAN.md wins where they

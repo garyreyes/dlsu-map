@@ -8,8 +8,9 @@ session and every tool, including ones that never load a skill.
 DLSU 3D Campus Navigator: a free, offline-first 3D map of De La Salle University (Manila) that routes students to
 any room. Phone-browser PWA for iPhone and Android. Student project, not an official DLSU app.
 
-**Status:** planning only. There is no app code yet. Don't scaffold or write app code until the team approves the
-plan. The planned folder structure is in `docs/ARCHITECTURE.md` §7.
+**Status:** plan approved by the team on 2026-10-19 (D15–D24 agreed). Build follows `docs/ROADMAP.md`, one
+sub-phase at a time, starting with 1a, in the lanes of `docs/SPLIT.md`. The folder structure is in
+`docs/ARCHITECTURE.md` §7. `prototypes/map-home/` is a design reference, not app code to copy.
 
 ## Read these first, in this order
 

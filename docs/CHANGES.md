@@ -8,6 +8,16 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-19: Plan approved (Gate 0)
+
+- The team approved the plan. D15–D24 are now *agreed* in `docs/DECISIONS.md`; D14 (GPS) stays proposed because
+  GPS moved out of v1.
+- The lanes in `docs/SPLIT.md` are agreed: Lane A Gary, Lane B Charles.
+- `CLAUDE.md` status now says the build follows `docs/ROADMAP.md` from 1a. `SUMMARY.md` and `docs/PLAN.md` got a
+  status note pointing to the current docs and listing what changed; they were not rewritten.
+- GitHub CLI installed on Charles's laptop. Gate 0 still open: `gh` on Gary's laptop, the Cloudflare account and
+  secrets.
+
 ## 2026-10-19: Roadmap and work split
 
 - Added `docs/ROADMAP.md`: ARCHITECTURE §10's 11 phases split into 38 sub-phases with a lane, dependencies and
