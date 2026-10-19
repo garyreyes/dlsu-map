@@ -8,6 +8,14 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-19: Product context for design (`/impeccable init`)
+
+- Added `docs/PRODUCT.md`, translated from the PRD. Impeccable finds it in `docs/`, so the root stays clean. No
+  Stack section (ARCHITECTURE owns it).
+- New facts from init: platform `web`; the app's own words are plain English; "DLSU 3D Campus Navigator" is a
+  working name; no DLSU seal, logo or official marks anywhere.
+- D13's massing-model look is recorded as a decided commitment; the palette stays open for the design step.
+
 ## 2026-10-19: User flows mapped
 
 - Added `docs/user-flows.md`: 11 screens, 6 system states and 1 dev-only page. Each screen has its one primary

@@ -22,6 +22,7 @@ plan. The planned folder structure is in `docs/ARCHITECTURE.md` §7.
 | 5 | `docs/PROJECT_FACTS.md` | Durable facts about tools, repo and data that aren't obvious from the code |
 | 6 | `docs/DECISIONS.md` | Every decision (D1 onward) with its evidence. Newest last |
 | 7 | `docs/PLAN.md` | Rendering and data-pipeline detail. Partly history now |
+| — | `docs/PRODUCT.md` | The PRD translated for Impeccable (design work). The PRD wins where they differ |
 | — | `docs/CHANGES.md` | Dated log of what changed. Search it; don't read it all |
 | — | `docs/HANDOVER.md` | The original brief, frozen for history. Everything above wins |
 
