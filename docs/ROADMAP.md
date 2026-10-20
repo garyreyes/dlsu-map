@@ -34,7 +34,7 @@ with a full-app polish.
 | 1a | Project scaffold: Vite + React ~19.3 + TS (tsc 7 / TS 6 API, D1), the ARCHITECTURE §7 folders, ESLint + Prettier, Vitest, `lint`/`typecheck`/`test`/`build` scripts, Husky + lint-staged, Dependabot npm block | A | Gate 0 | done |
 | 1b | Hosting: Cloudflare Workers static assets, a preview link per PR, CSP + security headers in `_headers`, `noindex` + disallow-all `robots.txt` (D19), Playwright test that fails on any request to another site | A | 1a | done |
 | 1c | App shell: R3F canvas with the prototype's gestures (pan, pinch, twist, tilt, compass); search bar, sheet and map buttons from DESIGN.md tokens; fix DESIGN.md's open items (16 px text, 48 px tap targets) | A | 1a | done |
-| 1d | Basic offline: precache with `globPatterns` widened to `.json/.woff2/.glb` + a CI check, "Ready offline" (O2), "Open this once with internet" (O1) | A | 1a | not started |
+| 1d | Basic offline: precache with `globPatterns` widened to `.json/.woff2/.glb` + a CI check, "Ready offline" (O2), "Open this once with internet" (O1) | A | 1a | done |
 | 1▸ | Impeccable critique + polish (Phase 1) | A | 1a–1d | not started |
 
 ## Phase 2: Outdoor campus ▸
@@ -116,7 +116,7 @@ owner checks it in the floor preview and marks it `checked: true`.
 
 | ID | Sub-phase | Lane | Depends on | Status |
 |---|---|---|---|---|
-| 10a | Offline hardening: update prompt (O4, never mid-route), `storage.persist`, cleared-storage state (O3), iOS hint; airplane-mode and week-unused tests on iPhone and Android | A | 1d, 5d | not started |
+| 10a | Offline hardening: update prompt (O4, never mid-route), `storage.persist`, cleared-storage state (O3), iOS hint; left over from 1d: web app manifest + icons, O2's percentage (needs our own service worker), "Ready offline" in a second tab open during a first save; airplane-mode and week-unused tests on iPhone and Android | A | 1d, 5d | not started |
 | 10b | ⓘ sheet (S10): Report a problem via the pre-filled Google Form (D24; the team creates the form), credits, beta label, version | A | 1c | not started |
 | 10c | Performance + accessibility: quality tiers, reduced motion, WCAG AA over the map | A | 8c | not started |
 | 10d | Private beta: unlisted link, `noindex` checked, testers invited | A | 10a–10c, 9a–9d | not started |
