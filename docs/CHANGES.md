@@ -23,7 +23,8 @@ session needs to know. Search this file; it isn't required reading (the reading 
   date and sorted output.
 - `data-src/campus/buildings.json` (16 buildings: slug, OSM ids, names and aliases from signs or OSM, tier, prefixes,
   `suggestPrefixes`, floor labels seen on signs) with its Zod schema in `src/shared/data/buildings.ts`, checked
-  against the snapshot by `tests/data-src.test.ts`. `data-src/LICENSE` (ODbL), as D4 requires.
+  against the snapshot by `tests/data-src.test.ts`. `data-src/LICENSE` (ODbL), as D4 requires; it leaves out
+  `data-src/floors/` (not ours to license yet, D21), matching `ATTRIBUTION.md`.
 
 ## 2026-10-20: Campus data shape agreed before 2a
 
