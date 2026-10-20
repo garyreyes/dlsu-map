@@ -1,5 +1,5 @@
-The map data in this folder (data-src/) and the data compiled from it (public/data/) are made available under the
-Open Database License (ODbL) v1.0: https://opendatacommons.org/licenses/odbl/1-0/
+The map data in this folder (data-src/), except data-src/floors/, and the data compiled from it (public/data/) are
+made available under the Open Database License (ODbL) v1.0: https://opendatacommons.org/licenses/odbl/1-0/
 Any rights in individual contents of the database are licensed under the Database Contents License v1.0:
 https://opendatacommons.org/licenses/dbcl/1-0/
 
@@ -7,7 +7,8 @@ It contains data from OpenStreetMap, © OpenStreetMap contributors, available un
 (https://www.openstreetmap.org/copyright). The test extracts in scripts/fixtures/ come from the same source under
 the same licence.
 
-Indoor floor plans (data-src/floors/) are traced from De La Salle University's evacuation maps. Whether they may be
-published is still an open question for the university (docs/DECISIONS.md, D4 and D21).
+Indoor floor plans (data-src/floors/, and anything in public/data/ compiled from them) are not under this or any
+other license: not ours to license yet (D21). They are traced from De La Salle University's evacuation maps, and
+whether they may be published is still an open question for the university (docs/DECISIONS.md, D4 and D21).
 
 Photos (data-src/photos/) are never committed and are not part of this database.
