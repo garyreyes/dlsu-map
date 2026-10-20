@@ -157,6 +157,23 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - **The precache list check** reads the `url:"…"` entries out of `dist/sw.js` and compares them with every file in
   `dist/`. A new file type in `public/` fails it until `globPatterns` in `vite.config.ts` covers it (or it is added to
   the test's named exceptions). Playwright's `serviceWorkers: 'block'` stands in for "never got saved". (2026-10-20)
+- **Faking the network in the offline tests** (Chromium, verified in 1▸):
+  - `context.route` also catches the service worker's own precache downloads, so aborting one file makes the first
+    save fail on purpose.
+  - Registering the same `sw.js` again after a failed first install starts a fresh install. That is how "Saving
+    paused" retries in place.
+  - "Opened with no signal" is faked by overriding `Navigator.prototype.onLine` in `addInitScript`. A localStorage
+    flag lets it survive the reload that signal returning triggers. (2026-10-20)
+- **`navigator.onLine` only says "no signal" reliably.** `true` can mean Wi-Fi with no internet (a login page). So
+  "Try again" calls `canReachSite()` (`shared/data/reach.ts`) before reloading. (2026-10-20)
+
+## Zod and the CSP
+
+- **Zod 4 probes for `eval` when it builds a schema, and the CSP blocks it** (`script-src 'self'`; no
+  `'unsafe-eval'`). `tests/e2e/hosting.spec.ts` reports it as "script-src blocked eval". Until 2c nothing in the
+  first-load bundle imports a schema, which is why `canReachSite` lives in `reach.ts`, apart from `load.ts`.
+  **2c will hit this** when the scene calls `loadCampus`. Likely fix: `z.config({ jitless: true })` once at start-up
+  (Zod's own switch for CSP-restricted pages). Never relax the CSP for it. (2026-10-20)
 
 ## Tool versions pinned in CI
 

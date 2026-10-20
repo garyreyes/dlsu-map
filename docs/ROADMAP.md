@@ -35,7 +35,7 @@ with a full-app polish.
 | 1b | Hosting: Cloudflare Workers static assets, a preview link per PR, CSP + security headers in `_headers`, `noindex` + disallow-all `robots.txt` (D19), Playwright test that fails on any request to another site | A | 1a | done |
 | 1c | App shell: R3F canvas with the prototype's gestures (pan, pinch, twist, tilt, compass); search bar, sheet and map buttons from DESIGN.md tokens; fix DESIGN.md's open items (16 px text, 48 px tap targets) | A | 1a | done |
 | 1d | Basic offline: precache with `globPatterns` widened to `.json/.woff2/.glb` + a CI check, "Ready offline" (O2), "Open this once with internet" (O1) | A | 1a | done |
-| 1▸ | Impeccable critique + polish (Phase 1) | A | 1a–1d | not started |
+| 1▸ | Impeccable critique + polish (Phase 1) | A | 1a–1d | done |
 
 ## Phase 2: Outdoor campus ▸
 

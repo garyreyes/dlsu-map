@@ -8,6 +8,34 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-20: 1▸ Phase 1 critique and polish
+
+- **Critique** (`/impeccable critique`, dual-agent; snapshot in `.impeccable/critique/`): 26/40, 3 P1s, no P0.
+  Detector clean in source, built HTML and 4 in-page views. The live overlay can't run under the CSP (expected).
+- **O1 only when the app can't start** (owner's call, revising 1d): opened with no signal and nothing downloaded.
+  If signal drops after the app opened, it stays on screen with "Saving paused. It finishes when you're back
+  online.", and the save is retried in place when signal returns.
+- **Silent failures now say so** under the pill: "Not saved for offline…" (failed with signal), and "This browser
+  can't save the map…" (no service workers, or registering refused, as in private modes).
+- **Map failed, split by cause** (`shared/ui/MapProblem`), styled like O1:
+  - "The map didn't download" with "Try again". The button shows only with signal, and it checks the site answers
+    (`canReachSite`) before reloading, so Wi-Fi with no internet can't land on the browser's error page.
+  - "This phone can't show the 3D map / You can still search for rooms and buildings." No button.
+- **Quick fixes:**
+  - The search pill is first in tab order.
+  - The sheet's hint row lost its magnifier, so it no longer reads as a second search box, and its focus ring is no
+    longer clipped.
+  - The not-official note drops "Beta.", which the pill already says.
+  - The OSM credit's tap area is 48px.
+  - Search input focus is a green underline on the bar, not a ring round the field.
+  - New `--radius-control` token (22px).
+- **Left for later:** the white-to-black first paint and `theme-color` (2c, with D13's palette); Try-list code chips
+  (3c).
+- **Found on the way:** Zod 4's `eval` probe is blocked by the CSP (PROJECT_FACTS, "Zod and the CSP"). 2c needs
+  `jitless`.
+- Tests: 469 unit (status logic and `canReachSite` written first), 19 e2e. Checked against breakage: removing the
+  retry fails the "Saving paused" test.
+
 ## 2026-10-20: 1d basic offline (precache, "Ready offline", "Open this once with internet")
 
 - **Precache** (`vite.config.ts`, vite-plugin-pwa 2.0 from the `1d-deps` PR): every built file is saved on the first

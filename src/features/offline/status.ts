@@ -16,11 +16,22 @@ export type SavePhase =
   /** A copy was already complete when the app opened. */
   | 'saved';
 
-/** What the service worker reported. `registered-*` say whether a finished copy existed when it registered. */
-export type SaveEvent = 'registered-saving' | 'registered-saved' | 'installed' | 'failed';
+/** What the service worker reported. `registered-*` say whether a finished copy existed when it registered.
+ *  `failed`: this try didn't work (no signal, a full disk). `refused`: the browser won't let any try work (private
+ *  modes reject registering outright). */
+export type SaveEvent = 'registered-saving' | 'registered-saved' | 'installed' | 'failed' | 'refused';
 
-/** What the screen shows: nothing, O1's full screen, or O2's line under the search pill. */
-export type OfflineView = 'none' | 'open-once-online' | 'saving' | 'ready-offline';
+/** What the screen shows: nothing, O1's full screen, or one of the lines under the search pill (O2 and its
+ *  failures). */
+export type OfflineView =
+  'none' | 'open-once-online' | 'saving' | 'saving-paused' | 'ready-offline' | 'not-saved' | 'cannot-save';
+
+/** The signal now, whether the app was opened with none, and whether "✓ Ready offline" has had its 3 s. */
+export interface ViewInput {
+  online: boolean;
+  startedOffline: boolean;
+  readyNoteDone: boolean;
+}
 
 const hasCopy = (phase: SavePhase) => phase === 'saved' || phase === 'saved-now';
 
@@ -37,24 +48,29 @@ export function nextPhase(phase: SavePhase, event: SaveEvent): SavePhase {
       return 'saved-now';
     case 'failed':
       return 'not-saved';
+    case 'refused':
+      return 'unsupported';
   }
 }
 
 /**
- * What to show. `readyNoteDone`: the 3 s of "✓ Ready offline" are over. O1 appears only when there is no copy and
- * no signal, because then the app can't finish loading and a closed tab can't come back.
+ * What to show. O1 replaces the app only when it was opened with no signal and nothing could be downloaded, so it
+ * can't finish loading. A worker that did download proves there was signal, so a wrong "no signal" reading at start
+ * never blocks the app. Signal dropping after it opened keeps the app on screen and says saving is paused. A copy
+ * that can't be made is always said out loud, so a student never walks into a dead zone thinking the app will work.
  */
-export function offlineView(phase: SavePhase, online: boolean, readyNoteDone: boolean): OfflineView {
+export function offlineView(phase: SavePhase, { online, startedOffline, readyNoteDone }: ViewInput): OfflineView {
   switch (phase) {
     case 'unsupported':
+      return 'cannot-save';
     case 'checking':
     case 'saved':
       return 'none';
     case 'saved-now':
       return readyNoteDone ? 'none' : 'ready-offline';
     case 'not-saved':
-      return online ? 'none' : 'open-once-online';
     case 'saving':
-      return online ? 'saving' : 'open-once-online';
+      if (!online) return startedOffline && phase === 'not-saved' ? 'open-once-online' : 'saving-paused';
+      return phase === 'saving' ? 'saving' : 'not-saved';
   }
 }
