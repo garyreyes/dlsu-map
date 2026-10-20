@@ -1,6 +1,6 @@
 // The campus meeting point between the lanes (docs/SPLIT.md): Lane B's compiler (2b) writes public/data/campus.json
 // in this shape, and Lane A's scene (2c) reads it. The loader validates it with campusSchema before use.
-// Additive changes only after 2c starts: gates, entrances and walkways join in 4a without touching these fields.
+// Additive changes only after 2c starts: the walk network, gates and entrances joined in 4a that way.
 import { z } from 'zod';
 
 /** A flat list of x, y pairs in meters: `[x0, y0, x1, y1, …]`. */
@@ -43,7 +43,50 @@ export const buildingSchema = z
   })
   .refine((b) => b.tier === 'block' || b.prefixes.length > 0, 'a full-tier building needs a room prefix');
 
-export const campusSchema = z.strictObject({
+const slug = z.string().regex(/^[a-z0-9-]+$/);
+/** An index into `walk.points`, counted in points, not numbers: point 2 is `points[4], points[5]`. */
+const pointIndex = z.int().min(0);
+
+/**
+ * The walking network (4a), joined to entrances and gates. Straight links between points; their lengths are worked
+ * out from the points. Routing (4b) runs on it and the direction text (4c) names its ways.
+ */
+export const walkSchema = z.strictObject({
+  /** Every point of the network as flat x, y pairs. Entrances and gates are points too. */
+  points: z.array(z.number()).refine((a) => a.length % 2 === 0, 'needs an even number of values (x, y pairs)'),
+  /** What a link is part of. `sidewalk` is drawn beside Taft Avenue, whose two sides meet only at a `crossing`
+   *  (D31); a crossing's name is the street it crosses. `door` joins an entrance or a gate to the nearest path. */
+  ways: z.array(
+    z.strictObject({
+      kind: z.enum(['path', 'steps', 'street', 'sidewalk', 'crossing', 'door']),
+      name: z.string().min(1).optional(),
+      covered: z.literal(true).optional(),
+    }),
+  ),
+  /** `[from point, to point, way]`. Walkable both ways. */
+  links: z.array(z.tuple([pointIndex, pointIndex, z.int().min(0)])),
+});
+
+export const gateSchema = z.strictObject({
+  /** Stable id for deep links and the picker: `gate-1`, `agno`. */
+  id: slug,
+  /** As students say it: `Gate 2 (North)`. */
+  name: z.string().min(1),
+  point: pointIndex,
+});
+
+export const entranceSchema = z.strictObject({
+  /** Building slug. */
+  building: slug,
+  kind: z.enum(['main', 'side', 'back']),
+  point: pointIndex,
+  /** False until checked on site (11a). Directions to it end in "(approximate)" (O6). */
+  verified: z.boolean(),
+  /** Where it opens to, when a building has more than one of a kind: `to SJ Walk`. */
+  name: z.string().min(1).optional(),
+});
+
+const campusFields = z.strictObject({
   /** The OSM snapshot date, `YYYY-MM-DD`. */
   snapshot: z.iso.date(),
   /** Shown on the map and in About (D4). */
@@ -67,9 +110,44 @@ export const campusSchema = z.strictObject({
       line: lineSchema,
     }),
   ),
+  walk: walkSchema,
+  /** The named gates, for "I'm outside" in Where are you (S4). */
+  gates: z.array(gateSchema),
+  entrances: z.array(entranceSchema),
 });
 
+type CampusFields = z.infer<typeof campusFields>;
+
+/** Every index points at something that exists, so routing never meets a dangling link. */
+function checkReferences(c: CampusFields, ctx: z.RefinementCtx): void {
+  const points = c.walk.points.length / 2;
+  const issue = (path: (string | number)[], message: string) => {
+    ctx.addIssue({ code: 'custom', path, message });
+  };
+  c.walk.links.forEach(([a, b, way], i) => {
+    if (a >= points || b >= points) issue(['walk', 'links', i], `has a point past the last (${String(points)})`);
+    if (a === b) issue(['walk', 'links', i], 'joins a point to itself');
+    if (way >= c.walk.ways.length) issue(['walk', 'links', i], 'has a way that does not exist');
+  });
+  const ids = new Set<string>();
+  c.gates.forEach((g, i) => {
+    if (g.point >= points) issue(['gates', i, 'point'], 'is not a walk point');
+    if (ids.has(g.id)) issue(['gates', i, 'id'], `${g.id} is used twice`);
+    ids.add(g.id);
+  });
+  const slugs = new Set(c.buildings.map((b) => b.slug));
+  c.entrances.forEach((e, i) => {
+    if (e.point >= points) issue(['entrances', i, 'point'], 'is not a walk point');
+    if (!slugs.has(e.building)) issue(['entrances', i, 'building'], `${e.building} is not a building`);
+  });
+}
+
+export const campusSchema = campusFields.superRefine(checkReferences);
+
 export type Campus = z.infer<typeof campusSchema>;
+export type Walk = Campus['walk'];
+export type Gate = z.infer<typeof gateSchema>;
+export type Entrance = z.infer<typeof entranceSchema>;
 export type CampusBuilding = z.infer<typeof buildingSchema>;
 export type Volume = z.infer<typeof volumeSchema>;
 export type CampusPath = Campus['paths'][number];

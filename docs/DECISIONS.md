@@ -703,3 +703,41 @@ it covers Dependabot PRs too).
 **Alternatives.** Auto-deploy `main` to production (the beta link exists from now on); a manual "Deploy" button in
 GitHub Actions (production goes live whenever it's pressed, before 10d); testing only the live preview (skipped on
 Dependabot PRs and can't be a required check).
+
+---
+
+## D30. Building entrances from pins on openstreetmap.org (2026-10-20, proposed)
+
+**Problem.** OSM has a door for none of the 10 full buildings. Its only "entrances" on their outlines are street
+gates (Gates 4A/4B, 5A/5B, 6, Gate 1). STRC, Miguel and Yuchengco touch no path at all, so routing (4a) has nothing
+to aim at.
+
+**Decision.** Charles drops a pin on each building's main entrance, and any side or back door students use, on
+openstreetmap.org (right-click → Show address gives the `lat, lon`). They go in `data-src/campus/entrances.json`.
+The compiler snaps each pin onto its own building's outline, fails the build if a pin is more than about 15 m from
+it, and joins the entrance to the nearest path. Every entrance starts `verified: false`, so directions to it say
+"(approximate)" (O6) until the on-site check (11a).
+
+**Alternatives.** Auto-placing one entrance where each outline comes closest to a path (some land on the wrong side,
+e.g. STRC's on Taft); placing them from a description in words (less precise, still needs a check); pins from
+Google Maps (its terms don't allow copying positions into another dataset, and its imagery doesn't line up with the
+OSM outlines).
+
+---
+
+## D31. Taft Avenue gets two sidewalks that meet only at crosswalks (2026-10-20, proposed)
+
+**Problem.** OSM has no sidewalks here, so walking means following street centre lines. On a centre line nothing
+stops a route crossing Taft Avenue mid-block, under the LRT, which is unsafe and not what anyone does. Andrew can
+only be reached along Taft. With footpaths alone the campus falls into 5 pieces; with the smaller streets, all but
+Andrew join.
+
+**Decision.** The compiler draws a sidewalk on each side of Taft, offset from the carriageway using OSM's `sidewalk`
+and `lanes` tags. Side paths join the sidewalk on their own side, and the two sides are linked only at mapped
+crosswalks (`footway=crossing` ways and `highway=crossing` points). Smaller streets (Agno, Fidel Reyes, Castro) are
+walked on their centre lines; routing (4b) gives them a cost penalty so campus paths win. Other main roads are left
+out of the walk network.
+
+**Alternatives.** Centre lines everywhere, Taft included (simplest, but routes can cross anywhere and the text can't
+say "at the crosswalk"); hand-drawn sidewalks in `data-src/campus/walkways.geojson` (most control, but hand data to
+maintain and check on site).
