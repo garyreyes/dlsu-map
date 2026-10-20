@@ -8,6 +8,27 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-20: 1b hosting (Cloudflare previews, headers, robots, off-site test)
+
+- `wrangler.jsonc`: Cloudflare Workers static assets serving `dist/` with the single-page fallback (D5). Production
+  stays dark (`workers_dev: false`) and each PR gets `https://pr-<n>-dlsu-map.gary-reyes.workers.dev` (D28,
+  proposed). The owner creates the Worker once by hand (`wrangler deploy`, no URL published); CI only uploads
+  previews.
+- `public/_headers`: D5's CSP, `nosniff`, `Referrer-Policy`, `Permissions-Policy` (no camera, mic or location) and
+  `X-Robots-Tag: noindex`. `public/robots.txt` disallows every crawler (D19).
+- `tests/e2e/hosting.spec.ts` (Playwright, Pixel 7 profile) against `wrangler dev`: exact headers on `/` and on a
+  deep link, `robots.txt`, `/_headers` not served, and nothing loaded from another site with no CSP violation.
+  Written test-first: 3 of 6 failed before `_headers` and `robots.txt` existed, then all passed. Two self-checks
+  prove each half of the guard can fail (a CSP-blocked `fetch`, and an off-site navigation only the request block
+  sees), and an injected CDN image was seen to fail the test. Gaps for 1d (service worker) and 2c (late loads) are
+  noted in the test.
+- CI: `gates` now installs Chromium and runs `npm run e2e` after the build (same job name, D22). A new `preview` job
+  (not required) uploads the preview after `gates` passes on same-repo code PRs and posts the link as one PR comment
+  that it edits on each push. The token is only in the upload step; fork and Dependabot PRs skip it.
+- New `tsconfig.e2e.json` gives the e2e tests DOM types without giving them to Node scripts.
+- Found while checking (PROJECT_FACTS "Cloudflare"): a missing `/data/*.json` returns `index.html` with status 200,
+  so `shared/data` must check the content type.
+
 ## 2026-10-20: Root MIT license and attribution (D4)
 
 - Added the root `LICENSE` (MIT, code) and `ATTRIBUTION.md` (which license covers what, plus the OSM credit),
