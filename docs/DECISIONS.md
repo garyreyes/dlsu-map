@@ -796,7 +796,7 @@ if the rooms in between are listed elsewhere on it, the dash means "and". (Owner
 ## D34. Routing costs in seconds, and which doors a route uses (2026-10-21, proposed)
 
 **Problem.** 4b needs one number to minimize that weighs walking, waiting at Taft and changing floors against each
-other, and the S5 time estimate needs the same numbers. And until floor plans exist (8b), the router can't know which
+other. The S5 time estimate needs the same numbers. And until floor plans exist (8b), the router can't know which
 door is nearest a room inside.
 
 **Decision.** The router adds up **seconds** (`src/shared/config/routing.ts`, owner's answers 2026-10-20):
@@ -807,8 +807,10 @@ door is nearest a room inside.
 - **Stairs 20 s per floor**, up or down. **Elevator 3 min** wait (rush hour is 3–10 min) **+ 5 s per floor**.
 - **Auto** = elevator for **3 floors or more** (PRD UC3, kept: most students wait for the elevator), stairs below.
 - All 9 gates are open all day; no path is closed.
+- **The time shown** (S5's "about 4 min") is real time: meters ÷ 1.3 m/s, plus Taft waits and floor changes. The ×1.5
+  and ×1.2 only steer which route is chosen. (Owner, 2026-10-21.)
 - **Doors:** From on G starts at the building's main entrance(s), the PRD's spot default. From an upper floor, and at
-  the To building, the route uses whichever door gives the shortest outdoor walk. 8b adds the indoor distance.
+  the To building, the route uses whichever door gives the cheapest outdoor walk. 8b adds the indoor distance.
 
 **Alternatives.** Meters with penalties in meters (floors and waits don't convert naturally); a covered-walkway bonus
 (rejected: most aren't covered); main entrances only until 8b (simple, but sends students round to the front past a

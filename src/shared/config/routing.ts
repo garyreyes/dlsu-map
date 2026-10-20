@@ -1,5 +1,6 @@
 // Routing costs (D34): the owner's answers, 2026-10-20. The router (4b) adds up seconds, so walking, waiting at
-// Taft and changing floors are compared in one unit; the time estimate (S5) is the same sum.
+// Taft and changing floors are compared in one unit. The time shown in S5 is the same sum without WAY_FACTOR: real
+// walking time, plus the waits and floor changes.
 import type { Walk } from '@/shared/data/campus';
 
 type WayKind = Walk['ways'][number]['kind'];
@@ -7,7 +8,8 @@ type WayKind = Walk['ways'][number]['kind'];
 /** Walking speed, meters per second. */
 export const WALK_SPEED = 1.3;
 
-/** Each meter of a way counts as this many. Small streets are walked down the middle with cars; steps are slower. */
+/** When choosing a route, each meter of a way counts as this many: small streets are walked down the middle with
+ *  cars, and steps are slower. Not in the time shown to students. */
 export const WAY_FACTOR = {
   path: 1,
   sidewalk: 1,
