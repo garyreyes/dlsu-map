@@ -19,7 +19,12 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    // Scripts reuse pure src/ modules (the 3b compiler calls parseRoomCode), whose type imports use the app alias.
+    // Type imports only: Node itself never resolves "@/", so a value import through it would crash compile-data.
+    // nodenext adds no extension to a mapped path, hence the second ".ts" entry.
+    "paths": { "@/*": ["./src/*", "./src/*.ts"] }
   },
   "include": ["vite.config.ts", "eslint.config.js", "eslint.boundaries.js", "tests", "scripts", "tools"],
   // Playwright tests need DOM types: tsconfig.e2e.json.

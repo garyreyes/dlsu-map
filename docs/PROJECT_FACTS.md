@@ -72,6 +72,22 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - Node 24 runs `scripts/*.ts` directly (type stripping), so scripts import other `.ts` files with the extension and
   need no build step. `Object.groupBy` isn't available: `tsconfig.node.json` targets ES2023. (2026-10-20)
 
+## Room lists
+
+- **`data-src/rooms/<building>.csv`**, one per building, named by slug. Columns:
+  `floor,code,name,floor_label,floor_checked,note`. `floor` is a whole number (G = 1). `code` is typed as printed
+  on the lobby directory (`C404/406`, `C-309`); the compiler expands combined entries (`/`, `-` and `&` all
+  separate rooms, D18) and makes codes canonical with `parseRoomCode`. `floor_checked` = `yes` lets a room sit
+  off number ÷ 100 (D26). `note` records every change from the sign. (2026-10-20)
+- Names are typed as printed, with obvious spelling fixed and trailing periods dropped; abbreviations stay
+  (`Che`, `CMD`, `BCRU`). (owner, 2026-10-20)
+- **STRC's directory has one wrong code:** its 4th-floor "Stock Room · C302" is entered as **C402** (C302 is a 3rd-floor
+  lab). And `C102/104-106` is rooms 102, 104 and 106, since C105 is the Mechatronics Lab. Both are the owner's
+  calls, 2026-10-20; check the doors when next on site.
+- `tsconfig.node.json` maps `@/*` so scripts can typecheck src files that use the alias. Type imports only: Node
+  doesn't resolve `@/`, so a value import through it would crash `compile-data` (CI's build step catches
+  it). (2026-10-20)
+
 ## Cloudflare
 
 - The free Cloudflare account is Gary's, signed in with GitHub. Never upgrade it to Workers Paid (D11).
