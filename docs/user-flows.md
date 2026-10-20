@@ -100,6 +100,8 @@ flowchart TD
 | `Andrew` or `AG` | **Andrew Hall** (building) |
 | `ST350` (not in the list) | "ST350 isn't in our list." + **Did you mean** ST305, ST310… |
 | `X305` (unknown prefix) | "No building uses X." + building names with their prefixes |
+| `VH501`, `J-201` (as printed on a sign, D25) | **Did you mean VL501 · Velasco** (one tap accepts it) |
+| `305` (no prefix, as St. Miguel's signs print it) | Rooms numbered 305 in each building |
 | `ST404/406` | **ST404** (read as the first number, D18) |
 
 - `C311` is shown and stored as `ST311` (canonical form, ARCHITECTURE §3.3), with "also written C311" under it.

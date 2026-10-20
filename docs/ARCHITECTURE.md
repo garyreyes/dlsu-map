@@ -67,18 +67,23 @@ Building 1---* Opening(kind=main|side|back) ---> Walkway network ---> Gate
 - **Every room number is its own Room.** The directory entry `C404/406 · Biology Lab` makes two rooms, `404` and
   `406`, both named "Biology Lab". If the evacuation map draws them as one space, they share a label position.
 - **Parsing:** `^(prefix)\s*-?\s*(\d{3,4})([A-Z]?)$`, case-insensitive. **Floor = number ÷ 100**, rounded down
-  (`G304` → 3, `AG1104` → 11). `C-309`, `c309` and `C 309` are the same code. `ST404/406` is read as `ST404`.
+  (`G304` → 3, `AG1104` → 11). That is only a guess: the room list's floor wins, so a mezzanine room sits on its
+  mezzanine (D26). `C-309`, `c309` and `C 309` are the same code. `ST404/406` is read as `ST404`. The parser's
+  result type is in `src/shared/data/room-code.ts`.
 - **Strict** (PRD §7): a code not in the room table is rejected with "Did you mean…" suggestions from uFuzzy.
 - **Prefixes** (owner's list, 2026-10-19): `SM` St. Miguel · `EY` Yuchengco · `VL` (alias `VE`) Velasco · `ER` Razon ·
   `SJ` St. Joseph · `G` Gokongwei · `LS` St. La Salle · `AG` Andrew · `ST` (alias `C`, as printed on its lobby
   directory) STRC · `MM` Mutien-Marie. The canonical form is the first prefix (`C311` is stored and shown as
   `ST311`).
+- **Suggest prefixes** (D25): `VH` (printed on Velasco's directory) and `J` (St. Joseph's) are never accepted.
+  `VH501` gives "Did you mean VL501 (Velasco)?".
 - **Connon and Henry Sy have no room codes** (no classes there) and are block tier for now (D20).
 
 ### 3.4 Compiler constraints (the build fails if any is broken)
 
 - Room codes are unique across the campus. Prefixes are unique across buildings.
-- Every room's floor exists, and its floor number matches `number ÷ 100`.
+- Every room's floor exists, and its floor number matches `number ÷ 100` unless the room is marked as found on
+  another floor, like a mezzanine (D26).
 - Every room is reachable from every main entrance (graph check).
 - Every door is within 3 m of a hallway line.
 - Every `servesFloors` value is a real floor of that building.
