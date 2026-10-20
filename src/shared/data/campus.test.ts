@@ -35,7 +35,9 @@ describe('campusSchema', () => {
 
   it('keeps the LRT as a rail path, so the scene can draw it apart from streets', () => {
     const rail = campusSchema.parse(sample).paths.filter((p) => p.kind === 'rail');
-    expect(rail).toEqual([{ kind: 'rail', name: 'LRT Line 1', line: [221, -261, 215.5, -242, 208, -223, 169, -137] }]);
+    expect(rail).toEqual([
+      { kind: 'rail', name: 'LRT Line 1', line: [221.1, -259.3, 215.7, -240.3, 208.3, -221.9, 169.2, -136] },
+    ]);
   });
 
   it.each<[string, Mutate]>([
