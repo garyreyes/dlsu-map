@@ -53,7 +53,7 @@ test('after the first open it says "Ready offline", then opens and loads its dat
   await expect(page.getByText('Open this once with internet')).toHaveCount(0);
   // The 3D map is a separate chunk: it must come from the saved copy too.
   await expect(page.getByText('Loading the campus…')).toHaveCount(0, { timeout: 15_000 });
-  await expect(page.getByText("The map couldn't load")).toHaveCount(0);
+  await expect(page.getByRole('alert')).toHaveCount(0);
   // Saved already, so the line stays away on later opens.
   await expect(page.getByText(/Saving for offline|Ready offline/)).toHaveCount(0);
   const data = await page.evaluate(async () => {
@@ -85,25 +85,77 @@ test('right after "Ready offline", the open page already uses the saved copy, wi
     .toBe(true);
 });
 
-test.describe('when the app could not be saved', () => {
-  // Stands in for a first open that never finished saving: no service worker ever gets registered.
+const line = (page: Page, text: string) => page.getByRole('status').filter({ hasText: text });
+
+test('losing signal after the app opened keeps it on screen, and the save finishes when signal returns', async ({
+  page,
+  context,
+}) => {
+  // Stands in for signal dropping mid-save: the precache download of one file fails.
+  await context.route('**/data/rooms.json', (route) => route.abort());
+  await page.goto('/');
+  await expect(line(page, 'Not saved for offline')).toBeVisible({ timeout: 30_000 });
+
+  await context.setOffline(true);
+  await page.evaluate(() => window.dispatchEvent(new Event('offline')));
+  await expect(line(page, 'Saving paused')).toBeVisible();
+  await expect(pill(page)).toBeVisible();
+  await expect(page.getByText('Open this once with internet')).toHaveCount(0);
+
+  // Signal back: the save is tried again in place, with no reload, and finishes.
+  await context.unroute('**/data/rooms.json');
+  await context.setOffline(false);
+  await page.evaluate(() => window.dispatchEvent(new Event('online')));
+  await expect(line(page, 'Ready offline')).toBeVisible({ timeout: 30_000 });
+});
+
+test.describe('when nothing is saved', () => {
+  // No service worker ever gets registered, so there is never a copy.
   test.use({ serviceWorkers: 'block' });
 
-  test('losing signal shows "Open this once with internet", and signal coming back brings the map back', async ({
+  test('opened with no signal, it shows "Open this once with internet", and signal brings the map', async ({
+    page,
+  }) => {
+    // The page itself still has to load, so the phone's "no signal" is faked. A flag in localStorage survives the
+    // reload that signal coming back triggers.
+    await page.addInitScript(() => {
+      Object.defineProperty(Navigator.prototype, 'onLine', {
+        get: () => localStorage.getItem('e2e-online') === '1',
+      });
+    });
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: 'Open this once with internet to save the map' })).toBeVisible();
+    await expect(pill(page)).toHaveCount(0);
+
+    await page.evaluate(() => {
+      localStorage.setItem('e2e-online', '1');
+      window.dispatchEvent(new Event('online'));
+    });
+    await expect(pill(page)).toBeVisible();
+    await expect(page.getByText('Open this once with internet')).toHaveCount(0);
+  });
+
+  test('a map that did not download says so, offers Try again only with signal, and search still works', async ({
     page,
     context,
   }) => {
+    await context.route('**/assets/campus-scene-*.js', (route) => route.abort());
     await page.goto('/');
+    await expect(page.getByRole('alert').filter({ hasText: "The map didn't download" })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Try again' })).toBeVisible();
+
+    // Wi-Fi with no internet: the phone says it has signal but the site doesn't answer, so no reload happens.
+    await context.route('**/data/campus.json', (route) => route.abort());
+    await page.getByRole('button', { name: 'Try again' }).click();
+    await expect(page.getByText("Still can't reach the site.")).toBeVisible();
     await expect(pill(page)).toBeVisible();
 
     await context.setOffline(true);
     await page.evaluate(() => window.dispatchEvent(new Event('offline')));
-    await expect(page.getByRole('heading', { name: 'Open this once with internet to save the map' })).toBeVisible();
-    await expect(pill(page)).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Try again' })).toHaveCount(0);
+    await expect(page.getByText('Connect to Wi-Fi or mobile data to load it.')).toBeVisible();
 
-    await context.setOffline(false);
-    await page.evaluate(() => window.dispatchEvent(new Event('online')));
-    await expect(pill(page)).toBeVisible();
-    await expect(page.getByText('Open this once with internet')).toHaveCount(0);
+    await pill(page).click();
+    await expect(page.getByRole('dialog', { name: 'Search' })).toBeVisible();
   });
 });

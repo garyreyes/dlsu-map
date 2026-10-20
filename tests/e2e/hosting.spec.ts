@@ -95,7 +95,8 @@ test('the app loads nothing from another site and breaks no CSP rule', async ({ 
   await page.waitForLoadState('networkidle');
   expect(offsite).toStrictEqual([]);
   expect(await violations()).toStrictEqual([]);
-  await expect(page.getByText("The map couldn't load")).toHaveCount(0);
+  // No map failure message of either kind (MapProblem is the only alert on home).
+  await expect(page.getByRole('alert')).toHaveCount(0);
 });
 
 // Self-checks: prove each half of the guard can fail. Without them, a guard that silently stopped seeing requests

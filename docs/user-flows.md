@@ -32,8 +32,8 @@
 
 | # | System state | Shows as |
 |---|---|---|
-| O1 | First open with no signal | Full screen: "Open this once with internet to save the map". No button; it reloads by itself when signal returns |
-| O2 | Saving for offline | Thin line under the search bar: "Saving for offline…", then "✓ Ready offline" for 3 s. The percentage ("…40%") waits for 10a |
+| O1 | First open with no signal | Full screen: "Open this once with internet to save the map". Only when the app opened with no signal and nothing downloaded. No button; it reloads by itself when signal returns |
+| O2 | Saving for offline | Thin line under the search bar: "Saving for offline…", then "✓ Ready offline" for 3 s. The percentage ("…40%") waits for 10a. If it can't finish, the line stays: "Saving paused…" (signal dropped after opening; retried when it returns), "Not saved for offline…" (failed with signal), "This browser can't save the map…" (private modes) |
 | O3 | Offline copy lost (iPhone cleared storage) | ⓘ shows "Not saved offline. Open with internet to save again" |
 | O4 | Map update ready | Toast: "Map updated. Reload?" Never shown mid-route |
 | O5 | Interior not traced yet (beta) | Route ends at the entrance; S9 says "ST311 is on 3F · indoor map coming" |
@@ -198,6 +198,7 @@ flowchart TD
     Saved -->|no, has signal| S1save[S1 + O2 Saving for offline…] --> Ready[✓ Ready offline]
     Saved -->|no, no signal| O1[O1 Open this once with internet]
     O1 -->|signal returns| S1save
+    S1save -->|signal drops| Paused[S1 + Saving paused] -->|signal returns| S1save
     S1 --> GL{3D works on this phone?}
     GL -->|no, or too slow| S11[S11 Text-only mode]
     S1 -.->|new data version found| O4[O4 Map updated. Reload?]

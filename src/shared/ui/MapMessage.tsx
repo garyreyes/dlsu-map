@@ -1,4 +1,5 @@
-/** A one-line state centred over the map, in Mid Ink (DESIGN.md, States): "Loading the campus…" and the like. */
+/** A one-line state centred over the map, in Mid Ink (DESIGN.md, States): "Loading the campus…". Failures use
+ *  MapProblem instead, so they never look like loading. */
 export function MapMessage({ text }: { text: string }) {
   return (
     <div
@@ -11,4 +12,3 @@ export function MapMessage({ text }: { text: string }) {
 }
 
 export const LOADING_MAP = 'Loading the campus…';
-export const MAP_FAILED = "The map couldn't load. Reload the page to try again.";
