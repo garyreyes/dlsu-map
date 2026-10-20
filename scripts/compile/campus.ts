@@ -1,6 +1,7 @@
-// data-src/campus (buildings.json + the OSM snapshot) → the campus.json the scene draws (2b). Pure: no I/O, so it is
-// tested on a made-up campus (campus.test.ts) and on the real data (tests/compile-data.test.ts). Anything the build
-// must not ship goes in `errors`; anything worth a look in the compile report goes in `notes`.
+// data-src/campus (buildings.json, gates.json, entrances.json + the OSM snapshot) → the campus.json the scene draws
+// and routing reads (2b, 4a). Pure: no I/O, so it is tested on a made-up campus (campus.test.ts) and on the real data
+// (tests/compile-data.test.ts). Anything the build must not ship goes in `errors`; anything worth a look in the compile
+// report goes in `notes`.
 import type { BuildingSource } from '../../src/shared/data/buildings.ts';
 import {
   campusSchema,
@@ -25,6 +26,7 @@ import {
   type Point,
   type Rect,
 } from './geometry.ts';
+import { compileWalk, type WalkSources } from './campus-walk.ts';
 import { heightOf, levelsOf, unreadHeightTags } from './heights.ts';
 
 /** The point at x = 0, y = 0: the prototype's origin, so 2c's sample and the real file line up. */
@@ -273,7 +275,12 @@ function paths(extent: Rect, ctx: Context): CampusPath[] {
   });
 }
 
-export function compileCampus(sources: readonly BuildingSource[], snapshot: Snapshot): CompileResult {
+/** Without walk sources the walk network is left empty, as the made-up campuses in campus.test.ts need. */
+export function compileCampus(
+  sources: readonly BuildingSource[],
+  snapshot: Snapshot,
+  walkSources?: WalkSources,
+): CompileResult {
   const { toMeters } = projection(ORIGIN);
   const ctx: Context = { toMeters, byId: new Map(snapshot.features.map((f) => [f.id, f])), errors: [], notes: [] };
   ctx.errors.push(...prefixClashes(sources).map((clash) => `prefix ${clash}`));
@@ -296,10 +303,18 @@ export function compileCampus(sources: readonly BuildingSource[], snapshot: Snap
     bridges: bridges(outlines, ctx),
     city: city(used, extent, ctx),
     paths: paths(extent, ctx),
-    // Filled by the walk network compiler (4a).
-    walk: { points: [], ways: [], links: [] },
-    gates: [],
-    entrances: [],
+    ...(walkSources
+      ? compileWalk(walkSources, {
+          features: snapshot.features,
+          byId: ctx.byId,
+          toMeters,
+          extent,
+          rings,
+          buildings: sources.map((b) => ({ slug: b.slug, tier: b.tier, outlines: outlines.get(b.slug) ?? [] })),
+          errors: ctx.errors,
+          notes: ctx.notes,
+        })
+      : { walk: { points: [], ways: [], links: [] }, gates: [], entrances: [] }),
   };
   const checked = campusSchema.safeParse(campus);
   if (!checked.success) {
