@@ -134,6 +134,12 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   doesn't resolve `@/`, so a value import through it would crash `compile-data` (CI's build step catches
   it). (2026-10-20)
 
+## Routing
+
+- **Assumptions until 8a maps the real stairs and elevators** (not confirmed, 2026-10-21): every full-tier building
+  has an elevator, and stairs cost the same going down as going up (20 s a floor). Auto only takes the elevator for 3+
+  floors, so the first matters only when a student picks Elevator.
+
 ## Cloudflare
 
 - The free Cloudflare account is Gary's, signed in with GitHub. Never upgrade it to Workers Paid (D11).
