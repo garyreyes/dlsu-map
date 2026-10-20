@@ -773,3 +773,20 @@ out of the walk network.
 **Alternatives.** Centre lines everywhere, Taft included (simplest, but routes can cross anywhere and the text can't
 say "at the crosswalk"); hand-drawn sidewalks in `data-src/campus/walkways.geojson` (most control, but hand data to
 maintain and check on site).
+
+---
+
+## D33. On these directory signs a dash between room numbers is a range (2026-10-20, proposed)
+
+**Problem.** D18 read a dash in a combined entry as "and": STRC's `C102/104-106` is rooms 102, 104 and 106, because
+C105 is the Mechatronics Lab. Velasco's, St. Joseph's and St. Miguel's directories use a dash as a range:
+`VH-304-309 Classrooms`, `J-403-406`, `313-317`, and the rooms in between appear nowhere else on the sign. Read as
+"and", rooms like VL305–VL308 would not be searchable.
+
+**Decision.** On these three signs a dash is a range. The CSV types the range out with `/` (`VL-304/305/306/307/308/309`)
+and a note gives the printed form, so the compiler stays as it is and STRC's reading doesn't change. A two-room dash
+(`SM202-203`, `SM212A-212B`) reads the same either way and is typed as printed. Each new sign is read on its own:
+if the rooms in between are listed elsewhere on it, the dash means "and". (Owner, 2026-10-20.)
+
+**Alternatives.** Make the compiler read every dash as a range (breaks STRC's `C102/104-106`); read every dash as "and"
+(loses the rooms in between).

@@ -94,11 +94,20 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   on the lobby directory (`C404/406`, `C-309`); the compiler expands combined entries (`/`, `-` and `&` all
   separate rooms, D18) and makes codes canonical with `parseRoomCode`. `floor_checked` = `yes` lets a room sit
   off number ÷ 100 (D26). `note` records every change from the sign. (2026-10-20)
+- **A dash between room numbers is a range on Velasco, St. Joseph and St. Miguel** (D33), so those CSVs type the
+  range out with `/` and a note. Check each new sign: on STRC the dash means "and".
+- **Prefixes as typed:** Velasco prints `VH-` and St. Joseph `J-`; both are only suggested (D25), so the CSVs use `VL-`
+  and `SJ-`. St. Miguel prints bare numbers; its CSV adds `SM`. Miguel 3F's "AFED-FA" (Dining Room/Employee Canteen)
+  is not a room code and is left out. (2026-10-20)
 - Names are typed as printed, with obvious spelling fixed and trailing periods dropped; abbreviations stay
   (`Che`, `CMD`, `BCRU`). (owner, 2026-10-20)
 - **STRC's directory has one wrong code:** its 4th-floor "Stock Room · C302" is entered as **C402** (C302 is a 3rd-floor
   lab). And `C102/104-106` is rooms 102, 104 and 106, since C105 is the Mechatronics Lab. Both are the owner's
   calls, 2026-10-20; check the doors when next on site.
+- **Owner calls on the other signs** (2026-10-20; check the doors when next on site): Velasco lists **VH-106** twice
+  (CNC Lab, MEM CIM Lab), entered as one room with both names; **VH-201A-206** is 201A then 202–206 (no 201 or 201B).
+  St. Joseph's **601/602A/B** wrap is split as "Chemical Room" and "Devt. Biology Research Room", and **J-208/209**
+  (printed under J-202/203) is read as the same Comparative Anatomy Lab.
 - `tsconfig.node.json` maps `@/*` so scripts can typecheck src files that use the alias. Type imports only: Node
   doesn't resolve `@/`, so a value import through it would crash `compile-data` (CI's build step catches
   it). (2026-10-20)
