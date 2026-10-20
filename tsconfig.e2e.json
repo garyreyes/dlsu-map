@@ -1,0 +1,11 @@
+{
+  // Playwright tests (tests/e2e) and their config. Like tsconfig.node.json, plus DOM types for the code that runs
+  // inside the page (page.evaluate, addInitScript). Kept separate so Node scripts can't use `window` by accident.
+  "extends": "./tsconfig.node.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.e2e.tsbuildinfo",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"]
+  },
+  "include": ["playwright.config.ts", "tests/e2e"],
+  "exclude": []
+}

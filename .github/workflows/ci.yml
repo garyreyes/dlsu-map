@@ -20,9 +20,12 @@ jobs:
     name: gates
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    outputs:
+      code: ${{ steps.changes.outputs.code }}
     env:
       DO_NOT_TRACK: '1'
       IMPECCABLE_NO_TELEMETRY: '1'
+      WRANGLER_SEND_METRICS: 'false'
     steps:
       - uses: actions/checkout@v7
         with:
@@ -94,6 +97,16 @@ jobs:
         if: steps.changes.outputs.code == 'true' && hashFiles('package-lock.json') != ''
         run: npm run build
 
+      # 1b: headers, robots.txt and "nothing loads from another site", against wrangler dev serving dist/ the way
+      # Cloudflare does. Needs no secrets, so it runs on Dependabot and fork PRs too.
+      - name: Install Playwright browser
+        if: steps.changes.outputs.code == 'true' && hashFiles('package-lock.json') != ''
+        run: npx playwright install --with-deps chromium
+
+      - name: End-to-end
+        if: steps.changes.outputs.code == 'true' && hashFiles('package-lock.json') != ''
+        run: npm run e2e
+
       # Deterministic design-slop rules (Impeccable). Exit 2 = findings, which fails the job.
       - name: Design detector
         if: >-
@@ -103,3 +116,74 @@ jobs:
           targets=(src)
           if [ -f index.html ]; then targets+=(index.html); fi
           npx --yes impeccable@4.6.0 detect "${targets[@]}"
+
+  # A preview link per PR (D5, D28): https://pr-<number>-dlsu-map.<account>.workers.dev. Not a required check. It
+  # never deploys to production: `versions upload` only makes a preview, and wrangler.jsonc keeps workers_dev off.
+  # Only same-repo PRs get the secrets (GitHub withholds them from forks and Dependabot), so other PRs skip it.
+  preview:
+    name: preview
+    needs: gates
+    if: >-
+      github.event_name == 'pull_request' && needs.gates.outputs.code == 'true' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      # The token is only in this step's environment. Only the PR number reaches the shell, never a title or a branch
+      # name, so nothing a PR author types can be run as a command.
+      - name: Upload preview
+        id: upload
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ALIAS: pr-${{ github.event.pull_request.number }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::notice::No Cloudflare secrets on this run, so no preview link."
+            exit 0
+          fi
+          if ! out=$(npx wrangler versions upload --preview-alias "$ALIAS" --message "$ALIAS" 2>&1); then
+            echo "$out"
+            exit 1
+          fi
+          echo "$out"
+          url=$(printf '%s\n' "$out" | grep -oE "https://$ALIAS-[a-z0-9.-]+\.workers\.dev" | head -n 1 || true)
+          if [ -z "$url" ]; then
+            echo "::error::wrangler printed no preview alias URL."
+            exit 1
+          fi
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "Preview: $url" >> "$GITHUB_STEP_SUMMARY"
+
+      # One comment per PR, edited on every push, so the thread doesn't fill up with links.
+      - name: Post the link on the PR
+        if: steps.upload.outputs.url != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          URL: ${{ steps.upload.outputs.url }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          body=$(printf '**Preview:** %s\n\nBuilt from %s. Beta, `noindex`: share it with testers only (D19).' \
+            "$URL" "${SHA:0:7}")
+          gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --edit-last --create-if-none --body "$body"
