@@ -8,6 +8,15 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-20: Rooms data shape agreed before 3b
+
+- Added `src/shared/data/rooms.ts`: the Zod schema for `public/data/rooms.json`, the meeting point between the 3b
+  compiler and search and the room card (3c, 3d). Each room: canonical `code`, `building`, `floor` (1 = ground),
+  `name`, and `floorLabel` only where a room's floor reads differently from its building's labels, such as
+  Velasco's "G Mezz" (D26). An array, so a duplicate code is rejected instead of silently dropped by `JSON.parse`.
+- `rooms.sample.json` and 14 tests. Whether a prefix is the canonical one (`ST`, not `C`) needs the prefix table, so
+  the compiler checks that. Room positions join with the floor files (6d), additively.
+
 ## 2026-10-20: 2b data compiler v1
 
 - `npm run compile-data` (`scripts/compile-data.ts`) turns `data-src/campus/buildings.json` and the OSM snapshot into
