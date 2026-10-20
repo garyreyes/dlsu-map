@@ -22,6 +22,20 @@ session needs to know. Search this file; it isn't required reading (the reading 
   `buildings.json`, so search (3c) and the room card (3d) read them from `campus.json` instead of keeping their own
   copy. "G Mezz" (D26) stays out: it belongs in the `rooms.json` shape (3b), since floor-label keys are whole numbers.
 
+## 2026-10-20: Root MIT license and attribution (D4)
+
+- Added the root `LICENSE` (MIT, code) and `ATTRIBUTION.md` (which license covers what, plus the OSM credit),
+  both called for by D4 but missing. `data-src/LICENSE` (ODbL) arrives with 2a (#12). README links both.
+- OSM-derived files outside `data-src/` (the prototype's `campus.json`, `*.sample.json`, `scripts/fixtures/`) are
+  ODbL, not MIT. The floor plans in `data-src/floors/` aren't licensed yet (D21).
+
+## 2026-10-20: Hosting tools for 1b (`wrangler`, Playwright)
+
+- Added `wrangler@4.149.0` and `@playwright/test@1.63.0` as exact-pinned devDependencies, in their own PR so the
+  lockfile change doesn't collide with other branches (SPLIT.md). Nothing uses them yet; `1b-hosting` does.
+- `npm ls --all` passes. `npm audit --omit=dev` is still clean; the dev-only warnings are the same
+  `markdownlint-cli2` chain as before (wrangler 4.149.0 avoids a `sharp` advisory, see PROJECT_FACTS).
+
 ## 2026-10-20: Dependabot skips major `@types/node` bumps
 
 - `@types/node` must match the Node we run (24, in `.nvmrc` and CI), so Dependabot now ignores its major updates;
