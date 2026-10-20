@@ -29,6 +29,13 @@ session needs to know. Search this file; it isn't required reading (the reading 
 - Found while checking (PROJECT_FACTS "Cloudflare"): a missing `/data/*.json` returns `index.html` with status 200,
   so `shared/data` must check the content type.
 
+## 2026-10-20: Root MIT license and attribution (D4)
+
+- Added the root `LICENSE` (MIT, code) and `ATTRIBUTION.md` (which license covers what, plus the OSM credit),
+  both called for by D4 but missing. `data-src/LICENSE` (ODbL) arrives with 2a (#12). README links both.
+- OSM-derived files outside `data-src/` (the prototype's `campus.json`, `*.sample.json`, `scripts/fixtures/`) are
+  ODbL, not MIT. The floor plans in `data-src/floors/` aren't licensed yet (D21).
+
 ## 2026-10-20: Hosting tools for 1b (`wrangler`, Playwright)
 
 - Added `wrangler@4.149.0` and `@playwright/test@1.63.0` as exact-pinned devDependencies, in their own PR so the
