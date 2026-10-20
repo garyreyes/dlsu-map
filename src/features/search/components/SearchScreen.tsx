@@ -39,7 +39,8 @@ export function SearchScreen({ onClose }: { onClose: () => void }) {
       aria-label="Search"
       className="fixed inset-0 z-10 flex flex-col bg-surface pt-[env(safe-area-inset-top,0px)]"
     >
-      <div className="flex h-16 flex-none items-center gap-1 border-b border-line pr-(--gutter-r) pl-2">
+      {/* Focus shows as a green underline on the bar rather than a ring round the field, which read as an alert. */}
+      <div className="flex h-16 flex-none items-center gap-1 border-b border-line pr-(--gutter-r) pl-2 has-[input:focus-visible]:shadow-[inset_0_-2px_0_var(--color-accent)]">
         <IconButton label="Back to the map" onClick={onClose}>
           <ArrowLeft className="size-6" strokeWidth={2} />
         </IconButton>
@@ -56,7 +57,7 @@ export function SearchScreen({ onClose }: { onClose: () => void }) {
           autoCapitalize="characters"
           spellCheck={false}
           enterKeyHint="search"
-          className="h-12 min-w-0 flex-1 rounded-row bg-transparent px-2 text-lg font-medium text-ink outline-none placeholder:font-normal placeholder:text-ink-3 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset"
+          className="h-12 min-w-0 flex-1 rounded-row bg-transparent px-2 text-lg font-medium text-ink outline-none placeholder:font-normal placeholder:text-ink-3"
         />
         {query !== '' && (
           <IconButton label="Clear" onClick={clear}>

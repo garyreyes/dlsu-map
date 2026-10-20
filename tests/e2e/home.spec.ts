@@ -6,7 +6,14 @@ import { expect, test, type Page } from '@playwright/test';
 const pill = (page: Page) => page.getByRole('button', { name: 'Search for a room or building' });
 const searchDialog = (page: Page) => page.getByRole('dialog', { name: 'Search' });
 
-test('without WebGL the map says it could not load, and search still works', async ({ page }) => {
+test('the search pill is the first thing Tab reaches', async ({ page }) => {
+  await page.goto('/');
+  await expect(pill(page)).toBeVisible();
+  await page.keyboard.press('Tab');
+  await expect(pill(page)).toBeFocused();
+});
+
+test('without WebGL the map says this phone cannot show it, and search still works', async ({ page }) => {
   await page.addInitScript(() => {
     type GetContext = (this: HTMLCanvasElement, type: string, ...rest: unknown[]) => RenderingContext | null;
     const original = Reflect.get(HTMLCanvasElement.prototype, 'getContext') as GetContext;
@@ -16,7 +23,10 @@ test('without WebGL the map says it could not load, and search still works', asy
     Reflect.set(HTMLCanvasElement.prototype, 'getContext', blocked);
   });
   await page.goto('/');
-  await expect(page.getByText("The map couldn't load. Reload the page to try again.")).toBeVisible();
+  await expect(page.getByRole('alert').filter({ hasText: "This phone can't show the 3D map" })).toBeVisible();
+  await expect(page.getByText('You can still search for rooms and buildings.')).toBeVisible();
+  // Reloading can't fix a phone without WebGL, so nothing offers to.
+  await expect(page.getByRole('button', { name: 'Try again' })).toHaveCount(0);
   await expect(page.getByText('Loading the campus…')).toHaveCount(0);
   await pill(page).click();
   await expect(searchDialog(page)).toBeVisible();

@@ -2,10 +2,10 @@
 // together. No parsing, routing or fetching here.
 import { lazy, Suspense, useLayoutEffect, useRef, useState } from 'react';
 import type { MapInsets } from '@/features/campus-scene';
-import { OpenOnceOnline, SavingLine, useOfflineStatus } from '@/features/offline';
+import { MapDidntDownload, OpenOnceOnline, SavingLine, useOfflineStatus } from '@/features/offline';
 import { HomeHint, SearchPill, SearchScreen } from '@/features/search';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
-import { LOADING_MAP, MAP_FAILED, MapMessage } from '@/shared/ui/MapMessage';
+import { LOADING_MAP, MapMessage } from '@/shared/ui/MapMessage';
 import { NotOfficialNote } from '@/shared/ui/NotOfficialNote';
 import { BottomSheet, SidePanel } from '@/shared/ui/Sheet';
 import { useIsWide } from '@/shared/ui/useMediaQuery';
@@ -49,14 +49,10 @@ export function App() {
   // Not saved and no signal: the app can't finish loading, so O1 stands in for all of it until signal returns.
   if (offline === 'open-once-online') return <OpenOnceOnline />;
 
+  // The search pill comes first in the page, so it's the first thing Tab and a screen reader reach; the map sits
+  // under it on screen either way.
   return (
     <>
-      {/* If the map's chunk can't download, only the map is lost: the pill and sheet stay usable. */}
-      <ErrorBoundary fallback={<MapMessage text={MAP_FAILED} />}>
-        <Suspense fallback={<MapMessage text={LOADING_MAP} />}>
-          <CampusMap insets={insets} sheetHeight={sheetHeight} wide={wide} />
-        </Suspense>
-      </ErrorBoundary>
       <header
         ref={header}
         className="fixed top-[calc(env(safe-area-inset-top,0px)+10px)] right-(--gutter-r) left-(--gutter-l) z-5 md:right-auto md:w-100"
@@ -65,6 +61,12 @@ export function App() {
         {/* Positioned below the header's box, so the map's top inset doesn't move when the line comes and goes. */}
         <SavingLine view={offline} />
       </header>
+      {/* If the map's chunk can't download, only the map is lost: the pill and sheet stay usable. */}
+      <ErrorBoundary fallback={<MapDidntDownload />}>
+        <Suspense fallback={<MapMessage text={LOADING_MAP} />}>
+          <CampusMap insets={insets} sheetHeight={sheetHeight} wide={wide} />
+        </Suspense>
+      </ErrorBoundary>
       {wide ? (
         <SidePanel label="Details">{home}</SidePanel>
       ) : (
