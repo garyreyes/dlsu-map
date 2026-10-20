@@ -9,7 +9,8 @@ updates:
         patterns: ['*']
 
   # The 3D stack moves as one group. React stays on ~19.3 until R3F supports 19.4 (D3), so major/minor React bumps
-  # are ignored. Packages in the group arrive with their sub-phases; listing them early is harmless.
+  # are ignored. Packages in the group arrive with their sub-phases; listing them early is harmless. @types/node
+  # follows the Node we run (.nvmrc, CI: 24), so only its patch/minor updates come through; bump all three together.
   - package-ecosystem: npm
     directory: /
     schedule:
@@ -22,3 +23,5 @@ updates:
         update-types: ['version-update:semver-minor', 'version-update:semver-major']
       - dependency-name: 'react-dom'
         update-types: ['version-update:semver-minor', 'version-update:semver-major']
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']

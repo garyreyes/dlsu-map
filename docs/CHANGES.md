@@ -8,6 +8,12 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-20: Dependabot skips major `@types/node` bumps
+
+- `@types/node` must match the Node we run (24, in `.nvmrc` and CI), so Dependabot now ignores its major updates;
+  patch and minor still come through. Closed #8 (24 → 26). Bump `.nvmrc`, the CI Node version and `@types/node`
+  together in one PR when Node moves.
+
 ## 2026-10-20: 3a room-code parser
 
 - `parseRoomCode(typed, table)` in `src/features/search/parse-room-code.ts`, exported from the feature's
