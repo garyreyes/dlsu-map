@@ -34,6 +34,8 @@
     "@react-three/fiber": "~9.8.2",
     "lucide-react": "^1.52.0",
     "motion": "^12.43.0",
+    "ngraph.graph": "^20.1.2",
+    "ngraph.path": "^1.6.1",
     "react": "~19.3.1",
     "react-dom": "~19.3.1",
     "react-modal-sheet": "^5.6.0",
