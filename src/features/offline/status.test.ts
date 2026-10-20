@@ -40,49 +40,74 @@ describe('nextPhase', () => {
     expect(nextPhase('saved-now', 'failed')).toBe('saved-now');
   });
 
+  it('treats a browser that refuses to register (private modes) as unable to save, not as a failed try', () => {
+    expect(nextPhase('checking', 'refused')).toBe('unsupported');
+    expect(nextPhase('not-saved', 'refused')).toBe('unsupported');
+    expect(nextPhase('saved', 'refused')).toBe('saved');
+  });
+
   it('stays unsupported whatever happens', () => {
-    const events: SaveEvent[] = ['registered-saving', 'registered-saved', 'installed', 'failed'];
+    const events: SaveEvent[] = ['registered-saving', 'registered-saved', 'installed', 'failed', 'refused'];
     for (const event of events) expect(nextPhase('unsupported', event)).toBe('unsupported');
   });
 });
 
 describe('offlineView', () => {
-  it('asks for one open with internet when nothing is saved and there is no signal (O1)', () => {
-    expect(offlineView('not-saved', false, false)).toBe('open-once-online');
-    expect(offlineView('saving', false, false)).toBe('open-once-online');
+  const online = { online: true, startedOffline: false, readyNoteDone: false };
+  const lostSignal = { online: false, startedOffline: false, readyNoteDone: false };
+  const openedOffline = { online: false, startedOffline: true, readyNoteDone: false };
+
+  it('asks for one open with internet only when the app was opened with no signal and nothing downloaded (O1)', () => {
+    expect(offlineView('not-saved', openedOffline)).toBe('open-once-online');
+  });
+
+  it('never blocks the app when the worker did download: the "no signal" reading at start was wrong', () => {
+    expect(offlineView('saving', openedOffline)).toBe('saving-paused');
+  });
+
+  it('keeps the app and says saving is paused when signal drops after it opened', () => {
+    expect(offlineView('saving', lostSignal)).toBe('saving-paused');
+    expect(offlineView('not-saved', lostSignal)).toBe('saving-paused');
   });
 
   it('shows the saving line while the first copy downloads with signal (O2)', () => {
-    expect(offlineView('saving', true, false)).toBe('saving');
+    expect(offlineView('saving', online)).toBe('saving');
   });
 
   it('shows "Ready offline" once, right after the first save, until its 3 s are up (O2)', () => {
-    expect(offlineView('saved-now', true, false)).toBe('ready-offline');
-    expect(offlineView('saved-now', false, false)).toBe('ready-offline');
-    expect(offlineView('saved-now', true, true)).toBe('none');
+    expect(offlineView('saved-now', online)).toBe('ready-offline');
+    expect(offlineView('saved-now', lostSignal)).toBe('ready-offline');
+    expect(offlineView('saved-now', { ...online, readyNoteDone: true })).toBe('none');
   });
 
   it('shows nothing once the app is saved, online or not', () => {
-    expect(offlineView('saved', true, false)).toBe('none');
-    expect(offlineView('saved', false, false)).toBe('none');
+    expect(offlineView('saved', online)).toBe('none');
+    expect(offlineView('saved', lostSignal)).toBe('none');
+    expect(offlineView('saved', openedOffline)).toBe('none');
   });
 
-  it('shows nothing with signal when a save failed: the next open tries again', () => {
-    expect(offlineView('not-saved', true, false)).toBe('none');
+  it('says so when a save failed with signal, instead of leaving the student to assume it worked', () => {
+    expect(offlineView('not-saved', online)).toBe('not-saved');
   });
 
   it('shows nothing before the registration answers, so a saved app never flashes O1', () => {
-    expect(offlineView('checking', false, false)).toBe('none');
-    expect(offlineView('checking', true, false)).toBe('none');
+    expect(offlineView('checking', online)).toBe('none');
+    expect(offlineView('checking', openedOffline)).toBe('none');
   });
 
-  it('never promises a save the browser cannot make', () => {
-    expect(offlineView('unsupported', false, false)).toBe('none');
-    expect(offlineView('unsupported', true, false)).toBe('none');
+  it('warns, whatever the signal, when the browser can never save the app', () => {
+    expect(offlineView('unsupported', online)).toBe('cannot-save');
+    expect(offlineView('unsupported', lostSignal)).toBe('cannot-save');
+    expect(offlineView('unsupported', openedOffline)).toBe('cannot-save');
   });
 
-  it('gives every phase a view', () => {
+  it('reaches every view', () => {
     const phases: SavePhase[] = ['unsupported', 'checking', 'not-saved', 'saving', 'saved-now', 'saved'];
-    for (const phase of phases) expect(offlineView(phase, true, false)).toMatch(/^(none|saving|ready-offline)$/);
+    const views = new Set(
+      phases.flatMap((phase) => [online, lostSignal, openedOffline].map((when) => offlineView(phase, when))),
+    );
+    expect([...views].sort()).toEqual(
+      ['cannot-save', 'none', 'not-saved', 'open-once-online', 'ready-offline', 'saving', 'saving-paused'].sort(),
+    );
   });
 });

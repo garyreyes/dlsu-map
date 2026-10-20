@@ -517,8 +517,15 @@ band.
 
 ### States
 
-- **Loading:** "Loading the campus…" centred in Mid Ink. **Map failed:** "The map couldn't load. Reload the page to
-  try again." in the same place.
+- **Loading:** "Loading the campus…" centred in Mid Ink.
+- **Map failed** (in the same place, so it never looks like loading): a 40px Soft Ink icon, a Headline, one Body
+  line in Mid Ink, and a secondary button only when pressing it can help. Split by cause:
+  - "The map didn't download" + "Try again". The button shows only with signal, and it checks the site answers
+    before reloading.
+  - "This phone can't show the 3D map" + "You can still search for rooms and buildings." No button.
+- **Offline lines** under the search pill (or to its right from 768px): a Sheet White plate with the Float shadow,
+  Mid Ink text, and a 16px icon. Green check for "Ready offline"; a Soft Ink cloud-off for the lines that stay
+  (saving paused, not saved, can't save).
 - **Empty search:** Recent rooms, or a Try list (ST311, AG1104, a building) on first use.
 - **Rejected code:** a red reason ("[Building] has no 9th floor.") then "Did you mean" with three rooms. Unknown prefix:
   "No building uses QQ." then every building with its code.
