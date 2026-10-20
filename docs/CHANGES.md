@@ -16,7 +16,88 @@ session needs to know. Search this file; it isn't required reading (the reading 
   and a name; entrances have a building, `main`/`side`/`back` and `verified`. Both point into `walk.points`.
 - The schema checks every index: no link to a missing point or way, no link from a point to itself, no gate id used
   twice, no entrance to an unknown building. The compiler emits an empty network until 4a fills it.
-- D30 (entrances from pins on openstreetmap.org) and D31 (Taft sidewalks that meet only at crosswalks), proposed.
+- D31 (entrances from pins on openstreetmap.org) and D32 (Taft sidewalks that meet only at crosswalks), proposed.
+
+## 2026-10-20: 1c app shell (3D map, gestures, search pill, sheet)
+
+- **Map** (`features/campus-scene`): a full-screen R3F canvas with the bare ground, green haze and lights from
+  DESIGN.md (palette A); buildings come in 2c. drei `CameraControls` give one-finger pan and pinch zoom toward the
+  fingers; a custom two-finger twist turns the map and two fingers dragged up or down tilt it. The compass appears
+  past 4° and turns back the short way; recenter flies home. The camera frames the area between the pill and the
+  sheet. The 3D code is a lazy chunk, so the pill and sheet work before three.js loads (user-flows §3.2).
+- **Chrome:** the 52px search pill with the Beta tag, 48px map buttons, the OSM credit, and the sheet at peek with
+  "Type a room, like ST311" (a 400px left panel from 768px). Tapping either opens the full-screen search frame;
+  results come in 3c. Back, Escape and the back arrow close it, and it's modal (background inert, focus restored).
+- **States:** "Loading the campus…", and "The map couldn't load" when WebGL is missing, the scene throws, or the
+  map's chunk fails to download (the pill and sheet stay usable). Reduced motion turns flights and the sheet into
+  cuts. Light interface only (owner's choice).
+- **D30 (proposed):** reading text is 16px or more and taps 48px or more; only the Beta tag and the credit stay at
+  14px. DESIGN.md's type scale, chips, secondary button and segments are updated, and the map haze and sun colours
+  joined its tokens.
+- **Tests:** the gesture maths test-first (35 cases, run red against a stub). The reviewer found that two-finger tilt
+  could never fire on a phone, because pointer events move one finger at a time; a tracker now waits for both
+  fingers, with tests fed one finger at a time. New e2e tests cover no-WebGL, Back, Escape, double taps and the modal
+  search; the 1b off-site test now runs with the 3D map on screen. 12 e2e and 328 unit tests pass.
+- **`/impeccable audit`:** both detector passes (source and the live page) are clean, and every text colour passes
+  WCAG AA (lowest 5.37:1, the Beta tag). It found the "Student project, not an official DLSU app" line missing from
+  the shell (PRODUCT.md, ARCHITECTURE §8): it now sits under the hint. Also fixed: no grab bar while the sheet can't be
+  dragged, and the OSM link's tap area reaches 48px. Open: the map can't be panned by keyboard (S11 text-only mode,
+  5c, is that path), and the 3D chunk is 962 kB (owner to decide on a size budget).
+- **Check on a real phone (preview link):** twist and tilt feel, pinch-zoom landing under the fingers with the view
+  offset, and the sheet's safe area on iPhone.
+
+## 2026-10-20: Campus loader for the 1c shell
+
+- `loadCampus()` (`src/shared/data/load.ts`) fetches `/data/campus.json` and returns `{ ok: true, data }` or
+  `{ ok: false, reason }`. It never throws, so the shell can show "The map couldn't load" instead of a half-drawn map.
+- Reasons: `offline` (no answer), `http` (error status), `not-json` (the content type isn't `application/json`, which
+  catches Cloudflare's 200 `index.html` fallback for a missing file), `invalid` (broken JSON or a schema failure).
+  Written test-first: 7 of 8 tests failed against a stub, then all passed. The reviewer pass found no blocker; it
+  added a case-insensitive content type, `BASE_URL` in the path and a test for a fetch that throws at once (10 tests).
+  `rooms.json` (3c) reuses the same path.
+
+## 2026-10-20: App-shell tools for 1c
+
+- Added the ARCHITECTURE §2 packages 1c needs, in their own PR (SPLIT.md): `three` 0.186, `@react-three/fiber` 9.8,
+  `@react-three/drei` 10.7 and `@types/three`; `tailwindcss` 4 with `@tailwindcss/vite`; `react-modal-sheet` with its
+  `motion` peer, held at 12 (see PROJECT_FACTS); `zustand` 5; `lucide-react` 1.52 for icons (its 2 px round-cap
+  line icons match DESIGN.md). Nothing uses them yet.
+- The 3D stack is pinned to patch updates (`~`), and R3F 9.8 accepts React `>=19 <19.4`, so D3's pin still holds.
+  `npm ls --all` passes and `npm audit --omit=dev` is clean. The dev-only audit warnings are the known ones
+  (`PROJECT_FACTS.md`).
+- 1c is marked `in progress` in `docs/ROADMAP.md`. The campus loader and the shell follow in their own PRs.
+
+## 2026-10-20: 6a floor-extract tool
+
+- `tools/floor-extract/` replaces the spike (dev-only, never shipped): `npm run floor-extract -- crop <photo> <x,y>…`
+  writes zoomed, gridded crops to read the 4 corners; `… extract <photo> <tl> <tr> <br> <bl>` straightens the plan,
+  splits colours, finds walls (double lines merged) and the route, and writes an overlay, a 3D preview and
+  `draft.json` (0–1 plan coordinates) to `tools/floor-extract/out/`, gitignored like the photos.
+- No OpenCV (D29, proposed): homography warp, long runs and blobs are plain TypeScript, written test-first on
+  hand-drawn images (64 tests). Only `sharp` was added, pinned at 0.35.5 (already in the tree through wrangler).
+- **Two map styles** (STRC's green signs; the white template with a red route everywhere else): detected from the
+  paper, ink judged against the paper around it so glare and shadow don't hide walls. Checked by eye on STRC 4F and
+  2F, St. Joseph 3F and St. Miguel 3F (124, 101, 131 and 510 walls; 0.4–1.9 s each).
+- The reviewer found no silent-wrong output in the maths; its fixes (output paths with `#` or `%`, dark edges of the
+  red route read as walls, a faster merge search, grid sampling for style detection) are in, with a test where one
+  applies. Official DLSU plans aren't guaranteed, so this is the main path for floors (PROJECT_FACTS).
+
+## 2026-10-20: 3b STRC room list → rooms.json
+
+- `data-src/rooms/strc.csv`: STRC's lobby directory typed row by row, **62 rooms** (G 13, 2F 19, 3F 18, 4F 12),
+  counted by hand on the photo and checked again by the reviewer. Owner's calls: the 4th-floor "Stock Room · C302"
+  is C402; `C102/104-106` is 102, 104 and 106; obvious spelling fixed, each fix in the `note` column.
+- `scripts/compile/rooms.ts` (test-first, red against a stub): a small CSV reader (quotes, CRLF, Excel's byte-order
+  mark, real line numbers in errors), combined entries expanded (D18), codes made canonical by the real
+  `parseRoomCode` (C → ST in one place), sorted by prefix then number. The build fails on a code used twice, another
+  building's prefix, a floor the building lacks, a floor off number ÷ 100 without `floor_checked` (D26), a row that
+  isn't a code, or a bad header.
+- `npm run compile-data` now also writes `public/data/rooms.json` (5 KB), and writes neither file if either has
+  errors. `tests/compile-rooms.test.ts` pins the real counts and 13 rooms by exact value.
+- `tsconfig.node.json` maps `@/*`, so the compiler can typecheck the parser (type imports only).
+- The reviewer found no mismatch with the photo and no silent drop; its smaller findings (line numbers after blank
+  lines, the BOM, header spaces, one error per row, numeric sort, error noise when the campus fails) are fixed with
+  tests. 336 tests.
 
 ## 2026-10-20: Rooms data shape agreed before 3b
 

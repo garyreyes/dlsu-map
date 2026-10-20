@@ -33,7 +33,7 @@ with a full-app polish.
 |---|---|---|---|---|
 | 1a | Project scaffold: Vite + React ~19.3 + TS (tsc 7 / TS 6 API, D1), the ARCHITECTURE §7 folders, ESLint + Prettier, Vitest, `lint`/`typecheck`/`test`/`build` scripts, Husky + lint-staged, Dependabot npm block | A | Gate 0 | done |
 | 1b | Hosting: Cloudflare Workers static assets, a preview link per PR, CSP + security headers in `_headers`, `noindex` + disallow-all `robots.txt` (D19), Playwright test that fails on any request to another site | A | 1a | done |
-| 1c | App shell: R3F canvas with the prototype's gestures (pan, pinch, twist, tilt, compass); search bar, sheet and map buttons from DESIGN.md tokens; fix DESIGN.md's open items (16 px text, 48 px tap targets) | A | 1a | not started |
+| 1c | App shell: R3F canvas with the prototype's gestures (pan, pinch, twist, tilt, compass); search bar, sheet and map buttons from DESIGN.md tokens; fix DESIGN.md's open items (16 px text, 48 px tap targets) | A | 1a | done |
 | 1d | Basic offline: precache with `globPatterns` widened to `.json/.woff2/.glb` + a CI check, "Ready offline" (O2), "Open this once with internet" (O1) | A | 1a | not started |
 | 1▸ | Impeccable critique + polish (Phase 1) | A | 1a–1d | not started |
 
@@ -51,7 +51,7 @@ with a full-app polish.
 | ID | Sub-phase | Lane | Depends on | Status |
 |---|---|---|---|---|
 | 3a | Room-code parser: prefixes, aliases (`C`→`ST`, `VE`→`VL`), format variants, floor = number ÷ 100, combined entries (D18) 🧪 | B | 1a | done |
-| 3b | STRC room list typed from the lobby directory → `rooms.json`; build fails on duplicate codes; floor labels 🧪 | B | 2b, 3a | not started |
+| 3b | STRC room list typed from the lobby directory → `rooms.json`; build fails on duplicate codes; floor labels 🧪 | B | 2b, 3a | done |
 | 3c | Search screen (S2): strict matching, "Did you mean" (uFuzzy), Recent, building matches | A | 1c, 3a | not started |
 | 3d | Room card (S3) with the floor band and floor chip; share link `?to=` and opening it 🧪 | A | 2c, 3b, 3c | not started |
 | 3▸ | Impeccable critique + polish (Phase 3) | A | 3a–3d | not started |
@@ -78,7 +78,7 @@ with a full-app polish.
 
 | ID | Sub-phase | Lane | Depends on | Status |
 |---|---|---|---|---|
-| 6a | `tools/floor-extract` built properly from the spike: corners, colour split, wall merge | B | 1a | not started |
+| 6a | `tools/floor-extract` built properly from the spike: corners, colour split, wall merge | B | 1a | done |
 | 6b | Verification spike, then the fit onto OSM outlines (ARCHITECTURE §4 step 4, unproven) | B | 2a, 6a | not started |
 | 6c | ↺ Floor builder (walls from a floor file), moved up from Phase 7 so the floor preview works | A | 2c | not started |
 | 6d | Dev-only floor preview (P1) + the `checked: true` step; STRC end to end, all 4 floors | B | 6b, 6c | not started |

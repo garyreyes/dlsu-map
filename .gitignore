@@ -23,3 +23,6 @@ playwright-report/
 
 # Dev-only pictures for checking data by eye (scripts/walk-svg.ts)
 out/
+
+# floor-extract output: derived from DLSU's evacuation-map photos, which are never committed (D17, D21)
+tools/floor-extract/out/

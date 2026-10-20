@@ -1,5 +1,5 @@
 // The walking network (4a): OSM footpaths, steps, small streets and crosswalks, joined wherever OSM shares a node,
-// plus Taft Avenue's sidewalks, which meet only at crosswalks (D31). Main roads are left out. Pure. Tests:
+// plus Taft Avenue's sidewalks, which meet only at crosswalks (D32). Main roads are left out. Pure. Tests:
 // walk.test.ts. Entrances and gates are joined to it in attach.ts.
 import type { Walk } from '../../src/shared/data/campus.ts';
 import type { LonLat } from '../../src/shared/geo/project.ts';
@@ -18,7 +18,7 @@ export interface Network {
   readonly links: Link[];
 }
 
-/** Streets walked on their sidewalks rather than their centre line (D31). */
+/** Streets walked on their sidewalks rather than their centre line (D32). */
 export const SIDEWALK_STREETS: ReadonlySet<string> = new Set(['Taft Avenue']);
 
 const KINDS: Readonly<Record<string, WayInfo['kind']>> = {

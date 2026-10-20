@@ -256,7 +256,7 @@ const crosswalk = line('way/3', { highway: 'footway', footway: 'crossing' }, [
 const west: Pt = [-30, 0];
 const east: Pt = [40, 0];
 
-describe('buildNetwork: Taft sidewalks (D31)', () => {
+describe('buildNetwork: Taft sidewalks (D32)', () => {
   it('draws each sidewalk 7.9 m out on its own side, named Taft Avenue', () => {
     const { network } = build(taftSouth, taftNorth);
     expect(at(network, [-7.9, 100])).toBeGreaterThanOrEqual(0);

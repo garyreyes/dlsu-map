@@ -1,6 +1,6 @@
 // Gates and building entrances joined to the walking network (4a), and the build's reachability check (ARCHITECTURE
 // §3.4: every room reachable; outdoors that means every building's main entrance, from every gate). A pin is snapped
-// onto its building's wall (D30), then joined to the nearest path by a straight `door` link that must not pass
+// onto its building's wall (D31), then joined to the nearest path by a straight `door` link that must not pass
 // through a building. Pure. Tests: attach.test.ts.
 import type { Entrance, Gate, Walk } from '../../src/shared/data/campus.ts';
 import { pointInRing, round, type Point } from './geometry.ts';

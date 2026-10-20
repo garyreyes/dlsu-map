@@ -18,7 +18,7 @@ export const gateSourcesSchema = z
   .array(z.strictObject({ id: slug, name: z.string().min(1), osm: z.string().regex(/^node\/\d+$/) }))
   .refine((gates) => new Set(gates.map((g) => g.id)).size === gates.length, 'gate ids must be unique');
 
-/** data-src/campus/entrances.json: pins dropped on openstreetmap.org (D30), `verified` once checked on site (11a). */
+/** data-src/campus/entrances.json: pins dropped on openstreetmap.org (D31), `verified` once checked on site (11a). */
 export const entranceSourcesSchema = z.array(
   z.strictObject({
     building: slug,

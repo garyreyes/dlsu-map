@@ -1,4 +1,4 @@
-// The sidewalks of the streets OSM maps only as carriageways (D31): Taft Avenue. Each side tagged `sidewalk=*` becomes
+// The sidewalks of the streets OSM maps only as carriageways (D32): Taft Avenue. Each side tagged `sidewalk=*` becomes
 // a line offset from the centre line; walk.ts joins paths to the side they meet and crosses only at crosswalks. Pure.
 // Tests: walk.test.ts ("Taft sidewalks").
 import type { LonLat } from '../../src/shared/geo/project.ts';
