@@ -32,6 +32,10 @@ colors:
   map-c-building: "#fbfbfa"
   map-c-path: "#ffffff"
   map-c-road: "#ffffff"
+  map-a-haze: "#163326"
+  map-b-haze: "#4f9a72"
+  map-c-haze: "#cfe5d7"
+  map-sun: "#fff4e6"
 typography:
   display:
     fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif"
@@ -70,25 +74,25 @@ typography:
     fontWeight: 700
   label:
     fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif"
-    fontSize: "14px"
+    fontSize: "16px"
     fontWeight: 600
     lineHeight: 1.4
   label-strong:
     fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif"
-    fontSize: "14px"
+    fontSize: "16px"
     fontWeight: 700
   caption:
     fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif"
-    fontSize: "14px"
+    fontSize: "16px"
     fontWeight: 400
     lineHeight: 1.4
   code-tag:
     fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif"
-    fontSize: "13px"
+    fontSize: "16px"
     fontWeight: 700
   micro:
     fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif"
-    fontSize: "12px"
+    fontSize: "14px"
     fontWeight: 600
     letterSpacing: "0.02em"
 rounded:
@@ -156,7 +160,7 @@ components:
     typography: "{typography.body-strong}"
     rounded: "{rounded.control}"
     padding: "0 16px"
-    height: "44px"
+    height: "48px"
   row:
     textColor: "{colors.ink}"
     rounded: "{rounded.row}"
@@ -175,7 +179,7 @@ components:
     typography: "{typography.body-strong}"
     rounded: "{rounded.control}"
     padding: "0 14px"
-    height: "44px"
+    height: "48px"
   chip-selected:
     backgroundColor: "{colors.accent}"
     textColor: "{colors.on-accent}"
@@ -194,7 +198,7 @@ components:
     textColor: "{colors.ink-2}"
     typography: "{typography.body-strong}"
     rounded: "{rounded.segment}"
-    height: "40px"
+    height: "48px"
   segmented-option-selected:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.ink}"
@@ -211,7 +215,7 @@ components:
     padding: "3px 8px"
   map-label-minor:
     textColor: "{colors.ink-2}"
-    typography: "{typography.micro}"
+    typography: "{typography.label}"
     padding: "2px 6px"
   map-label-selected:
     backgroundColor: "{colors.accent}"
@@ -249,6 +253,7 @@ density: one primary action per sheet, rows at least 56px tall, groups made by s
 boxes. The signature is the found floor drawn as a solid green band one storey tall around the building, with a
 floor chip beside it.
 
+The app ships the light interface only (1c); the dark tokens are kept for a later night mode (ROADMAP notes).
 The map palette is still open between D13 options B green and C grey and the owner's black (A, like Waze's dark
 mode, which replaced D13's orange); the prototype ships A as the default and a switcher in the info sheet. The
 interface never changes with it.
@@ -329,11 +334,11 @@ comes from weight and size, not from a second family.
 - **Search input** (500, 18px): the full-screen search field; placeholder drops to 400 in Soft Ink.
 - **Body** (400, 16px, 1.4): default text, fields, hints. **Body strong** (600, 16px): row titles, chips, segments.
 - **Button** (700, 17px): the primary button only.
-- **Label** (600, 14px): section labels in lists ("Recent", "Or pick a building", "Did you mean") in Mid Ink, and
-  major building labels on the map. **Label strong** (700, 14px): the floor chip.
-- **Caption** (400, 14px): row subtitles, notes, asides.
-- **Code tag** (700, 13px): building prefixes beside building rows.
-- **Micro** (600, 12px, 0.02em): the Beta tag, the OSM credit, minor map labels, the sample-room marker.
+- **Label** (600, 16px): section labels in lists ("Recent", "Or pick a building", "Did you mean") in Mid Ink, and
+  building labels on the map. **Label strong** (700, 16px): the floor chip.
+- **Caption** (400, 16px): row subtitles, notes, asides.
+- **Code tag** (700, 16px): building prefixes beside building rows.
+- **Micro** (600, 14px, 0.02em): the Beta tag and the OSM credit only. They are marks, not reading text (D29).
 
 ### Named Rules
 
@@ -342,9 +347,8 @@ the only green text. Building and floor arrive before anything else.
 
 **The Tabular Code Rule.** Any room code or floor number sits in tabular figures so codes line up in lists.
 
-**The Sixteen Floor Rule.** PRODUCT.md sets 16px as the text floor. The 12–14px roles above shipped in the
-prototype and are open against that floor; do not add new roles below 16px, and reconcile the existing ones before
-the real app.
+**The Sixteen Floor Rule.** Everything a student reads is 16px or more, and every tap target is 48px or more (D29,
+settled in 1c). The one exception is Micro (14px) for the Beta tag and the OSM credit. Don't add roles below 16px.
 
 ## Layout
 
@@ -427,7 +431,7 @@ It is the screen's primary action at home.
 - **Shape:** full pill (26px radius on 52px).
 - **Primary:** Campus Green fill, white 17px bold label, full width, 8px above. One per sheet: Directions on a card,
   Start on the route preview. Pressed state darkens to 94% brightness.
-- **Secondary:** 44px pill, 1px hairline, green 16px semibold text, no fill ("Pick another building", "Back").
+- **Secondary:** 48px pill, 1px hairline, green 16px semibold text, no fill ("Pick another building", "Back").
 - **Icon button:** 48px circle, Mid Ink icon, Pale Leaf on hover (share, close, back, clear, info).
 - **Map button:** 48px white circle with Float shadow, Deep Ink icon (recenter: "Show the whole campus"). Buttons
   stack in a column, 12px apart.
@@ -437,7 +441,7 @@ It is the screen's primary action at home.
 
 ### Chips
 
-- **Style:** 44px pill, 1px hairline, 16px semibold Deep Ink text, no fill.
+- **Style:** 48px pill, 1px hairline, 16px semibold Deep Ink text, no fill.
 - **State:** selected (`aria-pressed`) fills Campus Green with white text. Used for floor choices in a grid
   (60px minimum columns) and for the From and To ends of a route, where a small Mid Ink "From"/"To" leads.
 
@@ -462,12 +466,12 @@ It is the screen's primary action at home.
 ### Lists and rows
 
 Full-width 56px rows that bleed 8px past the gutter so the hover fill aligns with the text: a Soft Ink icon, a
-semibold title over a 14px Mid Ink subtitle, and for buildings a code tag at the end. Rows group under 14px Mid Ink
+semibold title over a 16px Mid Ink subtitle, and for buildings a code tag at the end. Rows group under 16px Mid Ink
 section labels; no dividers.
 
 ### Segmented control
 
-A Pale Leaf track with 4px padding holding 40px segments. The selected segment turns Sheet White with Deep Ink text
+A Pale Leaf track with 4px padding holding 48px segments. The selected segment turns Sheet White with Deep Ink text
 and a Float shadow. Used for Stairs / Auto / Elevator inside the collapsed "Route options" disclosure, and for the
 map colour switcher.
 
@@ -483,15 +487,15 @@ buttons. The full-screen search page closes with its back arrow or Escape.
 
 ### Map labels
 
-Building names sit on Sheet White plates with the Float shadow, 14px semibold, anchored above the roof. Minor
-buildings use a 12px Mid Ink variant that only appears when zoomed in. The selected building's label turns Campus
+Building names sit on Sheet White plates with the Float shadow, 16px semibold, anchored above the roof. Minor
+buildings use a 16px Mid Ink variant that only appears when zoomed in. The selected building's label turns Campus
 Green. Labels hide rather than overlap: the floor chip and "you are here" are placed first and building labels give
 way to them, and none may sit under the pill or sheet.
 
 ### Floor band (signature)
 
 The found room's floor drawn as a solid Campus Green band one storey tall, set 0.6m outside the walls and inset
-0.1m top and bottom so the storey lines stay visible. The floor chip (Campus Green plate, white 14px bold, "3F" or
+0.1m top and bottom so the storey lines stay visible. The floor chip (Campus Green plate, white 16px bold, "3F" or
 "G") attaches to the right-most stretch of the band the camera can actually see. The building itself takes a 22%
 green tint and the camera flies to a heading that shows the band.
 
@@ -545,5 +549,5 @@ band.
   app self-hosts React Three Fiber and works offline), the sample rooms and their "Sample room" marker, the D13
   palette switcher (remove once the palette is decided), the "Prototype:" notes and the Start toast, and the
   label-collision width estimate.
-- **Don't** add new text roles below 16px or tap targets below 48px (chips and the secondary button at 44px and
-  segments at 40px are open against PRODUCT.md's floor).
+- **Don't** add new text roles below 16px or tap targets below 48px (D29). Only the Beta tag and the OSM credit
+  sit at 14px.
