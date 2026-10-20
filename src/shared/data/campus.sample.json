@@ -13,8 +13,10 @@
       "slug": "strc",
       "name": "Science & Technology Research Center",
       "short": "STRC",
+      "aliases": ["STRC", "Science and Technology Research Center"],
       "tier": "full",
       "prefixes": ["ST", "C"],
+      "floorLabels": { "1": "G" },
       "levels": 4,
       "volumes": [
         { "outline": [-66, -201, -58.5, -186, -71, -180, -116, -160.5, -123, -176.5], "base": 0, "top": 13.6 }
@@ -24,6 +26,7 @@
       "slug": "henry-sy",
       "name": "Henry Sy Sr. Hall",
       "short": "Henry Sy",
+      "aliases": ["Henry Sy", "Centennial Building"],
       "tier": "block",
       "prefixes": [],
       "levels": 15,
@@ -36,6 +39,7 @@
       "slug": "bloemen",
       "name": "Brother Alphonsus Bloemen Hall",
       "short": "Bloemen",
+      "aliases": ["Bloemen"],
       "tier": "block",
       "prefixes": [],
       "levels": 2,

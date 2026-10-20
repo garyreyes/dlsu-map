@@ -20,15 +20,23 @@ export const volumeSchema = z
   .strictObject({ outline: ringSchema, base: z.number().min(0), top: z.number().positive() })
   .refine((v) => v.top > v.base, 'top must be above base');
 
+const prefix = z.string().regex(/^[A-Z]+$/);
+
 export const buildingSchema = z
   .strictObject({
     slug: z.string().regex(/^[a-z0-9-]+$/),
     name: z.string().min(1),
     short: z.string().min(1),
+    /** Other names students search by ("Andrew", "Gonzalez Hall"). */
+    aliases: z.array(z.string().min(1)),
     /** `full`: interiors traced (v1's 10). `block`: outside only (D20). */
     tier: z.enum(['full', 'block']),
     /** Canonical prefix first (ARCHITECTURE §3.3). Empty for buildings without room codes, like Connon. */
-    prefixes: z.array(z.string().regex(/^[A-Z]+$/)),
+    prefixes: z.array(prefix),
+    /** Printed on the building's signs but only suggested, never accepted (D25). */
+    suggestPrefixes: z.array(prefix).optional(),
+    /** Floor number → the label on its signs, only where seen: `{ "1": "G" }`. Others show as "2F". */
+    floorLabels: z.record(z.string().regex(/^\d+$/), z.string().min(1)).optional(),
     levels: z.number().int().positive(),
     /** A podium and a tower are two volumes. */
     volumes: z.array(volumeSchema).min(1),
