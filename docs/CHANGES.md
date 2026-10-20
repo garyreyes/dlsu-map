@@ -18,6 +18,12 @@ session needs to know. Search this file; it isn't required reading (the reading 
 - `tests/compile-rooms.test.ts` checks each building's per-floor counts (hand-counted on the photos), the prefixes,
   24 spot rooms and the mezzanine. A range typed as "and" fails it (checked).
 
+## 2026-10-20: floor-extract skill for Claude Code
+
+- Committed `.claude/skills/floor-extract/SKILL.md`, the step-by-step for turning one evacuation-map photo into a
+  draft floor with `tools/floor-extract` (6a). Anyone using Claude Code in this repo now gets it as a skill.
+- `.gitignore` now ignores `.claude/settings.local.json` (personal permissions); `.claude/skills/` stays shared.
+
 ## 2026-10-20: Walk network shape agreed before 4a
 
 - `campus.json` gains `walk`, `gates` and `entrances` (`src/shared/data/campus.ts`), the meeting point between the
