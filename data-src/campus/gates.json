@@ -1,0 +1,11 @@
+[
+  { "id": "gate-1", "name": "Gate 1 (South)", "osm": "node/821585690" },
+  { "id": "gate-2", "name": "Gate 2 (North)", "osm": "node/7604181123" },
+  { "id": "gate-3", "name": "Gate 3 (Velasco)", "osm": "node/7604181115" },
+  { "id": "gate-4a", "name": "Gate 4A (Gokongwei)", "osm": "node/7604181170" },
+  { "id": "gate-4b", "name": "Gate 4B (Gokongwei)", "osm": "node/7604181172" },
+  { "id": "gate-5a", "name": "Gate 5A (Andrew)", "osm": "node/7604181171" },
+  { "id": "gate-5b", "name": "Gate 5B (Andrew)", "osm": "node/4089307757" },
+  { "id": "gate-6", "name": "Gate 6 (Razon)", "osm": "node/4089307758" },
+  { "id": "agno", "name": "Agno Gate", "osm": "node/7601978421" }
+]

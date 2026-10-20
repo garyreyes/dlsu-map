@@ -2,8 +2,10 @@
 // a broken data constraint fails CI (ARCHITECTURE §3.4). Prints the compile report; exits 1 on any error and then
 // writes nothing. The rules live in scripts/compile/ (pure, tested); this file only reads, writes and prints.
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import type { z } from 'zod';
 import { buildingSourcesSchema } from '../src/shared/data/buildings.ts';
 import { compileCampus, type Snapshot } from './compile/campus.ts';
+import { entranceSourcesSchema, gateSourcesSchema } from './compile/campus-walk.ts';
 
 const root = new URL('../', import.meta.url);
 const readJson = (path: string): unknown => JSON.parse(readFileSync(new URL(path, root), 'utf8'));
@@ -17,15 +19,22 @@ function latestSnapshot(): string {
   return dir + latest;
 }
 
+/** A data-src file read with its schema, or null after printing what is wrong with it. */
+function readSource<T>(path: string, schema: z.ZodType<T>): T | null {
+  const parsed = schema.safeParse(readJson(path));
+  if (parsed.success) return parsed.data;
+  console.error(`${path} is invalid:`);
+  for (const issue of parsed.error.issues) console.error(`  ${issue.path.join('.')}: ${issue.message}`);
+  return null;
+}
+
 function main(): number {
-  const sources = buildingSourcesSchema.safeParse(readJson('data-src/campus/buildings.json'));
-  if (!sources.success) {
-    console.error('data-src/campus/buildings.json is invalid:');
-    for (const issue of sources.error.issues) console.error(`  ${issue.path.join('.')}: ${issue.message}`);
-    return 1;
-  }
+  const sources = readSource('data-src/campus/buildings.json', buildingSourcesSchema);
+  const gates = readSource('data-src/campus/gates.json', gateSourcesSchema);
+  const entrances = readSource('data-src/campus/entrances.json', entranceSourcesSchema);
+  if (!sources || !gates || !entrances) return 1;
   const snapshotPath = latestSnapshot();
-  const { campus, errors, notes } = compileCampus(sources.data, readJson(snapshotPath) as Snapshot);
+  const { campus, errors, notes } = compileCampus(sources, readJson(snapshotPath) as Snapshot, { gates, entrances });
 
   console.log(`compile-data: ${snapshotPath}`);
   for (const note of notes) console.log(`  note: ${note}`);
@@ -47,6 +56,11 @@ function main(): number {
   );
   console.log(`  campus rings: ${String(campus.campus.length)}, city blocks: ${String(campus.city.length)}`);
   console.log(`  paths: ${kinds.map(([k, n]) => `${k} ${String(n)}`).join(', ')}`);
+  const verified = campus.entrances.filter((e) => e.verified).length;
+  console.log(
+    `  walk: ${String(campus.walk.points.length / 2)} points, ${String(campus.walk.links.length)} links; ` +
+      `gates: ${String(campus.gates.length)}; entrances: ${String(campus.entrances.length)} (${String(verified)} verified)`,
+  );
   console.log(`  wrote public/data/campus.json (${(json.length / 1024).toFixed(0)} KB)`);
   return 0;
 }

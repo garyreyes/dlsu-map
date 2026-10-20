@@ -20,3 +20,6 @@ public/data/*.json
 .wrangler/
 test-results/
 playwright-report/
+
+# Dev-only pictures for checking data by eye (scripts/walk-svg.ts)
+out/

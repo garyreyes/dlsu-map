@@ -49,7 +49,7 @@ describe('compiling the real campus', () => {
     expect(campus?.bridges).toHaveLength(4);
   });
 
-  it('keeps the 2 campus rings (main campus; STRC, Andrew and Razon across Taft) and drops the 7 small patches', () => {
+  it('keeps the 2 campus rings (main campus; STRC, Andrew and Razon across the side streets) and drops the 7 small patches', () => {
     expect(campus?.campus).toHaveLength(2);
     expect(notes).toContain('campus: dropped 7 boundary rings with no listed building in it');
   });

@@ -56,7 +56,8 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   only with the members that touch it. The campus boundary (relation 11126048) came back with 2 of its 9 ways, so
   the script fetches such relations again with `/relation/<id>/full`. Every building came back complete. (2026-10-20)
 - The campus boundary is 9 separate outer rings, plus gates and entrances as points on its ways. Only 2 hold our
-  buildings (the main campus; STRC, Andrew and Razon across Taft); the other 7 are small patches (bike parking and
+  buildings (the main campus; STRC, Andrew and Razon north of it, across the side streets: every one of our
+  buildings is on the west side of Taft); the other 7 are small patches (bike parking and
   the like, 42–1,144 m²) that the compiler drops and lists. Miguel Hall (relation 6095002) is a multipolygon with a
   courtyard hole, which `campus.json` can't draw yet (no holes). `type=building` relations (One Archers' Place, a
   hotel) add no shape: their outline and parts are ordinary ways. (2026-10-20)
@@ -69,6 +70,16 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - **`campus.json` coordinates: x is meters east, y is meters north** of the origin 120.9932, 14.5647, WGS84 scale
   (`src/shared/geo/project.ts`). `prototypes/map-home/campus.json` is different: y is meters *south* (three.js z)
   and it sits about 21 m west. Never copy coordinates from the prototype. (2026-10-20)
+- **OSM has no doors for our buildings.** The only `entrance=*` nodes on the 10 full buildings are street gates on
+  4 outlines (Gates 4A/4B on Gokongwei, 5A/5B on Andrew, 6 on Razon, Gate 1 on St. La Salle), so entrances are pins
+  in `data-src/campus/entrances.json` (D30). Gates come twice: Gate 1 is `node/821585690` (guarded, on the service
+  road) and `node/7543149937` (on St. La Salle's wall); Gate 2 is also tagged "Henry Gate (GATE 2 NORTH)"
+  (`node/11733783709`). `gates.json` picks one node per gate. (2026-10-20)
+- **Taft Avenue is two one-way carriageways** about 17 m apart with the LRT between them, each `sidewalk=right` and
+  2–4 `lanes`, so the compiler draws one sidewalk per carriageway (D31). 9 `footway=crossing` ways cross it near
+  campus. Leaving out the other main roads splits off about 29 pieces of city streets (186 points), which the
+  compiler drops; the 3 inside the campus are escalators and raised walkways near Yuchengco (`level` 1–2, for the
+  indoor network, 8a) and `way/814461722`, a footway that stops 3.4 m short of the next path in OSM. (2026-10-20)
 - Node 24 runs `scripts/*.ts` directly (type stripping), so scripts import other `.ts` files with the extension and
   need no build step. `Object.groupBy` isn't available: `tsconfig.node.json` targets ES2023. (2026-10-20)
 
