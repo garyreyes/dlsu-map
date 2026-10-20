@@ -15,7 +15,8 @@
     "typecheck": "node node_modules/@typescript/native/bin/tsc -b",
     "test": "vitest run",
     "format": "prettier --write .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "fetch-osm": "node scripts/fetch-osm.ts"
   },
   "lint-staged": {
     "*.{ts,tsx,js}": [

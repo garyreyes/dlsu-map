@@ -1,0 +1,152 @@
+[
+  {
+    "slug": "andrew",
+    "osm": ["way/68194576"],
+    "name": "Br. Andrew Gonzalez Hall",
+    "short": "Andrew",
+    "aliases": ["Andrew", "Gonzalez Hall"],
+    "tier": "full",
+    "prefixes": ["AG"]
+  },
+  {
+    "slug": "gokongwei",
+    "osm": ["way/22480437"],
+    "name": "John Gokongwei Hall",
+    "short": "Gokongwei",
+    "aliases": ["Gokongwei"],
+    "tier": "full",
+    "prefixes": ["G"]
+  },
+  {
+    "slug": "velasco",
+    "osm": ["way/22480419"],
+    "name": "Velasco Hall",
+    "short": "Velasco",
+    "aliases": ["Velasco", "Urbano J. Velasco Hall"],
+    "tier": "full",
+    "prefixes": ["VL", "VE"],
+    "suggestPrefixes": ["VH"],
+    "floorLabels": { "1": "G" }
+  },
+  {
+    "slug": "miguel",
+    "osm": ["relation/6095002"],
+    "name": "St. Miguel Hall",
+    "short": "Miguel",
+    "aliases": ["Miguel", "St. Miguel"],
+    "tier": "full",
+    "prefixes": ["SM"],
+    "floorLabels": { "1": "G" }
+  },
+  {
+    "slug": "yuchengco",
+    "osm": ["way/22480429"],
+    "name": "Don Enrique T. Yuchengco Hall",
+    "short": "Yuchengco",
+    "aliases": ["Yuchengco"],
+    "tier": "full",
+    "prefixes": ["EY"]
+  },
+  {
+    "slug": "sj",
+    "osm": ["way/162097203"],
+    "name": "St. Joseph Hall",
+    "short": "St. Joseph",
+    "aliases": ["St. Joseph"],
+    "tier": "full",
+    "prefixes": ["SJ"],
+    "suggestPrefixes": ["J"],
+    "floorLabels": { "1": "G" }
+  },
+  {
+    "slug": "ls",
+    "osm": ["way/693174261"],
+    "name": "St. La Salle Hall",
+    "short": "La Salle Hall",
+    "aliases": ["La Salle Hall"],
+    "tier": "full",
+    "prefixes": ["LS"]
+  },
+  {
+    "slug": "razon",
+    "osm": ["way/22480452"],
+    "name": "Enrique M. Razon Sports Center",
+    "short": "Razon",
+    "aliases": ["Razon", "Sports Center"],
+    "tier": "full",
+    "prefixes": ["ER"]
+  },
+  {
+    "slug": "mutien",
+    "osm": ["way/216575963"],
+    "name": "Mutien-Marie Hall",
+    "short": "Mutien-Marie",
+    "aliases": ["Mutien"],
+    "tier": "full",
+    "prefixes": ["MM"]
+  },
+  {
+    "slug": "strc",
+    "osm": ["way/22480439"],
+    "name": "Science & Technology Research Center",
+    "short": "STRC",
+    "aliases": ["STRC", "Science and Technology Research Center"],
+    "tier": "full",
+    "prefixes": ["ST", "C"],
+    "floorLabels": { "1": "G" }
+  },
+  {
+    "slug": "connon",
+    "osm": ["way/22480428"],
+    "name": "Br. Gabriel Connon Hall",
+    "short": "Connon",
+    "aliases": ["Connon"],
+    "tier": "block",
+    "prefixes": []
+  },
+  {
+    "slug": "henry-sy",
+    "osm": ["way/22480435"],
+    "name": "Henry Sy Sr. Hall",
+    "short": "Henry Sy",
+    "aliases": ["Henry Sy", "Centennial Building"],
+    "tier": "block",
+    "prefixes": []
+  },
+  {
+    "slug": "william",
+    "osm": ["way/162097202"],
+    "name": "William Hall",
+    "short": "William",
+    "aliases": ["William"],
+    "tier": "block",
+    "prefixes": []
+  },
+  {
+    "slug": "faculty-center",
+    "osm": ["way/22480423"],
+    "name": "Faculty Center",
+    "short": "Faculty Center",
+    "aliases": [],
+    "tier": "block",
+    "prefixes": []
+  },
+  {
+    "slug": "st-john",
+    "osm": ["way/22480430"],
+    "name": "St. John Hall",
+    "short": "St. John",
+    "aliases": ["St. John"],
+    "tier": "block",
+    "prefixes": []
+  },
+  {
+    "slug": "bloemen",
+    "osm": ["way/22480420"],
+    "name": "Br. Alphonsus Bloemen Hall",
+    "short": "Bloemen",
+    "aliases": ["Bloemen"],
+    "tier": "block",
+    "prefixes": []
+  }
+]

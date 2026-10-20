@@ -633,3 +633,26 @@ Offline, the button says to send it once there's signal. Free, no card (D11).
 
 **Alternatives.** GitHub issues (testers lack accounts); a group chat link only (nothing pre-filled).
 **Revisit if** the public launch needs a channel that doesn't depend on Google.
+
+---
+
+## D27. OSM snapshot from the main API, converted by our own code (2026-10-20, proposed)
+
+Numbered D27 because D25 and D26 are proposed in PR #9.
+
+**Problem.** D4 planned to download the snapshot from Overpass, the service meant for read-only downloads. Every
+public Overpass server failed on 2026-10-19 and 2026-10-20 (502, 504, timeouts). The snapshot also needs a
+converter from OSM's points-and-ways format to shapes, and none is in the ARCHITECTURE §2 stack.
+
+**Decision.** `npm run fetch-osm` makes one area request to the OSM main API (it answered in about 3 s), then
+fetches in full any kept relation the area cut short (the campus boundary). It sends a `User-Agent` naming the app
+and is run by hand, now and then, which the OSM API usage policy allows. Our own converter
+(`scripts/osm-to-geojson.ts`, about 200 lines, tested on real extracts) keeps only what the map uses and reports
+anything it can't convert instead of guessing.
+
+**Alternatives.** Overpass first with the main API as backup (failed every time we tried); the `osmtogeojson`
+package (a new dependency outside the stack, latest release a beta); saving raw OSM JSON and converting in 2b (moves
+the same work).
+
+**Revisit if** the snapshot is ever refreshed automatically or often: that is bulk use, and belongs on Overpass or a
+planet extract.

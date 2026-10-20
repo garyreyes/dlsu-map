@@ -41,6 +41,22 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   Feature code lives either at the feature's top level (logic) or under `components/` (UI); any other subfolder is
   treated as logic. (2026-10-19)
 
+## OpenStreetMap data
+
+- **Overpass is unreliable from here:** every public mirror returned 502/504 or timed out on 2026-10-19 and
+  2026-10-20. The main API (`api.openstreetmap.org/api/0.6/map.json?bbox=…`) answered in about 3 s with 2.5 MB, so
+  `npm run fetch-osm` uses it (D27). It needs a `User-Agent` naming the app. (2026-10-20)
+- **An area request cuts relations at its edge.** It returns every way touching the area in full, but a relation
+  only with the members that touch it. The campus boundary (relation 11126048) came back with 2 of its 9 ways, so
+  the script fetches such relations again with `/relation/<id>/full`. Every building came back complete. (2026-10-20)
+- The campus boundary is 9 separate outer rings, 5 of them bike-parking areas, plus gates and entrances as points on
+  its ways. Miguel Hall (relation 6095002) is a multipolygon with a courtyard hole. `type=building` relations (One
+  Archers' Place, a hotel) add no shape: their outline and parts are ordinary ways. (2026-10-20)
+- Ways come back complete even far outside the area: the LRT line way runs the length of Manila with all its
+  stations. The compiler clips to what the scene needs. (2026-10-20)
+- Node 24 runs `scripts/*.ts` directly (type stripping), so scripts import other `.ts` files with the extension and
+  need no build step. `Object.groupBy` isn't available: `tsconfig.node.json` targets ES2023. (2026-10-20)
+
 ## Cloudflare
 
 - The free Cloudflare account is Gary's, signed in with GitHub. Never upgrade it to Workers Paid (D11).

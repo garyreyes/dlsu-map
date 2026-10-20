@@ -8,6 +8,22 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-20: 2a OSM snapshot and building list
+
+- `npm run fetch-osm` (`scripts/fetch-osm.ts`) downloads the campus area from the OSM main API, refetches any relation
+  the area cut short, and writes `data-src/campus/osm/snapshot-2026-10-20.geojson`: 1,397 features (all 16 buildings,
+  the campus boundary, 266 streets and paths, 53 gates, 27 entrances, 14 elevators, 48 crossings, 4 skybridges).
+  Run by hand only. Overpass was down both days, so D27 (proposed) switches to the main API.
+- `scripts/osm-to-geojson.ts`: our own converter, written test-first (36 cases, real extracts in `scripts/fixtures/`,
+  red against a stub first). Keeps only what the map uses; reports anything it can't convert instead of guessing.
+- A reviewer pass found no wrong shape in today's data, but six inputs the converter would have drawn wrong in
+  silence. All are now reported or handled, with tests: figure-8 rings, a hole in nested outlines (now the innermost),
+  repeated or oddly-roled members, zero-area rings, highway multipolygons. The script got a 60 s timeout, a Manila
+  date and sorted output.
+- `data-src/campus/buildings.json` (16 buildings: slug, OSM ids, names and aliases from signs or OSM, tier, prefixes,
+  `suggestPrefixes`, floor labels seen on signs) with its Zod schema in `src/shared/data/buildings.ts`, checked
+  against the snapshot by `tests/data-src.test.ts`. `data-src/LICENSE` (ODbL), as D4 requires.
+
 ## 2026-10-20: Campus data shape agreed before 2a
 
 - Added `src/shared/data/campus.ts`: the Zod schema and types for `public/data/campus.json`, the SPLIT.md meeting
