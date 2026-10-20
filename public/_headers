@@ -1,0 +1,9 @@
+# Security headers for every response (D5, ARCHITECTURE §8). Cloudflare Workers static assets read this file; it is
+# never served itself. Changing it needs the owner's yes (CLAUDE.md). tests/e2e/hosting.spec.ts pins every value.
+# X-Robots-Tag keeps the beta out of search engines until public launch (D19, removed in 11c).
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  X-Robots-Tag: noindex

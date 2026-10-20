@@ -195,13 +195,14 @@ dlsu-map/
 
 No accounts, backend, database or user data, so most of the usual risks don't exist. What does apply:
 
-- [ ] **No third-party requests at runtime.** Self-hosted fonts on every drei `<Text>`, no drei `<Environment
+- [x] **No third-party requests at runtime.** Self-hosted fonts on every drei `<Text>`, no drei `<Environment
       preset>`. A Playwright test fails on any request to another origin.
-- [ ] **CSP and security headers** in `public/_headers` (D5). `Permissions-Policy: camera=(), microphone=(),
+- [x] **CSP and security headers** in `public/_headers` (D5). `Permissions-Policy: camera=(), microphone=(),
       geolocation=()` while GPS is out of v1.
-- [ ] **Beta link (D19):** `X-Robots-Tag: noindex` and a disallow-all `robots.txt` until the public launch, plus a
-      visible "Beta, not an official DLSU app" label.
-- [ ] **Secrets:** only the Cloudflare deploy token and account id, stored in GitHub Actions secrets. Never in the
+- [ ] **Beta link (D19):** `X-Robots-Tag: noindex` and a disallow-all `robots.txt` until the public launch (done in
+      1b), plus a visible "Beta, not an official DLSU app" label (the real one lands with the shell, 1c, and the ⓘ
+      sheet, 10b). Production stays dark until 10d (D28).
+- [x] **Secrets:** only the Cloudflare deploy token and account id, stored in GitHub Actions secrets. Never in the
       repo. `.env*` is gitignored.
 - [ ] **DLSU material stays out of git:** `data-src/photos/`, `docs/reference/`, and `docs/spikes/*/out/` are
       gitignored. Traced floor files *are* committed (accepted risk, D21).

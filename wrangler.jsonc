@@ -1,0 +1,18 @@
+// Cloudflare Workers static assets (D5). There is no Worker script: Cloudflare serves dist/ and applies the headers
+// in public/_headers (copied into dist/ by the build).
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "dlsu-map",
+  "compatibility_date": "2026-10-01",
+  "send_metrics": false,
+  // Production stays dark until the private beta (10d, D28): no workers.dev URL, only a preview link per PR.
+  // Turning workers_dev on publishes the beta link, so it needs the owner's yes (CLAUDE.md).
+  "workers_dev": false,
+  "preview_urls": true,
+  "assets": {
+    "directory": "./dist",
+    // Deep links (?to=ST311, /some/path) get index.html. So does a missing /data/*.json, with status 200: see
+    // PROJECT_FACTS ("Cloudflare"), which is why shared/data checks the content type, not just res.ok.
+    "not_found_handling": "single-page-application"
+  }
+}
