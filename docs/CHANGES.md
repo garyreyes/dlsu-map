@@ -8,6 +8,12 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-20: floor-extract skill for Claude Code
+
+- Committed `.claude/skills/floor-extract/SKILL.md`, the step-by-step for turning one evacuation-map photo into a
+  draft floor with `tools/floor-extract` (6a). Anyone using Claude Code in this repo now gets it as a skill.
+- `.gitignore` now ignores `.claude/settings.local.json` (personal permissions); `.claude/skills/` stays shared.
+
 ## 2026-10-20: 1c app shell (3D map, gestures, search pill, sheet)
 
 - **Map** (`features/campus-scene`): a full-screen R3F canvas with the bare ground, green haze and lights from
