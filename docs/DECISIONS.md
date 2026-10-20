@@ -706,7 +706,23 @@ Dependabot PRs and can't be a required check).
 
 ---
 
-## D29. Reading text at 16px, taps at 48px; only the Beta tag and credit at 14px (2026-10-20, proposed)
+## D29. Floor extraction without OpenCV (2026-10-20, proposed)
+
+**Problem.** ARCHITECTURE §2 named `@techstark/opencv-js` + `sharp` for `tools/floor-extract/`, as the spike used.
+OpenCV is a 10 MB WebAssembly package with an awkward async start, and the spike used only three of its functions:
+the perspective warp, a morphological open with a line, and connected components.
+
+**Decision.** The tool keeps `sharp` (decode the photo, write PNGs; already in the tree at the patched 0.35.5 through
+wrangler) and does those three steps in plain TypeScript: a 4-point homography with bilinear sampling, long-run
+masks, and 8-connected blobs. Every step is a pure function with unit tests on hand-drawn images. Measured: 0.4–1.9 s
+per floor on real photos (the spike took about 4 s).
+
+**Alternatives.** OpenCV as in the spike (no unit tests on its steps, a large dependency for three functions).
+**Revisit if** extraction needs something OpenCV is genuinely good at, like line detection on bent or curved plans.
+
+---
+
+## D30. Reading text at 16px, taps at 48px; only the Beta tag and credit at 14px (2026-10-20, proposed)
 
 **Problem.** PRODUCT.md sets a 16px text floor and 48px tap targets, but the prototype shipped 12–14px roles (Beta
 tag, OSM credit, row subtitles, section labels, code tags, map labels, the floor chip) and 44px chips, a 44px

@@ -338,7 +338,7 @@ comes from weight and size, not from a second family.
   building labels on the map. **Label strong** (700, 16px): the floor chip.
 - **Caption** (400, 16px): row subtitles, notes, asides.
 - **Code tag** (700, 16px): building prefixes beside building rows.
-- **Micro** (600, 14px, 0.02em): the Beta tag and the OSM credit only. They are marks, not reading text (D29).
+- **Micro** (600, 14px, 0.02em): the Beta tag and the OSM credit only. They are marks, not reading text (D30).
 
 ### Named Rules
 
@@ -347,7 +347,7 @@ the only green text. Building and floor arrive before anything else.
 
 **The Tabular Code Rule.** Any room code or floor number sits in tabular figures so codes line up in lists.
 
-**The Sixteen Floor Rule.** Everything a student reads is 16px or more, and every tap target is 48px or more (D29,
+**The Sixteen Floor Rule.** Everything a student reads is 16px or more, and every tap target is 48px or more (D30,
 settled in 1c). The one exception is Micro (14px) for the Beta tag and the OSM credit. Don't add roles below 16px.
 
 ## Layout
@@ -549,5 +549,5 @@ band.
   app self-hosts React Three Fiber and works offline), the sample rooms and their "Sample room" marker, the D13
   palette switcher (remove once the palette is decided), the "Prototype:" notes and the Start toast, and the
   label-collision width estimate.
-- **Don't** add new text roles below 16px or tap targets below 48px (D29). Only the Beta tag and the OSM credit
+- **Don't** add new text roles below 16px or tap targets below 48px (D30). Only the Beta tag and the OSM credit
   sit at 14px.

@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 
-/** The OSM credit the data licence requires (D4), always on the map. 14px: a mark, not reading text (D29). The link's
+/** The OSM credit the data licence requires (D4), always on the map. 14px: a mark, not reading text (D30). The link's
  *  tap area reaches 48px past its small plate without changing how it looks. */
 export function MapCredit({ position }: { position: CSSProperties }) {
   return (

@@ -1,4 +1,4 @@
-/* Interface tokens from docs/DESIGN.md, light only (1c). Text floors from D29: 16px for reading text, 14px only for
+/* Interface tokens from docs/DESIGN.md, light only (1c). Text floors from D30: 16px for reading text, 14px only for
    the Beta tag and the OSM credit; 48px tap targets. Map colours live in src/shared/config/palette.ts, never here. */
 @import 'tailwindcss';
 
