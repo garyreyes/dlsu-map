@@ -88,10 +88,14 @@ test('the _headers file itself is not served', async ({ request }) => {
 test('the app loads nothing from another site and breaks no CSP rule', async ({ page, baseURL }) => {
   const { offsite, violations } = await guard(page, baseURL ?? '');
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  // The home screen with the 3D map running, so WebGL, the sheet and the icons are all inside the check.
+  await expect(page.getByRole('button', { name: 'Search for a room or building' })).toBeVisible();
+  await expect(page.locator('canvas')).toBeAttached();
+  await expect(page.getByRole('button', { name: 'Show the whole campus' })).toBeVisible();
   await page.waitForLoadState('networkidle');
   expect(offsite).toStrictEqual([]);
   expect(await violations()).toStrictEqual([]);
+  await expect(page.getByText("The map couldn't load")).toHaveCount(0);
 });
 
 // Self-checks: prove each half of the guard can fail. Without them, a guard that silently stopped seeing requests

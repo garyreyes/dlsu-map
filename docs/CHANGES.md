@@ -8,6 +8,44 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-20: 1c app shell (3D map, gestures, search pill, sheet)
+
+- **Map** (`features/campus-scene`): a full-screen R3F canvas with the bare ground, green haze and lights from
+  DESIGN.md (palette A); buildings come in 2c. drei `CameraControls` give one-finger pan and pinch zoom toward the
+  fingers; a custom two-finger twist turns the map and two fingers dragged up or down tilt it. The compass appears
+  past 4° and turns back the short way; recenter flies home. The camera frames the area between the pill and the
+  sheet. The 3D code is a lazy chunk, so the pill and sheet work before three.js loads (user-flows §3.2).
+- **Chrome:** the 52px search pill with the Beta tag, 48px map buttons, the OSM credit, and the sheet at peek with
+  "Type a room, like ST311" (a 400px left panel from 768px). Tapping either opens the full-screen search frame;
+  results come in 3c. Back, Escape and the back arrow close it, and it's modal (background inert, focus restored).
+- **States:** "Loading the campus…", and "The map couldn't load" when WebGL is missing, the scene throws, or the
+  map's chunk fails to download (the pill and sheet stay usable). Reduced motion turns flights and the sheet into
+  cuts. Light interface only (owner's choice).
+- **D30 (proposed):** reading text is 16px or more and taps 48px or more; only the Beta tag and the credit stay at
+  14px. DESIGN.md's type scale, chips, secondary button and segments are updated, and the map haze and sun colours
+  joined its tokens.
+- **Tests:** the gesture maths test-first (35 cases, run red against a stub). The reviewer found that two-finger tilt
+  could never fire on a phone, because pointer events move one finger at a time; a tracker now waits for both
+  fingers, with tests fed one finger at a time. New e2e tests cover no-WebGL, Back, Escape, double taps and the modal
+  search; the 1b off-site test now runs with the 3D map on screen. 12 e2e and 328 unit tests pass.
+- **`/impeccable audit`:** both detector passes (source and the live page) are clean, and every text colour passes
+  WCAG AA (lowest 5.37:1, the Beta tag). It found the "Student project, not an official DLSU app" line missing from
+  the shell (PRODUCT.md, ARCHITECTURE §8): it now sits under the hint. Also fixed: no grab bar while the sheet can't be
+  dragged, and the OSM link's tap area reaches 48px. Open: the map can't be panned by keyboard (S11 text-only mode,
+  5c, is that path), and the 3D chunk is 962 kB (owner to decide on a size budget).
+- **Check on a real phone (preview link):** twist and tilt feel, pinch-zoom landing under the fingers with the view
+  offset, and the sheet's safe area on iPhone.
+
+## 2026-10-20: Campus loader for the 1c shell
+
+- `loadCampus()` (`src/shared/data/load.ts`) fetches `/data/campus.json` and returns `{ ok: true, data }` or
+  `{ ok: false, reason }`. It never throws, so the shell can show "The map couldn't load" instead of a half-drawn map.
+- Reasons: `offline` (no answer), `http` (error status), `not-json` (the content type isn't `application/json`, which
+  catches Cloudflare's 200 `index.html` fallback for a missing file), `invalid` (broken JSON or a schema failure).
+  Written test-first: 7 of 8 tests failed against a stub, then all passed. The reviewer pass found no blocker; it
+  added a case-insensitive content type, `BASE_URL` in the path and a test for a fetch that throws at once (10 tests).
+  `rooms.json` (3c) reuses the same path.
+
 ## 2026-10-20: App-shell tools for 1c
 
 - Added the ARCHITECTURE §2 packages 1c needs, in their own PR (SPLIT.md): `three` 0.186, `@react-three/fiber` 9.8,

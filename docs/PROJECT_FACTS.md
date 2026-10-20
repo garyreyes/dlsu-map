@@ -127,6 +127,21 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   file works). Run the e2e tests on the installed Chrome instead: `PLAYWRIGHT_CHANNEL=chrome npm run e2e`. CI
   downloads its own Chromium. (2026-10-20)
 
+## 3D stack (1c)
+
+- **camera-controls 3 renamed its pans.** `ACTION.SCREEN_PAN` / `TOUCH_SCREEN_PAN` is the map-style pan (a vertical
+  drag moves along the ground); `ACTION.TRUCK` slides in the screen's plane. `verticalDragToForward` was removed and
+  only logs a warning. drei doesn't re-export `ACTION`, so `CameraRig.tsx` reads it from the controls' class.
+  (2026-10-20)
+- **R3F's `<Canvas fallback>` is never seen in a browser that has canvas:** R3F renders it as the `<canvas>`
+  element's children. A WebGL failure is rethrown during render, so the app's `ErrorBoundary` shows "The map couldn't
+  load" instead. `tests/e2e/home.spec.ts` checks this by stubbing out `getContext('webgl…')`. (2026-10-20)
+- **The React Compiler lint rules only recognise refs by name:** a ref passed as a prop must be called `…Ref`, or
+  `react-hooks/immutability` flags writes to `.current`. The compiler itself isn't in the build, so stable callbacks
+  (like a ref callback that sets the camera up) still need `useCallback`. (2026-10-20)
+- **The 3D map is a lazy chunk** (`React.lazy` in `src/app/App.tsx`): the pill and sheet load in about 385 kB, and
+  three.js follows in about 960 kB, so search works before the scene is ready (user-flows §3.2). (2026-10-20)
+
 ## Tool versions pinned in CI
 
 - `markdownlint-cli2@0.23.3`: an exact-pinned devDependency since 1a, and CI's `npx` step uses the same version. Bump

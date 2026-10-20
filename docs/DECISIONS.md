@@ -719,3 +719,19 @@ per floor on real photos (the spike took about 4 s).
 
 **Alternatives.** OpenCV as in the spike (no unit tests on its steps, a large dependency for three functions).
 **Revisit if** extraction needs something OpenCV is genuinely good at, like line detection on bent or curved plans.
+
+---
+
+## D30. Reading text at 16px, taps at 48px; only the Beta tag and credit at 14px (2026-10-20, proposed)
+
+**Problem.** PRODUCT.md sets a 16px text floor and 48px tap targets, but the prototype shipped 12–14px roles (Beta
+tag, OSM credit, row subtitles, section labels, code tags, map labels, the floor chip) and 44px chips, a 44px
+secondary button and 40px segments. DESIGN.md left this open for the real app.
+
+**Decision.** Everything a student reads is 16px or more: labels, captions, code tags, map labels and the floor chip
+move up from 12–14px. Every tap target is 48px or more: chips, the secondary button and segments move up. The Beta tag
+and the OSM credit stay at 14px (Micro), because they are marks on the chrome rather than text to read. DESIGN.md's
+type scale and components now say so (1c).
+
+**Alternatives.** Strict 16px with no exceptions (the pill and the map corner get noticeably heavier); keeping the
+prototype's sizes and fixing only tap targets (breaks PRODUCT.md's floor, so PRODUCT.md would need changing).

@@ -1,0 +1,63 @@
+/* Interface tokens from docs/DESIGN.md, light only (1c). Text floors from D30: 16px for reading text, 14px only for
+   the Beta tag and the OSM credit; 48px tap targets. Map colours live in src/shared/config/palette.ts, never here. */
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  --color-surface: #ffffff;
+  --color-surface-2: #edf4ef;
+  --color-ink: #17201b;
+  --color-ink-2: #44534b;
+  --color-ink-3: #5c6b63;
+  --color-line: rgba(0, 64, 32, 0.13);
+  --color-accent: #00703c;
+  --color-on-accent: #ffffff;
+  --color-accent-wash: rgba(0, 112, 60, 0.1);
+  --color-danger: #b3261e;
+
+  --radius-tag: 6px;
+  --radius-label: 8px;
+  --radius-row: 12px;
+  --radius-sheet: 18px;
+  --radius-pill: 26px;
+
+  --shadow-float: 0 1px 2px rgba(16, 24, 20, 0.16), 0 3px 10px rgba(16, 24, 20, 0.12);
+  --shadow-sheet: 0 -1px 2px rgba(16, 24, 20, 0.08), 0 -4px 16px rgba(16, 24, 20, 0.1);
+
+  --ease-snap: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    margin: 0;
+    overflow: hidden;
+    background: var(--color-surface);
+    color: var(--color-ink);
+    font: 16px/1.4 var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+  ::selection {
+    background: var(--color-accent-wash);
+    color: var(--color-ink);
+  }
+  input {
+    caret-color: var(--color-accent);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+/* Side gutters: 16px, or the safe-area inset when it is larger (DESIGN.md, Layout). */
+:root {
+  --gutter-l: max(16px, env(safe-area-inset-left, 0px));
+  --gutter-r: max(16px, env(safe-area-inset-right, 0px));
+}
