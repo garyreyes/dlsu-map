@@ -31,8 +31,10 @@ session needs to know. Search this file; it isn't required reading (the reading 
   point between the compiler (2b) and the scene (2c). Based on the prototype's `campus.json`, with city blocks
   split out of `buildings` (never tappable), the `campus` tier renamed `block`, building parts as `volumes`, and an
   `origin` so meters can be turned back into lon/lat. Gates, entrances and walkways join later (4a), additively.
-- `campus.sample.json` (real outlines from the prototype) for building 2c now, and 21 tests: the sample passes and
-  each kind of broken file is rejected. Added `zod` 4 (in the ARCHITECTURE §2 stack).
+- `campus.sample.json` for building 2c now: real pieces (STRC, Henry Sy, Bloemen, a skybridge, a ring, paths)
+  projected from the 2a snapshot by the 2b compiler. **y is meters north.** An earlier copy came from the prototype,
+  which stored y as meters south (three.js z) and sat about 21 m west, so it was mirrored against this schema. 21
+  tests: the sample passes and each kind of broken file is rejected. Added `zod` 4 (in the ARCHITECTURE §2 stack).
 - From Gary's review: buildings also carry `aliases`, `suggestPrefixes` (D25) and `floorLabels`, the same rules as
   `buildings.json`, so search (3c) and the room card (3d) read them from `campus.json` instead of keeping their own
   copy. "G Mezz" (D26) stays out: it belongs in the `rooms.json` shape (3b), since floor-label keys are whole numbers.
