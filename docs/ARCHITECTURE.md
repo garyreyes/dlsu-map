@@ -112,7 +112,8 @@ All are precached for offline use. Budget: under 15 MB total.
 ```text
 Lobby directory photo ──(typed by Claude, checked by owner)──► data-src/rooms/<building>.csv
 Evacuation-map photo  ──► tools/floor-extract ──► draft floor ──(Claude cleanup + labels)──► data-src/floors/<b>/<NN>.geojson
-OSM (scripts/fetch-osm.ts, run locally) ──► data-src/campus/osm/snapshot-<date>.geojson
+OSM main API (npm run fetch-osm, by hand, D27) ──► data-src/campus/osm/snapshot-<date>.geojson
+data-src/campus/buildings.json (by hand: slug, OSM ids, names, prefixes, tier) ─┘
                                    all of the above ──► scripts/compile-data.ts ──► public/data/*.json + report
 ```
 

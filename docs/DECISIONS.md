@@ -636,7 +636,7 @@ Offline, the button says to send it once there's signal. Free, no card (D11).
 
 ---
 
-## D25. Prefixes printed on signs but not ours are suggested, never accepted (2026-10-20, proposed)
+## D25. Prefixes printed on signs but not ours are suggested, never accepted (2026-10-20, agreed)
 
 **Problem.** Some lobby directories print codes in a form our prefix table doesn't use: Velasco's prints `VH-501`
 (our prefixes are `VL`, alias `VE`) and St. Joseph's prints `J-201` (ours is `SJ`). Students type what the sign says.
@@ -650,7 +650,7 @@ and one tap accepts it. The route never starts from a guess (PRD §7, strict). T
 
 ---
 
-## D26. A room's floor is where its source puts it, not always number ÷ 100 (2026-10-20, proposed)
+## D26. A room's floor is where its source puts it, not always number ÷ 100 (2026-10-20, agreed)
 
 **Problem.** Velasco's directory has a "G Mezz" row (VH-151 Dean's Office, VH-153 CAD/CAM Lab), and St. Miguel's
 lists 153–158 under G. Number ÷ 100 can't tell a mezzanine from the floor below it.
@@ -662,6 +662,27 @@ there, so typos are still caught (3b).
 
 **Alternatives.** Number ÷ 100 always (mezzanine rooms land on the wrong level); renumbering mezzanine rooms (changes
 codes students already know).
+
+---
+
+## D27. OSM snapshot from the main API, converted by our own code (2026-10-20, agreed)
+
+**Problem.** D4 planned to download the snapshot from Overpass, the service meant for read-only downloads. Every
+public Overpass server failed on 2026-10-19 and 2026-10-20 (502, 504, timeouts). The snapshot also needs a
+converter from OSM's points-and-ways format to shapes, and none is in the ARCHITECTURE §2 stack.
+
+**Decision.** `npm run fetch-osm` makes one area request to the OSM main API (it answered in about 3 s), then
+fetches in full any kept relation the area cut short (the campus boundary). It sends a `User-Agent` naming the app
+and is run by hand, now and then, which the OSM API usage policy allows. Our own converter
+(`scripts/osm-to-geojson.ts`, about 200 lines, tested on real extracts) keeps only what the map uses and reports
+anything it can't convert instead of guessing.
+
+**Alternatives.** Overpass first with the main API as backup (failed every time we tried); the `osmtogeojson`
+package (a new dependency outside the stack, latest release a beta); saving raw OSM JSON and converting in 2b (moves
+the same work).
+
+**Revisit if** the snapshot is ever refreshed automatically or often: that is bulk use, and belongs on Overpass or a
+planet extract.
 
 ---
 
