@@ -72,6 +72,37 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - Node 24 runs `scripts/*.ts` directly (type stripping), so scripts import other `.ts` files with the extension and
   need no build step. `Object.groupBy` isn't available: `tsconfig.node.json` targets ES2023. (2026-10-20)
 
+## Floor photos and extraction
+
+- **Official DLSU floor plans are not guaranteed** (owner, 2026-10-20). The evacuation-map photos are the main source
+  for all 10 buildings, through `tools/floor-extract/` (D17, D29).
+- **Two map styles on campus.** STRC's signs are green (light-green paper, double black walls, green route). Every other
+  building photographed (St. Joseph, Velasco, Miguel, Andrew, Yuchengco) uses a white "EVACUATION MAP" template: thin
+  grey single walls, a **red** route, black pillar squares, often under a plastic sleeve with glare. The tool detects
+  the style from the paper (`--style` overrides). Thresholds were measured on STRC 4F and St. Joseph 3F. (2026-10-20)
+- **Read the corners precisely.** Use `npm run floor-extract -- crop <photo> <x,y>…` and read each corner pillar's
+  centre off the grid labels (the crop shifts near the photo's edge, so never work out offsets by hand). On
+  St. Joseph 3F, rough corners lost half the partitions; read ones found nearly all. For a building that isn't a
+  rectangle, extend the outer walls' lines to make the 4 corners. (2026-10-20)
+- What the draft always gets wrong (cleanup, D17): stair and ramp treads read as walls, boxes around exit signs and
+  "YOU ARE HERE", some short wall stubs and outer walls missed. 0.4–1.9 s per floor. (2026-10-20)
+
+## Room lists
+
+- **`data-src/rooms/<building>.csv`**, one per building, named by slug. Columns:
+  `floor,code,name,floor_label,floor_checked,note`. `floor` is a whole number (G = 1). `code` is typed as printed
+  on the lobby directory (`C404/406`, `C-309`); the compiler expands combined entries (`/`, `-` and `&` all
+  separate rooms, D18) and makes codes canonical with `parseRoomCode`. `floor_checked` = `yes` lets a room sit
+  off number ÷ 100 (D26). `note` records every change from the sign. (2026-10-20)
+- Names are typed as printed, with obvious spelling fixed and trailing periods dropped; abbreviations stay
+  (`Che`, `CMD`, `BCRU`). (owner, 2026-10-20)
+- **STRC's directory has one wrong code:** its 4th-floor "Stock Room · C302" is entered as **C402** (C302 is a 3rd-floor
+  lab). And `C102/104-106` is rooms 102, 104 and 106, since C105 is the Mechatronics Lab. Both are the owner's
+  calls, 2026-10-20; check the doors when next on site.
+- `tsconfig.node.json` maps `@/*` so scripts can typecheck src files that use the alias. Type imports only: Node
+  doesn't resolve `@/`, so a value import through it would crash `compile-data` (CI's build step catches
+  it). (2026-10-20)
+
 ## Cloudflare
 
 - The free Cloudflare account is Gary's, signed in with GitHub. Never upgrade it to Workers Paid (D11).
@@ -96,6 +127,21 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   file works). Run the e2e tests on the installed Chrome instead: `PLAYWRIGHT_CHANNEL=chrome npm run e2e`. CI
   downloads its own Chromium. (2026-10-20)
 
+## 3D stack (1c)
+
+- **camera-controls 3 renamed its pans.** `ACTION.SCREEN_PAN` / `TOUCH_SCREEN_PAN` is the map-style pan (a vertical
+  drag moves along the ground); `ACTION.TRUCK` slides in the screen's plane. `verticalDragToForward` was removed and
+  only logs a warning. drei doesn't re-export `ACTION`, so `CameraRig.tsx` reads it from the controls' class.
+  (2026-10-20)
+- **R3F's `<Canvas fallback>` is never seen in a browser that has canvas:** R3F renders it as the `<canvas>`
+  element's children. A WebGL failure is rethrown during render, so the app's `ErrorBoundary` shows "The map couldn't
+  load" instead. `tests/e2e/home.spec.ts` checks this by stubbing out `getContext('webgl…')`. (2026-10-20)
+- **The React Compiler lint rules only recognise refs by name:** a ref passed as a prop must be called `…Ref`, or
+  `react-hooks/immutability` flags writes to `.current`. The compiler itself isn't in the build, so stable callbacks
+  (like a ref callback that sets the camera up) still need `useCallback`. (2026-10-20)
+- **The 3D map is a lazy chunk** (`React.lazy` in `src/app/App.tsx`): the pill and sheet load in about 385 kB, and
+  three.js follows in about 960 kB, so search works before the scene is ready (user-flows §3.2). (2026-10-20)
+
 ## Tool versions pinned in CI
 
 - `markdownlint-cli2@0.23.3`: an exact-pinned devDependency since 1a, and CI's `npx` step uses the same version. Bump
@@ -109,6 +155,9 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - `wrangler@4.149.0` and `@playwright/test@1.63.0`, exact-pinned devDependencies for 1b. 4.149.0 is the first
   wrangler whose `miniflare` pulls `sharp@0.35.5`; 4.147.0/4.148.0 pull `sharp@0.35.4`, which has a high-severity
   librsvg advisory (GHSA-wq5f-xc86-pv6w). Don't pin wrangler below 4.149.0. (2026-10-20)
+- `motion` stays on major 12 (`^12.43.0`): `react-modal-sheet` 5.6.0 is built and tested against `motion` 12.35
+  (its devDependency), and `motion` 14 only came out on 2026-10-02. Move to 14 only with a `react-modal-sheet`
+  release that supports it, checked on a phone. (2026-10-20)
 
 ## Docs
 

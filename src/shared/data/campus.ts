@@ -55,7 +55,7 @@ export const walkSchema = z.strictObject({
   /** Every point of the network as flat x, y pairs. Entrances and gates are points too. */
   points: z.array(z.number()).refine((a) => a.length % 2 === 0, 'needs an even number of values (x, y pairs)'),
   /** What a link is part of. `sidewalk` is drawn beside Taft Avenue, whose two sides meet only at a `crossing`
-   *  (D31); a crossing's name is the street it crosses. `door` joins an entrance or a gate to the nearest path. */
+   *  (D32); a crossing's name is the street it crosses. `door` joins an entrance or a gate to the nearest path. */
   ways: z.array(
     z.strictObject({
       kind: z.enum(['path', 'steps', 'street', 'sidewalk', 'crossing', 'door']),

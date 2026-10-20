@@ -706,7 +706,39 @@ Dependabot PRs and can't be a required check).
 
 ---
 
-## D30. Building entrances from pins on openstreetmap.org (2026-10-20, proposed)
+## D29. Floor extraction without OpenCV (2026-10-20, proposed)
+
+**Problem.** ARCHITECTURE §2 named `@techstark/opencv-js` + `sharp` for `tools/floor-extract/`, as the spike used.
+OpenCV is a 10 MB WebAssembly package with an awkward async start, and the spike used only three of its functions:
+the perspective warp, a morphological open with a line, and connected components.
+
+**Decision.** The tool keeps `sharp` (decode the photo, write PNGs; already in the tree at the patched 0.35.5 through
+wrangler) and does those three steps in plain TypeScript: a 4-point homography with bilinear sampling, long-run
+masks, and 8-connected blobs. Every step is a pure function with unit tests on hand-drawn images. Measured: 0.4–1.9 s
+per floor on real photos (the spike took about 4 s).
+
+**Alternatives.** OpenCV as in the spike (no unit tests on its steps, a large dependency for three functions).
+**Revisit if** extraction needs something OpenCV is genuinely good at, like line detection on bent or curved plans.
+
+---
+
+## D30. Reading text at 16px, taps at 48px; only the Beta tag and credit at 14px (2026-10-20, proposed)
+
+**Problem.** PRODUCT.md sets a 16px text floor and 48px tap targets, but the prototype shipped 12–14px roles (Beta
+tag, OSM credit, row subtitles, section labels, code tags, map labels, the floor chip) and 44px chips, a 44px
+secondary button and 40px segments. DESIGN.md left this open for the real app.
+
+**Decision.** Everything a student reads is 16px or more: labels, captions, code tags, map labels and the floor chip
+move up from 12–14px. Every tap target is 48px or more: chips, the secondary button and segments move up. The Beta tag
+and the OSM credit stay at 14px (Micro), because they are marks on the chrome rather than text to read. DESIGN.md's
+type scale and components now say so (1c).
+
+**Alternatives.** Strict 16px with no exceptions (the pill and the map corner get noticeably heavier); keeping the
+prototype's sizes and fixing only tap targets (breaks PRODUCT.md's floor, so PRODUCT.md would need changing).
+
+---
+
+## D31. Building entrances from pins on openstreetmap.org (2026-10-20, proposed)
 
 **Problem.** OSM has a door for none of the 10 full buildings. Its only "entrances" on their outlines are street
 gates (Gates 4A/4B, 5A/5B, 6, Gate 1). STRC, Miguel and Yuchengco touch no path at all, so routing (4a) has nothing
@@ -725,7 +757,7 @@ OSM outlines).
 
 ---
 
-## D31. Taft Avenue gets two sidewalks that meet only at crosswalks (2026-10-20, proposed)
+## D32. Taft Avenue gets two sidewalks that meet only at crosswalks (2026-10-20, proposed)
 
 **Problem.** OSM has no sidewalks here, so walking means following street centre lines. On a centre line nothing
 stops a route crossing Taft Avenue mid-block, under the LRT, which is unsafe and not what anyone does. Andrew can
