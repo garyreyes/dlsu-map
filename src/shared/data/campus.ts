@@ -58,9 +58,11 @@ export const campusSchema = z.strictObject({
   bridges: z.array(volumeSchema),
   /** Surrounding city blocks: muted, not tappable, hidden on the lowest quality tier. */
   city: z.array(z.strictObject({ outline: ringSchema, top: z.number().positive() })),
+  /** Lines on the ground, cut at the edge of the map. `rail` is the LRT Line 1 viaduct over Taft Avenue: a landmark,
+   *  never walked on. */
   paths: z.array(
     z.strictObject({
-      kind: z.enum(['street', 'road', 'foot']),
+      kind: z.enum(['street', 'road', 'foot', 'rail']),
       name: z.string().min(1).optional(),
       line: lineSchema,
     }),

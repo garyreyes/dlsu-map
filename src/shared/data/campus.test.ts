@@ -33,6 +33,13 @@ describe('campusSchema', () => {
     });
   });
 
+  it('keeps the LRT as a rail path, so the scene can draw it apart from streets', () => {
+    const rail = campusSchema.parse(sample).paths.filter((p) => p.kind === 'rail');
+    expect(rail).toEqual([
+      { kind: 'rail', name: 'LRT Line 1', line: [221.1, -259.3, 215.7, -240.3, 208.3, -221.9, 169.2, -136] },
+    ]);
+  });
+
   it.each<[string, Mutate]>([
     ['an odd number of coordinates', (c) => c.campus[0]?.push(1)],
     ['a ring with only 2 points', (c) => (c.campus = [[0, 0, 1, 1]])],
