@@ -60,7 +60,7 @@ with a full-app polish.
 
 | ID | Sub-phase | Lane | Depends on | Status |
 |---|---|---|---|---|
-| 4a | Walkway graph: OSM paths, entrances (with `verified`), gates, street crossings; build fails if a room can't be reached 🧪 | B | 2b | not started |
+| 4a | Walkway graph: OSM paths, entrances (with `verified`), gates, street crossings; build fails if a room can't be reached 🧪 | B | 2b | in progress |
 | 4b | Routing: A* (ngraph) plus Stairs / Elevator / Auto costs 🧪 | B | 4a | not started |
 | 4c | Direction text: turn angles, landmarks, crossings, "ST311 is on 3F" 🧪 | B | 4b | not started |
 
