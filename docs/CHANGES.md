@@ -12,8 +12,8 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 - Added the ARCHITECTURE §2 packages 1c needs, in their own PR (SPLIT.md): `three` 0.186, `@react-three/fiber` 9.8,
   `@react-three/drei` 10.7 and `@types/three`; `tailwindcss` 4 with `@tailwindcss/vite`; `react-modal-sheet` with its
-  `motion` peer; `zustand` 5; `lucide-react` for icons (its 2 px round-cap line icons match DESIGN.md). Nothing uses
-  them yet.
+  `motion` peer, held at 12 (see PROJECT_FACTS); `zustand` 5; `lucide-react` 1.52 for icons (its 2 px round-cap
+  line icons match DESIGN.md). Nothing uses them yet.
 - The 3D stack is pinned to patch updates (`~`), and R3F 9.8 accepts React `>=19 <19.4`, so D3's pin still holds.
   `npm ls --all` passes and `npm audit --omit=dev` is clean. The dev-only audit warnings are the known ones
   (`PROJECT_FACTS.md`).
