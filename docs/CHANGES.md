@@ -8,6 +8,12 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-20: Rail path kind in the campus shape (before 2b)
+
+- `campus.json` paths gain `kind: 'rail'` for the LRT Line 1 viaduct over Taft Avenue, the campus's strongest
+  landmark from above (PLAN §5). Drawn, never walked. Additive, so 2c isn't blocked. The sample has a real stretch
+  of the line near STRC, and a test checks it survives parsing. The 2b compiler emits it, cut at the map's edge.
+
 ## 2026-10-20: 2a OSM snapshot and building list
 
 - `npm run fetch-osm` (`scripts/fetch-osm.ts`) downloads the campus area from the OSM main API, refetches any relation
