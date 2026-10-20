@@ -6,19 +6,19 @@ updates:
       interval: weekly
     groups:
       actions:
-        patterns: ["*"]
+        patterns: ['*']
 
-  # Phase 1 uncomments this when the root package.json lands (ARCHITECTURE §8). The 3D stack moves as one group.
-  # React stays on ~19.3 until R3F supports 19.4 (D3), so major/minor React bumps are ignored.
-  # - package-ecosystem: npm
-  #   directory: /
-  #   schedule:
-  #     interval: weekly
-  #   groups:
-  #     three-stack:
-  #       patterns: ["three", "@types/three", "@react-three/*", "three-mesh-bvh", "react", "react-dom", "@types/react*"]
-  #   ignore:
-  #     - dependency-name: "react"
-  #       update-types: ["version-update:semver-minor", "version-update:semver-major"]
-  #     - dependency-name: "react-dom"
-  #       update-types: ["version-update:semver-minor", "version-update:semver-major"]
+  # The 3D stack moves as one group. React stays on ~19.3 until R3F supports 19.4 (D3), so major/minor React bumps
+  # are ignored. Packages in the group arrive with their sub-phases; listing them early is harmless.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      three-stack:
+        patterns: ['three', '@types/three', '@react-three/*', 'three-mesh-bvh', 'react', 'react-dom', '@types/react*']
+    ignore:
+      - dependency-name: 'react'
+        update-types: ['version-update:semver-minor', 'version-update:semver-major']
+      - dependency-name: 'react-dom'
+        update-types: ['version-update:semver-minor', 'version-update:semver-major']

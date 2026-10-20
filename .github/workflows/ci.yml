@@ -21,8 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      DO_NOT_TRACK: "1"
-      IMPECCABLE_NO_TELEMETRY: "1"
+      DO_NOT_TRACK: '1'
+      IMPECCABLE_NO_TELEMETRY: '1'
     steps:
       - uses: actions/checkout@v7
         with:
@@ -72,6 +72,14 @@ jobs:
       - name: Lint
         if: steps.changes.outputs.code == 'true' && hashFiles('package-lock.json') != ''
         run: npm run lint
+
+      # D1: two TypeScript packages are installed side by side. Fail unless type-checking really runs on tsc 7.
+      - name: Check type-checker is TypeScript 7
+        if: steps.changes.outputs.code == 'true' && hashFiles('package-lock.json') != ''
+        run: |
+          version=$(node node_modules/@typescript/native/bin/tsc --version)
+          echo "$version"
+          case "$version" in "Version 7."*) ;; *) echo "::error::Expected tsc 7.x, got: $version"; exit 1 ;; esac
 
       - name: Type-check
         if: steps.changes.outputs.code == 'true' && hashFiles('package-lock.json') != ''

@@ -3,8 +3,8 @@
 A free, offline-first 3D map of De La Salle University (Manila) that routes you to any room: across campus, then
 floor by floor inside the building. Runs in the phone browser on iPhone and Android.
 
-> **Status:** planning done, no app code yet. v1 is the whole campus plus full indoor maps of 10 buildings.
-> Next step: "Gate 0" in [`docs/ROADMAP.md`](docs/ROADMAP.md).
+> **Status:** building. The project scaffold (1a) is in; next are hosting, the app shell and offline (1b–1d).
+> v1 is the whole campus plus full indoor maps of 10 buildings. Progress: [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## Read in this order
 

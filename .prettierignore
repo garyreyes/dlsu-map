@@ -1,0 +1,10 @@
+# Markdown is formatted by hand and checked by markdownlint (120 columns, compact tables).
+*.md
+docs/
+prototypes/
+dist/
+coverage/
+package-lock.json
+public/data/
+data-src/
+.impeccable/
