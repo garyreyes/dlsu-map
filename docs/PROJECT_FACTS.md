@@ -76,6 +76,9 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   (2026-10-19)
 - GitHub Actions: `actions/checkout@v7` and `actions/setup-node@v7`, both official. No third-party actions: change
   detection is a short shell step instead of `dorny/paths-filter`. (2026-10-19)
+- `wrangler@4.149.0` and `@playwright/test@1.63.0`, exact-pinned devDependencies for 1b. 4.149.0 is the first
+  wrangler whose `miniflare` pulls `sharp@0.35.5`; 4.147.0/4.148.0 pull `sharp@0.35.4`, which has a high-severity
+  librsvg advisory (GHSA-wq5f-xc86-pv6w). Don't pin wrangler below 4.149.0. (2026-10-20)
 
 ## Docs
 
