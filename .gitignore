@@ -12,3 +12,8 @@ dist/
 .impeccable/review/
 .impeccable/config.local.json
 .impeccable/hook.cache.json
+
+# Local Cloudflare runtime state (wrangler dev) and Playwright output (1b)
+.wrangler/
+test-results/
+playwright-report/

@@ -9,7 +9,17 @@ import boundaries from './eslint.boundaries.js';
 
 export default defineConfig([
   // prototypes/ loads three.js from a CDN on purpose and is reference only (ROADMAP notes).
-  globalIgnores(['dist/', 'coverage/', 'prototypes/', 'public/', 'docs/', 'data-src/']),
+  globalIgnores([
+    'dist/',
+    'coverage/',
+    '.wrangler/',
+    'test-results/',
+    'playwright-report/',
+    'prototypes/',
+    'public/',
+    'docs/',
+    'data-src/',
+  ]),
   {
     files: ['**/*.{ts,tsx,js}'],
     extends: [js.configs.recommended, tseslint.configs.strictTypeChecked],
