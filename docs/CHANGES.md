@@ -14,6 +14,16 @@ session needs to know. Search this file; it isn't required reading (the reading 
   draft floor with `tools/floor-extract` (6a). Anyone using Claude Code in this repo now gets it as a skill.
 - `.gitignore` now ignores `.claude/settings.local.json` (personal permissions); `.claude/skills/` stays shared.
 
+## 2026-10-20: Walk network shape agreed before 4a
+
+- `campus.json` gains `walk`, `gates` and `entrances` (`src/shared/data/campus.ts`), the meeting point between the
+  4a compiler, routing (4b) and Where are you (5a). `walk` is flat points, ways (`path`, `steps`, `street`,
+  `sidewalk`, `crossing`, `door`, with a name and `covered`) and `[from, to, way]` links. Gates have a stable `id`
+  and a name; entrances have a building, `main`/`side`/`back` and `verified`. Both point into `walk.points`.
+- The schema checks every index: no link to a missing point or way, no link from a point to itself, no gate id used
+  twice, no entrance to an unknown building. The compiler emits an empty network until 4a fills it.
+- D31 (entrances from pins on openstreetmap.org) and D32 (Taft sidewalks that meet only at crosswalks), proposed.
+
 ## 2026-10-20: 1d basic offline (precache, "Ready offline", "Open this once with internet")
 
 - **Precache** (`vite.config.ts`, vite-plugin-pwa 2.0 from the `1d-deps` PR): every built file is saved on the first
