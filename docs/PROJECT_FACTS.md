@@ -140,6 +140,9 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - `wrangler@4.149.0` and `@playwright/test@1.63.0`, exact-pinned devDependencies for 1b. 4.149.0 is the first
   wrangler whose `miniflare` pulls `sharp@0.35.5`; 4.147.0/4.148.0 pull `sharp@0.35.4`, which has a high-severity
   librsvg advisory (GHSA-wq5f-xc86-pv6w). Don't pin wrangler below 4.149.0. (2026-10-20)
+- `motion` stays on major 12 (`^12.43.0`): `react-modal-sheet` 5.6.0 is built and tested against `motion` 12.35
+  (its devDependency), and `motion` 14 only came out on 2026-10-02. Move to 14 only with a `react-modal-sheet`
+  release that supports it, checked on a phone. (2026-10-20)
 
 ## Docs
 
