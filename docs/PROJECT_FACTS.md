@@ -151,6 +151,22 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - **The 3D map is a lazy chunk** (`React.lazy` in `src/app/App.tsx`): the pill and sheet load in about 385 kB, and
   three.js follows in about 960 kB, so search works before the scene is ready (user-flows §3.2). (2026-10-20)
 
+## Offline (1d)
+
+- **Workbox's generated service worker reports no download progress.** vite-plugin-pwa's `onOfflineReady` fires once,
+  when the first copy is complete. A percentage needs `injectManifest` (our own service worker), so O2 has none for
+  now (10a). (2026-10-20)
+- **`onOfflineReady` fires only on the first save, never on later opens.** `useOfflineStatus` reads "already saved"
+  off the registration: an active worker means the copy is complete, because Workbox precaches before activating.
+  (2026-10-20)
+- **Saved is not controlled.** Without `clientsClaim`, the page open during the first save keeps using the network
+  until a reload, so going offline right after "Ready offline" could still lose the 3D chunk. `clientsClaim: true`
+  fixes it; updates still wait for every tab to close (`registerType: 'prompt'`). `tests/e2e/offline.spec.ts` checks
+  both. (2026-10-20)
+- **The precache list check** reads the `url:"…"` entries out of `dist/sw.js` and compares them with every file in
+  `dist/`. A new file type in `public/` fails it until `globPatterns` in `vite.config.ts` covers it (or it is added to
+  the test's named exceptions). Playwright's `serviceWorkers: 'block'` stands in for "never got saved". (2026-10-20)
+
 ## Tool versions pinned in CI
 
 - `markdownlint-cli2@0.23.3`: an exact-pinned devDependency since 1a, and CI's `npx` step uses the same version. Bump
