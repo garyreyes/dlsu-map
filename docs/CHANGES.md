@@ -8,6 +8,19 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-20: 3a room-code parser
+
+- `parseRoomCode(typed, table)` in `src/features/search/parse-room-code.ts`, exported from the feature's
+  `index.ts`. Pure, and it never checks `rooms.json` (3c does). The prefix table is a temporary constant in
+  `src/shared/config/room-prefixes.ts` until 2b reads it from `buildings.json`.
+- Written test-first: 80 cases, all `toStrictEqual` on exact results, run red against a stub (57 failed), then
+  green. One test proves all five result kinds are reachable.
+- A reviewer pass found no wrong-room parse, but four loose spots, all fixed with tests. Leading zeros are now
+  rejected (`ST0311`). A tail after a dash or slash must look like a combined entry, so `ST311-lab` and `ST311-A`
+  are no longer read as `ST311`. Forms printed on the signs (`J-602A/B`, `VH-208A&B`, `101A-101B`) still parse.
+  Phone input is normalized (en dash, full-width, zero-width space). An accepted prefix beats a suggest-only one.
+- ARCHITECTURE §3.4: suggest prefixes count in the 2b compiler's prefix-uniqueness check.
+
 ## 2026-10-20: Room-code result shape agreed before 3a
 
 - Added `src/shared/data/room-code.ts`: the parser's result type, five kinds (`code`, `suggest`, `unknown-prefix`,
