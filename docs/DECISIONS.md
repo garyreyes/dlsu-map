@@ -703,3 +703,19 @@ it covers Dependabot PRs too).
 **Alternatives.** Auto-deploy `main` to production (the beta link exists from now on); a manual "Deploy" button in
 GitHub Actions (production goes live whenever it's pressed, before 10d); testing only the live preview (skipped on
 Dependabot PRs and can't be a required check).
+
+---
+
+## D29. Floor extraction without OpenCV (2026-10-20, proposed)
+
+**Problem.** ARCHITECTURE §2 named `@techstark/opencv-js` + `sharp` for `tools/floor-extract/`, as the spike used.
+OpenCV is a 10 MB WebAssembly package with an awkward async start, and the spike used only three of its functions:
+the perspective warp, a morphological open with a line, and connected components.
+
+**Decision.** The tool keeps `sharp` (decode the photo, write PNGs; already in the tree at the patched 0.35.5 through
+wrangler) and does those three steps in plain TypeScript: a 4-point homography with bilinear sampling, long-run
+masks, and 8-connected blobs. Every step is a pure function with unit tests on hand-drawn images. Measured: 0.4–1.9 s
+per floor on real photos (the spike took about 4 s).
+
+**Alternatives.** OpenCV as in the spike (no unit tests on its steps, a large dependency for three functions).
+**Revisit if** extraction needs something OpenCV is genuinely good at, like line detection on bent or curved plans.

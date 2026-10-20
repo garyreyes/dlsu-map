@@ -72,6 +72,21 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - Node 24 runs `scripts/*.ts` directly (type stripping), so scripts import other `.ts` files with the extension and
   need no build step. `Object.groupBy` isn't available: `tsconfig.node.json` targets ES2023. (2026-10-20)
 
+## Floor photos and extraction
+
+- **Official DLSU floor plans are not guaranteed** (owner, 2026-10-20). The evacuation-map photos are the main source
+  for all 10 buildings, through `tools/floor-extract/` (D17, D29).
+- **Two map styles on campus.** STRC's signs are green (light-green paper, double black walls, green route). Every other
+  building photographed (St. Joseph, Velasco, Miguel, Andrew, Yuchengco) uses a white "EVACUATION MAP" template: thin
+  grey single walls, a **red** route, black pillar squares, often under a plastic sleeve with glare. The tool detects
+  the style from the paper (`--style` overrides). Thresholds were measured on STRC 4F and St. Joseph 3F. (2026-10-20)
+- **Read the corners precisely.** Use `npm run floor-extract -- crop <photo> <x,y>…` and read each corner pillar's
+  centre off the grid labels (the crop shifts near the photo's edge, so never work out offsets by hand). On
+  St. Joseph 3F, rough corners lost half the partitions; read ones found nearly all. For a building that isn't a
+  rectangle, extend the outer walls' lines to make the 4 corners. (2026-10-20)
+- What the draft always gets wrong (cleanup, D17): stair and ramp treads read as walls, boxes around exit signs and
+  "YOU ARE HERE", some short wall stubs and outer walls missed. 0.4–1.9 s per floor. (2026-10-20)
+
 ## Cloudflare
 
 - The free Cloudflare account is Gary's, signed in with GitHub. Never upgrade it to Workers Paid (D11).
