@@ -2,6 +2,7 @@
 // together. No parsing, routing or fetching here.
 import { lazy, Suspense, useLayoutEffect, useRef, useState } from 'react';
 import type { MapInsets } from '@/features/campus-scene';
+import { OpenOnceOnline, SavingLine, useOfflineStatus } from '@/features/offline';
 import { HomeHint, SearchPill, SearchScreen } from '@/features/search';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import { LOADING_MAP, MAP_FAILED, MapMessage } from '@/shared/ui/MapMessage';
@@ -22,6 +23,7 @@ export function App() {
   const header = useRef<HTMLElement>(null);
   const [pillBottom, setPillBottom] = useState(62);
   const [sheetHeight, setSheetHeight] = useState(96);
+  const offline = useOfflineStatus();
 
   useLayoutEffect(() => {
     const measure = () => {
@@ -44,6 +46,9 @@ export function App() {
     </>
   );
 
+  // Not saved and no signal: the app can't finish loading, so O1 stands in for all of it until signal returns.
+  if (offline === 'open-once-online') return <OpenOnceOnline />;
+
   return (
     <>
       {/* If the map's chunk can't download, only the map is lost: the pill and sheet stay usable. */}
@@ -57,6 +62,8 @@ export function App() {
         className="fixed top-[calc(env(safe-area-inset-top,0px)+10px)] right-(--gutter-r) left-(--gutter-l) z-5 md:right-auto md:w-100"
       >
         <SearchPill onOpen={search.open} />
+        {/* Positioned below the header's box, so the map's top inset doesn't move when the line comes and goes. */}
+        <SavingLine view={offline} />
       </header>
       {wide ? (
         <SidePanel label="Details">{home}</SidePanel>
