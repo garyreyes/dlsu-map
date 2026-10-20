@@ -296,6 +296,10 @@ export function compileCampus(sources: readonly BuildingSource[], snapshot: Snap
     bridges: bridges(outlines, ctx),
     city: city(used, extent, ctx),
     paths: paths(extent, ctx),
+    // Filled by the walk network compiler (4a).
+    walk: { points: [], ways: [], links: [] },
+    gates: [],
+    entrances: [],
   };
   const checked = campusSchema.safeParse(campus);
   if (!checked.success) {

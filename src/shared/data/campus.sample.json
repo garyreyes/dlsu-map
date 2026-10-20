@@ -84,5 +84,20 @@
     },
     { "kind": "foot", "line": [-38.7, 300.8, -25.2, 306.6] },
     { "kind": "rail", "name": "LRT Line 1", "line": [221.1, -259.3, 215.7, -240.3, 208.3, -221.9, 169.2, -136] }
-  ]
+  ],
+  "walk": {
+    "points": [-83.8, 192.4, -70, 186, -60, 210, -40, 230],
+    "ways": [
+      { "kind": "door" },
+      { "kind": "path", "name": "SJ Walk", "covered": true },
+      { "kind": "crossing", "name": "Taft Avenue" }
+    ],
+    "links": [
+      [0, 1, 0],
+      [1, 2, 1],
+      [2, 3, 2]
+    ]
+  },
+  "gates": [{ "id": "gate-2", "name": "Gate 2 (North)", "point": 3 }],
+  "entrances": [{ "building": "strc", "kind": "main", "point": 0, "verified": false }]
 }
