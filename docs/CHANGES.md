@@ -8,6 +8,21 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-20: 6a floor-extract tool
+
+- `tools/floor-extract/` replaces the spike (dev-only, never shipped): `npm run floor-extract -- crop <photo> <x,y>…`
+  writes zoomed, gridded crops to read the 4 corners; `… extract <photo> <tl> <tr> <br> <bl>` straightens the plan,
+  splits colours, finds walls (double lines merged) and the route, and writes an overlay, a 3D preview and
+  `draft.json` (0–1 plan coordinates) to `tools/floor-extract/out/`, gitignored like the photos.
+- No OpenCV (D29, proposed): homography warp, long runs and blobs are plain TypeScript, written test-first on
+  hand-drawn images (64 tests). Only `sharp` was added, pinned at 0.35.5 (already in the tree through wrangler).
+- **Two map styles** (STRC's green signs; the white template with a red route everywhere else): detected from the
+  paper, ink judged against the paper around it so glare and shadow don't hide walls. Checked by eye on STRC 4F and
+  2F, St. Joseph 3F and St. Miguel 3F (124, 101, 131 and 510 walls; 0.4–1.9 s each).
+- The reviewer found no silent-wrong output in the maths; its fixes (output paths with `#` or `%`, dark edges of the
+  red route read as walls, a faster merge search, grid sampling for style detection) are in, with a test where one
+  applies. Official DLSU plans aren't guaranteed, so this is the main path for floors (PROJECT_FACTS).
+
 ## 2026-10-20: 3b STRC room list → rooms.json
 
 - `data-src/rooms/strc.csv`: STRC's lobby directory typed row by row, **62 rooms** (G 13, 2F 19, 3F 18, 4F 12),

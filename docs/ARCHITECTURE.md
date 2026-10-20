@@ -24,7 +24,7 @@ offline after the first open. There is no backend: the app is static files plus 
 | Search | Our room-code parser + **uFuzzy** for "Did you mean" + **cmdk** for the To/From lists | Sentence parser dropped (D16) |
 | Routing | ngraph.graph + ngraph.path (A*) | |
 | Offline | vite-plugin-pwa (Workbox), `globPatterns` widened to `.json/.woff2/.glb` | D10 |
-| **Floor extraction (dev-only)** | **@techstark/opencv-js + sharp**, in `tools/floor-extract/` | Proven by the spike (D17). Never shipped |
+| **Floor extraction (dev-only)** | **sharp** + our own TypeScript, in `tools/floor-extract/` | Proven by the spike (D17); OpenCV dropped (D29). Never shipped |
 | Geo (build-time) | @turf/turf, proj4 | |
 | Tests | Vitest (unit), Playwright (end-to-end) | |
 | Lint / format / hooks | ESLint 10 + typescript-eslint `strictTypeChecked` + react-hooks, Prettier, Husky + lint-staged | D2 |
