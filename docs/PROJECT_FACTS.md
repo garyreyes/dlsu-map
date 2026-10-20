@@ -139,6 +139,18 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - **Assumptions until 8a maps the real stairs and elevators** (not confirmed, 2026-10-21): every full-tier building
   has an elevator, and stairs cost the same going down as going up (20 s a floor). Auto only takes the elevator for 3+
   floors, so the first matters only when a student picks Elevator.
+- **ngraph behaviour the router relies on** (probed 2026-10-21, ngraph.graph 20.1.2, ngraph.path 1.6.1):
+  `aStar(...).find(a, b)` returns the path **target first**, so reverse it; it returns `[]` when nothing joins them
+  and **throws** for a node id not in the graph. `addLink` on a pair that already has a link **overwrites** its data,
+  and `getLink(b, a)` doesn't find a link added as `a, b`. So `walk-graph.ts` keeps its own cost map keyed by the pair
+  and adds every point as a node.
+- **Taft's 45 s wait** sits on a crossing *run*: crossing links joined at points off the sidewalk, reaching two sidewalk
+  points. OSM's crossing-tagged footways past the curb are crossings too, so a per-link wait would charge some
+  crossings twice. The real network has 8 runs, each one link. No gate-to-building walk crosses Taft. (2026-10-21)
+- **Known limits of the crossing rule** (from the 4b review; none of these shapes is in the data): a crosswalk ending
+  where no sidewalk is drawn gets no wait; one with three or more curb ends (a T) splits 45 s between them; a median
+  drawn as sidewalk makes two crossings (90 s). `tests/routing.test.ts` expects exactly 8 waits, so a refresh that
+  adds one of these fails there first.
 
 ## Cloudflare
 

@@ -1,8 +1,8 @@
 // The route meeting point between the lanes (docs/SPLIT.md): Lane B's router (4b, `src/features/routing/`) returns a
 // RouteResult, and Lane A's route preview, steps list and player (5b–5d) show it. 4c adds step text and 8b adds
 // indoor legs, both as new fields or new leg kinds, never by changing these. Costs: `src/shared/config/routing.ts`.
-import type { Campus } from './campus';
-import type { Rooms } from './rooms';
+import type { Campus } from './campus.ts';
+import type { Rooms } from './rooms.ts';
 
 /** A point in `campus.json`'s frame: x is meters east, y is meters north of its origin. */
 export type XY = readonly [x: number, y: number];
