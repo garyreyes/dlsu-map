@@ -8,6 +8,29 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-20: 2b data compiler v1
+
+- `npm run compile-data` (`scripts/compile-data.ts`) turns `data-src/campus/buildings.json` and the OSM snapshot into
+  `public/data/campus.json` (117 KB): 16 buildings (33 volumes), 4 skybridges, 2 campus rings, 937 city blocks within
+  300 m, 266 paths including the LRT. It prints a compile report and fails, writing nothing, on any error. `dev` and
+  `build` run it first; `public/data/*.json` is gitignored.
+- Rules, all in pure modules under `scripts/compile/`, written test-first (red against stubs, then green):
+  - WGS84 projection to meters, **y north** (`src/shared/geo/project.ts`), checked against degree lengths by hand.
+  - Heights: `height` wins, else levels × 3.4 m; base from `min_height` or `min_level`; 9 m when OSM has none. A
+    height tag it can't read is an error on campus and a note in the city.
+  - A building is its outline **plus** its OSM parts (parts cover only 0–54% of footprints here). Connector parts
+    reaching out of a building go to the one holding their corners, with a note.
+  - Bridges touching a listed building (edges meeting counts); boundary rings holding a listed building; city blocks
+    with no base, so raised ones are skipped; paths cut at the edge, never with a repeated point.
+  - Build errors: shared prefixes or suggest prefixes (ARCHITECTURE §3.4), an OSM id missing from the snapshot, a
+    building with no level count, an unreadable height, a file the schema rejects.
+- The prefix table now comes only from `buildings.json`: `toPrefixTable` (`src/shared/data/prefix-table.ts`) builds it
+  from `campus.json` for search (3c). `shared/config/room-prefixes.ts` is gone; the parser tests keep their own copy,
+  and `tests/compile-data.test.ts` checks the real data gives exactly that table.
+- The reviewer pass found no blocker and 7 silent-wrong cases (concave/connector parts dropped to the city, unread
+  heights guessed, edge-only bridges, degenerate clipped pieces, unnoted areas, multi-ring parts, double ownership).
+  All fixed with tests. 269 tests.
+
 ## 2026-10-20: Rail path kind in the campus shape (before 2b)
 
 - `campus.json` paths gain `kind: 'rail'` for the LRT Line 1 viaduct over Taft Avenue, the campus's strongest

@@ -1,6 +1,5 @@
 // Schema for data-src/campus/buildings.json: the buildings we author by hand (ARCHITECTURE §3.1). The compiler
-// (2b) joins each one to its OSM footprint and writes campus.json. Room-code prefixes move here from
-// shared/config/room-prefixes.ts in 2b.
+// (2b) joins each one to its OSM footprint and writes campus.json. The room-code prefixes live here, and only here.
 import { z } from 'zod';
 
 const prefix = z.string().regex(/^[A-Z]+$/);

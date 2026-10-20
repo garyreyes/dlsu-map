@@ -12,3 +12,6 @@ dist/
 .impeccable/review/
 .impeccable/config.local.json
 .impeccable/hook.cache.json
+
+# Compiled by `npm run compile-data` (run by `dev` and `build`) from data-src/; never edited by hand
+public/data/*.json

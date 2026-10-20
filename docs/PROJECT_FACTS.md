@@ -28,7 +28,12 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 
 ## Working on the code
 
-- Setup after cloning: Node 24, then `npm ci` (also installs the Husky hook). `npm run dev` starts Vite.
+- Setup after cloning: Node 24, then `npm ci` (also installs the Husky hook). `npm run dev` compiles the data,
+  then starts Vite.
+- **`public/data/*.json` is generated and gitignored.** `npm run compile-data` writes it from `data-src/`; `dev`
+  and `build` run it first, so CI fails on any broken data constraint. Never edit it by hand. (2026-10-20)
+- Files under `tests/` and `scripts/` (tsconfig.node, `module: nodenext`) import JSON with
+  `with { type: 'json' }`; src files don't need it. (2026-10-20)
 - Before a PR: `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, which are the same commands CI runs.
 - **TypeScript (D1):** `@typescript/typescript6@6.0.2` is the package version but it contains compiler 6.0.3; ESLint
   and the editor use it. `@typescript/native` is `typescript@7`, and `npm run typecheck` calls its `tsc` by full
@@ -49,11 +54,20 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - **An area request cuts relations at its edge.** It returns every way touching the area in full, but a relation
   only with the members that touch it. The campus boundary (relation 11126048) came back with 2 of its 9 ways, so
   the script fetches such relations again with `/relation/<id>/full`. Every building came back complete. (2026-10-20)
-- The campus boundary is 9 separate outer rings, 5 of them bike-parking areas, plus gates and entrances as points on
-  its ways. Miguel Hall (relation 6095002) is a multipolygon with a courtyard hole. `type=building` relations (One
-  Archers' Place, a hotel) add no shape: their outline and parts are ordinary ways. (2026-10-20)
+- The campus boundary is 9 separate outer rings, plus gates and entrances as points on its ways. Only 2 hold our
+  buildings (the main campus; STRC, Andrew and Razon across Taft); the other 7 are small patches (bike parking and
+  the like, 42–1,144 m²) that the compiler drops and lists. Miguel Hall (relation 6095002) is a multipolygon with a
+  courtyard hole, which `campus.json` can't draw yet (no holes). `type=building` relations (One Archers' Place, a
+  hotel) add no shape: their outline and parts are ordinary ways. (2026-10-20)
 - Ways come back complete even far outside the area: the LRT line way runs the length of Manila with all its
   stations. The compiler clips to what the scene needs. (2026-10-20)
+- **OSM `building:part`s cover only part of a footprint here** (at ground level: Yuchengco 54%, Henry Sy 16%,
+  St. La Salle 0%). So the compiler draws a building's outline at its own height *plus* its parts; the usual 3D rule
+  "parts replace the outline" would make most of St. La Salle vanish. A few connector parts reach out of their
+  building (centre outside it); the compiler gives them to the building holding their corners and says so. (2026-10-20)
+- **`campus.json` coordinates: x is meters east, y is meters north** of the origin 120.9932, 14.5647, WGS84 scale
+  (`src/shared/geo/project.ts`). `prototypes/map-home/campus.json` is different: y is meters *south* (three.js z)
+  and it sits about 21 m west. Never copy coordinates from the prototype. (2026-10-20)
 - Node 24 runs `scripts/*.ts` directly (type stripping), so scripts import other `.ts` files with the extension and
   need no build step. `Object.groupBy` isn't available: `tsconfig.node.json` targets ES2023. (2026-10-20)
 
