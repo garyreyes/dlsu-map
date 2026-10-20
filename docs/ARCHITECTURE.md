@@ -171,7 +171,7 @@ dlsu-map/
       geo/               Projection, polygon/line helpers
       three/             Materials, extrusion/ribbon builders, clipping helper
       ui/                Sheet, Button, Toast wrappers
-      config/            Prefix table, floor labels, cost constants, palette tokens
+      config/            Cost constants, palette tokens (prefixes and floor labels live in buildings.json)
   data-src/
     campus/              buildings.json, walkways, roads; osm/snapshot-<date>.geojson
     rooms/<building>.csv Room lists from lobby directories

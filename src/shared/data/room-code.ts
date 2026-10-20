@@ -1,7 +1,7 @@
 // The room-code meeting point between the lanes (docs/SPLIT.md): Lane B's parser (3a) returns ParsedRoomCode, and
 // Lane A's search and room card (3c, 3d) show one message per kind. Rules: ARCHITECTURE §3.3, D18, D25, D26.
 
-/** One building's room-code prefixes. Comes from `data-src/campus/buildings.json` once 2b lands. */
+/** One building's room-code prefixes, from `campus.json` via `toPrefixTable` (`prefix-table.ts`). */
 export interface BuildingPrefixes {
   /** Building slug, e.g. `'strc'`. */
   readonly building: string;

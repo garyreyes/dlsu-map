@@ -8,8 +8,8 @@
     "node": ">=24 <25"
   },
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "npm run compile-data && vite",
+    "build": "npm run compile-data && vite build",
     "preview": "vite preview",
     "lint": "eslint . && prettier --check . && markdownlint-cli2 \"**/*.md\"",
     "typecheck": "node node_modules/@typescript/native/bin/tsc -b",
@@ -17,7 +17,8 @@
     "format": "prettier --write .",
     "prepare": "husky",
     "e2e": "playwright test",
-    "fetch-osm": "node scripts/fetch-osm.ts"
+    "fetch-osm": "node scripts/fetch-osm.ts",
+    "compile-data": "node scripts/compile-data.ts"
   },
   "lint-staged": {
     "*.{ts,tsx,js}": [

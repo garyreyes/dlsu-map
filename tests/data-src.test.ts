@@ -1,4 +1,4 @@
-// Checks the authored data in data-src/ until the compiler (2b) takes over these constraints (ARCHITECTURE §3.4).
+// Checks the authored data in data-src/ before it reaches the compiler (scripts/compile-data.ts, ARCHITECTURE §3.4).
 // A building pointing at the wrong or a missing OSM element would silently draw the wrong footprint.
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';

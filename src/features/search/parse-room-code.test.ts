@@ -2,11 +2,25 @@
 // error. So every case asserts the exact result (toStrictEqual: no extra or missing fields), and one test proves
 // every result kind can actually be produced. Rules: ARCHITECTURE §3.3, PRD §7, D18, D25, D26.
 import { describe, expect, it } from 'vitest';
-import { ROOM_PREFIXES } from '@/shared/config/room-prefixes';
-import type { ParsedRoomCode, ParsedRoomCodeKind } from '@/shared/data/room-code';
+import type { ParsedRoomCode, ParsedRoomCodeKind, PrefixTable } from '@/shared/data/room-code';
 import { parseRoomCode } from './parse-room-code';
 
-const parse = (typed: string): ParsedRoomCode => parseRoomCode(typed, ROOM_PREFIXES);
+// The owner's table (ARCHITECTURE §3.3). The app builds it from campus.json; tests/compile-data.test.ts checks the real
+// data gives exactly this, and the compiler fails the build if two buildings share a prefix.
+const TABLE = [
+  { building: 'miguel', prefixes: ['SM'] },
+  { building: 'yuchengco', prefixes: ['EY'] },
+  { building: 'velasco', prefixes: ['VL', 'VE'], suggestPrefixes: ['VH'] },
+  { building: 'razon', prefixes: ['ER'] },
+  { building: 'sj', prefixes: ['SJ'], suggestPrefixes: ['J'] },
+  { building: 'gokongwei', prefixes: ['G'] },
+  { building: 'ls', prefixes: ['LS'] },
+  { building: 'andrew', prefixes: ['AG'] },
+  { building: 'strc', prefixes: ['ST', 'C'] },
+  { building: 'mutien', prefixes: ['MM'] },
+] as const satisfies PrefixTable;
+
+const parse = (typed: string): ParsedRoomCode => parseRoomCode(typed, TABLE);
 
 describe('canonical prefixes: every building', () => {
   it.each([
@@ -201,11 +215,6 @@ describe('every result kind is reachable', () => {
 });
 
 describe('the prefix table', () => {
-  it('uses each prefix once across all buildings, suggest prefixes included', () => {
-    const all = ROOM_PREFIXES.flatMap((b) => [...b.prefixes, ...('suggestPrefixes' in b ? b.suggestPrefixes : [])]);
-    expect(all.length).toBe(new Set(all).size);
-  });
-
   it('is read from the argument, not a hidden constant', () => {
     const table = [{ building: 'test-hall', prefixes: ['TH'] }] as const;
     expect(parseRoomCode('th202', table)).toStrictEqual({
