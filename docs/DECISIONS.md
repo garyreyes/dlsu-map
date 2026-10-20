@@ -636,9 +636,36 @@ Offline, the button says to send it once there's signal. Free, no card (D11).
 
 ---
 
-## D27. OSM snapshot from the main API, converted by our own code (2026-10-20, proposed)
+## D25. Prefixes printed on signs but not ours are suggested, never accepted (2026-10-20, agreed)
 
-Numbered D27 because D25 and D26 are proposed in PR #9.
+**Problem.** Some lobby directories print codes in a form our prefix table doesn't use: Velasco's prints `VH-501`
+(our prefixes are `VL`, alias `VE`) and St. Joseph's prints `J-201` (ours is `SJ`). Students type what the sign says.
+
+**Decision.** `VH` and `J` are *suggest prefixes*, not aliases. Typing `VH501` gives "Did you mean VL501 (Velasco)?"
+and one tap accepts it. The route never starts from a guess (PRD §7, strict). The parser returns `kind: 'suggest'`
+(`src/shared/data/room-code.ts`). Canonical codes and prefixes don't change.
+
+**Alternatives.** Full aliases like `C`→`ST` (silent; the owner chose a visible suggestion instead); ignoring them
+("No building uses VH", which is wrong, since the sign says it).
+
+---
+
+## D26. A room's floor is where its source puts it, not always number ÷ 100 (2026-10-20, agreed)
+
+**Problem.** Velasco's directory has a "G Mezz" row (VH-151 Dean's Office, VH-153 CAD/CAM Lab), and St. Miguel's
+lists 153–158 under G. Number ÷ 100 can't tell a mezzanine from the floor below it.
+
+**Decision.** Floor = number ÷ 100 stays the parser's guess (`floorFromNumber`), but the floor in the room list wins:
+the floor of the directory row or evacuation map the room was found on. A room on a mezzanine sits on that
+mezzanine. The compiler still fails on a floor that differs from number ÷ 100 unless the room is marked as found
+there, so typos are still caught (3b).
+
+**Alternatives.** Number ÷ 100 always (mezzanine rooms land on the wrong level); renumbering mezzanine rooms (changes
+codes students already know).
+
+---
+
+## D27. OSM snapshot from the main API, converted by our own code (2026-10-20, agreed)
 
 **Problem.** D4 planned to download the snapshot from Overpass, the service meant for read-only downloads. Every
 public Overpass server failed on 2026-10-19 and 2026-10-20 (502, 504, timeouts). The snapshot also needs a

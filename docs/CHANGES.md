@@ -13,7 +13,8 @@ session needs to know. Search this file; it isn't required reading (the reading 
 - `npm run fetch-osm` (`scripts/fetch-osm.ts`) downloads the campus area from the OSM main API, refetches any relation
   the area cut short, and writes `data-src/campus/osm/snapshot-2026-10-20.geojson`: 1,397 features (all 16 buildings,
   the campus boundary, 266 streets and paths, 53 gates, 27 entrances, 14 elevators, 48 crossings, 4 skybridges).
-  Run by hand only. Overpass was down both days, so D27 (proposed) switches to the main API.
+  Run by hand only. Overpass was down both days, so D27 switches to the main API. Gary agreed
+  D25, D26 and D27 in his review of #11; they are marked agreed and added to `SUMMARY.md` and `docs/PLAN.md`.
 - `scripts/osm-to-geojson.ts`: our own converter, written test-first (36 cases, real extracts in `scripts/fixtures/`,
   red against a stub first). Keeps only what the map uses; reports anything it can't convert instead of guessing.
 - A reviewer pass found no wrong shape in today's data, but six inputs the converter would have drawn wrong in
@@ -30,8 +31,39 @@ session needs to know. Search this file; it isn't required reading (the reading 
   point between the compiler (2b) and the scene (2c). Based on the prototype's `campus.json`, with city blocks
   split out of `buildings` (never tappable), the `campus` tier renamed `block`, building parts as `volumes`, and an
   `origin` so meters can be turned back into lon/lat. Gates, entrances and walkways join later (4a), additively.
-- `campus.sample.json` (real outlines from the prototype) for building 2c now, and 15 tests: the sample passes and
+- `campus.sample.json` (real outlines from the prototype) for building 2c now, and 21 tests: the sample passes and
   each kind of broken file is rejected. Added `zod` 4 (in the ARCHITECTURE §2 stack).
+- From Gary's review: buildings also carry `aliases`, `suggestPrefixes` (D25) and `floorLabels`, the same rules as
+  `buildings.json`, so search (3c) and the room card (3d) read them from `campus.json` instead of keeping their own
+  copy. "G Mezz" (D26) stays out: it belongs in the `rooms.json` shape (3b), since floor-label keys are whole numbers.
+
+## 2026-10-20: Dependabot skips major `@types/node` bumps
+
+- `@types/node` must match the Node we run (24, in `.nvmrc` and CI), so Dependabot now ignores its major updates;
+  patch and minor still come through. Closed #8 (24 → 26). Bump `.nvmrc`, the CI Node version and `@types/node`
+  together in one PR when Node moves.
+
+## 2026-10-20: 3a room-code parser
+
+- `parseRoomCode(typed, table)` in `src/features/search/parse-room-code.ts`, exported from the feature's
+  `index.ts`. Pure, and it never checks `rooms.json` (3c does). The prefix table is a temporary constant in
+  `src/shared/config/room-prefixes.ts` until 2b reads it from `buildings.json`.
+- Written test-first: 80 cases, all `toStrictEqual` on exact results, run red against a stub (57 failed), then
+  green. One test proves all five result kinds are reachable.
+- A reviewer pass found no wrong-room parse, but four loose spots, all fixed with tests. Leading zeros are now
+  rejected (`ST0311`). A tail after a dash or slash must look like a combined entry, so `ST311-lab` and `ST311-A`
+  are no longer read as `ST311`. Forms printed on the signs (`J-602A/B`, `VH-208A&B`, `101A-101B`) still parse.
+  Phone input is normalized (en dash, full-width, zero-width space). An accepted prefix beats a suggest-only one.
+- ARCHITECTURE §3.4: suggest prefixes count in the 2b compiler's prefix-uniqueness check.
+
+## 2026-10-20: Room-code result shape agreed before 3a
+
+- Added `src/shared/data/room-code.ts`: the parser's result type, five kinds (`code`, `suggest`, `unknown-prefix`,
+  `no-prefix`, `not-a-code`), plus the prefix-table type and the parser's signature. `room-code.sample.ts` has one
+  sample per kind so 3c/3d can start before the parser lands. This is the SPLIT.md meeting point for room codes.
+- Proposed D25 (`VH` and `J` from the Velasco and St. Joseph signs are suggested, never accepted) and D26 (a room's
+  floor is where its directory row or map puts it; number ÷ 100 is only a guess, for mezzanines). ARCHITECTURE §3.3
+  and §3.4 and the S2 table in `docs/user-flows.md` updated to match.
 
 ## 2026-10-19: 1a project scaffold
 

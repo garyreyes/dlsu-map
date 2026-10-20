@@ -1,7 +1,7 @@
 # DLSU 3D Campus Navigator: Project Summary
 
-> **Status:** plan approved on 2026-10-19 (D15–D24 agreed); Gate 0 done; the project scaffold (1a) is in. Next are
-> 1b–1d (Lane A) and 2a/3a (Lane B), per [`docs/ROADMAP.md`](docs/ROADMAP.md).
+> **Status:** plan approved on 2026-10-19 (D15–D24 agreed); Gate 0 done; 1a, 2a and 3a are in. Next are
+> 1b–1d (Lane A) and 2b (Lane B), per [`docs/ROADMAP.md`](docs/ROADMAP.md).
 > **Looking for:** a second pair of eyes on the plan. See [How you can help](#how-you-can-help).
 
 Detailed docs: [`docs/PRD.md`](docs/PRD.md) (what and for whom) · [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
@@ -113,7 +113,7 @@ code (it loads three.js from a CDN, which the real app must not do).
 ## Key decisions (short version)
 
 Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24 were agreed by the team on
-2026-10-19.
+2026-10-19, D25–D27 on 2026-10-20.
 
 | # | Decision | Why |
 |---|---|---|
@@ -141,6 +141,9 @@ Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24
 | D22 | **One CI gate (`gates`) for every contributor**; `main` protected since 2026-10-19 | No one can merge a red build |
 | D23 | **From can be typed as a room code** as well as tapped | Students know their current room's code |
 | D24 | **Beta reports via a pre-filled Google Form**, never including From | Testers lack GitHub; no backend |
+| D25 | **Sign-only prefixes are suggested** (`VH501` → "Did you mean VL501?"), never accepted | Students type what the sign says |
+| D26 | **A room's floor is where its directory or map puts it**; number ÷ 100 is only a guess | Mezzanines exist |
+| D27 | **OSM snapshot from the main API**, converted by our own tested code | Every Overpass server failed |
 
 ### Things we chose *not* to do
 
