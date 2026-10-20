@@ -32,8 +32,8 @@
 
 | # | System state | Shows as |
 |---|---|---|
-| O1 | First open with no signal | Full screen: "Open this once with internet to save the map" |
-| O2 | Saving for offline | Thin line under the search bar: "Saving for offline… 40%", then "✓ Ready offline" for 3 s |
+| O1 | First open with no signal | Full screen: "Open this once with internet to save the map". No button; it reloads by itself when signal returns |
+| O2 | Saving for offline | Thin line under the search bar: "Saving for offline…", then "✓ Ready offline" for 3 s. The percentage ("…40%") waits for 10a |
 | O3 | Offline copy lost (iPhone cleared storage) | ⓘ shows "Not saved offline. Open with internet to save again" |
 | O4 | Map update ready | Toast: "Map updated. Reload?" Never shown mid-route |
 | O5 | Interior not traced yet (beta) | Route ends at the entrance; S9 says "ST311 is on 3F · indoor map coming" |
