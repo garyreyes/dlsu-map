@@ -22,6 +22,11 @@ Using Claude Code? [`CLAUDE.md`](CLAUDE.md) gives it this context automatically.
 `main` is protected: work on a branch named after a roadmap step (`3a-room-code-parser`), open a pull request, and
 merge once the `gates` check passes. Feedback: open a GitHub issue.
 
+## License
+
+Code: [MIT](LICENSE). Campus map data (`data-src/`, `public/data/`): ODbL. Details and credits:
+[`ATTRIBUTION.md`](ATTRIBUTION.md).
+
 ---
 
 *Map data © OpenStreetMap contributors (ODbL). Student project, not an official DLSU app.*
