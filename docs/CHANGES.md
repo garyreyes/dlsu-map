@@ -8,6 +8,16 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-20: Campus loader for the 1c shell
+
+- `loadCampus()` (`src/shared/data/load.ts`) fetches `/data/campus.json` and returns `{ ok: true, data }` or
+  `{ ok: false, reason }`. It never throws, so the shell can show "The map couldn't load" instead of a half-drawn map.
+- Reasons: `offline` (no answer), `http` (error status), `not-json` (the content type isn't `application/json`, which
+  catches Cloudflare's 200 `index.html` fallback for a missing file), `invalid` (broken JSON or a schema failure).
+  Written test-first: 7 of 8 tests failed against a stub, then all passed. The reviewer pass found no blocker; it
+  added a case-insensitive content type, `BASE_URL` in the path and a test for a fetch that throws at once (10 tests).
+  `rooms.json` (3c) reuses the same path.
+
 ## 2026-10-20: App-shell tools for 1c
 
 - Added the ARCHITECTURE §2 packages 1c needs, in their own PR (SPLIT.md): `three` 0.186, `@react-three/fiber` 9.8,
