@@ -14,6 +14,25 @@ session needs to know. Search this file; it isn't required reading (the reading 
   draft floor with `tools/floor-extract` (6a). Anyone using Claude Code in this repo now gets it as a skill.
 - `.gitignore` now ignores `.claude/settings.local.json` (personal permissions); `.claude/skills/` stays shared.
 
+## 2026-10-20: 1d basic offline (precache, "Ready offline", "Open this once with internet")
+
+- **Precache** (`vite.config.ts`, vite-plugin-pwa 2.0 from the `1d-deps` PR): every built file is saved on the first
+  open, including the map data, which Workbox's default patterns would have skipped silently. The size limit is
+  raised to 5 MiB per file. Any app URL opens offline (`navigateFallback`). The page open during the first save
+  switches to the copy at once (`clientsClaim`). Updates wait for every tab to close (`registerType: 'prompt'`).
+  There's no service worker in `npm run dev`. Today's copy is 7 files, about 1.5 MB.
+- **O2** (`features/offline`): "Saving for offline…" under the search pill, then "✓ Ready offline" for 3 s, only on
+  the first save. From 768px it sits to the pill's right, clear of the side panel (found in the audit). **O1**: with
+  no saved copy and no signal, "Open this once with internet to save the map" replaces the app, then reloads by
+  itself when signal returns. It has no button: a reload there would land on the browser's offline page. The state
+  logic is pure (`status.ts`, 16 tests covering every state).
+- **CI check** (`tests/e2e/offline.spec.ts`): every file in `dist/` must be in the precache list, apart from a named
+  few. Also: an airplane-mode reload loads the map and data, the open page uses the copy right after "Ready offline",
+  and O1 appears and recovers. Checked against breakage: Workbox's default `globPatterns` fails two tests, and
+  `clientsClaim` off fails one.
+- **Agreed and moved to 10a:** O2's percentage (needs our own service worker; user-flows O2 updated), the web app
+  manifest and icons, and "Ready offline" in a second tab open during a first save. No CSP or `_headers` change.
+
 ## 2026-10-20: 1c app shell (3D map, gestures, search pill, sheet)
 
 - **Map** (`features/campus-scene`): a full-screen R3F canvas with the bare ground, green haze and lights from
