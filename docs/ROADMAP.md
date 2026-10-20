@@ -51,7 +51,7 @@ with a full-app polish.
 | ID | Sub-phase | Lane | Depends on | Status |
 |---|---|---|---|---|
 | 3a | Room-code parser: prefixes, aliases (`C`→`ST`, `VE`→`VL`), format variants, floor = number ÷ 100, combined entries (D18) 🧪 | B | 1a | done |
-| 3b | STRC room list typed from the lobby directory → `rooms.json`; build fails on duplicate codes; floor labels 🧪 | B | 2b, 3a | not started |
+| 3b | STRC room list typed from the lobby directory → `rooms.json`; build fails on duplicate codes; floor labels 🧪 | B | 2b, 3a | done |
 | 3c | Search screen (S2): strict matching, "Did you mean" (uFuzzy), Recent, building matches | A | 1c, 3a | not started |
 | 3d | Room card (S3) with the floor band and floor chip; share link `?to=` and opening it 🧪 | A | 2c, 3b, 3c | not started |
 | 3▸ | Impeccable critique + polish (Phase 3) | A | 3a–3d | not started |

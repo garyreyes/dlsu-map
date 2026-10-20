@@ -23,7 +23,31 @@ session needs to know. Search this file; it isn't required reading (the reading 
   red route read as walls, a faster merge search, grid sampling for style detection) are in, with a test where one
   applies. Official DLSU plans aren't guaranteed, so this is the main path for floors (PROJECT_FACTS).
 
----
+## 2026-10-20: 3b STRC room list → rooms.json
+
+- `data-src/rooms/strc.csv`: STRC's lobby directory typed row by row, **62 rooms** (G 13, 2F 19, 3F 18, 4F 12),
+  counted by hand on the photo and checked again by the reviewer. Owner's calls: the 4th-floor "Stock Room · C302"
+  is C402; `C102/104-106` is 102, 104 and 106; obvious spelling fixed, each fix in the `note` column.
+- `scripts/compile/rooms.ts` (test-first, red against a stub): a small CSV reader (quotes, CRLF, Excel's byte-order
+  mark, real line numbers in errors), combined entries expanded (D18), codes made canonical by the real
+  `parseRoomCode` (C → ST in one place), sorted by prefix then number. The build fails on a code used twice, another
+  building's prefix, a floor the building lacks, a floor off number ÷ 100 without `floor_checked` (D26), a row that
+  isn't a code, or a bad header.
+- `npm run compile-data` now also writes `public/data/rooms.json` (5 KB), and writes neither file if either has
+  errors. `tests/compile-rooms.test.ts` pins the real counts and 13 rooms by exact value.
+- `tsconfig.node.json` maps `@/*`, so the compiler can typecheck the parser (type imports only).
+- The reviewer found no mismatch with the photo and no silent drop; its smaller findings (line numbers after blank
+  lines, the BOM, header spaces, one error per row, numeric sort, error noise when the campus fails) are fixed with
+  tests. 336 tests.
+
+## 2026-10-20: Rooms data shape agreed before 3b
+
+- Added `src/shared/data/rooms.ts`: the Zod schema for `public/data/rooms.json`, the meeting point between the 3b
+  compiler and search and the room card (3c, 3d). Each room: canonical `code`, `building`, `floor` (1 = ground),
+  `name`, and `floorLabel` only where a room's floor reads differently from its building's labels, such as
+  Velasco's "G Mezz" (D26). An array, so a duplicate code is rejected instead of silently dropped by `JSON.parse`.
+- `rooms.sample.json` and 14 tests. Whether a prefix is the canonical one (`ST`, not `C`) needs the prefix table, so
+  the compiler checks that. Room positions join with the floor files (6d), additively.
 
 ## 2026-10-20: 2b data compiler v1
 
