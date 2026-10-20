@@ -8,6 +8,11 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-20: D33 agreed
+
+- Gary approved D33 (a dash on the Velasco, St. Joseph and St. Miguel signs is a range) on #29. Marked agreed in
+  `docs/DECISIONS.md` and added to `SUMMARY.md`. `docs/PLAN.md` is history and has nothing D33 changes.
+
 ## 2026-10-20: Velasco, St. Joseph and St. Miguel room lists
 
 - Typed three more lobby directories into `data-src/rooms/`: `velasco.csv` (71 rooms), `sj.csv` (78) and `miguel.csv`
@@ -23,6 +28,28 @@ session needs to know. Search this file; it isn't required reading (the reading 
 - Committed `.claude/skills/floor-extract/SKILL.md`, the step-by-step for turning one evacuation-map photo into a
   draft floor with `tools/floor-extract` (6a). Anyone using Claude Code in this repo now gets it as a skill.
 - `.gitignore` now ignores `.claude/settings.local.json` (personal permissions); `.claude/skills/` stays shared.
+
+## 2026-10-20: 4a walk network from OSM, with Taft sidewalks, gates and entrances
+
+- `npm run compile-data` now builds `campus.json`'s `walk`, `gates` and `entrances` (`scripts/compile/walk.ts`,
+  `sidewalks.ts`, `attach.ts`, `campus-walk.ts`). OSM paths and small streets are walked on their centre line; Taft
+  gets one sidewalk per carriageway, joined only at its crosswalks (D32); other main roads are left out. The biggest
+  connected piece is kept and the dropped pieces are reported.
+- **Gates:** 9 in `data-src/campus/gates.json`, one OSM node each, confirmed by Charles: Gates 1, 2, 3, 4A, 4B, 5A,
+  5B, 6 and Agno Gate. Leveriza Gate and two unnamed gates are left out on purpose.
+- **Entrances:** 17 pins in `data-src/campus/entrances.json`, dropped by Charles on openstreetmap.org (D31), all
+  `verified: false` until 11a. Andrew, Gokongwei, Velasco, Yuchengco and La Salle Hall have two main doors; St.
+  Joseph has a main door in the middle and two side doors. Each pin snaps onto its own building's wall and joins
+  the nearest path by a `door` link.
+- **The build now fails** if a full building has no main entrance, if a pin is more than 15 m from its building or
+  more than 2 m inside it, if a door link would pass through a building or cross Taft, or if a main entrance can't
+  be reached from every gate.
+- **OSM edit + re-fetch:** Yuchengco's south-east door had no path on its side. Charles mapped the covered walkway
+  from Connon into Yuchengco in OSM (ways 1570063350–1570063352), and `snapshot-2026-10-20.geojson` was
+  re-downloaded the same evening. The only other changes in it are the outline points that edit added to Connon and
+  Yuchengco.
+- `node scripts/walk-svg.ts` draws the network to `out/walk.svg` (gitignored) to check it by eye. Real-data tests
+  in `tests/compile-data.test.ts`: 510 points, 576 links, 9 gates, 17 entrances, no errors.
 
 ## 2026-10-20: Walk network shape agreed before 4a
 

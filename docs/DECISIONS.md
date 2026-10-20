@@ -776,7 +776,7 @@ maintain and check on site).
 
 ---
 
-## D33. On these directory signs a dash between room numbers is a range (2026-10-20, proposed)
+## D33. On these directory signs a dash between room numbers is a range (2026-10-20, agreed)
 
 **Problem.** D18 read a dash in a combined entry as "and": STRC's `C102/104-106` is rooms 102, 104 and 106, because
 C105 is the Mechatronics Lab. Velasco's, St. Joseph's and St. Miguel's directories use a dash as a range:

@@ -2,10 +2,12 @@
 // a broken data constraint fails CI (ARCHITECTURE §3.4). Prints the compile report; exits 1 on any error and then
 // writes nothing. The rules live in scripts/compile/ (pure, tested); this file only reads, writes and prints.
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { buildingSourcesSchema, type BuildingSource } from '../src/shared/data/buildings.ts';
+import type { z } from 'zod';
+import { buildingSourcesSchema } from '../src/shared/data/buildings.ts';
 import type { Campus } from '../src/shared/data/campus.ts';
 import { toPrefixTable } from '../src/shared/data/prefix-table.ts';
 import { compileCampus, type Snapshot } from './compile/campus.ts';
+import { entranceSourcesSchema, gateSourcesSchema } from './compile/campus-walk.ts';
 import { compileRooms, type RoomList } from './compile/rooms.ts';
 
 const root = new URL('../', import.meta.url);
@@ -30,11 +32,12 @@ function roomLists(): RoomList[] {
     .map((f) => ({ building: f.replace(/\.csv$/, ''), file: ROOMS_DIR + f, text: read(ROOMS_DIR + f) }));
 }
 
-function readSources(): BuildingSource[] | null {
-  const sources = buildingSourcesSchema.safeParse(JSON.parse(read('data-src/campus/buildings.json')));
-  if (sources.success) return sources.data;
-  console.error('data-src/campus/buildings.json is invalid:');
-  for (const issue of sources.error.issues) console.error(`  ${issue.path.join('.')}: ${issue.message}`);
+/** A data-src file read with its schema, or null after printing what is wrong with it. */
+function readSource<T>(path: string, schema: z.ZodType<T>): T | null {
+  const parsed = schema.safeParse(JSON.parse(read(path)));
+  if (parsed.success) return parsed.data;
+  console.error(`${path} is invalid:`);
+  for (const issue of parsed.error.issues) console.error(`  ${issue.path.join('.')}: ${issue.message}`);
   return null;
 }
 
@@ -55,13 +58,20 @@ function printCampus(campus: Campus): void {
   );
   console.log(`  campus rings: ${String(campus.campus.length)}, city blocks: ${String(campus.city.length)}`);
   console.log(`  paths: ${kinds.map(([k, n]) => `${k} ${String(n)}`).join(', ')}`);
+  const verified = campus.entrances.filter((e) => e.verified).length;
+  console.log(
+    `  walk: ${String(campus.walk.points.length / 2)} points, ${String(campus.walk.links.length)} links; ` +
+      `gates: ${String(campus.gates.length)}; entrances: ${String(campus.entrances.length)} (${String(verified)} verified)`,
+  );
 }
 
 function main(): number {
-  const sources = readSources();
-  if (!sources) return 1;
+  const sources = readSource('data-src/campus/buildings.json', buildingSourcesSchema);
+  const gates = readSource('data-src/campus/gates.json', gateSourcesSchema);
+  const entrances = readSource('data-src/campus/entrances.json', entranceSourcesSchema);
+  if (!sources || !gates || !entrances) return 1;
   const snapshotPath = latestSnapshot();
-  const campusResult = compileCampus(sources, JSON.parse(read(snapshotPath)) as Snapshot);
+  const campusResult = compileCampus(sources, JSON.parse(read(snapshotPath)) as Snapshot, { gates, entrances });
   // Rooms are checked against the same buildings the campus has: prefixes from buildings.json, floors from OSM.
   // Without a campus there are no floors to check rooms against: report the campus errors alone, not one per room.
   const buildings = campusResult.campus?.buildings;

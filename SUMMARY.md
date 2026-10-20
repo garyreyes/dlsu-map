@@ -113,7 +113,7 @@ code (it loads three.js from a CDN, which the real app must not do).
 ## Key decisions (short version)
 
 Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24 were agreed by the team on
-2026-10-19, D25–D27 on 2026-10-20.
+2026-10-19, D25–D27 and D33 on 2026-10-20.
 
 | # | Decision | Why |
 |---|---|---|
@@ -144,6 +144,7 @@ Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24
 | D25 | **Sign-only prefixes are suggested** (`VH501` → "Did you mean VL501?"), never accepted | Students type what the sign says |
 | D26 | **A room's floor is where its directory or map puts it**; number ÷ 100 is only a guess | Mezzanines exist |
 | D27 | **OSM snapshot from the main API**, converted by our own tested code | Every Overpass server failed |
+| D33 | **A dash on Velasco, St. Joseph and St. Miguel signs is a range** (`VH-304-309` = 304 to 309) | Rooms in between are on no other line |
 
 ### Things we chose *not* to do
 
