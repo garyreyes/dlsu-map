@@ -8,6 +8,13 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-20: Hosting tools for 1b (`wrangler`, Playwright)
+
+- Added `wrangler@4.149.0` and `@playwright/test@1.63.0` as exact-pinned devDependencies, in their own PR so the
+  lockfile change doesn't collide with other branches (SPLIT.md). Nothing uses them yet; `1b-hosting` does.
+- `npm ls --all` passes. `npm audit --omit=dev` is still clean; the dev-only warnings are the same
+  `markdownlint-cli2` chain as before (wrangler 4.149.0 avoids a `sharp` advisory, see PROJECT_FACTS).
+
 ## 2026-10-20: Dependabot skips major `@types/node` bumps
 
 - `@types/node` must match the Node we run (24, in `.nvmrc` and CI), so Dependabot now ignores its major updates;
