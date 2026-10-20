@@ -166,6 +166,56 @@ describe('attach', () => {
     expect(xy(walk, 5)).toStrictEqual([30, 10]);
   });
 
+  it('fails a pin nearer a path OSM left unjoined than the network, rather than joining it far away', () => {
+    // A stray path just south of STRC's door, dropped because it joins nothing.
+    const islands = [
+      [
+        [25, 6],
+        [30, 6],
+        [35, 6],
+      ] as Point[],
+    ];
+    const { errors } = attach(input({ islands }));
+    expect(errors).toStrictEqual([
+      'strc main entrance: the nearest path (around 30, 6) is not joined to the rest of the network',
+    ]);
+  });
+
+  it('fails a door link that would cross a carriageway to reach the far side', () => {
+    // A carriageway along y = 5, between Connon's south wall and the path at y = 0.
+    const barriers = [
+      {
+        name: 'Taft Avenue',
+        line: [
+          [0, 5],
+          [120, 5],
+        ] as Point[],
+      },
+    ];
+    const { errors } = attach(input({ barriers, entrances: [miguelMain, entrance('connon', [70, 9])] }));
+    expect(errors).toContain('connon main entrance: the way to the nearest path (70, 10 → 70, 0) crosses Taft Avenue');
+  });
+
+  it('fails a pin dropped well inside its building, which could snap to the wrong wall', () => {
+    const { errors } = attach(input({ entrances: [entrance('strc', [30, 16]), miguelMain] }));
+    expect(errors).toStrictEqual([
+      'strc main entrance: the pin is inside the building, 4 m from its nearest wall; put it on the door',
+    ]);
+  });
+
+  it('accepts a pin just inside the wall, as a pin dropped on a doorway is', () => {
+    const { errors } = attach(input({ entrances: [entrance('strc', [30, 11]), miguelMain] }));
+    expect(errors).toStrictEqual([]);
+  });
+
+  it('leaves out ways no link uses, such as those of dropped pieces', () => {
+    const net = network();
+    net.ways.push({ kind: 'street', name: 'Noli Street' });
+    const { walk } = attach(input({ network: net }));
+    expect(walk.ways).toStrictEqual([{ kind: 'path' }, { kind: 'crossing', name: 'Taft Avenue' }, { kind: 'door' }]);
+    expect(walk.links.every(([, , w]) => w < walk.ways.length)).toBe(true);
+  });
+
   it('fails when an entrance ends up apart from the gates', () => {
     const split = network();
     split.links.splice(1, 1); // cut 50–100: the gate below is on the far piece

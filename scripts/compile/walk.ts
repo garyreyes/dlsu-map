@@ -34,8 +34,11 @@ const KINDS: Readonly<Record<string, WayInfo['kind']>> = {
   living_street: 'street',
 };
 
-const isSidewalkStreet = (tags: Tags) => tags.highway !== undefined && SIDEWALK_STREETS.has(tags.name ?? '');
+/** Carriageways: a footway or service road that happens to carry the name is walked like any other. */
+const ROAD_CLASSES = new Set(['trunk', 'primary', 'secondary', 'tertiary', 'trunk_link', 'primary_link']);
 const isCrossing = (tags: Tags) => tags.footway === 'crossing';
+export const isSidewalkStreet = (tags: Tags) =>
+  ROAD_CLASSES.has(tags.highway ?? '') && !isCrossing(tags) && SIDEWALK_STREETS.has(tags.name ?? '');
 const closed = (tags: Tags) =>
   tags.foot === 'no' || (tags.access === 'no' && !['yes', 'designated', 'permissive'].includes(tags.foot ?? ''));
 

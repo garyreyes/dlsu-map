@@ -402,6 +402,42 @@ describe('buildNetwork: Taft sidewalks (D31)', () => {
     expect(network.links).toHaveLength(2);
   });
 
+  it('does not join the two carriageways’ sidewalks where they meet end to end, as at a turnaround', () => {
+    // Southbound ends where northbound starts: both `sidewalk=right`, but one is the west side and one the east.
+    const down = line('way/107', { highway: 'primary', name: 'Taft Avenue', lanes: '4', sidewalk: 'right' }, [
+      [0, 100],
+      [0, 0],
+    ]);
+    const up = line('way/108', { highway: 'primary', name: 'Taft Avenue', lanes: '4', sidewalk: 'right' }, [
+      [0, 0],
+      [3, 100],
+    ]);
+    const { network } = build(down, up);
+    const west = at(network, [-7.9, 100]);
+    expect(west).toBeGreaterThanOrEqual(0);
+    const east = network.points.findIndex((p) => p[0] > 3 && p[1] > 99);
+    expect(joined(network, network.points[west] as Pt, network.points[east] as Pt)).toBe(false);
+    // Nothing lands past the end of either carriageway.
+    expect(network.points.every((p) => p[1] > -8)).toBe(true);
+  });
+
+  it.each<[string, Tags]>([
+    ['a crosswalk', { highway: 'footway', footway: 'crossing', name: 'Taft Avenue' }],
+    ['a footway', { highway: 'footway', name: 'Taft Avenue' }],
+    ['a service road', { highway: 'service', name: 'Taft Avenue' }],
+  ])('treats %s named Taft Avenue as a way to walk, not a carriageway', (_label, tags) => {
+    const { network } = build(
+      line('way/1', tags, [
+        [0, 0],
+        [10, 0],
+      ]),
+    );
+    expect(rounded(network)).toStrictEqual([
+      [0, 0],
+      [10, 0],
+    ]);
+  });
+
   it('uses a width tag over lanes', () => {
     const wide = line('way/104', { highway: 'primary', name: 'Taft Avenue', width: '10', sidewalk: 'left' }, [
       [0, 0],

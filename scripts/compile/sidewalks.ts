@@ -64,12 +64,22 @@ const flip = (r: Run): Run => ({
   side: r.side === 'left' ? 'right' : 'left',
 });
 
-/** `b` turned to carry on from `a`'s last node on the same side, or undefined if it doesn't. */
+/** The direction of the stretch p → q, as a unit vector. */
+const heading = (p: Point | undefined, q: Point | undefined): Point =>
+  p && q ? unit([q[0] - p[0], q[1] - p[1]]) : [0, 0];
+
+/**
+ * `b` turned to carry on from `a`'s last node on the same side, or undefined if it doesn't. It must also carry on in
+ * roughly the same direction (turning less than 90°): where the two carriageways meet end to end, as at a
+ * turnaround, both say `sidewalk=right` but one is the west side and one the east, and joining them would cross Taft.
+ */
 function continuation(a: Run, b: Run, ends: ReadonlyMap<string, ReadonlySet<string>>): Run | undefined {
   const tail = a.keys.at(-1) ?? '';
   if (ends.get(tail)?.size !== 2 || b.ids.some((id) => a.ids.includes(id))) return undefined;
   const turned = b.keys[0] === tail ? b : b.keys.at(-1) === tail ? flip(b) : undefined;
-  return turned?.side === a.side && turned.name === a.name ? turned : undefined;
+  if (turned?.side !== a.side || turned.name !== a.name) return undefined;
+  const [h1, h2] = [heading(a.centre.at(-2), a.centre.at(-1)), heading(turned.centre[0], turned.centre[1])];
+  return h1[0] * h2[0] + h1[1] * h2[1] > 0 ? turned : undefined;
 }
 
 /**

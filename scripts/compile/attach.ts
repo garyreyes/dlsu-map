@@ -13,6 +13,8 @@ const MAX_DOOR = 30;
 /** Closer than this is the same place. Also how close to a wall a door link may run. */
 const SAME = 0.5;
 const ON_WALL = 0.3;
+/** A pin this far inside its building was not dropped on a door, and may snap to the wrong wall. */
+const MAX_INSIDE = 2;
 
 export interface GateInput {
   readonly id: string;
@@ -38,6 +40,10 @@ export interface AttachInput {
   }[];
   readonly gates: readonly GateInput[];
   readonly entrances: readonly EntranceInput[];
+  /** Pieces of path dropped for joining nothing: a door nearer one of these than the network is an error. */
+  readonly islands?: readonly (readonly Point[])[];
+  /** Carriageways a door link must not cross to reach a path on the far side. */
+  readonly barriers?: readonly { readonly name: string; readonly line: readonly Point[] }[];
 }
 export interface AttachResult {
   readonly walk: Walk;
@@ -72,6 +78,8 @@ interface Grow {
   readonly ways: WayInfo[];
   readonly links: Link[];
   readonly buildings: AttachInput['buildings'];
+  readonly islands: NonNullable<AttachInput['islands']>;
+  readonly barriers: NonNullable<AttachInput['barriers']>;
   readonly errors: string[];
 }
 
@@ -93,6 +101,22 @@ function blockedBy(g: Grow, p: Point, q: Point): string | undefined {
     if (hit) return hit.slug;
   }
   return undefined;
+}
+
+/** Which side of the line a → b the point c is on: 1, -1, or 0 on it. */
+const turn = (a: Point, b: Point, c: Point) => Math.sign((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]));
+
+/** The carriageway a straight walk from p to q crosses outright, if any. */
+function crossedRoad(g: Grow, p: Point, q: Point): string | undefined {
+  const crosses = (a: Point, b: Point) => turn(p, q, a) * turn(p, q, b) < 0 && turn(a, b, p) * turn(a, b, q) < 0;
+  return g.barriers.find((r) => r.line.some((b, i) => i > 0 && crosses(r.line[i - 1] as Point, b)))?.name;
+}
+
+/** The point of a dropped piece of path nearest p, if there are any. */
+function nearestIsland(g: Grow, p: Point): Point | undefined {
+  let best: Point | undefined;
+  for (const q of g.islands.flat()) if (!best || dist(p, q) < dist(p, best)) best = q;
+  return best;
 }
 
 /**
@@ -130,9 +154,16 @@ function join(g: Grow, p: Point, key: string, label: string): number | undefined
     return undefined;
   }
   if (d <= SAME) return pointOnPath(g, near, key);
+  const island = nearestIsland(g, p);
+  if (island && dist(p, island) < d) {
+    g.errors.push(`${label}: the nearest path (around ${fmt(island)}) is not joined to the rest of the network`);
+    return undefined;
+  }
+  const way = `the way to the nearest path (${fmt(p)} → ${fmt(near.at)})`;
   const through = blockedBy(g, p, near.at);
-  if (through) {
-    g.errors.push(`${label}: the way to the nearest path (${fmt(p)} → ${fmt(near.at)}) goes through ${through}`);
+  const road = crossedRoad(g, p, near.at);
+  if (through !== undefined || road !== undefined) {
+    g.errors.push(`${label}: ${way} ${through !== undefined ? `goes through ${through}` : `crosses ${String(road)}`}`);
     return undefined;
   }
   const door = addPoint(g, key, p);
@@ -165,6 +196,12 @@ function attachEntrances(g: Grow, entrances: readonly EntranceInput[]): Entrance
     if (!wall || dist(e.point, wall) > MAX_PIN) {
       const d = wall ? Math.round(dist(e.point, wall)) : Infinity;
       g.errors.push(`${label}: the pin is ${String(d)} m from the building (at most ${String(MAX_PIN)})`);
+      return [];
+    }
+    const deep = dist(e.point, wall);
+    if (deep > MAX_INSIDE && building.outlines.some((r) => pointInRing(e.point, r))) {
+      const m = String(Math.round(deep));
+      g.errors.push(`${label}: the pin is inside the building, ${m} m from its nearest wall; put it on the door`);
       return [];
     }
     const point = join(g, wall, `door:${e.building}:${String(i)}`, label);
@@ -218,6 +255,8 @@ export function attach(input: AttachInput): AttachResult {
     ways: [...n.ways],
     links: n.links.map((l): Link => [...l]),
     buildings: input.buildings,
+    islands: input.islands ?? [],
+    barriers: input.barriers ?? [],
     errors: [],
   };
   const notes: string[] = [];
@@ -235,6 +274,16 @@ export function attach(input: AttachInput): AttachResult {
     ];
     if (away.length > 0) g.errors.push(`walk: ${away.join(', ')} can't be reached from ${first.id}`);
   }
-  const walk: Walk = { points: g.points.flatMap(([x, y]) => [round(x), round(y)]), ways: g.ways, links: g.links };
-  return { walk, gates, entrances, errors: g.errors, notes };
+  return { walk: output(g), gates, entrances, errors: g.errors, notes };
+}
+
+/** The network to write: meters to 0.1 m, and only the ways some link uses (dropped pieces leave some behind). */
+function output(g: Grow): Walk {
+  const used = [...new Set(g.links.map(([, , w]) => w))].sort((a, b) => a - b);
+  const renumber = new Map(used.map((old, i) => [old, i]));
+  return {
+    points: g.points.flatMap(([x, y]) => [round(x), round(y)]),
+    ways: used.map((w) => g.ways[w] as WayInfo),
+    links: g.links.map(([a, b, w]): Link => [a, b, renumber.get(w) ?? w]),
+  };
 }

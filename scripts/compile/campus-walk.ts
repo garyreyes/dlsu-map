@@ -9,7 +9,7 @@ import type { Feature } from '../osm-to-geojson.ts';
 import { attach, type AttachInput } from './attach.ts';
 import { pointInRing, round, type Point, type Rect } from './geometry.ts';
 import { nodeKey } from './sidewalks.ts';
-import { buildNetwork, keepLargest } from './walk.ts';
+import { buildNetwork, isSidewalkStreet, keepLargest } from './walk.ts';
 
 const slug = z.string().regex(/^[a-z0-9-]+$/);
 
@@ -76,8 +76,15 @@ export function compileWalk(src: WalkSources, ctx: WalkContext): Pick<Campus, 'w
   const kept = keepLargest(built.network);
   if (kept.note) ctx.notes.push(kept.note);
   droppedOnCampus(kept.dropped, ctx);
+  const barriers = ctx.features.flatMap((f) =>
+    f.geometry.type === 'LineString' && isSidewalkStreet(f.properties.tags)
+      ? [{ name: f.properties.tags.name ?? '', line: f.geometry.coordinates.map(ctx.toMeters) }]
+      : [],
+  );
   const result = attach({
     network: kept.network,
+    islands: kept.dropped,
+    barriers,
     buildings: ctx.buildings,
     gates: gateInputs(src, ctx),
     entrances: src.entrances.map((e) => ({
