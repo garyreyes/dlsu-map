@@ -19,6 +19,38 @@ session needs to know. Search this file; it isn't required reading (the reading 
   (`PROJECT_FACTS.md`).
 - 1c is marked `in progress` in `docs/ROADMAP.md`. The campus loader and the shell follow in their own PRs.
 
+## 2026-10-20: 6a floor-extract tool
+
+- `tools/floor-extract/` replaces the spike (dev-only, never shipped): `npm run floor-extract -- crop <photo> <x,y>…`
+  writes zoomed, gridded crops to read the 4 corners; `… extract <photo> <tl> <tr> <br> <bl>` straightens the plan,
+  splits colours, finds walls (double lines merged) and the route, and writes an overlay, a 3D preview and
+  `draft.json` (0–1 plan coordinates) to `tools/floor-extract/out/`, gitignored like the photos.
+- No OpenCV (D29, proposed): homography warp, long runs and blobs are plain TypeScript, written test-first on
+  hand-drawn images (64 tests). Only `sharp` was added, pinned at 0.35.5 (already in the tree through wrangler).
+- **Two map styles** (STRC's green signs; the white template with a red route everywhere else): detected from the
+  paper, ink judged against the paper around it so glare and shadow don't hide walls. Checked by eye on STRC 4F and
+  2F, St. Joseph 3F and St. Miguel 3F (124, 101, 131 and 510 walls; 0.4–1.9 s each).
+- The reviewer found no silent-wrong output in the maths; its fixes (output paths with `#` or `%`, dark edges of the
+  red route read as walls, a faster merge search, grid sampling for style detection) are in, with a test where one
+  applies. Official DLSU plans aren't guaranteed, so this is the main path for floors (PROJECT_FACTS).
+
+## 2026-10-20: 3b STRC room list → rooms.json
+
+- `data-src/rooms/strc.csv`: STRC's lobby directory typed row by row, **62 rooms** (G 13, 2F 19, 3F 18, 4F 12),
+  counted by hand on the photo and checked again by the reviewer. Owner's calls: the 4th-floor "Stock Room · C302"
+  is C402; `C102/104-106` is 102, 104 and 106; obvious spelling fixed, each fix in the `note` column.
+- `scripts/compile/rooms.ts` (test-first, red against a stub): a small CSV reader (quotes, CRLF, Excel's byte-order
+  mark, real line numbers in errors), combined entries expanded (D18), codes made canonical by the real
+  `parseRoomCode` (C → ST in one place), sorted by prefix then number. The build fails on a code used twice, another
+  building's prefix, a floor the building lacks, a floor off number ÷ 100 without `floor_checked` (D26), a row that
+  isn't a code, or a bad header.
+- `npm run compile-data` now also writes `public/data/rooms.json` (5 KB), and writes neither file if either has
+  errors. `tests/compile-rooms.test.ts` pins the real counts and 13 rooms by exact value.
+- `tsconfig.node.json` maps `@/*`, so the compiler can typecheck the parser (type imports only).
+- The reviewer found no mismatch with the photo and no silent drop; its smaller findings (line numbers after blank
+  lines, the BOM, header spaces, one error per row, numeric sort, error noise when the campus fails) are fixed with
+  tests. 336 tests.
+
 ## 2026-10-20: Rooms data shape agreed before 3b
 
 - Added `src/shared/data/rooms.ts`: the Zod schema for `public/data/rooms.json`, the meeting point between the 3b

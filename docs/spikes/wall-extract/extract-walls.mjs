@@ -1,3 +1,4 @@
+// SUPERSEDED by tools/floor-extract/ (6a, 2026-10-20). Kept as history; don't extend it.
 // THROWAWAY SPIKE (2026-10-19): can walls + the hallway line be pulled out of an evacuation-map PHOTO automatically?
 // Not production code. Photos are DLSU's and gitignored (data-src/photos/); outputs go to ./out (gitignored).
 // Run from this folder: node extract-walls.mjs <photo> <tlx,tly> <trx,try> <brx,bry> <blx,bly>
