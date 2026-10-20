@@ -683,3 +683,23 @@ the same work).
 
 **Revisit if** the snapshot is ever refreshed automatically or often: that is bulk use, and belongs on Overpass or a
 planet extract.
+
+---
+
+## D28. Preview links only; production stays dark until the private beta (2026-10-20, proposed)
+
+**Problem.** D5 gives every PR a preview link, but Cloudflare only makes previews for a Worker that already exists
+(checked live, PROJECT_FACTS "Cloudflare"). Creating it with a normal deploy also publishes
+`dlsu-map.<account>.workers.dev`, which would be the beta link (D19) months before the beta, and CLAUDE.md says
+nothing deploys there without the owner's yes.
+
+**Decision.** `wrangler.jsonc` has `workers_dev: false` and `preview_urls: true`. The owner creates the Worker once
+by hand with `wrangler deploy`, which publishes no URL ("No targets deployed"; the address returns 404). After that,
+CI only runs `wrangler versions upload --preview-alias pr-<n>`, which never touches production. The beta link is
+switched on in 10d by setting `workers_dev: true` and deploying, with the owner's yes. A Playwright test in `gates`
+checks the headers, `robots.txt` and that nothing loads from another site, against `wrangler dev` (no secrets, so
+it covers Dependabot PRs too).
+
+**Alternatives.** Auto-deploy `main` to production (the beta link exists from now on); a manual "Deploy" button in
+GitHub Actions (production goes live whenever it's pressed, before 10d); testing only the live preview (skipped on
+Dependabot PRs and can't be a required check).

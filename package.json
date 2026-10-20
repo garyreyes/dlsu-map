@@ -16,6 +16,7 @@
     "test": "vitest run",
     "format": "prettier --write .",
     "prepare": "husky",
+    "e2e": "playwright test",
     "fetch-osm": "node scripts/fetch-osm.ts",
     "compile-data": "node scripts/compile-data.ts"
   },
