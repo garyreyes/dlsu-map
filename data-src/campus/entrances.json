@@ -1,1 +1,19 @@
-[]
+[
+  { "building": "andrew", "kind": "main", "lat": 14.56719, "lon": 120.99288, "verified": false },
+  { "building": "andrew", "kind": "main", "lat": 14.566959, "lon": 120.992324, "verified": false },
+  { "building": "gokongwei", "kind": "main", "lat": 14.56643, "lon": 120.99322, "verified": false },
+  { "building": "gokongwei", "kind": "main", "lat": 14.56617, "lon": 120.992697, "verified": false },
+  { "building": "velasco", "kind": "main", "lat": 14.565376, "lon": 120.993212, "verified": false },
+  { "building": "velasco", "kind": "main", "lat": 14.565571, "lon": 120.993142, "verified": false },
+  { "building": "miguel", "kind": "main", "lat": 14.565539, "lon": 120.992727, "verified": false },
+  { "building": "yuchengco", "kind": "main", "lat": 14.564459, "lon": 120.993, "verified": false },
+  { "building": "yuchengco", "kind": "main", "lat": 14.5641394, "lon": 120.9933379, "verified": false },
+  { "building": "sj", "kind": "side", "lat": 14.565355, "lon": 120.992276, "verified": false },
+  { "building": "sj", "kind": "main", "lat": 14.564986, "lon": 120.992558, "verified": false },
+  { "building": "sj", "kind": "side", "lat": 14.564571, "lon": 120.99274, "verified": false },
+  { "building": "ls", "kind": "main", "lat": 14.564797, "lon": 120.993496, "verified": false },
+  { "building": "ls", "kind": "main", "lat": 14.563979, "lon": 120.994317, "verified": false },
+  { "building": "razon", "kind": "main", "lat": 14.567019, "lon": 120.992171, "verified": false },
+  { "building": "mutien", "kind": "main", "lat": 14.565693, "lon": 120.992217, "verified": false },
+  { "building": "strc", "kind": "main", "lat": 14.566479, "lon": 120.992421, "verified": false }
+]

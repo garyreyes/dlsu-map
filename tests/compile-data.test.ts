@@ -7,6 +7,7 @@ import { campusSchema } from '../src/shared/data/campus.ts';
 import sample from '../src/shared/data/campus.sample.json' with { type: 'json' };
 import { toPrefixTable } from '../src/shared/data/prefix-table.ts';
 import { compileCampus, type Snapshot } from '../scripts/compile/campus.ts';
+import { entranceSourcesSchema, gateSourcesSchema } from '../scripts/compile/campus-walk.ts';
 
 const read = (path: string): unknown => JSON.parse(readFileSync(new URL(`../${path}`, import.meta.url), 'utf8'));
 const buildings = buildingSourcesSchema.parse(read('data-src/campus/buildings.json'));
@@ -87,5 +88,61 @@ describe('compiling the real campus', () => {
       { building: 'mutien', prefixes: ['MM'] },
       { building: 'strc', prefixes: ['ST', 'C'] },
     ]);
+  });
+});
+
+// 4a: the same compile with the gates and the entrance pins (D31). Pins are Charles's, dropped on openstreetmap.org
+// on 2026-10-20; the Yuchengco–Connon walkway they rely on was added to OSM the same day.
+describe('compiling the real walk network', () => {
+  const walkSources = {
+    gates: gateSourcesSchema.parse(read('data-src/campus/gates.json')),
+    entrances: entranceSourcesSchema.parse(read('data-src/campus/entrances.json')),
+  };
+  const walked = compileCampus(buildings, snapshot, walkSources);
+  const c = walked.campus;
+  const linked = new Set(c?.walk.links.flatMap(([a, b]) => [a, b]));
+
+  it('has no errors: every full building has a main entrance reachable from every gate', () => {
+    expect(walked.errors).toStrictEqual([]);
+    expect(campusSchema.safeParse(c).success).toBe(true);
+  });
+
+  it('has the 9 gates students use, in gates.json order, each on the network', () => {
+    expect(c?.gates.map((g) => g.id)).toStrictEqual([
+      'gate-1',
+      'gate-2',
+      'gate-3',
+      'gate-4a',
+      'gate-4b',
+      'gate-5a',
+      'gate-5b',
+      'gate-6',
+      'agno',
+    ]);
+    expect(c?.gates.filter((g) => !linked.has(g.point))).toStrictEqual([]);
+  });
+
+  it('has 17 entrances, all unverified until the on-site check (11a), each on the network', () => {
+    expect(c?.entrances).toHaveLength(17);
+    expect(c?.entrances.filter((e) => e.verified)).toStrictEqual([]);
+    expect(c?.entrances.filter((e) => !linked.has(e.point))).toStrictEqual([]);
+  });
+
+  it('gives every full building a main entrance, and Yuchengco both of its doors', () => {
+    const mains = new Set(c?.entrances.filter((e) => e.kind === 'main').map((e) => e.building));
+    expect(buildings.filter((b) => b.tier === 'full' && !mains.has(b.slug))).toStrictEqual([]);
+    expect(c?.entrances.filter((e) => e.building === 'yuchengco')).toHaveLength(2);
+  });
+
+  it('keeps its size: 510 points, 576 links', () => {
+    expect((c?.walk.points.length ?? 0) / 2).toBe(510);
+    expect(c?.walk.links).toHaveLength(576);
+  });
+
+  it('walks Taft on its sidewalks and crosses at crosswalks (D32)', () => {
+    const ways = c?.walk.ways ?? [];
+    expect(ways).toContainEqual({ kind: 'sidewalk', name: 'Taft Avenue' });
+    expect(ways).toContainEqual({ kind: 'crossing', name: 'Taft Avenue' });
+    expect(ways.some((w) => w.kind === 'street' && w.name === 'Taft Avenue')).toBe(false);
   });
 });

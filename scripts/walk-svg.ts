@@ -45,6 +45,7 @@ function draw(c: Campus): string {
     const [x, y] = pt(e.point);
     out.push(
       `<circle cx="${X(x)}" cy="${Y(y)}" r="5" fill="${e.verified ? '#000' : '#fff'}" stroke="#000" stroke-width="2"><title>${e.building} ${e.kind}</title></circle>`,
+      `<text x="${X(x + 3)}" y="${Y(y - 3)}" font-size="12">${e.building}${e.kind === 'main' ? '' : ` (${e.kind})`}</text>`,
     );
   }
   for (const g of c.gates) {
