@@ -8,6 +8,16 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-20: Velasco, St. Joseph and St. Miguel room lists
+
+- Typed three more lobby directories into `data-src/rooms/`: `velasco.csv` (71 rooms), `sj.csv` (78) and `miguel.csv`
+  (69), so search has 280 rooms across four buildings. No compiler change.
+- These signs use a dash as a range (`VH-304-309`); proposed **D33** types each range out with `/` and a note, and
+  leaves STRC's reading as it was. Owner calls (Velasco 106 and 201A, St. Joseph 601/602 and 208/209) and the
+  prefix rules are in `docs/PROJECT_FACTS.md` "Room lists".
+- `tests/compile-rooms.test.ts` checks each building's per-floor counts (hand-counted on the photos), the prefixes,
+  24 spot rooms and the mezzanine. A range typed as "and" fails it (checked).
+
 ## 2026-10-20: 1c app shell (3D map, gestures, search pill, sheet)
 
 - **Map** (`features/campus-scene`): a full-screen R3F canvas with the bare ground, green haze and lights from
