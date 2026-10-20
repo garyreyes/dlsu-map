@@ -16,6 +16,9 @@
     "docs/HANDOVER.md",
     "data-src/photos/**",
     "docs/reference/**",
-    "docs/spikes/*/out/**"
+    "docs/spikes/*/out/**",
+    // Playwright output (1b), regenerated each run and gitignored
+    "test-results/**",
+    "playwright-report/**"
   ]
 }

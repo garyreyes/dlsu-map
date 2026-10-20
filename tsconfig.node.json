@@ -21,5 +21,7 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["vite.config.ts", "eslint.config.js", "eslint.boundaries.js", "tests", "scripts", "tools"]
+  "include": ["vite.config.ts", "eslint.config.js", "eslint.boundaries.js", "tests", "scripts", "tools"],
+  // Playwright tests need DOM types: tsconfig.e2e.json.
+  "exclude": ["tests/e2e"]
 }

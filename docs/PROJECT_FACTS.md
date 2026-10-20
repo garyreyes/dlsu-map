@@ -29,7 +29,8 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 ## Working on the code
 
 - Setup after cloning: Node 24, then `npm ci` (also installs the Husky hook). `npm run dev` starts Vite.
-- Before a PR: `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, which are the same commands CI runs.
+- Before a PR: `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, then `npm run e2e` (it serves the
+  build), which are the same commands CI runs.
 - **TypeScript (D1):** `@typescript/typescript6@6.0.2` is the package version but it contains compiler 6.0.3; ESLint
   and the editor use it. `@typescript/native` is `typescript@7`, and `npm run typecheck` calls its `tsc` by full
   path. `tsc` 7 runs in build mode (`-b`) over `tsconfig.app.json` (src/) and `tsconfig.node.json` (configs, tests,
@@ -65,6 +66,21 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   `CLOUDFLARE_ACCOUNT_ID` are GitHub Actions secrets only. (2026-10-19)
 - Adding a secret on github.com: the token goes in the **Secret** box, not **Name**. A secret whose name looks like
   random characters is a pasted token: delete it and roll the token in Cloudflare. (2026-10-19)
+- **Checked live on 2026-10-20** with a throwaway Worker (wrangler 4.147.0, then deleted):
+  - `wrangler versions upload` fails on a Worker that doesn't exist yet ("run the `deploy` command first").
+  - `wrangler deploy` with `workers_dev: false` creates the Worker with no live URL: "No targets deployed", and
+    `<name>.<account>.workers.dev` returns 404 (error 1042). D28 relies on this.
+  - With `preview_urls: true`, `versions upload --preview-alias pr-1` gives `https://pr-1-<name>.gary-reyes.workers.dev`.
+    Uploading again to the same alias updates that link within about 12 s. Deleting the Worker removes its previews.
+  - `public/_headers` is applied on preview links and in `wrangler dev` alike. `/_headers` itself is never served.
+  - With `not_found_handling: "single-page-application"`, **any** missing path gets `index.html` with status 200,
+    including `/data/missing.json` fetched with `Sec-Fetch-Mode: cors`. So `shared/data` must reject a response
+    whose content type isn't JSON; `res.ok` alone passes. Same in `wrangler dev`.
+- The account's workers.dev subdomain is `gary-reyes`, so preview links contain the owner's name. They are public to
+  anyone with the link and carry `noindex` (D19). (2026-10-20)
+- On Gary's laptop, `npx playwright install chromium` times out (Playwright's downloader; plain `curl` of the same
+  file works). Run the e2e tests on the installed Chrome instead: `PLAYWRIGHT_CHANNEL=chrome npm run e2e`. CI
+  downloads its own Chromium. (2026-10-20)
 
 ## Tool versions pinned in CI
 
