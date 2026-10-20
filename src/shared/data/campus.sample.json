@@ -1,0 +1,53 @@
+{
+  "snapshot": "2026-10-20",
+  "attribution": "© OpenStreetMap contributors (ODbL)",
+  "origin": { "lon": 120.9932, "lat": 14.5647 },
+  "campus": [
+    [
+      -40.5, -156, -46.5, -168.5, -36.5, -173.5, -12.5, -184.5, 20, -199.5, 27.5, -183.5, 29.5, -179.5, -22.5, -154,
+      -26, -152, -31, -150, -25, -139, -6, -101
+    ]
+  ],
+  "buildings": [
+    {
+      "slug": "strc",
+      "name": "Science & Technology Research Center",
+      "short": "STRC",
+      "tier": "full",
+      "prefixes": ["ST", "C"],
+      "levels": 4,
+      "volumes": [
+        { "outline": [-66, -201, -58.5, -186, -71, -180, -116, -160.5, -123, -176.5], "base": 0, "top": 13.6 }
+      ]
+    },
+    {
+      "slug": "henry-sy",
+      "name": "Henry Sy Sr. Hall",
+      "short": "Henry Sy",
+      "tier": "block",
+      "prefixes": [],
+      "levels": 15,
+      "volumes": [
+        { "outline": [-24.5, -52, -0.5, -0.5, 28.5, -14, 45.5, -22, 21.5, -74, 5, -66.5], "base": 0, "top": 6.8 },
+        { "outline": [-24.5, -52, -0.5, -0.5, 28.5, -14, 45.5, -22, 21.5, -74, 5, -66.5], "base": 6.8, "top": 53.6 }
+      ]
+    },
+    {
+      "slug": "bloemen",
+      "name": "Brother Alphonsus Bloemen Hall",
+      "short": "Bloemen",
+      "tier": "block",
+      "prefixes": [],
+      "levels": 2,
+      "volumes": [{ "outline": [-56, -77, -28, -89.5, -16, -62, -44, -49.5], "base": 0, "top": 6.8 }]
+    }
+  ],
+  "bridges": [{ "outline": [-30, -70, -27, -70, -27, -60, -30, -60], "base": 3.4, "top": 6.8 }],
+  "city": [
+    { "outline": [-218.5, 59.5, -172, 56, -159, 42, -161, 3, -177, -11, -224, -6, -237, 9.5, -233, 45.5], "top": 9 }
+  ],
+  "paths": [
+    { "kind": "street", "name": "Maginhawa Street", "line": [-202.5, -299.5, -176, -252.5, -174.5, -250, -160, -221] },
+    { "kind": "foot", "line": [-212.5, -23, -219.5, -61.5, -243.5, -148.5] }
+  ]
+}

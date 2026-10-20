@@ -8,6 +8,15 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-20: Campus data shape agreed before 2a
+
+- Added `src/shared/data/campus.ts`: the Zod schema and types for `public/data/campus.json`, the SPLIT.md meeting
+  point between the compiler (2b) and the scene (2c). Based on the prototype's `campus.json`, with city blocks
+  split out of `buildings` (never tappable), the `campus` tier renamed `block`, building parts as `volumes`, and an
+  `origin` so meters can be turned back into lon/lat. Gates, entrances and walkways join later (4a), additively.
+- `campus.sample.json` (real outlines from the prototype) for building 2c now, and 15 tests: the sample passes and
+  each kind of broken file is rejected. Added `zod` 4 (in the ARCHITECTURE §2 stack).
+
 ## 2026-10-19: 1a project scaffold
 
 - Vite 8 + React 19.3.1 (`~19.3.1`, D3) + TypeScript per D1, with skeleton-only dependencies: each later sub-phase
