@@ -12,6 +12,8 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 - Added the root `LICENSE` (MIT, code) and `ATTRIBUTION.md` (which license covers what, plus the OSM credit),
   both called for by D4 but missing. `data-src/LICENSE` (ODbL) arrives with 2a (#12). README links both.
+- OSM-derived files outside `data-src/` (the prototype's `campus.json`, `*.sample.json`, `scripts/fixtures/`) are
+  ODbL, not MIT. The floor plans in `data-src/floors/` aren't licensed yet (D21).
 
 ## 2026-10-20: Dependabot skips major `@types/node` bumps
 

@@ -24,7 +24,7 @@ merge once the `gates` check passes. Feedback: open a GitHub issue.
 
 ## License
 
-Code: [MIT](LICENSE). Campus map data (`data-src/`, `public/data/`): ODbL. Details and credits:
+Code: [MIT](LICENSE). Campus map data, including OSM-derived samples: ODbL. Which files are which, and credits:
 [`ATTRIBUTION.md`](ATTRIBUTION.md).
 
 ---
