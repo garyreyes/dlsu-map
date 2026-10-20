@@ -1,0 +1,10 @@
+{
+  "rooms": [
+    { "code": "ST102", "building": "strc", "floor": 1, "name": "Structural and Materials Testing Lab" },
+    { "code": "ST311", "building": "strc", "floor": 3, "name": "Surface Physics Lab" },
+    { "code": "ST315A", "building": "strc", "floor": 3, "name": "Computational Materials Design (CMD) Lab" },
+    { "code": "ST404", "building": "strc", "floor": 4, "name": "Biology Lab" },
+    { "code": "ST406", "building": "strc", "floor": 4, "name": "Biology Lab" },
+    { "code": "VL151", "building": "velasco", "floor": 1, "floorLabel": "G Mezz", "name": "Dean's Office" }
+  ]
+}
