@@ -1,7 +1,7 @@
 // The campus meeting point between the lanes (docs/SPLIT.md): Lane B's compiler (2b) writes public/data/campus.json
 // in this shape, and Lane A's scene (2c) reads it. The loader validates it with campusSchema before use.
 // Additive changes only after 2c starts: the walk network, gates and entrances joined in 4a that way.
-import { z } from 'zod';
+import { z } from './zod.ts';
 
 /** A flat list of x, y pairs in meters: `[x0, y0, x1, y1, …]`. */
 const flatPoints = (minPoints: number) =>

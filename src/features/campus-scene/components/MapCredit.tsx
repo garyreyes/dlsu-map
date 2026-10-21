@@ -13,7 +13,7 @@ export function MapCredit({ position }: { position: CSSProperties }) {
         href="https://www.openstreetmap.org/copyright"
         target="_blank"
         rel="noopener noreferrer"
-        className="relative underline after:absolute after:-inset-x-2 after:-inset-y-3.75after:content-['']"
+        className="relative underline after:absolute after:-inset-x-2 after:-inset-y-3.75 after:content-['']"
       >
         OpenStreetMap
       </a>

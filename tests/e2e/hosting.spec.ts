@@ -29,8 +29,6 @@ interface Guard {
  * Known gaps, to close when they become real:
  * - 1d (service worker): the worker's own fetches bypass `context.route`, and its CSP violations never reach
  *   `document`. Add a test for the worker's requests then.
- * - 2c (map): `networkidle` waits for only 500 ms of quiet. Once the map lazy-loads models, fonts and data, wait
- *   for an explicit "map ready" signal instead.
  * - `<link rel=preconnect>` / `dns-prefetch` to another origin are seen by neither half. Review catches those.
  */
 async function guard(page: Page, baseURL: string): Promise<Guard> {
@@ -92,6 +90,10 @@ test('the app loads nothing from another site and breaks no CSP rule', async ({ 
   await expect(page.getByRole('button', { name: 'Search for a room or building' })).toBeVisible();
   await expect(page.locator('canvas')).toBeAttached();
   await expect(page.getByRole('button', { name: 'Show the whole campus' })).toBeVisible();
+  // Map ready: building labels only show once campus.json has loaded and passed its Zod check, which is the step that
+  // would trip the CSP's eval rule (PROJECT_FACTS, Zod and the CSP). Any label will do; which ones fit depends on
+  // the screen.
+  await expect(page.locator('[data-map-label]').filter({ visible: true }).first()).toBeVisible();
   await page.waitForLoadState('networkidle');
   expect(offsite).toStrictEqual([]);
   expect(await violations()).toStrictEqual([]);
