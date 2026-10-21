@@ -23,3 +23,9 @@ export const DRAGGING_SMOOTH_TIME = 0.12;
 export const COMPASS_MIN_DEG = 4;
 /** A two-finger drag the full height of the screen tilts the map this far. */
 export const TILT_PER_SCREEN = Math.PI / 2;
+
+/** A press is a tap, not a pan, if it moves at most this many CSS px and lifts within this many ms (the prototype). */
+export const TAP_MAX_MOVE = 6;
+export const TAP_MAX_MS = 450;
+/** A selected building is seen from about 58° from straight down (DESIGN.md, Camera). */
+export const SELECT_POLAR = (58 * Math.PI) / 180;

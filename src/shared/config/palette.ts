@@ -1,6 +1,5 @@
 // Map colours (DESIGN.md, "Map palettes"). The interface never samples these and the map never uses interface
-// neutrals (the Two Worlds Rule). D13's palette is settled in 2c on real phones outdoors; until then the map uses A,
-// the owner's black, and a preview link can ask for another with `?palette=b` or `?palette=c`.
+// neutrals (the Two Worlds Rule). D13 settled on the green palette, the owner's pick in 2c.
 export interface MapPalette {
   ground: string;
   building: string;
@@ -12,18 +11,19 @@ export interface MapPalette {
   cityMix: number;
 }
 
-export type MapPaletteKey = 'a' | 'b' | 'c';
-
-export const MAP_PALETTES: Record<MapPaletteKey, MapPalette> = {
-  /** Black, like Waze's dark mode (the owner's choice). */
-  a: { ground: '#121614', building: '#e8edf3', path: '#56645d', road: '#77857e', haze: '#163326', cityMix: 0.4 },
-  /** Green: deep green ground, warm white blocks. */
-  b: { ground: '#175f3c', building: '#f2eee5', path: '#5f9c7c', road: '#7fb396', haze: '#4f9a72', cityMix: 0.5 },
-  /** Grey: the quiet one. */
-  c: { ground: '#c4c7c6', building: '#fbfbfa', path: '#ffffff', road: '#ffffff', haze: '#cfe5d7', cityMix: 0.32 },
+/** Green: deep green ground, warm white blocks (D13). */
+export const MAP_PALETTE: MapPalette = {
+  ground: '#175f3c',
+  building: '#f2eee5',
+  path: '#5f9c7c',
+  road: '#7fb396',
+  haze: '#4f9a72',
+  cityMix: 0.5,
 };
 
-export const DEFAULT_PALETTE: MapPaletteKey = 'a';
+/** The selected building leans this far from the building colour toward Campus Green, the interface accent
+ *  (DESIGN.md, the Shaped-by-Light Rule). */
+export const SELECTED_TINT = { color: '#00703c', mix: 0.22 };
 
 /** Off-campus buildings are see-through (DESIGN.md, Campus leads), so campus buildings show through them. */
 export const CITY_OPACITY = 0.35;

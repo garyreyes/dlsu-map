@@ -177,3 +177,25 @@ export function ownerOf(owners: readonly Owner[], face: number): string | undefi
   }
   return undefined;
 }
+
+/** A draw group in vertices, as BufferGeometry.addGroup takes it. */
+export interface DrawGroup {
+  start: number;
+  count: number;
+  materialIndex: number;
+}
+
+/**
+ * Draw groups that put the `selected` building's triangles on material 1 (the tinted one) and everything else on
+ * material 0. `total` is the geometry's triangle count. No selection, or one with no triangles, is one plain group.
+ */
+export function selectionGroups(owners: readonly Owner[], selected: string | null, total: number): DrawGroup[] {
+  const o = selected === null ? undefined : owners.find((x) => x.id === selected);
+  if (!o) return [{ start: 0, count: total * 3, materialIndex: 0 }];
+  const parts: DrawGroup[] = [
+    { start: 0, count: o.first * 3, materialIndex: 0 },
+    { start: o.first * 3, count: o.count * 3, materialIndex: 1 },
+    { start: (o.first + o.count) * 3, count: (total - o.first - o.count) * 3, materialIndex: 0 },
+  ];
+  return parts.filter((g) => g.count > 0);
+}

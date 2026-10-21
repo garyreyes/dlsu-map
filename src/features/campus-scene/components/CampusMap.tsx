@@ -1,16 +1,16 @@
 import { Canvas } from '@react-three/fiber';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { CameraControls } from '@react-three/drei';
 import { MapDidntDownload } from '@/features/offline';
 import { FAR, FOV_DEG, NEAR } from '@/shared/config/camera';
-import { MAP_PALETTES, type MapPaletteKey } from '@/shared/config/palette';
-import type { Campus } from '@/shared/data/campus';
+import { MAP_PALETTE } from '@/shared/config/palette';
+import type { Campus, CampusBuilding } from '@/shared/data/campus';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import { LOADING_MAP, MapMessage } from '@/shared/ui/MapMessage';
 import { useReducedMotion } from '@/shared/ui/useMediaQuery';
 import { headingDeg } from '../gestures';
 import { framing, homeAzimuth, mainCampusCentre } from '../home-view';
-import { CameraRig, goHome, type HomeView, type MapInsets } from './CameraRig';
+import { CameraRig, goHome, goToBuilding, type HomeView, type MapInsets } from './CameraRig';
 import { LabelLayer, LabelProjector, type LabelElements } from './Labels';
 import { MapButtons } from './MapButtons';
 import { MapCredit } from './MapCredit';
@@ -24,8 +24,10 @@ interface Props {
   /** Phones: the sheet's visible height, so the map buttons and credit ride just above it. */
   sheetHeight: number;
   wide: boolean;
-  /** D13's palette, until it's settled on real phones (2c). */
-  palette: MapPaletteKey;
+  /** The selected building's slug, owned by the app shell. */
+  selected: string | null;
+  /** A tap chose a campus building, or tapped away from one (null). */
+  onSelect: (building: CampusBuilding | null) => void;
 }
 
 /** Home frames every campus building, seen from Taft Avenue's side (home-view.ts). North-up if Taft is missing. */
@@ -36,7 +38,7 @@ function homeFor(campus: Campus): HomeView {
 }
 
 /** The full-screen 3D campus with its labels, buttons and credit. Nothing of the campus shows until all of it can. */
-export function CampusMap({ insets, sheetHeight, wide, palette }: Props) {
+export function CampusMap({ insets, sheetHeight, wide, selected, onSelect }: Props) {
   const campusState = useCampus();
   if (campusState.status === 'failed') return <MapDidntDownload />;
   if (campusState.status === 'loading')
@@ -47,13 +49,20 @@ export function CampusMap({ insets, sheetHeight, wide, palette }: Props) {
       </>
     );
   return (
-    <CampusView campus={campusState.campus} insets={insets} sheetHeight={sheetHeight} wide={wide} palette={palette} />
+    <CampusView
+      campus={campusState.campus}
+      insets={insets}
+      sheetHeight={sheetHeight}
+      wide={wide}
+      selected={selected}
+      onSelect={onSelect}
+    />
   );
 }
 
 type Status = 'loading' | 'ready' | 'failed';
 
-function CampusView({ campus, insets, sheetHeight, wide, palette }: Props & { campus: Campus }) {
+function CampusView({ campus, insets, sheetHeight, wide, selected, onSelect }: Props & { campus: Campus }) {
   const controlsRef = useRef<CameraControls | null>(null);
   const elementsRef = useRef<LabelElements>(new Map());
   const [status, setStatus] = useState<Status>('loading');
@@ -62,6 +71,24 @@ function CampusView({ campus, insets, sheetHeight, wide, palette }: Props & { ca
   const failed = useCallback(() => {
     setStatus('failed');
   }, []);
+
+  const bySlug = useMemo(() => new Map(campus.buildings.map((b) => [b.slug, b])), [campus]);
+  const tap = useCallback(
+    (slug: string | null) => {
+      onSelect(slug === null ? null : (bySlug.get(slug) ?? null));
+    },
+    [bySlug, onSelect],
+  );
+  // A new selection flies to its building. Read the insets through a ref: the sheet growing for the card must not
+  // fly again, and nor must any later pan.
+  const insetsRef = useRef(insets);
+  useEffect(() => {
+    insetsRef.current = insets;
+  });
+  useEffect(() => {
+    const b = selected === null ? undefined : bySlug.get(selected);
+    if (b && controlsRef.current) goToBuilding(controlsRef.current, b, insetsRef.current, !reduced);
+  }, [selected, bySlug, reduced]);
 
   const recenter = () => {
     if (controlsRef.current) goHome(controlsRef.current, home, insets, !reduced);
@@ -80,7 +107,7 @@ function CampusView({ campus, insets, sheetHeight, wide, palette }: Props & { ca
     <>
       {/* Mounted with the canvas, so every plate exists before the first frame places it: frames only run on demand,
           and a layer added later might wait for the next touch. */}
-      {status !== 'failed' && <LabelLayer buildings={campus.buildings} elementsRef={elementsRef} />}
+      {status !== 'failed' && <LabelLayer buildings={campus.buildings} elementsRef={elementsRef} selected={selected} />}
       <div className="fixed inset-0 touch-none" role="application" aria-label="3D map of the DLSU Manila campus">
         <ErrorBoundary fallback={<MapFailed onShow={failed} />}>
           <Canvas
@@ -95,11 +122,18 @@ function CampusView({ campus, insets, sheetHeight, wide, palette }: Props & { ca
             <MapScene
               controlsRef={controlsRef}
               campus={campus}
-              palette={MAP_PALETTES[palette]}
+              palette={MAP_PALETTE}
               homeAzimuth={home.azimuth}
+              selected={selected}
+              onTap={tap}
             />
             <CameraRig controlsRef={controlsRef} insets={insets} home={home} />
-            <LabelProjector buildings={campus.buildings} elementsRef={elementsRef} insets={insets} />
+            <LabelProjector
+              buildings={campus.buildings}
+              elementsRef={elementsRef}
+              insets={insets}
+              selected={selected}
+            />
           </Canvas>
         </ErrorBoundary>
       </div>

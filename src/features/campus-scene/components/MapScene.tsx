@@ -17,13 +17,15 @@ interface Props {
   palette: MapPalette;
   /** The home view's azimuth, so the sun comes from the screen's upper left at home (DESIGN.md, Map depth). */
   homeAzimuth: number;
+  selected: string | null;
+  onTap: (slug: string | null) => void;
 }
 
 /**
  * The world under the chrome (DESIGN.md, Map depth): an unlit flat ground in the palette colour, a green haze that
  * fades the distance and fills the sky, the light rig, and the campus, city and paths on top.
  */
-export function MapScene({ controlsRef, campus, palette, homeAzimuth }: Props) {
+export function MapScene({ controlsRef, campus, palette, homeAzimuth, selected, onTap }: Props) {
   const fog = useRef<Fog>(null);
   const skyGround = useMemo(
     () => new Color(SKY_LIGHT.color).lerp(new Color(palette.ground), SKY_LIGHT.groundTint),
@@ -55,7 +57,7 @@ export function MapScene({ controlsRef, campus, palette, homeAzimuth }: Props) {
         <meshBasicMaterial color={palette.ground} />
       </mesh>
       <PathLines campus={campus} palette={palette} />
-      <CampusMasses campus={campus} palette={palette} />
+      <CampusMasses campus={campus} palette={palette} selected={selected} onTap={onTap} />
       <CityMasses campus={campus} palette={palette} />
     </>
   );

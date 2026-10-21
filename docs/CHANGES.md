@@ -8,6 +8,25 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-21: 2c done: the building card, and D13's palette is green
+
+- Tapping a campus building opens its card (S3b) in the sheet or side panel: the short name, the full name, and for
+  block-tier buildings "Not searchable yet. It has no room list in the app." No Directions button until 5a. Close,
+  Back or a tap anywhere off campus closes it and puts the home hint back.
+- Tap versus pan is `createTapTracker` in `campus-scene/gestures.ts`: one finger, at most `TAP_MAX_MOVE` (6 px) of
+  travel at any point, lifted within `TAP_MAX_MS` (450 ms). Any second finger spoils the whole gesture.
+  `components/useTapPick.ts` raycasts the tap against the campus mesh and maps the face to a slug with `ownerOf`.
+- The selected building leans 22% toward Campus Green through a second material on its triangles
+  (`selectionGroups` in `massing.ts`); its label plate turns green and is placed first at any zoom. The camera flies
+  to it at about 58° (`SELECT_POLAR`), keeping the heading; a cut under reduced motion.
+- `useBackToClose` now marks each overlay's history entry with its own id, so with search open over a card, Back
+  closes only search.
+- D13 settled: the map is green (option B, Campus Green accent). `MAP_PALETTE` replaces `MAP_PALETTES`, and the
+  `?palette=` preview switch and palettes A and C are gone. DECISIONS, SUMMARY, PLAN, PRODUCT and DESIGN.md updated.
+- Tests: 14 unit tests for the tap tracker and the draw groups, and `tests/e2e/building-card.spec.ts` (tap opens,
+  Close, Back, tap away, Back with search on top). The e2e can't prove tap versus pan, because the camera's smoothing
+  lags the pointer; the unit tests do.
+
 ## 2026-10-21: 6d STRC floors cleaned up
 
 - All 4 STRC floor files cleaned up against their photos (now 128, 106, 91 and 97 walls): stair treads and stringers

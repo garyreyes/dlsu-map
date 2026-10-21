@@ -33,13 +33,15 @@ function anchorFor(b: CampusBuilding): Anchor {
 interface LayerProps {
   buildings: readonly CampusBuilding[];
   elementsRef: RefObject<LabelElements>;
+  /** The selected building's label turns Campus Green (DESIGN.md, Map labels). */
+  selected: string | null;
 }
 
 /**
  * Building names on white plates (DESIGN.md, Map labels), in a layer over the canvas. Hidden until the projector
  * places them; decorative for screen readers, since every building is reachable from search.
  */
-export function LabelLayer({ buildings, elementsRef }: LayerProps) {
+export function LabelLayer({ buildings, elementsRef, selected }: LayerProps) {
   return (
     <div className="pointer-events-none fixed inset-0 z-1 overflow-hidden" aria-hidden>
       {buildings.map((b) => (
@@ -50,8 +52,10 @@ export function LabelLayer({ buildings, elementsRef }: LayerProps) {
             if (el) elementsRef.current.set(b.slug, el);
             else elementsRef.current.delete(b.slug);
           }}
-          className={`absolute top-0 left-0 rounded-label bg-surface px-2 py-0.75 font-semibold whitespace-nowrap shadow-float ${
-            b.tier === 'block' ? 'text-ink-2' : 'text-ink'
+          className={`absolute top-0 left-0 rounded-label px-2 py-0.75 font-semibold whitespace-nowrap shadow-float ${
+            b.slug === selected
+              ? 'bg-accent text-white'
+              : `bg-surface ${b.tier === 'block' ? 'text-ink-2' : 'text-ink'}`
           }`}
           style={{ visibility: 'hidden' }}
         >
@@ -66,10 +70,12 @@ interface ProjectorProps {
   buildings: readonly CampusBuilding[];
   elementsRef: RefObject<LabelElements>;
   insets: MapInsets;
+  /** Placed before every other label, and shown at any zoom. */
+  selected: string | null;
 }
 
 /** Each frame the canvas draws: projects every anchor to the screen, then shows the labels that fit (labels.ts). */
-export function LabelProjector({ buildings, elementsRef, insets }: ProjectorProps) {
+export function LabelProjector({ buildings, elementsRef, insets, selected }: ProjectorProps) {
   const anchors = useMemo(() => buildings.map(anchorFor), [buildings]);
   const controls = useThree((s) => s.controls) as CameraControls | null;
   // Plate sizes never change (fixed text, system font), so each is measured once.
@@ -81,7 +87,8 @@ export function LabelProjector({ buildings, elementsRef, insets }: ProjectorProp
     const boxes: LabelBox[] = [];
     for (const a of anchors) {
       const el = elementsRef.current.get(a.id);
-      if (!el || (a.minor && distance > MINOR_LABEL_DISTANCE)) continue;
+      const chosen = a.id === selected;
+      if (!el || (a.minor && !chosen && distance > MINOR_LABEL_DISTANCE)) continue;
       scratch.copy(a.point).project(camera);
       if (scratch.z > 1) continue; // behind the camera
       let s = sizes.current.get(a.id);
@@ -90,7 +97,8 @@ export function LabelProjector({ buildings, elementsRef, insets }: ProjectorProp
         if (s.width > 0) sizes.current.set(a.id, s);
       }
       const [x, y] = [((scratch.x + 1) / 2) * size.width, ((1 - scratch.y) / 2) * size.height];
-      boxes.push({ id: a.id, rank: a.minor ? 1 : 0, left: x - s.width / 2, top: y - s.height, ...s });
+      const rank = chosen ? -1 : a.minor ? 1 : 0;
+      boxes.push({ id: a.id, rank, left: x - s.width / 2, top: y - s.height, ...s });
     }
     const keepOut: Rect[] = [
       { left: 0, top: 0, width: size.width, height: insets.top },
