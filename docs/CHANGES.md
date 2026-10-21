@@ -8,6 +8,11 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-21: D37 agreed
+
+- Charles agreed D37 (indoor walls as 0.2 m thick boxes, proposed by Gary with 6c). Marked agreed in DECISIONS;
+  SUMMARY row added. PLAN §5 item 4 (wall caps) now points at D37 instead of the darker-backface trick.
+
 ## 2026-10-21: 2c done: the building card, and D13's palette is green
 
 - Tapping a campus building opens its card (S3b) in the sheet or side panel: the short name, the full name, and for

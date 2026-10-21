@@ -882,12 +882,12 @@ already taken). Bake lon/lat GeoJSON into the floor file (opens in geojson.io, b
 the photo, and a new snapshot means re-fitting by hand). **Revisit if** a square-ish building needs a quarter turn
 (add 90 and 270), or if measuring on site shows the signs, not OSM, have the right proportions.
 
-## D37. Indoor walls are 0.2 m thick boxes, not flat panels (2026-10-21, proposed)
+## D37. Indoor walls are 0.2 m thick boxes, not flat panels (2026-10-21, agreed)
 
 **Problem.** Floor files give each wall as a line with no thickness (D36). PLAN §5 sketched indoor walls as flat
 panels, with backfaces drawn darker so a cut wall reads as solid. The floor builder (6c) has to pick one.
 
-**Decision (proposed).** (Owner's answer, 2026-10-21.) Each wall segment becomes a box 0.2 m thick, centred on the
+**Decision.** (Owner's answer, 2026-10-21.) Each wall segment becomes a box 0.2 m thick, centred on the
 traced line, with two sides, two ends and a top. Each end runs on by 0.1 m so walls meeting at a corner close it.
 From the angled camera, walls read as solid and a wall seen end-on doesn't vanish into a hairline, and when 7a's
 clipping plane slices a floor open, the cut walls still look solid without a backface trick.

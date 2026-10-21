@@ -194,7 +194,8 @@ interiors are added one building at a time:
      current floor only.
   3. **Enter transition:** animate the plane from the roof down to `floorY + 1.2` over about 600 ms while the camera
      tilts in. This is the signature moment of the app.
-  4. Wall caps: draw the backfaces in a darker tone (`side: DoubleSide`) so cut walls read as solid.
+  4. Wall caps: each wall is a 0.2 m thick box, not a flat panel (D37), so a cut wall reads as solid with no
+     darker-backface trick.
   5. Floors below show as flat outlines only (no transparency, which avoids sorting cost and overdraw).
 - **Labels:** drei `<Text>` only for the current floor's rooms, hidden below a zoom threshold. Show only the selected
   room when zoomed out.
