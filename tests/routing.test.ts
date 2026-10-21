@@ -152,7 +152,7 @@ describe('directions on the real campus', () => {
         expect(steps[0]?.kind).toBe('start');
         expect(steps.at(-1)).toMatchObject({ kind: 'enter', building, at: walk.to.at });
         expect(steps.every((s) => s.leg === 0)).toBe(true);
-        const shown = steps.reduce((m, s) => m + ('meters' in s ? s.meters : 0), 0);
+        const shown = steps.reduce((m, s) => m + ('meters' in s ? (s.meters ?? 0) : 0), 0);
         expect(Math.abs(shown - walk.meters)).toBeLessThanOrEqual(5 * steps.length);
         steps.forEach((s, i) => {
           const before = steps[i - 1];

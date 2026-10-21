@@ -8,6 +8,7 @@ import {
   CornerUpRight,
   DoorOpen,
   Footprints,
+  MapPin,
   type LucideIcon,
 } from 'lucide-react';
 import type { StepIconKey } from '../steps-list';
@@ -22,6 +23,7 @@ const LUCIDE: Record<Exclude<StepIconKey, `${'stairs' | 'elevator'}-${'up' | 'do
   'sharp-right': ArrowDownRight,
   cross: Footprints,
   enter: DoorOpen,
+  arrive: MapPin,
 };
 
 /** A step's 24px icon (S6, S8). lucide has no stairs or elevator, so those two are drawn here in its style: 2px

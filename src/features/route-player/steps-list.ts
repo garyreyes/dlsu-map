@@ -5,7 +5,7 @@ import type { From, Route, Step, To, Turn } from '@/shared/data/route';
 
 /** Which icon a step gets. Turns use their own names; floors steps say which way they go. */
 export type StepIconKey =
-  'start' | Turn | 'cross' | 'enter' | 'stairs-up' | 'stairs-down' | 'elevator-up' | 'elevator-down';
+  'start' | Turn | 'cross' | 'enter' | 'arrive' | 'stairs-up' | 'stairs-down' | 'elevator-up' | 'elevator-down';
 
 export interface StepRow {
   /** The step's index in `Route.steps`, so a tap can make it the current step. */
@@ -52,7 +52,7 @@ export function stepGroups(route: Route, names: Pick<PlaceNames, 'short'>): Step
   const groups: { key: string; meters: number; rows: StepRow[] }[] = [];
   route.steps.forEach((step, index) => {
     const leg = route.legs[step.leg];
-    const key = leg?.kind === 'floors' ? leg.building : 'outside';
+    const key = leg?.kind === 'floors' || leg?.kind === 'indoor' ? leg.building : 'outside';
     const meters = leg?.kind === 'walk' ? leg.meters : 0;
     const last = groups.at(-1);
     const group = last?.key === key ? last : { key, meters: 0, rows: [] };
@@ -71,7 +71,7 @@ function rowOf(step: Step, index: number, route: Route): StepRow {
   const approximate = 'approximate' in step && step.approximate === true;
   const title = approximate && step.text.endsWith(APPROXIMATE) ? step.text.slice(0, -APPROXIMATE.length) : step.text;
   const parts = [
-    ...('meters' in step && step.meters > 0 ? [`${String(step.meters)} m`] : []),
+    ...('meters' in step && step.meters !== undefined && step.meters > 0 ? [`${String(step.meters)} m`] : []),
     ...(approximate ? ['approximate'] : []),
   ];
   const row = { index, icon: iconOf(step, route), title };

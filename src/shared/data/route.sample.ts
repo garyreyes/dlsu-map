@@ -1,10 +1,11 @@
 // Hand-written samples in the agreed shape, so Lane A can build 5b–5d before the real router (4b) and directions (4c)
-// land. The doors are real (`campus.json`, 2026-10-20); the walk is a short stand-in line, not the real path. Times
-// follow D34, steps D35.
+// land, and 8c before indoor routing (8b) does. The doors are real (`campus.json`, 2026-10-20); the walk is a short
+// stand-in line, not the real path. Times follow D34, steps D35 and D41.
 import type { Route, RouteResult, Step } from './route';
 
 const andrewMain = { kind: 'door', building: 'andrew', door: 'main', verified: false, at: [-93.8, 250.2] } as const;
 const strcMain = { kind: 'door', building: 'strc', door: 'main', verified: false, at: [-85.6, 196] } as const;
+const velascoMain = { kind: 'door', building: 'velasco', door: 'main', verified: false, at: [6.1, 77.7] } as const;
 const bend = [-100, 205] as const;
 
 /** AG1104 → ST311, Auto: elevator down 10 floors (3 min wait + 5 s a floor), walk, stairs up 2 (20 s a floor). Both
@@ -89,6 +90,104 @@ export const sampleNoElevator = {
   ],
   meters: 0,
   seconds: 180,
+} as const satisfies Route;
+
+const gate2 = { kind: 'gate', gate: 'gate-2', name: 'Gate 2 (North)', at: [66.5, 50.4] } as const;
+/** STRC's east stairs on G and 3F, and ST311's door: real points from `buildings/strc.json` (2026-10-22). */
+const eastStairsG = [-83.3, 188.3] as const;
+const eastStairs3 = [-83.9, 187.2] as const;
+const st311Door = [-108.2, 180.1] as const;
+const bend3 = [-96, 187] as const;
+
+/** Gate 2 → ST311, Auto, with STRC's floors labelled (8b, D41): the walk, then inside on G to the east stairs, up 2
+ *  floors, and along 3F to the door. The walk and the 3F bend are stand-ins; the stairs and the door are real. */
+export const sampleIndoorRoute = {
+  legs: [
+    {
+      kind: 'walk',
+      from: gate2,
+      to: strcMain,
+      path: [gate2.at, [-40, 120], strcMain.at],
+      meters: 216,
+      seconds: 166,
+    },
+    { kind: 'indoor', building: 'strc', floor: 1, path: [strcMain.at, eastStairsG], meters: 8, seconds: 6 },
+    {
+      kind: 'floors',
+      building: 'strc',
+      from: 1,
+      to: 3,
+      by: 'stairs',
+      seconds: 40,
+      via: 'east-stairs',
+      at: eastStairsG,
+    },
+    { kind: 'indoor', building: 'strc', floor: 3, path: [eastStairs3, bend3, st311Door], meters: 26, seconds: 20 },
+  ],
+  steps: [
+    { kind: 'start', leg: 0, at: gate2.at, meters: 220, text: 'Start at Gate 2 (North)' },
+    {
+      kind: 'enter',
+      leg: 0,
+      building: 'strc',
+      at: strcMain.at,
+      approximate: true,
+      meters: 10,
+      text: 'Enter STRC by the main entrance (approximate)',
+    },
+    {
+      kind: 'floors',
+      leg: 2,
+      building: 'strc',
+      to: 3,
+      by: 'stairs',
+      at: eastStairsG,
+      meters: 10,
+      text: 'ST311 is on 3F: take the east stairs up to 3F',
+    },
+    { kind: 'turn', leg: 3, at: bend3, meters: 15, turn: 'slight-left', text: 'Bear left at ST309' },
+    { kind: 'arrive', leg: 3, code: 'ST311', side: 'right', at: st311Door, text: 'ST311 is on your right' },
+  ],
+  meters: 250,
+  seconds: 232,
+} as const satisfies Route;
+
+/** Gate 2 → VL313, Auto, while Velasco's floors aren't labelled (O5): it stops at the door, then floors only, and
+ *  says which building has no indoor map yet. The walk is a stand-in. */
+export const sampleNoIndoorMap = {
+  legs: [
+    {
+      kind: 'walk',
+      from: gate2,
+      to: velascoMain,
+      path: [gate2.at, velascoMain.at],
+      meters: 66,
+      seconds: 51,
+    },
+    { kind: 'floors', building: 'velasco', from: 1, to: 3, by: 'stairs', seconds: 40 },
+  ],
+  steps: [
+    { kind: 'start', leg: 0, at: gate2.at, meters: 65, text: 'Start at Gate 2 (North)' },
+    {
+      kind: 'enter',
+      leg: 0,
+      building: 'velasco',
+      at: velascoMain.at,
+      approximate: true,
+      text: 'Enter Velasco by the main entrance (approximate)',
+    },
+    {
+      kind: 'floors',
+      leg: 1,
+      building: 'velasco',
+      to: 3,
+      by: 'stairs',
+      text: 'VL313 is on 3F: take the stairs up to 3F',
+    },
+  ],
+  meters: 66,
+  seconds: 91,
+  noIndoorMap: ['velasco'],
 } as const satisfies Route;
 
 /** One of every turn, and a crossing, for the step icons (S6, S8). Not one route: the points are made up. */

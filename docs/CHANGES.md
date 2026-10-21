@@ -8,6 +8,21 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-22: Indoor route shape agreed before 8b
+
+- `src/shared/data/route.ts` grows for indoor routing, nothing in it changes: an `indoor` leg per floor walked;
+  `via` and `at` on `floors` legs and steps (which stairs or elevator, and where); `meters` on `enter` and
+  `floors` steps (the walk inside to the next step); a new `arrive` step ("ST311 is on your right");
+  `Route.noIndoorMap` for O5; and `Router` takes the trip's building files as an optional 4th argument
+  (`IndoorFiles`).
+- `route.sample.ts`: `sampleIndoorRoute` (Gate 2 → ST311 over STRC's real east stairs and ST311's real door) and
+  `sampleNoIndoorMap` (Gate 2 → VL313 while Velasco isn't labelled), so 8c can start now.
+- Lane A's steps list (S8), the minimum to keep it right: indoor legs group under their building, `arrive` gets an
+  icon (lucide `MapPin`), and an optional `meters` is read safely. Gary may want a different icon.
+- The router ignores the new argument until the next PR (`8b-indoor-routing`).
+- **D41 proposed** (owner's answers): building files per trip, indoor turns named by the nearest room, the side on
+  arrival.
+
 ## 2026-10-22: STRC's elevator reaches 4F
 
 - The owner says STRC's elevator goes up to 4F. 8a had it at G–3F because the 4F sign draws no ✕-box; the shaft is

@@ -3,7 +3,13 @@
 // down, or hides that a door is only approximate. Exact values throughout.
 import { describe, expect, it } from 'vitest';
 import type { Route, Step } from '@/shared/data/route';
-import { sampleGateRoute, sampleNoElevator, sampleRoute, sampleTurnSteps } from '@/shared/data/route.sample';
+import {
+  sampleGateRoute,
+  sampleIndoorRoute,
+  sampleNoElevator,
+  sampleRoute,
+  sampleTurnSteps,
+} from '@/shared/data/route.sample';
 import { emptyRouteLine, placeNames, stepGroups, totalsLine, tripLine } from './steps-list';
 
 const names = placeNames({
@@ -45,6 +51,26 @@ describe('stepGroups', () => {
         rows: [
           { index: 0, icon: 'start', title: 'Start at Gate 2 (North)', subtitle: '220 m' },
           { index: 1, icon: 'enter', title: 'Enter STRC by the main entrance', subtitle: 'approximate' },
+        ],
+      },
+    ]);
+  });
+
+  it('puts indoor steps under their building, with their distances (8b)', () => {
+    expect(stepGroups(sampleIndoorRoute, names)).toEqual([
+      {
+        label: 'Outside · 216 m',
+        rows: [
+          { index: 0, icon: 'start', title: 'Start at Gate 2 (North)', subtitle: '220 m' },
+          { index: 1, icon: 'enter', title: 'Enter STRC by the main entrance', subtitle: '10 m · approximate' },
+        ],
+      },
+      {
+        label: 'In STRC',
+        rows: [
+          { index: 2, icon: 'stairs-up', title: 'ST311 is on 3F: take the east stairs up to 3F', subtitle: '10 m' },
+          { index: 3, icon: 'slight-left', title: 'Bear left at ST309', subtitle: '15 m' },
+          { index: 4, icon: 'arrive', title: 'ST311 is on your right' },
         ],
       },
     ]);
