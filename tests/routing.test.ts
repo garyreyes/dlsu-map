@@ -1,37 +1,12 @@
 // The router (4b) on the real campus, compiled from data-src as the build does. Distances are bounded by geometry
 // rather than pinned, so an OSM refresh doesn't break them; what is pinned was checked by hand on 2026-10-21: the 8
 // Taft crosswalks, that each gate named after a building is right by it, and the Gate 1 → ST311 directions.
-import { readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { buildingSourcesSchema } from '../src/shared/data/buildings.ts';
-import { toPrefixTable } from '../src/shared/data/prefix-table.ts';
 import type { From, Leg, XY } from '../src/shared/data/route.ts';
-import { compileCampus, type Snapshot } from '../scripts/compile/campus.ts';
-import { entranceSourcesSchema, gateSourcesSchema } from '../scripts/compile/campus-walk.ts';
-import { compileRooms } from '../scripts/compile/rooms.ts';
 import { createRouter } from '../src/features/routing/router.ts';
 import { buildWalkGraph, cheapestWalk, crossingWaits, type WalkGraph } from '../src/features/routing/walk-graph.ts';
+import { campus, rooms } from './real-data.ts';
 
-const text = (path: string): string => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
-const json = (path: string): unknown => JSON.parse(text(path));
-const { campus } = compileCampus(
-  buildingSourcesSchema.parse(json('data-src/campus/buildings.json')),
-  json('data-src/campus/osm/snapshot-2026-10-20.geojson') as Snapshot,
-  {
-    gates: gateSourcesSchema.parse(json('data-src/campus/gates.json')),
-    entrances: entranceSourcesSchema.parse(json('data-src/campus/entrances.json')),
-  },
-);
-if (campus === null) throw new Error('the real campus did not compile; see tests/compile-data.test.ts');
-const lists = readdirSync(new URL('../data-src/rooms/', import.meta.url))
-  .filter((f) => f.endsWith('.csv'))
-  .map((f) => ({ building: f.replace(/\.csv$/, ''), file: f, text: text(`data-src/rooms/${f}`) }));
-const { rooms } = compileRooms(
-  lists,
-  toPrefixTable(campus.buildings),
-  new Map(campus.buildings.map((b) => [b.slug, b.levels])),
-);
-if (rooms === null) throw new Error('the real rooms did not compile; see tests/compile-rooms.test.ts');
 const route = createRouter(campus, rooms);
 
 const full = campus.buildings.filter((b) => b.tier === 'full').map((b) => b.slug);

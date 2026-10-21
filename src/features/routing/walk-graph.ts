@@ -123,9 +123,21 @@ export function buildWalkGraph(walk: Walk): WalkGraph {
   return { graph, at, link: (a, b) => costs.get(pair(a, b)) };
 }
 
+/** What it costs to reach each start and to go on from each target, in the same order (8b: the walk inside to or from
+ *  that door). Infinity leaves that one out. Without it, every start and target is free. */
+export interface EndCosts {
+  readonly starts: readonly number[];
+  readonly targets: readonly number[];
+}
+
 /** The cheapest walk from any start to any target (A*), or null if none joins them. Ties go to the earlier start,
- *  then the earlier target, so the same trip always gives the same route. */
-export function cheapestWalk(g: WalkGraph, starts: readonly number[], targets: readonly number[]): CheapestWalk | null {
+ *  then the earlier target, so the same trip always gives the same route. `ends` adds the cost on either side. */
+export function cheapestWalk(
+  g: WalkGraph,
+  starts: readonly number[],
+  targets: readonly number[],
+  ends?: EndCosts,
+): CheapestWalk | null {
   const finder = aStar(g.graph, {
     distance: (_from, _to, link) => link.data.cost,
     // Straight-line walking time never overestimates: every factor is at least 1 and waits only add.
@@ -136,13 +148,15 @@ export function cheapestWalk(g: WalkGraph, starts: readonly number[], targets: r
     },
   });
   let best: { points: number[]; cost: number } | null = null;
-  for (const start of starts) {
-    for (const target of targets) {
+  for (const [i, start] of starts.entries()) {
+    for (const [j, target] of targets.entries()) {
+      const extra = (ends?.starts[i] ?? 0) + (ends?.targets[j] ?? 0);
+      if (extra === Infinity) continue;
       const points = finder
         .find(start, target)
         .map((n) => Number(n.id))
         .reverse();
-      const cost = sum(g, points, 'cost');
+      const cost = sum(g, points, 'cost') + extra;
       if (points.length > 0 && (best === null || cost < best.cost)) best = { points, cost };
     }
   }
