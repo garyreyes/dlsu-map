@@ -1,5 +1,5 @@
 floor,code,name,floor_label,floor_checked,note
-1,C102/104-106,Structural and Materials Testing Lab,,,"Dash read as a separator, not a range: C105 is the Mechatronics Lab (owner, 2026-10-20)"
+1,C104/106,Structural and Materials Testing Lab,,,"Printed C102/104-106. 104 and 106 are one big room; 102 is a different room, left out until its name is known; 105 is the Mechatronics Lab (owner, checked at the doors, 2026-10-21)"
 1,C105,Mechatronics Lab,,,
 1,C107,Energy Laboratory,,,
 1,C107B,Biomaterials and Tissue Engineering Laboratory 1,,,
@@ -41,7 +41,7 @@ floor,code,name,floor_label,floor_checked,note
 3,C317,Solid State Physics Fabrication Lab,,,
 3,C319,Solid State Physics Hi-Vacuum Lab,,,
 4,C401,Laboratory Technician's Room,,,Sign: Techinician
-4,C402,Stock Room,,,"Sign says C302, which is a 3rd-floor lab; owner says it is C402 (2026-10-20)"
+4,C402,Stock Room,,,"Sign says C302, which is a 3rd-floor lab; owner checked the door: C402 (2026-10-21)"
 4,C404/406,Biology Lab,,,
 4,C405,Instrumentation Room,,,
 4,C407/409,Biology Lab,,,
