@@ -13,7 +13,7 @@ session needs to know. Search this file; it isn't required reading (the reading 
 - **Floor files** can now carry `rooms` (codes, label, doors) and `verticals` (id, point), in sign coordinates, and
   a building gets `data-src/floors/<building>/verticals.json` (each stair and elevator with its `servesFloors`).
   Both optional: today's STRC files build unchanged. No floor is labelled yet; STRC's labels are 8a part 2.
-- **`buildings/<slug>.json`** gains `graph`, `rooms`, `verticals` and `entrances` (`shared/data/indoor.ts`, D38
+- **`buildings/<slug>.json`** gains `graph`, `rooms`, `verticals` and `entrances` (`shared/data/indoor.ts`, D39
   proposed). The schema rejects a link to a missing point, a door on another floor's point, a stop on a floor the
   vertical doesn't serve and a repeated link. Sample updated; Lane A's indoor-view tests still pass on it.
 - **The graph** (`scripts/compile/indoor-graph.ts`): hallway lines joined where they cross or where one ends within

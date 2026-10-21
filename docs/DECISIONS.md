@@ -902,7 +902,7 @@ or the 0.1 m overhang shows against the outdoor mesh.
 
 ---
 
-## D38. Floors are labelled whole, and stairs list their own floors (2026-10-21, proposed)
+## D39. Floors are labelled whole, and stairs list their own floors (2026-10-21, proposed)
 
 **Problem.** 8a puts rooms, doors, stairs and elevators into the floor files and joins them into an indoor graph.
 Three things needed an answer: how the build knows which floors an elevator stops at, when a floor counts as
