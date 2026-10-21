@@ -44,7 +44,7 @@ is entered at runtime, so "constraints" and "indexes" live in the compiler, not 
 | Entity | Key | Required fields | Source |
 |---|---|---|---|
 | **Building** | slug: `strc`, `andrew` | name, `prefixes[]` (e.g. `["AG"]`), aliases, OSM footprint, floor count, `floorLabels` (e.g. `{1:"G"}`), `tier: "full" \| "block"` | OSM snapshot + `data-src/campus/buildings.json` |
-| **Floor** | `<building>-<NN>`: `strc-03` | building, number, label, walls, hallway lines, `extractedFrom` (photo name), `checked` | `tools/floor-extract` + my cleanup |
+| **Floor** | `<building>-<NN>`: `strc-03` | building, number, walls, hallway lines (in sign coordinates), `fit.turn`, `extractedFrom` (photo name), `checked` | `tools/floor-extract` + my cleanup |
 | **Room** | **canonical code**: prefix + number (+ letter): `ST311`, `AG1104`, `ST315A` | building, floor, name, label point, door point. Outline is optional | Lobby directory → `data-src/rooms/<building>.csv`; positions from the floor file |
 | **Opening** | generated | floor, kind (`main`/`side`/`back`/`door`/`exit`), point, `verified` | Floor file; entrances also from OSM |
 | **Vertical** | `<building>-<name>`: `strc-east-stairs` | kind (`stairs`/`elevator`), `servesFloors[]`, one point per floor | Floor files, labelled during cleanup |
@@ -98,7 +98,7 @@ Building 1---* Opening(kind=main|side|back) ---> Walkway network ---> Gate
 |---|---|---|
 | `campus.json` | Buildings, outdoor meshes' source data, outdoor graph, data version hash | — |
 | `rooms.json` | Every room: code → building, floor, name, position | Map keyed by canonical code; uFuzzy haystack prebuilt |
-| `buildings/<slug>.json` | One building's floors, walls, hallways, verticals, indoor graph | Loaded when the route enters the building |
+| `buildings/<slug>.json` | One building's floors in meters (walls, hallways; 6b), then verticals and indoor graph (8a) | Loaded when the route enters the building |
 
 All are precached for offline use. Budget: under 15 MB total.
 
@@ -111,7 +111,7 @@ All are precached for offline use. Budget: under 15 MB total.
 
 ```text
 Lobby directory photo ──(typed by Claude, checked by owner)──► data-src/rooms/<building>.csv
-Evacuation-map photo  ──► tools/floor-extract ──► draft floor ──(Claude cleanup + labels)──► data-src/floors/<b>/<NN>.geojson
+Evacuation-map photo  ──► tools/floor-extract ──► draft floor ──(Claude cleanup + labels)──► data-src/floors/<b>/<NN>.json
 OSM main API (npm run fetch-osm, by hand, D27) ──► data-src/campus/osm/snapshot-<date>.geojson
 data-src/campus/buildings.json (by hand: slug, OSM ids, names, prefixes, tier) ─┘
                                    all of the above ──► scripts/compile-data.ts ──► public/data/*.json + report
@@ -122,7 +122,8 @@ data-src/campus/buildings.json (by hand: slug, OSM ids, names, prefixes, tier) �
 1. Find the plan's 4 outer corners in the photo.
 2. Straighten, then split by colour: black = walls, saturated green = hallway route, red = ignored.
 3. Keep long straight runs (drops text and symbols) and merge each double-line wall into one.
-4. Fit the plan onto the building's OSM footprint (**not yet proven**: needs the OSM snapshot first).
+4. Fit the plan onto the building's OSM outline: the compiler stretches it onto the outline's corners on every build;
+   the floor file says which way round (`fit.turn`, D36). Proven by the 6b spike.
 5. Cleanup: add missed walls, delete stair-tread "walls", place room labels, stairs, elevator, doors.
 6. The owner checks the 3D preview, then the file is marked `checked: true`.
 
@@ -175,7 +176,7 @@ dlsu-map/
   data-src/
     campus/              buildings.json, walkways, roads; osm/snapshot-<date>.geojson
     rooms/<building>.csv Room lists from lobby directories
-    floors/<building>/<NN>.geojson
+    floors/<building>/<NN>.json  Floors in sign coordinates; the compiler fits them (D36)
     photos/              Evacuation maps + directories (gitignored, never shipped)
     LICENSE              ODbL
   scripts/

@@ -843,3 +843,36 @@ only where the way's name changes (fewest steps, but a real choice on an unnamed
 only (students know them better than OSM's inner street names, but "at Velasco" is vaguer than "onto SJ Walk"); no
 landmarks in v1 (weakest for text-only mode). **Revisit** if beta testers don't recognise the inner-campus street
 names (Kalayaan, Bagong Lipunan, Kasaganaan): then drop way names for `path` ways and keep them for streets.
+
+---
+
+## D36. Floors are stretched onto the OSM outline by the compiler, turned by hand (2026-10-21, proposed)
+
+**Problem.** ARCHITECTURE §4 step 4 (fit the traced plan onto the building's OSM outline) was unproven. The 6b spike
+fitted four drafts (STRC 2F and 4F, St. Joseph 3F, Miguel 3F) in all 8 placements and found two things. The signs'
+proportions don't match OSM: the straightened plans are 7–16% longer or shorter than the outline (STRC 4.06 and 4.21
+against 3.61; St. Joseph 8.31 against 7.31; Miguel 1.75 against 1.88), and the two STRC signs differ from each other
+by 4%. And the outline can't tell a sign from the same sign turned 180°: matching rules out a quarter turn every time,
+but for box-shaped buildings the two remaining placements score within 0.02 m of each other.
+
+**Decision.** (Owner's answers, 2026-10-21.)
+
+- **Stretch to the outline:** each floor is stretched separately along length and width so its outer walls sit on the
+  OSM outline. Walls never poke out of the 3D building, and outside doors land on the outline where paths meet them.
+  Rooms come out up to about 16% wider or narrower than on the sign.
+- **The outline's corners:** its own 4 corners when OSM draws it with 4 (STRC's is skewed at one end), else the
+  smallest rectangle around it. The sign's long side goes along the outline's long side.
+- **Turned by hand:** each floor file has `fit.turn`, 0 (the sign's top as near north as the outline allows) or 180.
+  Claude sets it from the ground floor's doors against the entrance pins (D31), then by lining up stairs and elevators
+  floor to floor; the owner confirms it in the 3D preview before `checked: true`. Without a ground-floor photo,
+  Claude asks the owner.
+- **The compiler applies the fit:** floor files stay in sign coordinates (0–1, as the photo), as
+  `data-src/floors/<building>/<NN>.json` (not `.geojson`). The compiler fits them on every build and writes meters in
+  campus.json's frame to `public/data/buildings/<slug>.json`. A new OSM snapshot re-fits every floor by itself.
+
+**Alternatives.** Keep the sign's proportions with one scale, centred (rooms true to the sign, but outer walls miss
+the 3D building by 0.5 m on average and 1 m at worst, and doors need snapping separately). The owner notes which way
+each sign faces when photographing it (certain, but one more note for about 60 signs, and a revisit for the ones
+already taken). Bake lon/lat GeoJSON into the floor file (opens in geojson.io, but cleanup no longer lines up with
+the photo, and a new snapshot means re-fitting by hand). **Revisit if** a square-ish building needs a quarter turn
+(add 90 and 270), or if measuring on site shows the signs, not OSM, have the right proportions.

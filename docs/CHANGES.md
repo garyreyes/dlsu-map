@@ -14,6 +14,18 @@ session needs to know. Search this file; it isn't required reading (the reading 
   (entrances from OSM pins) and D32 (two Taft sidewalks). Marked agreed in DECISIONS; SUMMARY rows added.
   ARCHITECTURE's header no longer calls D15–D21 proposed (they were agreed on 2026-10-19).
 
+## 2026-10-21: Floor shape agreed before 6b
+
+- 6b spike: four drafts fitted onto their OSM outlines in all 8 placements. Signs are 7–16% off OSM's proportions,
+  and the outline can't tell a sign from the same sign turned 180° (numbers in PROJECT_FACTS). D36 *proposed*
+  (owner's answers): stretch each floor onto the outline, `fit.turn` set by hand and checked in the preview, the
+  compiler applies the fit.
+- `src/shared/data/floor-source.ts`: the floor file, `data-src/floors/<building>/<NN>.json`, in sign coordinates
+  (0–1). `src/shared/data/indoor.ts` + `indoor.sample.json`: what the compiler will write to
+  `public/data/buildings/<slug>.json` for the floor builder (6c): each floor's walls and hallways in meters, with its
+  base, height and `checked`.
+- ARCHITECTURE §3.1, §3.5, §4 and §7 and the SPLIT meeting point updated: floor files are `.json`, not `.geojson`.
+
 ## 2026-10-21: D35 agreed
 
 - Gary agreed D35 (the step rules) when approving #35. Marked agreed in DECISIONS; SUMMARY row added; PLAN §6.3 no
