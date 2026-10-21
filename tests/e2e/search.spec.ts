@@ -27,7 +27,8 @@ test('tapping a room opens its card: code, name, building and floor', async ({ p
   await expect(searchDialog(page)).toHaveCount(0);
   await expect(card(page, 'ST311').getByRole('heading', { name: 'ST311' })).toBeVisible();
   await expect(card(page, 'ST311')).toContainText('Surface Physics Lab');
-  await expect(card(page, 'ST311')).toContainText('STRC · 3F');
+  await expect(card(page, 'ST311')).toContainText('STRC · 3rd floor (3F)');
+  await expect(card(page, 'ST311')).toContainText('Also written C311');
 });
 
 test("Back closes the card from search and doesn't bring search back", async ({ page }) => {
@@ -43,6 +44,8 @@ test("Back closes the card from search and doesn't bring search back", async ({ 
 
 test('Go opens an exact match', async ({ page }) => {
   await typeInSearch(page, 'ST311');
+  // Go before the room list has loaded opens nothing (S2 says "Loading rooms…"), so wait for the result first.
+  await expect(row(page, 'ST311')).toBeVisible();
   await field(page).press('Enter');
   await expect(card(page, 'ST311')).toBeVisible();
 });
@@ -102,6 +105,7 @@ test('a double tap on a result opens the card once, and Back still closes it', a
 
 test('Go on a suggestion moves focus to the list, and Down reaches the first row', async ({ page }) => {
   await typeInSearch(page, 'ST350');
+  await expect(row(page, 'ST305')).toBeVisible();
   await field(page).press('Enter');
   await expect(field(page)).not.toBeFocused();
   await page.keyboard.press('ArrowDown');

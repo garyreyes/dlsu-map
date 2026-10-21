@@ -11,6 +11,7 @@ import {
   SearchScreen,
   useRecent,
   useSearchData,
+  type DeepLink,
   type Hit,
   type RoomHit,
 } from '@/features/search';
@@ -21,6 +22,7 @@ import { NotOfficialNote } from '@/shared/ui/NotOfficialNote';
 import { BottomSheet, SidePanel } from '@/shared/ui/Sheet';
 import { useIsWide } from '@/shared/ui/useMediaQuery';
 import { useBackToClose } from './useBackToClose';
+import { useDeepLink } from './useDeepLink';
 
 // The 3D map is its own chunk, so the search pill and sheet work before three.js has loaded (user-flows §3.2).
 const CampusMap = lazy(() => import('@/features/campus-scene').then((m) => ({ default: m.CampusMap })));
@@ -39,6 +41,9 @@ const PANEL_EDGE = 16 + 400 + 8;
 type Picked =
   | { kind: 'building'; building: Pick<CampusBuilding, 'slug' | 'short' | 'name' | 'tier'> }
   | { kind: 'room'; room: RoomHit };
+
+const toPicked = (hit: Hit): Picked =>
+  hit.kind === 'room' ? { kind: 'room', room: hit } : { kind: 'building', building: { ...hit.building, tier: 'full' } };
 
 export function App() {
   const wide = useIsWide();
@@ -73,10 +78,7 @@ export function App() {
   // search's history entry is gone, so Back closes the card rather than a search that is already shut.
   const pick = useCallback(
     (hit: Hit) => {
-      const next: Picked =
-        hit.kind === 'room'
-          ? { kind: 'room', room: hit }
-          : { kind: 'building', building: { ...hit.building, tier: 'full' } };
+      const next = toPicked(hit);
       // A second tap while search is still closing is dropped whole, Recent included (closeThen ignores it).
       closeSearchThen(() => {
         addRecent(hit);
@@ -86,6 +88,26 @@ export function App() {
     },
     [addRecent, closeSearchThen, openCard],
   );
+  // What S2 opens with: empty from the pill, the link's text from a deep link it can't open as a card (D40).
+  const [searchStart, setSearchStart] = useState('');
+  const { open: openSearchOverlay } = search;
+  const openSearch = useCallback(() => {
+    setSearchStart('');
+    openSearchOverlay();
+  }, [openSearchOverlay]);
+  const openLink = useCallback(
+    (link: DeepLink) => {
+      if (link.kind === 'search') {
+        setSearchStart(link.text);
+        openSearchOverlay();
+        return;
+      }
+      setPicked(toPicked(link.hit));
+      openCard();
+    },
+    [openSearchOverlay, openCard],
+  );
+  useDeepLink(searchData, openLink);
   // The dev link's list is an overlay too, opened once on load, so Back closes it like S8 will in the player.
   const devSteps = useBackToClose();
   const { open: openDevSteps } = devSteps;
@@ -113,12 +135,12 @@ export function App() {
         <DevSteps onClose={devSteps.close} />
       </Suspense>
     ) : selected?.kind === 'room' ? (
-      <RoomCard room={selected.room} onClose={closeCard} />
+      <RoomCard key={selected.room.code} room={selected.room} onClose={closeCard} />
     ) : selected ? (
       <BuildingCard building={selected.building} onClose={closeCard} />
     ) : (
       <>
-        <HomeRecent data={searchData} recent={recent.entries} onPick={pick} onOpenSearch={search.open} />
+        <HomeRecent data={searchData} recent={recent.entries} onPick={pick} onOpenSearch={openSearch} />
         <NotOfficialNote />
       </>
     );
@@ -134,14 +156,21 @@ export function App() {
         ref={header}
         className="fixed top-[calc(env(safe-area-inset-top,0px)+10px)] right-(--gutter-r) left-(--gutter-l) z-5 md:right-auto md:w-100"
       >
-        <SearchPill onOpen={search.open} />
+        <SearchPill onOpen={openSearch} />
         {/* Positioned below the header's box, so the map's top inset doesn't move when the line comes and goes. */}
         <SavingLine view={offline} />
       </header>
       {/* If the map's chunk can't download, only the map is lost: the pill and sheet stay usable. */}
       <ErrorBoundary fallback={<MapDidntDownload />}>
         <Suspense fallback={<MapMessage text={LOADING_MAP} />}>
-          <CampusMap insets={insets} sheetHeight={sheetHeight} wide={wide} selected={selectedSlug} onSelect={select} />
+          <CampusMap
+            insets={insets}
+            sheetHeight={sheetHeight}
+            wide={wide}
+            selected={selectedSlug}
+            floor={selected?.kind === 'room' ? { floor: selected.room.floor, label: selected.room.floorLabel } : null}
+            onSelect={select}
+          />
         </Suspense>
       </ErrorBoundary>
       {wide ? (
@@ -151,7 +180,15 @@ export function App() {
           {sheet}
         </BottomSheet>
       )}
-      {search.isOpen && <SearchScreen data={searchData} recent={recent.entries} onPick={pick} onClose={search.close} />}
+      {search.isOpen && (
+        <SearchScreen
+          data={searchData}
+          recent={recent.entries}
+          initialQuery={searchStart}
+          onPick={pick}
+          onClose={search.close}
+        />
+      )}
     </>
   );
 }

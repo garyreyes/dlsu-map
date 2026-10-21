@@ -118,9 +118,11 @@ flowchart TD
 
 ### 3.4 S3 Room card
 
-- One line at the top of the sheet: code, room name, building and floor. The building glows on the map, and its
-  floor is marked on the building's side.
-- **Share** (Should, PRD §8): shares a link with **only the destination**, `…/?to=ST311`. From is never put in a link.
+- At the top of the sheet: code, room name, then building and floor ("STRC · 3rd floor (3F)"), and "Also written
+  C311" when it was typed that way. The building glows on the map, and its floor is a green band around the
+  building's side with a floor chip ("3F"); the camera turns to a heading that sees the band (3d).
+- **Share** (Should, PRD §8), an icon button beside Close: shares a link with **only the destination**,
+  `…/?to=ST311`. From is never put in a link. With no share sheet it copies the link and says "Link copied" (D40).
 - If From is empty, S4 opens **right away** under the card (D23). A student who only needed the floor just closes
   it. The room line stays visible above the picker, so nothing has to be remembered.
 
@@ -194,8 +196,12 @@ flowchart TD
 
 ```text
 Link opened → S3 Room card (ST311) → S4 Where are you? → S5 → …
-Link with an unknown code → S2 with the code already typed + Did you mean
+Link to a building (?to=Velasco) → S3 Building card
+Link with anything else (ST350, AG1104, a typo) → S2 with the text already typed + what S2 says for it
 ```
+
+- A link opens a card only for what the Go key would open (D38, D40). The address bar is cleaned as soon as the
+  link is read, so a reload lands on home and Back closes the card. Until 5a, S4 doesn't open under the card.
 
 ## 4. Offline and system states (every user)
 

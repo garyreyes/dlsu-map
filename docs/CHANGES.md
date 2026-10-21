@@ -28,6 +28,32 @@ session needs to know. Search this file; it isn't required reading (the reading 
   ride wait twice (370 s, not 190). Each stop now gets a car node, half the wait to get on and off, so a ride waits
   once; the test with real floor-to-floor links was written failing first. 8b's router needs the same.
 
+## 2026-10-21: 3d: room card (S3), floor band and chip, Share and `?to=` links
+
+- **Room card:** "STRC · 3rd floor (3F)" with the floor words in green (`floor-words.ts`; G is "Ground floor (G)",
+  a label like "G Mezz" stays as printed), "Also written C311" when typed that way, and Share beside Close
+  (DESIGN.md, Room card). Share opens the phone's share sheet with only `…/?to=ST311`; with no share sheet it copies
+  the link and says "Link copied" for 2 s. Closing the sheet says nothing (D40 proposed).
+- **Deep links** (`deep-link.ts`, `app/useDeepLink.ts`): a link opens a card only for what Go would open (D38): one
+  room or one building. Anything else opens S2 with the text typed. The address bar is cleaned at once, so Back
+  closes the card and a reload lands on home. `from` is never read from or put in a link.
+- **Floor band and chip** (`floor-band.ts`, `FloorBand.tsx`): a solid Campus Green band one storey tall, 0.6 m out
+  from the walls, around every volume that holds the storey. The chip ("3F") sits on the right-most stretch the
+  camera can see, before any building label. The camera tries the ten headings nearest the student's own and takes
+  the first that sees the whole band. A selection made before the map loaded (a link) now flies once it has.
+- Tests first: 39 for deep links and the share link, 28 for the band, 14 for the floor words. 1158 unit tests and
+  44 e2e in all (9 new in `room-card.spec.ts`).
+- `reviewer` pass: no blocking bugs. Fixed: the chip re-checks what hides it at most every 100 ms (each check casts
+  rays at the 1,862-triangle campus); a remounted map flies to the selection again; a second Share restarts "Link
+  copied". Opening a link doesn't add to Recent, which holds only taps (D38).
+- 5c's dev-link e2e expected home for `?from=gate-1&to=ST311` in the built app. Under D40 that link is a plain
+  `?to=` link, so it now asserts the ST311 card, no steps list and a clean address bar. It passed locally only
+  because the home hint showed for a moment before the card opened; CI caught it.
+- Two 3c e2e tests pressed Go before the room list loaded and failed about 1 run in 9, on `main` too. They now wait
+  for the result first.
+- Not yet: S4 opening under the card (5a). Miguel's G band is hard to see on the green ground at a distance; a 3▸
+  polish item.
+
 ## 2026-10-21: Velasco's 5 floors checked
 
 - The owner checked all 5 Velasco floors in P1 ("every floor looked right") and they are now `checked: true`, so the

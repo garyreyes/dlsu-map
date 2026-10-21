@@ -962,3 +962,37 @@ labelled, and whether the four skybridges join the graph now.
 elevator to floors it skips). Labelling room by room (no all-or-nothing floor, but a forgotten room fails silently
 until launch). Bridges now, on made-up fixtures (a shape with nothing real to test it against). **Revisit if** a
 building's labelling has to land in parts, or a bridge turns out to join a floor that isn't traced.
+
+---
+
+## D40. What a `?to=` link opens, and what Share does without a share sheet (2026-10-21, proposed)
+
+**Problem.** 3d builds the room card's Share and the deep link `…/?to=ST311` (user-flows §3.4, §3.9). Four things
+needed an answer: which links open a card and which open search, what happens to the address bar once a link is
+read, what Share does in a browser with no share sheet, and where Share sits on the card.
+
+**Decision.** (Owner's answers, 2026-10-21.)
+
+1. **A link opens what Go would open** (D38): exactly one room (`ST311`, `C311`, `ST404/406`) or one building
+   (`Velasco`, `strc`) opens its card. Anything else (`ST350`, `AG1104`, a sign prefix, a typo, a bare number) opens
+   S2 with the text typed, showing what S2 shows for it. Only `to` is read, at most 40 characters; `from` is never
+   read from or put in a link (PRD §6). In dev, the 5c dev link (`?from=…&to=…`) still wins.
+2. **Read once, then cleaned.** The app reads `?to=` when it loads and takes it out of the address bar at once
+   (`replaceState`), so a reload lands on home and the phone's Back closes the card like any other pick. The link
+   opens once the room list is ready; if the list can't load, S2 opens with the text typed and says so.
+3. **No share sheet** (most desktop browsers, some in-app browsers), or one that refuses: Share copies the link,
+   and the card says "Link copied" for 2 s (or "Couldn't copy the link"). Closing the share sheet without sharing
+   says nothing. The share text is the card line, "ST311 · Surface Physics Lab · STRC 3F".
+4. **Share is an icon button** beside Close, as DESIGN.md's Room card already said, so Directions (5a) stays the
+   card's one button.
+
+The map side follows DESIGN.md as written: the band covers every volume that holds the whole storey, a storey being
+the first volume's height over `levels`; the camera tries ten headings nearest the student's own (0°, ±30°, ±60°,
+±90°, ±135°, 180°) and takes the first that sees every band point, else the one that sees most.
+
+**Alternatives.** Keeping the URL in sync with the open card (always shareable from the address bar, but every
+overlay's history entry would have to carry a URL, and a reload reopens a card the student closed). Hiding Share
+where there's no share sheet (less code, but desktop students couldn't share). A Share pill under the card's text
+(clearer label, but a second button next to Directions). Opening a guessed card for a near miss like `ST350` (a
+silent guess, against PRD §7). **Revisit if** students want to share a building as often as a room, or the
+address bar is how they share on desktop.

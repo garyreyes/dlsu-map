@@ -1,22 +1,39 @@
-import { X } from 'lucide-react';
+import { Check, Share2, X } from 'lucide-react';
 import { IconButton } from '@/shared/ui/IconButton';
+import { floorWords } from '../floor-words';
 import type { RoomHit } from '../search-results';
+import { useShare, type ShareStatus } from './useShare';
+
+const SAID: Record<ShareStatus, string> = { idle: '', copied: 'Link copied', failed: "Couldn't copy the link" };
 
 /**
- * S3 Room card, the 3c version (D38): the code as the headline, the room's name, and its building and floor. That
- * is the answer most students need (PRD §5, building and floor in 10 s). 3d adds the floor band, the floor chip and
- * Share; Directions arrive with routing (5a).
+ * S3 Room card (DESIGN.md, Room card): the code as the headline, the room's name, then its building and floor with
+ * the floor words in green, the only green text here. "Also written C311" when it was typed that way. Share and close
+ * sit top right; the map shows the floor band (3d). Directions arrive with routing (5a).
  */
 export function RoomCard({ room, onClose }: { room: RoomHit; onClose: () => void }) {
+  const { status, share } = useShare(room);
   return (
-    <section aria-label={room.code} className="flex items-start gap-2 pb-2">
+    <section aria-label={room.code} className="flex items-start gap-1 pb-2">
       <div className="min-w-0 flex-1 pt-1">
         <h2 className="text-[28px] leading-[1.15] font-[750] tracking-[-0.01em] text-ink tabular-nums">{room.code}</h2>
         <p className="mt-1 text-lg font-semibold text-ink">{room.name}</p>
         <p className="mt-1 text-ink-2 tabular-nums">
-          {room.building.short} · {room.floorLabel}
+          {room.building.short} ·{' '}
+          <strong className="font-semibold text-accent">{floorWords(room.floor, room.floorLabel)}</strong>
+        </p>
+        {room.typedAs && <p className="text-ink-3 tabular-nums">Also written {room.typedAs}</p>}
+        <p aria-live="polite" className={status === 'failed' ? 'text-danger' : 'text-ink-2'}>
+          {SAID[status]}
         </p>
       </div>
+      <IconButton label="Share" onClick={() => void share()}>
+        {status === 'copied' ? (
+          <Check className="size-6" strokeWidth={2} />
+        ) : (
+          <Share2 className="size-6" strokeWidth={2} />
+        )}
+      </IconButton>
       <IconButton label="Close" onClick={onClose}>
         <X className="size-6" strokeWidth={2} />
       </IconButton>

@@ -21,9 +21,12 @@ export const MAP_PALETTE: MapPalette = {
   cityMix: 0.5,
 };
 
+/** The interface accent (DESIGN.md, `accent`). On the map it marks only the selection and the floor band. */
+export const CAMPUS_GREEN = '#00703c';
+
 /** The selected building leans this far from the building colour toward Campus Green, the interface accent
  *  (DESIGN.md, the Shaped-by-Light Rule). */
-export const SELECTED_TINT = { color: '#00703c', mix: 0.22 };
+export const SELECTED_TINT = { color: CAMPUS_GREEN, mix: 0.22 };
 
 /** Off-campus buildings are see-through (DESIGN.md, Campus leads), so campus buildings show through them. */
 export const CITY_OPACITY = 0.35;
