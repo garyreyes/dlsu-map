@@ -26,6 +26,13 @@ session needs to know. Search this file; it isn't required reading (the reading 
 - The OSM credit's bigger tap area works now (a missing space had broken two Tailwind classes).
 - The 3D chunk grew from about 960 kB to 1,068 kB (Zod and the scene code moved into it).
 
+## 2026-10-21: Room lists checked at the doors
+
+- The owner checked the doors behind the room-list guesses. STRC: C402 confirmed; C102 dropped, since it is a
+  different room from the 104/106 testing lab and its name isn't known yet (61 rooms now). Velasco: 201B added beside
+  201A, though the sign leaves it out (72 rooms now); VH-106 is one door. St. Joseph: both calls were right.
+- Tests changed first (4 failing), then the CSVs. PROJECT_FACTS "Room lists" updated.
+
 ## 2026-10-21: D36 agreed
 
 - Gary and Charles agreed D36 (floors stretched onto the OSM outline, `fit.turn` by hand). Marked agreed in DECISIONS;

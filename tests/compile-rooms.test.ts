@@ -1,6 +1,6 @@
 // The real room lists through the compiler. The numbers were counted by hand on each lobby directory photo
-// (2026-10-20). STRC: G 13, 2F 19, 3F 18, 4F 12. Velasco, St. Joseph and St. Miguel: see below. If one moves, check
-// the CSV against the photo before changing it.
+// (2026-10-20), then corrected from the doors (owner, 2026-10-21). STRC: G 12, 2F 19, 3F 18, 4F 12. Velasco, St. Joseph
+// and St. Miguel: see below. If one moves, check the CSV against the photo before changing it.
 import { readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { buildingSourcesSchema } from '../src/shared/data/buildings.ts';
@@ -33,10 +33,10 @@ describe('compiling the real room lists', () => {
     expect(roomsSchema.safeParse(rooms).success).toBe(true);
   });
 
-  it('has STRC’s 62 rooms, floor by floor as the directory lists them', () => {
+  it('has STRC’s 61 rooms, floor by floor as the directory lists them', () => {
     const strc = all.filter((r) => r.building === 'strc');
-    expect(strc).toHaveLength(62);
-    expect([1, 2, 3, 4].map((f) => strc.filter((r) => r.floor === f).length)).toStrictEqual([13, 19, 18, 12]);
+    expect(strc).toHaveLength(61);
+    expect([1, 2, 3, 4].map((f) => strc.filter((r) => r.floor === f).length)).toStrictEqual([12, 19, 18, 12]);
   });
 
   it('stores every STRC code with the canonical ST prefix, never C', () => {
@@ -46,7 +46,6 @@ describe('compiling the real room lists', () => {
   it.each([
     ['ST404', 4, 'Biology Lab'],
     ['ST406', 4, 'Biology Lab'],
-    ['ST102', 1, 'Structural and Materials Testing Lab'],
     ['ST104', 1, 'Structural and Materials Testing Lab'],
     ['ST106', 1, 'Structural and Materials Testing Lab'],
     ['ST105', 1, 'Mechatronics Lab'],
@@ -61,14 +60,15 @@ describe('compiling the real room lists', () => {
     expect(room(code)).toStrictEqual({ code, building: 'strc', floor, name });
   });
 
-  it('has no room 103 (the directory skips it)', () => {
+  it('has no room 103, and 102 is not part of the testing lab (owner, 2026-10-21)', () => {
     expect(room('ST103')).toBeUndefined();
+    expect(room('ST102')).toBeUndefined();
   });
 });
 
 describe('Velasco, St. Joseph and St. Miguel (D33: a dash on these signs is a range)', () => {
   it.each([
-    ['velasco', 71, [14, 11, 16, 17, 13]],
+    ['velasco', 72, [14, 12, 16, 17, 13]],
     ['sj', 78, [15, 13, 11, 9, 12, 18]],
     ['miguel', 69, [24, 18, 15, 12]],
   ])('%s has %i rooms, floor by floor as the directory lists them', (building, total, perFloor) => {
@@ -92,6 +92,7 @@ describe('Velasco, St. Joseph and St. Miguel (D33: a dash on these signs is a ra
     ['VL508', 'velasco', 5, 'Classrooms'],
     ['VL406', 'velasco', 4, 'Classrooms'],
     ['VL201A', 'velasco', 2, 'Classrooms'],
+    ['VL201B', 'velasco', 2, 'Classrooms'],
     ['VL206', 'velasco', 2, 'Classrooms'],
     ['VL208B', 'velasco', 2, 'Computer Lab'],
     ['VL106', 'velasco', 1, 'Computer Numerical Control Lab / MEM Computer Integrated Manufacturing Lab'],
@@ -125,7 +126,7 @@ describe('Velasco, St. Joseph and St. Miguel (D33: a dash on these signs is a ra
     });
   });
 
-  it.each(['VL201', 'VL201B', 'SJ102', 'SJ301', 'SM301', 'SM302'])('has no %s (the directory skips it)', (code) => {
+  it.each(['VL201', 'SJ102', 'SJ301', 'SM301', 'SM302'])('has no %s (the directory skips it)', (code) => {
     expect(room(code)).toBeUndefined();
   });
 });
