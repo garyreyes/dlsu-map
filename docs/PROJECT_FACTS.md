@@ -230,9 +230,17 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 
 ## Routing
 
-- **Assumptions until 8a maps the real stairs and elevators** (not confirmed, 2026-10-21): every full-tier building
-  has an elevator, and stairs cost the same going down as going up (20 s a floor). Auto only takes the elevator for 3+
-  floors, so the first matters only when a student picks Elevator.
+- **Assumptions for a building without a file** (not confirmed, 2026-10-21): every full-tier building has an
+  elevator. With a building file (8b), the file's `verticals` say. Stairs cost the same going down as going up (20 s
+  a floor) everywhere.
+- **Indoor routing (8b, D41) calls Claude made** (2026-10-22): the mode not asked for isn't forbidden but costs an
+  extra hour per use in the search only, so Elevator falls back to stairs only where the elevator can't go (a skipped
+  floor), and Stairs to the elevator only where no stairs go; the time shown never includes it. A trip that starts at
+  a stop and rides at once has no "Start at" step: its first step is the ride. Floors a climb passes without
+  stopping make one floors leg. The router keeps what it builds from each building file per file object (a
+  `WeakMap`), so Lane A should keep the loaded objects rather than re-parse them per route.
+- **P1's test route** (`src/dev/floor-preview/test-route.ts`) is still its own small search with the same costs; it
+  was a stand-in for 8b and could now call the router.
 - **ngraph behaviour the router relies on** (probed 2026-10-21, ngraph.graph 20.1.2, ngraph.path 1.6.1):
   `aStar(...).find(a, b)` returns the path **target first**, so reverse it; it returns `[]` when nothing joins them
   and **throws** for a node id not in the graph. `addLink` on a pair that already has a link **overwrites** its data,

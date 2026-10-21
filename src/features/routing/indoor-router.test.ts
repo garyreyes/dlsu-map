@@ -445,6 +445,13 @@ describe('routes that go inside a building with labelled floors', () => {
     expect([r.meters, r.seconds]).toStrictEqual([326, Math.round(walking(diagonal + 185) + 205)]);
   });
 
+  it('never climbs by a link between floors whose ends aren’t stairs or elevator stops', () => {
+    // A made-up shortcut from G's middle straight up to 2F's: no stop at either end, so it isn't a way up.
+    const odd = fixtureIndoor({ ...spec, links: [...spec.links, ['h1m', 'h2m', 'stairs']] }).file;
+    const r = go({ kind: 'gate', gate: 'g1' }, room('AL205'), 'auto', new Map([['alpha', odd]]));
+    expect(r.legs[2]).toMatchObject({ kind: 'floors', via: 'west-stairs' });
+  });
+
   it('takes the stairs when Elevator is asked for in a building with none, and says so', () => {
     const r = go({ kind: 'gate', gate: 'g1' }, room('AL205'), 'elevator', new Map([['alpha', noLift]]));
     expect(r.legs[2]).toMatchObject({ kind: 'floors', by: 'stairs', via: 'west-stairs', noElevator: true });

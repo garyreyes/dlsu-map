@@ -71,7 +71,7 @@ function build(file: Indoor): IndoorModel {
   }
   const stops = new Map(file.verticals.flatMap((v) => v.stops.map((s) => [s.point, v] as const)));
   const entrances = new Map(file.entrances.map((e) => [e.entrance, e.point]));
-  const finders = { stairs: finder(g, 'stairs'), elevator: finder(g, 'elevator') };
+  const finders = { stairs: finder(file, 'stairs'), elevator: finder(file, 'elevator') };
   return {
     file,
     hasElevator: file.verticals.some((v) => v.kind === 'elevator'),
@@ -84,11 +84,15 @@ function build(file: Indoor): IndoorModel {
   };
 }
 
-/** Every link with its seconds; elevator links become car links (see the top of this file). */
-function costedLinks(g: Indoor['graph']): Costed[] {
+/** Every link with its seconds; elevator links become car links (see the top of this file). A link between floors
+ *  counts only between two stops of a stairs or elevator: nothing else can say which way up it is. */
+function costedLinks(file: Indoor): Costed[] {
+  const g = file.graph;
   const cars = g.floors.length;
+  const stops = new Set(file.verticals.flatMap((v) => v.stops.map((s) => s.point)));
   const floors = (a: number, b: number) => Math.abs((g.floors[a] ?? 0) - (g.floors[b] ?? 0));
   return g.links.flatMap(([a, b, kind]): Costed[] => {
+    if ((kind === 'stairs' || kind === 'elevator') && !(stops.has(a) && stops.has(b))) return [];
     if (kind === 'stairs') return [{ a, b, seconds: floors(a, b) * STAIRS_PER_FLOOR, climb: 'stairs' }];
     if (kind === 'elevator') {
       return [
@@ -105,12 +109,13 @@ function costedLinks(g: Indoor['graph']): Costed[] {
 
 type Finder = (starts: readonly number[], targets: readonly number[]) => IndoorPath | null;
 
-function finder(g: Indoor['graph'], climb: Climb): Finder {
+function finder(file: Indoor, climb: Climb): Finder {
+  const g = file.graph;
   const graph = createGraph<undefined, undefined>();
   const cost = new Map<string, number>();
   const cars = g.floors.length;
   for (let i = 0; i < 2 * cars; i++) graph.addNode(i);
-  for (const link of costedLinks(g)) {
+  for (const link of costedLinks(file)) {
     const key = pair(link.a, link.b);
     const c = link.seconds + (link.climb !== undefined && link.climb !== climb ? AVOID : 0);
     cost.set(key, Math.min(cost.get(key) ?? Infinity, c));

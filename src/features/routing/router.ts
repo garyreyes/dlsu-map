@@ -298,9 +298,8 @@ function walkLeg(g: WalkGraph, a: Spot, b: Spot, ends: EndCosts): Outdoors | nul
     b.openings.map((o) => o.point),
     ends,
   );
-  // Openings are told apart by their walk point; two doors on one point cost the same, so the first will do.
-  const first = a.openings.findIndex((o, i) => o.point === walk?.points[0] && (ends.starts[i] ?? 0) !== Infinity);
-  const last = b.openings.findIndex((o, i) => o.point === walk?.points.at(-1) && (ends.targets[i] ?? 0) !== Infinity);
+  const first = walk?.start ?? -1;
+  const last = walk?.target ?? -1;
   const to = b.openings[last]?.end;
   const from = a.openings[first]?.end;
   // A To spot is always a building, so its openings are doors.

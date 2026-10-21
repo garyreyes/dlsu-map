@@ -34,7 +34,15 @@ export interface ChunkOptions {
 
 type Segment =
   | { readonly kind: 'walk'; readonly points: readonly number[] }
-  | { kind: 'climb'; readonly vertical: Vertical; readonly at: number; readonly from: number; to: number };
+  | {
+      kind: 'climb';
+      readonly vertical: Vertical;
+      /** The stop it leaves from, and the one it gets off at. */
+      readonly at: number;
+      off: number;
+      readonly from: number;
+      to: number;
+    };
 
 /** A step found along the chunk, before its distance to the next is known. */
 interface Mark {
@@ -75,11 +83,13 @@ function segmentsOf(model: IndoorModel, points: readonly number[]): Segment[] {
     }
     const vertical = model.vertical(prev);
     const last = segments.at(-1);
-    if (run.length === 1 && last?.kind === 'climb' && last.vertical === vertical) last.to = model.floor(p);
-    else {
+    if (run.length === 1 && last?.kind === 'climb' && last.vertical === vertical) {
+      last.to = model.floor(p);
+      last.off = p;
+    } else {
       if (run.length > 1) segments.push({ kind: 'walk', points: run });
       if (vertical === undefined) throw new Error(`point ${String(prev)} changes floor but is no stop`);
-      segments.push({ kind: 'climb', vertical, at: prev, from: model.floor(prev), to: model.floor(p) });
+      segments.push({ kind: 'climb', vertical, at: prev, off: p, from: model.floor(prev), to: model.floor(p) });
     }
     run = [p];
   }
@@ -137,8 +147,11 @@ function marksOf(
     along += metersOf(model, s.points);
   });
   const last = segments.at(-1);
-  if (opts.room !== undefined && last?.kind === 'walk')
-    marks.push(arriveMark(model, last.points, segments.length - 1, along, opts.room));
+  // A door that is also a stop (the compiler merges points that round the same) is arrived at off the climb.
+  const end = last?.kind === 'walk' ? last.points : last === undefined ? [] : [last.off];
+  if (opts.room !== undefined && end.length > 0) {
+    marks.push(arriveMark(model, end, segments.length - 1, along, opts.room));
+  }
   return { marks, total: along };
 }
 

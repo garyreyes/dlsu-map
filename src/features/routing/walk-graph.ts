@@ -30,6 +30,9 @@ export interface CheapestWalk {
   readonly points: readonly number[];
   readonly meters: number;
   readonly seconds: number;
+  /** Which of the starts and targets it took, by index: two can share a walk point but not their end costs. */
+  readonly start: number;
+  readonly target: number;
 }
 
 const pair = (a: number, b: number): string => (a < b ? `${String(a)}-${String(b)}` : `${String(b)}-${String(a)}`);
@@ -147,7 +150,7 @@ export function cheapestWalk(
       return Math.hypot(bx - ax, by - ay) / WALK_SPEED;
     },
   });
-  let best: { points: number[]; cost: number } | null = null;
+  let best: { points: number[]; cost: number; start: number; target: number } | null = null;
   for (const [i, start] of starts.entries()) {
     for (const [j, target] of targets.entries()) {
       const extra = (ends?.starts[i] ?? 0) + (ends?.targets[j] ?? 0);
@@ -157,11 +160,12 @@ export function cheapestWalk(
         .map((n) => Number(n.id))
         .reverse();
       const cost = sum(g, points, 'cost') + extra;
-      if (points.length > 0 && (best === null || cost < best.cost)) best = { points, cost };
+      if (points.length > 0 && (best === null || cost < best.cost)) best = { points, cost, start: i, target: j };
     }
   }
   if (best === null) return null;
-  return { points: best.points, meters: sum(g, best.points, 'meters'), seconds: sum(g, best.points, 'seconds') };
+  const { points, start, target } = best;
+  return { points, meters: sum(g, points, 'meters'), seconds: sum(g, points, 'seconds'), start, target };
 }
 
 function sum(g: WalkGraph, points: readonly number[], field: 'meters' | 'cost' | 'seconds'): number {
