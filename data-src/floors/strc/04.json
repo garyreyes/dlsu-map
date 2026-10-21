@@ -2,7 +2,7 @@
   "building": "strc",
   "floor": 4,
   "extractedFrom": "strc_04F.jpg",
-  "checked": false,
+  "checked": true,
   "plan": {
     "width": 3201,
     "height": 789

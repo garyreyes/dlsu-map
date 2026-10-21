@@ -12,7 +12,7 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 - The owner says STRC's elevator goes up to 4F. 8a had it at G–3F because the 4F sign draws no ✕-box; the shaft is
   the plain closed room at the same spot on the sign. `verticals.json` now serves 1–4. On 4F the elevator is placed
-  in that room, with a hallway stub to its door. Editing 4F set it back to `checked: false` for the owner to look again.
+  in that room, with a hallway stub to its door. The owner looked at 4F again in P1 and it is `checked: true`.
 
 ## 2026-10-21: STRC's labelled floors checked
 
