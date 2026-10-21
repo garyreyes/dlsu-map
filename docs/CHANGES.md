@@ -8,6 +8,17 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-21: 6d STRC floors cleaned up
+
+- All 4 STRC floor files cleaned up against their photos (now 128, 106, 91 and 97 walls): stair treads and stringers
+  deleted (stairs come back as their own thing in 8a), outer walls closed on both ends, the second line of double
+  outer walls dropped, light-grey walls the extraction missed added (room dividers, hallway walls along 108–112,
+  411–414), lift shafts boxed in. 4F's route also had boxes around its exit signs, so it is redrawn as the hallway
+  line plus one branch to each stair.
+- Outline gap, 90th percentile: 1F 1.7 → 0.5 m; 2F–4F 0.5–0.6 m. No floor is flagged any more. Still
+  `checked: false`: the owner checks them in the dev preview (P1), which needs Lane A's 6c.
+- The ground-floor sign shows 102 as its own room, apart from 104/106, as the owner found at the doors.
+
 ## 2026-10-21: 6d started: STRC draft floors
 
 - The first floor files: `data-src/floors/strc/01.json`–`04.json`, straight from `floor-extract` (126, 101, 85 and
