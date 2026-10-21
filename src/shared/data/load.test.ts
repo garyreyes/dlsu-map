@@ -2,9 +2,10 @@
 // through, the map would draw garbage or crash on a phone with no message; if it named the wrong reason, the error
 // screen would point the student the wrong way. Each failure kind is asserted by its exact reason.
 import { describe, expect, it } from 'vitest';
-import { loadCampus, loadIndoor, type LoadResult } from './load';
+import { loadCampus, loadIndoor, loadRooms, type LoadResult } from './load';
 import sample from './campus.sample.json';
 import indoorSample from './indoor.sample.json';
+import roomsSample from './rooms.sample.json';
 
 const json = (body: unknown, type = 'application/json') =>
   new Response(JSON.stringify(body), { status: 200, headers: { 'content-type': type } });
@@ -124,6 +125,44 @@ describe('loadIndoor', () => {
 
   it('reports offline when the fetch fails', async () => {
     const result = await loadIndoor('strc', fakeFetch(() => Promise.reject(new TypeError('Failed to fetch'))).impl);
+    expect(reasonOf(result)).toBe('offline');
+  });
+});
+
+// Routing to a room (5c) and search (3c) need the room list. Same door, same reasons; a duplicate code must not get
+// through, or a search could land on either room.
+describe('loadRooms', () => {
+  it('fetches /data/rooms.json and returns the parsed rooms', async () => {
+    const { impl, urls } = fakeFetch(() => json(roomsSample));
+    const result = await loadRooms(impl);
+    expect(urls).toEqual(['/data/rooms.json']);
+    expect(result).toEqual({ ok: true, data: roomsSample });
+  });
+
+  it('reports invalid when two rooms share a code', async () => {
+    const [first] = roomsSample.rooms;
+    const result = await loadRooms(fakeFetch(() => json({ rooms: [first, first] })).impl);
+    expect(reasonOf(result)).toBe('invalid');
+  });
+
+  it('reports invalid when the JSON does not match the rooms schema', async () => {
+    const result = await loadRooms(fakeFetch(() => json({ rooms: [] })).impl);
+    expect(reasonOf(result)).toBe('invalid');
+  });
+
+  it('reports not-json when the file comes back as the HTML fallback page', async () => {
+    const page = new Response('<!doctype html>', { status: 200, headers: { 'content-type': 'text/html' } });
+    const result = await loadRooms(fakeFetch(() => page).impl);
+    expect(reasonOf(result)).toBe('not-json');
+  });
+
+  it('reports http when the server answers with an error status', async () => {
+    const result = await loadRooms(fakeFetch(() => new Response('gone', { status: 404 })).impl);
+    expect(reasonOf(result)).toBe('http');
+  });
+
+  it('reports offline when the fetch fails', async () => {
+    const result = await loadRooms(fakeFetch(() => Promise.reject(new TypeError('Failed to fetch'))).impl);
     expect(reasonOf(result)).toBe('offline');
   });
 });
