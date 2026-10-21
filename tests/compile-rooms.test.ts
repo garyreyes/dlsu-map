@@ -1,5 +1,5 @@
 // The real room lists through the compiler. The numbers were counted by hand on each lobby directory photo
-// (2026-10-20), then corrected from the doors (owner, 2026-10-21). STRC: G 12, 2F 19, 3F 18, 4F 12. Velasco, St. Joseph
+// (2026-10-20), then corrected from the doors (owner, 2026-10-21). STRC: G 13, 2F 19, 3F 18, 4F 12. Velasco, St. Joseph
 // and St. Miguel: see below. If one moves, check the CSV against the photo before changing it.
 import { readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
@@ -33,10 +33,10 @@ describe('compiling the real room lists', () => {
     expect(roomsSchema.safeParse(rooms).success).toBe(true);
   });
 
-  it('has STRC’s 61 rooms, floor by floor as the directory lists them', () => {
+  it('has STRC’s 62 rooms, floor by floor as the directory lists them', () => {
     const strc = all.filter((r) => r.building === 'strc');
-    expect(strc).toHaveLength(61);
-    expect([1, 2, 3, 4].map((f) => strc.filter((r) => r.floor === f).length)).toStrictEqual([12, 19, 18, 12]);
+    expect(strc).toHaveLength(62);
+    expect([1, 2, 3, 4].map((f) => strc.filter((r) => r.floor === f).length)).toStrictEqual([13, 19, 18, 12]);
   });
 
   it('stores every STRC code with the canonical ST prefix, never C', () => {
@@ -46,6 +46,7 @@ describe('compiling the real room lists', () => {
   it.each([
     ['ST404', 4, 'Biology Lab'],
     ['ST406', 4, 'Biology Lab'],
+    ['ST102', 1, 'Room'], // not the testing lab; its name is not known yet (owner, 2026-10-21)
     ['ST104', 1, 'Structural and Materials Testing Lab'],
     ['ST106', 1, 'Structural and Materials Testing Lab'],
     ['ST105', 1, 'Mechatronics Lab'],
@@ -60,9 +61,8 @@ describe('compiling the real room lists', () => {
     expect(room(code)).toStrictEqual({ code, building: 'strc', floor, name });
   });
 
-  it('has no room 103, and 102 is not part of the testing lab (owner, 2026-10-21)', () => {
+  it('has no room 103 (the directory skips it)', () => {
     expect(room('ST103')).toBeUndefined();
-    expect(room('ST102')).toBeUndefined();
   });
 });
 

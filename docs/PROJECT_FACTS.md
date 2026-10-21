@@ -155,7 +155,7 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   (`Che`, `CMD`, `BCRU`). (owner, 2026-10-20)
 - **STRC’s directory is wrong twice** (owner checked the doors, 2026-10-21): its 4th-floor “Stock Room · C302” is
   **C402** (C302 is a 3rd-floor lab). And `C102/104-106` is not three rooms: 104 and 106 are one big lab, 105 is the
-  Mechatronics Lab, and **102 is a different room**, left out until someone reads its door.
+  Mechatronics Lab, and **102 is a different room**, named just “Room” until someone reads its door.
 - **Owner calls on the other signs** (2026-10-20, all checked at the doors 2026-10-21): Velasco lists **VH-106** twice
   (CNC Lab, MEM CIM Lab), one door with both names; **VH-201A-206** is 201A, **201B** (a separate room beside it, not on
   the sign) and 202–206. St. Joseph's **601/602A/B** wrap is split as "Chemical Room" and "Devt. Biology Research

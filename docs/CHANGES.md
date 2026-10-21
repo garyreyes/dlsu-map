@@ -17,6 +17,19 @@ session needs to know. Search this file; it isn't required reading (the reading 
 - `public/data/buildings/strc.json` is built from them (12 KB, gitignored). Corners and the turn are in PROJECT_FACTS.
 - Left in 6d: cleanup of each floor, the dev-only preview (P1, needs 6c), the owner's check, then `checked: true`.
 
+## 2026-10-21: Squares with holes, duplicate walk links, STRC C102
+
+- **Squares** (`scripts/compile/walk.ts`, follow-up from 4a): a `highway=pedestrian` area drawn as an OSM
+  multipolygon was skipped, and a hole in one (a planter, a kiosk) was walked straight through. Now every polygon of
+  a square is walked, around each hole's edge too, and a line across must miss every hole: checked at 9 points and
+  against each hole edge (`segmentsCross` in `geometry.ts`), so a thin planter still blocks it. Central Plaza is a
+  plain polygon, so the real network is unchanged (510 points, 576 links).
+- **`campusSchema`** now rejects two links between the same two points: the router would quietly keep only one cost.
+  The compiler never wrote one.
+- **STRC C102** is back as "Room" (name not known yet, owner): the rooms schema needs a name, and a blank one would
+  show an empty room card. STRC has 62 rooms again.
+- Tests first: 6 failing, then passing.
+
 ## 2026-10-21: 2c part 1, the campus in 3D
 
 - The map now draws the campus from `campus.json` as D13's massing model: every building one pale colour, shaded by
