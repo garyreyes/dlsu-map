@@ -113,7 +113,7 @@ code (it loads three.js from a CDN, which the real app must not do).
 ## Key decisions (short version)
 
 Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24 were agreed by the team on
-2026-10-19, D25–D27 and D33 on 2026-10-20, D34 on 2026-10-21.
+2026-10-19, D25–D27 and D33 on 2026-10-20, D34 and D35 on 2026-10-21.
 
 | # | Decision | Why |
 |---|---|---|
@@ -146,6 +146,7 @@ Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24
 | D27 | **OSM snapshot from the main API**, converted by our own tested code | Every Overpass server failed |
 | D33 | **A dash on Velasco, St. Joseph and St. Miguel signs is a range** (`VH-304-309` = 304 to 309) | Rooms in between are on no other line |
 | D34 | **Routes cost seconds**: walk 1.3 m/s, +45 s per Taft crossing, stairs 20 s a floor, elevator 3 min + 5 s a floor | One number weighs walking, waiting and floors; the time shown is real time |
+| D35 | **Steps only where there's a choice**: turns at junctions, jogs under 15 m merged; a turn names the way, the covered walk, or a building within 20 m | A step every few meters on OSM's zigzags is noise |
 
 ### Things we chose *not* to do
 

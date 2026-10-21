@@ -819,7 +819,7 @@ Could) or once 8b gives indoor distances.
 
 ---
 
-## D35. Which bends become a step, and what a turn step names (2026-10-21, proposed)
+## D35. Which bends become a step, and what a turn step names (2026-10-21, agreed)
 
 **Problem.** 4c turns a walk into steps (PLAN §6.3). The real walk network bends often: Gate 1 → ST311 is 428 m with 9
 bends over 30°, and between the Taft sidewalk and STRC alone it zigzags 7 times in a short stretch (path, covered
