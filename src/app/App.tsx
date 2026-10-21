@@ -1,6 +1,6 @@
 // The app shell (ARCHITECTURE §6): lays out the map and its floating chrome, and owns the little state that ties them
 // together. No parsing, routing or fetching here.
-import { lazy, Suspense, useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { MapInsets } from '@/features/campus-scene';
 import { MapDidntDownload, OpenOnceOnline, SavingLine, useOfflineStatus } from '@/features/offline';
 import { BuildingCard, HomeHint, SearchPill, SearchScreen } from '@/features/search';
@@ -14,6 +14,13 @@ import { useBackToClose } from './useBackToClose';
 
 // The 3D map is its own chunk, so the search pill and sheet work before three.js has loaded (user-flows §3.2).
 const CampusMap = lazy(() => import('@/features/campus-scene').then((m) => ({ default: m.CampusMap })));
+
+// Dev only (5c): `?from=…&to=…` opens a route's all-steps list. `import.meta.env.DEV` is false in a build, so the
+// bundler drops both lines and the chunk; tests/e2e/dev-link.spec.ts checks it stays out.
+const DevSteps = import.meta.env.DEV
+  ? lazy(() => import('@/features/route-player').then((m) => ({ default: m.DevSteps })))
+  : null;
+const DEV_LINK = import.meta.env.DEV && new URLSearchParams(window.location.search).has('from');
 
 /** Wide screens: the left panel's right edge (16px gutter + 400px) plus 8px of air. */
 const PANEL_EDGE = 16 + 400 + 8;
@@ -42,6 +49,12 @@ export function App() {
     },
     [openCard, closeCard],
   );
+  // The dev link's list is an overlay too, opened once on load, so Back closes it like S8 will in the player.
+  const devSteps = useBackToClose();
+  const { open: openDevSteps } = devSteps;
+  useEffect(() => {
+    if (DEV_LINK) openDevSteps();
+  }, [openDevSteps]);
 
   useLayoutEffect(() => {
     const measure = () => {
@@ -57,14 +70,19 @@ export function App() {
   const insets: MapInsets = wide
     ? { top: 16, bottom: 0, left: PANEL_EDGE }
     : { top: pillBottom + 8, bottom: sheetHeight, left: 0 };
-  const sheet = selected ? (
-    <BuildingCard building={selected} onClose={closeCard} />
-  ) : (
-    <>
-      <HomeHint onOpen={search.open} />
-      <NotOfficialNote />
-    </>
-  );
+  const sheet =
+    DevSteps && devSteps.isOpen ? (
+      <Suspense fallback={null}>
+        <DevSteps onClose={devSteps.close} />
+      </Suspense>
+    ) : selected ? (
+      <BuildingCard building={selected} onClose={closeCard} />
+    ) : (
+      <>
+        <HomeHint onOpen={search.open} />
+        <NotOfficialNote />
+      </>
+    );
 
   // Not saved and no signal: the app can't finish loading, so O1 stands in for all of it until signal returns.
   if (offline === 'open-once-online') return <OpenOnceOnline />;

@@ -70,7 +70,7 @@ with a full-app polish.
 |---|---|---|---|---|
 | 5a | Where are you (S4): type a room (D23), building list + map tap, floor chips, Change spot, I'm outside | A | 3c | not started |
 | 5b | Route preview (S5): From → To chips, route options, the route line on the map | A | 4b, 5a | not started |
-| 5c | ↺ All-steps list (S8), which is also the text-only mode (S11); built before the 3D player | A | 4c | not started |
+| 5c | ↺ All-steps list (S8), which is also the text-only mode (S11); built before the 3D player | A | 4c | done |
 | 5d | Step player (S6): Next/Back, camera follow, X, "Change where I am", Arrived (S9), Find next room | A | 5b, 5c | not started |
 | 5▸ | Impeccable critique + polish (Phase 5) | A | 5a–5d | not started |
 
