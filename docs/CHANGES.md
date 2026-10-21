@@ -8,6 +8,20 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-21: 6b fit floors onto OSM outlines
+
+- `scripts/compile/fit.ts`: fits a floor file (sign coordinates) onto its building's OSM outline (D36). The outline's
+  own 4 corners when it has them (points on a side bending under 5° dropped), else the smallest rectangle around it;
+  then `fit.turn`, then a stretch along length and width. Which buildings get which is in PROJECT_FACTS.
+- `scripts/compile/indoor.ts`: floor files → `public/data/buildings/<slug>.json` (gitignored, rebuilt each compile),
+  each floor on the building volume standing at its height, with a note per floor on how far it sits from the
+  outline. Any error fails the build and writes nothing; `compile-data` reads `data-src/floors/*/*.json`.
+- Review fixes (tests first): storey height comes from the building's own outline, not a taller part (Connon's
+  floor 5 sat 2.7 m too high); a floor with no walls fails the build; so does a `checked: true` floor whose outline
+  gap is past 1.5 m, since the outline moved under it. Unchecked floors still only get a note.
+- `floor-extract floor <photo>`: turns the extract draft into a first floor file. It never overwrites one, since a
+  floor file holds cleanup work. No floor files are committed yet; the first ones come with 6d.
+
 ## 2026-10-21: Floor shape agreed before 6b
 
 - 6b spike: four drafts fitted onto their OSM outlines in all 8 placements. Signs are 7–16% off OSM's proportions,

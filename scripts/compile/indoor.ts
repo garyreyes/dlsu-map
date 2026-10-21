@@ -48,23 +48,29 @@ function outlineAt(building: CampusBuilding, base: number): Point[] | null {
   return rings[0] ?? null;
 }
 
+/** Meters per storey: the top of the building's own outline (its first volume) over OSM's level count, which is that
+ *  outline's. A part rising past it, like a stair tower or roof deck (Connon, LS, Yuchengco), would otherwise
+ *  stretch every storey. */
+const storeyHeight = (building: CampusBuilding): number => (building.volumes[0]?.top ?? 0) / building.levels;
+
 const fitLine = (frame: Frame, line: readonly number[]): number[] =>
   pairs(line).flatMap(([x, y]) => fitPoint(frame, x, y).map(round));
 
 function fitFloor(file: FloorFile, building: CampusBuilding, notes: string[]): IndoorFloor | string {
   const f = file.floor;
-  const height = Math.max(...building.volumes.map((v) => v.top)) / building.levels;
+  if (f.walls.length === 0) return `${file.path}: has no walls`;
+  const height = storeyHeight(building);
   const base = (f.floor - 1) * height;
   const ring = outlineAt(building, base);
   if (!ring) return `${file.path}: no part of ${f.building} stands at floor ${String(f.floor)}`;
   const frame = fitFrame(ring, f.plan, f.fit.turn);
   const walls = f.walls.map((w) => fitLine(frame, w));
   const gap = outlineGap(ring, walls.map(pairs));
-  const check = gap.p90 > GAP_CHECK ? ': check its corners and turn' : '';
-  notes.push(
-    `floors: ${f.building} ${String(f.floor)} sits ${String(round(gap.median))} m from its outline ` +
-      `(90%: ${String(round(gap.p90))} m)${check}`,
-  );
+  const far = gap.p90 > GAP_CHECK;
+  const sits = `sits ${String(round(gap.median))} m from its outline (90%: ${String(round(gap.p90))} m)`;
+  // Checked means the owner saw it right in the preview: a gap now means the outline moved under it.
+  if (far && f.checked) return `${file.path}: checked, but ${sits}: check its corners and turn`;
+  notes.push(`floors: ${f.building} ${String(f.floor)} ${sits}${far ? ': check its corners and turn' : ''}`);
   return {
     floor: f.floor,
     base: round(base),

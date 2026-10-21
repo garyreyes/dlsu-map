@@ -126,6 +126,12 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   east end, so its east-end walls poke out up to about 1 m). Gokongwei, Yuchengco, St. Joseph, St. La Salle and
   Razon's tower get the smallest rectangle around them. Yuchengco has several volumes from the ground; a floor goes on
   the largest one standing at its height, so check Yuchengco's in 9c. (2026-10-21)
+- **`turn: 0` can't flip on a new snapshot.** The campus grid sits about 25° off north, so of the two sides a sign's
+  top can go on, one always faces clearly more north: north parts differ by at least 0.84 (short sides) and 1.8 (long
+  sides) across all 16 buildings. A building squared to east–west would sit on the tie and could flip. (2026-10-21)
+- **Storey height = the own outline's top ÷ `levels`.** Connon, St. La Salle and Yuchengco have a part rising past
+  their main block (stair tower, roof deck); using the tallest top gave 4.08, 4.53 and 3.78 m storeys instead of
+  3.4. Henry Sy comes out 3.57 m and Andrew 4.5 m, from their OSM `height`. (2026-10-21)
 
 ## Room lists
 
