@@ -57,7 +57,21 @@ Bash needs Node on PATH first: `export PATH="/c/Program Files/nodejs:$PATH"`.
        (`walls[i] × plan.width / plan.height`) rather than reading numbers off a crowded tile.
      - If the route has boxes drawn around exit signs or "YOU ARE HERE", redraw the hallways as the main hallway
        line plus one branch to each stair.
-   - Room labels, doors, stairs and elevators aren't in the floor file until 8a adds them.
+   - **Label the floor** (8a, D39) once its walls are clean, with one more spec, e.g. `out/strc_01F/labels.json`:
+     `{"rooms": [{"codes": ["ST101"], "label": [180, 203], "doors": [[160, 300]]}], "verticals": [{"id":
+     "east-stairs", "point": [62, 190]}]}`, all in plan px. `rooms` and `verticals` each replace the whole list.
+     - A floor is labelled whole: every code the room list puts on it, canonical (`ST…`), each once. Compare the
+       sign's numbers with the CSV first and ask the owner about any on one but not the other (PROJECT_FACTS has
+       STRC's answers). A combined room drawn as one space gets all its codes; a directory pair the sign draws apart
+       is placed apart.
+     - Doors: the gap in the corridor wall in front of the room. Dump each corridor wall row in plan px, sorted, and
+       take the gaps from that; column squares leave gaps of 15–40 px, which aren't doors. Then check every dot in
+       `review` against the sign: a traced wall can stop short of where the sign's wall does.
+     - Stairs and elevators: the stairwell's middle and the ✕-box. Write `data-src/floors/<building>/verticals.json`
+       (`servesFloors`) from the signs, and tell the owner which floors you inferred. If one sits near 3 m from the
+       hallway, add a short hallway stub to it.
+     - `npm run compile-data` then checks it all: codes against the room list, door/vertical within 3 m of a
+       hallway, every room reachable from the main entrance. P1's "Test route to" walks the graph to any room.
    - `npm run compile-data` notes how far each floor's walls sit from its OSM outline (median and 90th percentile).
      STRC's cleaned floors are 0.5–0.6 m at the 90th. Past 1.5 m it adds "check its corners and turn", usually
      missed outer walls or rough corners; on a checked floor that fails the build.

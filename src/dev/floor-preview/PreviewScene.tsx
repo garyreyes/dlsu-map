@@ -5,6 +5,8 @@ import { FloorModel } from '@/features/indoor-view';
 import type { MapPalette } from '@/shared/config/palette';
 import type { Campus, CampusBuilding } from '@/shared/data/campus';
 import type { Indoor } from '@/shared/data/indoor';
+import { Markers } from './Markers';
+import type { TestRoute } from './test-route';
 import { entrancesOf, frameOf, outlinesAt, type Ring } from './view';
 
 /** The OSM outline the floor was fitted to (D36), and the main-entrance pin: the two things a wrong turn shows up
@@ -23,10 +25,12 @@ interface Props {
   floor: number;
   base: number;
   palette: MapPalette;
+  route: TestRoute | null;
 }
 
-/** One floor of one building, standing in its OSM outline at its own height, with the entrances and a north arrow. */
-export function PreviewScene({ campus, building, indoor, floor, base, palette }: Props) {
+/** One floor of one building, standing in its OSM outline at its own height, with the entrances and a north arrow,
+ *  its rooms, doors, stairs and elevators, and the test route's part on it. */
+export function PreviewScene({ campus, building, indoor, floor, base, palette, route }: Props) {
   const controls = useRef<CameraControls>(null);
   const frame = useMemo(() => frameOf(building), [building]);
   const outlines = useMemo(() => outlinesAt(building, base), [building, base]);
@@ -64,6 +68,7 @@ export function PreviewScene({ campus, building, indoor, floor, base, palette }:
         </group>
       ))}
       <FloorModel indoor={indoor} floor={floor} palette={{ ...palette, path: HALLWAY }} />
+      <Markers indoor={indoor} floor={floor} base={base} route={route} />
       {pins.map((p, i) => (
         <mesh key={i} position={[p.x, base + 2, -p.y]}>
           <cylinderGeometry args={[0.7, 0.7, 4, 16]} />

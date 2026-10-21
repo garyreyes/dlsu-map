@@ -11,6 +11,9 @@ floor,code,name,floor_label,floor_checked,note
 1,C-113,iNano Lab,,,
 1,C-114,Gen. Communications & Microwave Lab,,,
 1,C-116,Computing Information Technology Lab,,,
+1,C101,Room,,,"On the evacuation sign, not in the directory: name not known yet (owner, 2026-10-21). Read it off the door next visit"
+1,C103,Room,,,"On the evacuation sign, not in the directory: name not known yet (owner, 2026-10-21). Read it off the door next visit"
+1,C108,Room,,,"On the evacuation sign, not in the directory: name not known yet (owner, 2026-10-21). Read it off the door next visit"
 2,C201,Microbiology Culture Room,,,
 2,C202,Plant Systematic Research Lab,,,
 2,C203/205,Molecular Bio Unit Lab,,,
@@ -25,6 +28,8 @@ floor,code,name,floor_label,floor_checked,note
 2,C216,Che Bio Chemical Process Lab,,,
 2,C218,Ergonomics and Product Design Lab,,,
 2,C221/223,CESDR-Center for Lean System & Management,,,
+2,C209,Room,,,"On the evacuation sign, not in the directory: name not known yet (owner, 2026-10-21). Read it off the door next visit"
+2,C212,Room,,,"On the evacuation sign, not in the directory: name not known yet (owner, 2026-10-21). Read it off the door next visit"
 3,C301,Computation Chemistry Research Laboratory,,,
 3,C302,Computation Chemistry Research Laboratory,,,
 3,C303,Biochemistry Research Lab,,,Sign: BioChemistry
@@ -41,6 +46,7 @@ floor,code,name,floor_label,floor_checked,note
 3,C315B,Instrumentation Lab,,,
 3,C317,Solid State Physics Fabrication Lab,,,
 3,C319,Solid State Physics Hi-Vacuum Lab,,,
+3,C308,Room,,,"On the evacuation sign, not in the directory: name not known yet (owner, 2026-10-21). Read it off the door next visit"
 4,C401,Laboratory Technician's Room,,,Sign: Techinician
 4,C402,Stock Room,,,"Sign says C302, which is a 3rd-floor lab; owner checked the door: C402 (2026-10-21)"
 4,C404/406,Biology Lab,,,
@@ -51,3 +57,5 @@ floor,code,name,floor_label,floor_checked,note
 4,C411,BCRU Laboratory Room,,,
 4,C413,Solid State Physics Furnace Lab,,,
 4,C414,Electronics & Instrumentation Lab,,,
+4,C403,Room,,,"On the evacuation sign, not in the directory: name not known yet (owner, 2026-10-21). Read it off the door next visit"
+4,C412,Room,,,"On the evacuation sign, not in the directory: name not known yet (owner, 2026-10-21). Read it off the door next visit"

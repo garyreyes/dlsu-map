@@ -33,10 +33,10 @@ describe('compiling the real room lists', () => {
     expect(roomsSchema.safeParse(rooms).success).toBe(true);
   });
 
-  it('has STRC’s 62 rooms, floor by floor as the directory lists them', () => {
+  it('has STRC’s 70 rooms: the directory’s 62 and the 8 only its signs print (owner, 2026-10-21)', () => {
     const strc = all.filter((r) => r.building === 'strc');
-    expect(strc).toHaveLength(62);
-    expect([1, 2, 3, 4].map((f) => strc.filter((r) => r.floor === f).length)).toStrictEqual([13, 19, 18, 12]);
+    expect(strc).toHaveLength(70);
+    expect([1, 2, 3, 4].map((f) => strc.filter((r) => r.floor === f).length)).toStrictEqual([16, 21, 19, 14]);
   });
 
   it('stores every STRC code with the canonical ST prefix, never C', () => {
@@ -61,9 +61,12 @@ describe('compiling the real room lists', () => {
     expect(room(code)).toStrictEqual({ code, building: 'strc', floor, name });
   });
 
-  it('has no room 103 (the directory skips it)', () => {
-    expect(room('ST103')).toBeUndefined();
-  });
+  it.each(['ST101', 'ST103', 'ST108', 'ST209', 'ST212', 'ST308', 'ST403', 'ST412'])(
+    'has %s, on its sign but not in the directory, as an unnamed Room',
+    (code) => {
+      expect(room(code)?.name).toBe('Room');
+    },
+  );
 });
 
 describe('Velasco, St. Joseph and St. Miguel (D33: a dash on these signs is a range)', () => {

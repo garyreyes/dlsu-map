@@ -8,6 +8,26 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-21: 8a done: STRC's rooms, doors, stairs and elevator labelled
+
+- **STRC's 4 floors are labelled whole** (D39): all 70 room codes placed with their doors, both stairs on every
+  floor, and the elevator on G–3F (`data-src/floors/strc/verticals.json`). The build's checks pass: every door and
+  stair within 3 m of a hallway, every room reachable from the main entrance. The graph: 202 points, 132 hall,
+  69 door, 6 stairs, 2 elevator and 1 entrance links. STRC's floors go back to `checked: false` for the owner to look
+  again.
+- **8 rooms added to `strc.csv`** as "Room": printed on the signs, missing from the directory (owner). ST107B shares
+  107's place and ST315A/B share 315's; the directory's pairs 214/219, 404/406, 407/409 are placed apart, as drawn.
+  Details in PROJECT_FACTS. `tests/compile-rooms.test.ts` now expects 70 rooms.
+- **1F's hallway is one piece:** the second piece was the exit arrow drawn outside the building, so it is dropped.
+  Short stubs lead into 1F's stairwells and to the 2F and 3F elevator doors.
+- **`floor-extract edit` places rooms and verticals** (spec in plan px; each replaces the whole list) and `review`
+  draws them: codes green with a dot on each door, stairs and elevators orange. 8 tests written first.
+- **P1 shows the labels, doors, stairs and elevator, and a test route** from the main entrance to any room
+  (`test-route.ts`, D34's seconds on ngraph A*, 7 tests). Run on the real data, all 70 rooms are reachable, 7–118 s.
+- `reviewer` pass: the compiler links an elevator's stops floor to floor, so charging the wait per link made a G→3F
+  ride wait twice (370 s, not 190). Each stop now gets a car node, half the wait to get on and off, so a ride waits
+  once; the test with real floor-to-floor links was written failing first. 8b's router needs the same.
+
 ## 2026-10-21: Velasco's 5 floors checked
 
 - The owner checked all 5 Velasco floors in P1 ("every floor looked right") and they are now `checked: true`, so the

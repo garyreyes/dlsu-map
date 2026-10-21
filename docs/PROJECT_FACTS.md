@@ -160,6 +160,18 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   `edit` on a checked floor sets it back to `checked: false` (owner's check was of the old walls; 2026-10-21).
   `floor-extract shots <building>` starts and stops its own Vite, so it never leaves a dev server on a port.
   (2026-10-21)
+- **Labelling a floor (8a):** an `edit` spec's `rooms` and `verticals` are in plan px and replace the floor's whole
+  list. Doors go in the gap of the corridor wall in front of the room; read the gaps from the walls dumped in plan px,
+  not by eye, and check them against `review` (on STRC 4F, the wall line runs on past what was traced, so gaps that
+  look open in the dump can be drawn shut on the sign). A stair point sits in the stairwell; where the route doesn't
+  go in (STRC 1F) or an elevator sits right at 3 m (STRC 2F, 3F), a short hallway stub is added. Edit specs are in
+  `tools/floor-extract/out/<photo>/labels.json`. (2026-10-21)
+- **STRC's elevator serves G–3F only:** the 4F sign has no elevator box where 1F–3F have one (a small room and a
+  short stair instead). Inferred from the signs: confirm on site. STRC's stairs are `east-stairs` (the sign's left
+  end, since STRC is `turn: 180`) and `west-stairs`. (2026-10-21)
+- **P1 labels are canvas-texture sprites** with the system font: drei `<Text>` would fetch its default font from a
+  CDN (D5), and there is no self-hosted font yet. P1's test route (`src/dev/floor-preview/test-route.ts`) is the
+  cheapest by D34's seconds, stairs or elevator alike; 8b's router replaces it. (2026-10-21)
 - **Which outlines fit onto their own corners** (6b, points along a side bending under 5° dropped): Andrew, Velasco,
   Miguel, Razon's low block, Mutien-Marie and STRC (5 points in OSM, one on a nearly straight side, and skewed at its
   east end, so its east-end walls poke out up to about 1 m). Gokongwei, Yuchengco, St. Joseph, St. La Salle and
@@ -189,6 +201,11 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - **STRC’s directory is wrong twice** (owner checked the doors, 2026-10-21): its 4th-floor “Stock Room · C302” is
   **C402** (C302 is a 3rd-floor lab). And `C102/104-106` is not three rooms: 104 and 106 are one big lab, 105 is the
   Mechatronics Lab, and **102 is a different room**, named just “Room” until someone reads its door.
+- **STRC's signs print 8 rooms its directory leaves out:** 101, 103, 108, 209, 212, 308, 403 and 412. They are in
+  `strc.csv` as "Room" so a typed code routes (owner, 2026-10-21); read their names off the doors next visit. And the
+  other way round: **C107B** isn't on the 1F sign, so it shares 107's room place and door; **C315A/B** share the one
+  315 the 3F sign draws. The directory's pairs **214/219, 404/406, 407/409** are separate rooms on the signs (214 and
+  219 face each other across the hallway) and are placed as drawn. (owner, 2026-10-21)
 - **Owner calls on the other signs** (2026-10-20, all checked at the doors 2026-10-21): Velasco lists **VH-106** twice
   (CNC Lab, MEM CIM Lab), one door with both names; **VH-201A-206** is 201A, **201B** (a separate room beside it, not on
   the sign) and 202–206. St. Joseph's **601/602A/B** wrap is split as "Chemical Room" and "Devt. Biology Research

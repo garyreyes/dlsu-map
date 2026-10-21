@@ -116,12 +116,41 @@ export function cropGridSvg(size: number, scale: number, left: number, top: numb
 const pairs = (line: readonly number[]): [number, number][] =>
   line.flatMap((v, i) => (i % 2 === 0 ? [[v, line[i + 1] ?? v] as [number, number]] : []));
 
+type PlanPoint = [number, number];
+
+interface Labels {
+  rooms?: { codes: string[]; label: PlanPoint; doors: PlanPoint[] }[];
+  verticals?: { id: string; point: PlanPoint }[];
+}
+
+const text = (x: number, y: number, size: number, fill: string, body: string) =>
+  `<text x="${String(x)}" y="${String(y)}" font-size="${String(size)}" font-weight="bold" fill="${fill}" stroke="white" stroke-width="3" paint-order="stroke">${body}</text>`;
+
+/** Rooms green (code at its label, a dot on each door, joined by a thin line) and verticals orange boxes with their
+ *  id, in image px. */
+function labelsSvg(floor: Labels, at: (p: PlanPoint) => PlanPoint): string {
+  const rooms = (floor.rooms ?? []).map((r) => {
+    const [lx, ly] = at(r.label);
+    const doors = r.doors.map((d) => {
+      const [dx, dy] = at(d);
+      return `<line x1="${String(lx)}" y1="${String(ly)}" x2="${String(dx)}" y2="${String(dy)}" stroke="#090" stroke-width="1.5"/><circle cx="${String(dx)}" cy="${String(dy)}" r="7" fill="#0b0" stroke="white" stroke-width="2"/>`;
+    });
+    return `${doors.join('')}${text(lx - 20, ly + 5, 16, '#060', r.codes.join('/'))}`;
+  });
+  const verticals = (floor.verticals ?? []).map((v) => {
+    const [x, y] = at(v.point);
+    return `<rect x="${String(x - 10)}" y="${String(y - 10)}" width="20" height="20" fill="#f80" stroke="white" stroke-width="2"/>${text(x + 13, y + 5, 15, '#a40', v.id)}`;
+  });
+  return rooms.join('') + verticals.join('');
+}
+
 /**
  * A floor file over its straightened photo, for cleanup: walls red and numbered by their index in the file, hallways
- * blue, and a grid labelled in plan px (what `edit` takes). `pad` is the straightened image's padding.
+ * blue, rooms green, stairs and elevators orange, and a grid labelled in plan px (what `edit` takes). `pad` is the
+ * straightened image's padding.
  */
 export function reviewSvg(
-  floor: { plan: { width: number; height: number }; walls: number[][]; hallways: number[][] },
+  floor: { plan: { width: number; height: number }; walls: number[][]; hallways: number[][] } & Labels,
   size: { width: number; height: number },
   pad: number,
 ): string {
@@ -153,5 +182,6 @@ export function reviewSvg(
   });
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${String(size.width)}" height="${String(size.height)}">
   <rect width="100%" height="100%" fill="white" opacity="0.5"/>${grid.join('')}
-  ${floor.hallways.map((h) => poly(h, 'stroke="#06f" stroke-width="6" opacity="0.6"')).join('')}${walls.join('')}</svg>`;
+  ${floor.hallways.map((h) => poly(h, 'stroke="#06f" stroke-width="6" opacity="0.6"')).join('')}${walls.join('')}
+  ${labelsSvg(floor, ([x, y]) => [pad + x * W, pad + y * H])}</svg>`;
 }
