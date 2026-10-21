@@ -846,7 +846,7 @@ names (Kalayaan, Bagong Lipunan, Kasaganaan): then drop way names for `path` way
 
 ---
 
-## D36. Floors are stretched onto the OSM outline by the compiler, turned by hand (2026-10-21, proposed)
+## D36. Floors are stretched onto the OSM outline by the compiler, turned by hand (2026-10-21, agreed)
 
 **Problem.** ARCHITECTURE §4 step 4 (fit the traced plan onto the building's OSM outline) was unproven. The 6b spike
 fitted four drafts (STRC 2F and 4F, St. Joseph 3F, Miguel 3F) in all 8 placements and found two things. The signs'

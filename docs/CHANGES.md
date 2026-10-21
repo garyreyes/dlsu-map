@@ -8,6 +8,11 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-21: D36 agreed
+
+- Gary and Charles agreed D36 (floors stretched onto the OSM outline, `fit.turn` by hand). Marked agreed in DECISIONS;
+  SUMMARY row added.
+
 ## 2026-10-21: 6b fit floors onto OSM outlines
 
 - `scripts/compile/fit.ts`: fits a floor file (sign coordinates) onto its building's OSM outline (D36). The outline's
