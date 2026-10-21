@@ -40,11 +40,28 @@ async function loadJson<T>(path: string, schema: z.ZodType<T>, fetchImpl: Fetch)
   return parsed.success ? { ok: true, data: parsed.data } : { ok: false, reason: 'invalid' };
 }
 
-/** Loads and validates `public/data/campus.json`, written by the data compiler (2b). */
-export function loadCampus(fetchImpl: Fetch = (input) => fetch(input)): Promise<LoadResult<Campus>> {
-  // BASE_URL keeps the path right if the app is ever served from a subfolder; a wrong path would read as not-json.
-  return loadJson(`${import.meta.env.BASE_URL}data/campus.json`, campusSchema, fetchImpl);
+/**
+ * The first good load, shared: search (3c) and the map both need campus.json and rooms.json, and each would otherwise
+ * fetch and validate its own copy. A failure isn't kept, so the next call tries again. A test passes its own fetch
+ * and always gets a fresh load.
+ */
+function once<T>(load: (fetchImpl: Fetch) => Promise<LoadResult<T>>) {
+  let shared: Promise<LoadResult<T>> | undefined;
+  return (fetchImpl?: Fetch): Promise<LoadResult<T>> => {
+    if (fetchImpl) return load(fetchImpl);
+    shared ??= load((input) => fetch(input)).then((result) => {
+      if (!result.ok) shared = undefined;
+      return result;
+    });
+    return shared;
+  };
 }
+
+/** Loads and validates `public/data/campus.json`, written by the data compiler (2b). */
+export const loadCampus = once((fetchImpl): Promise<LoadResult<Campus>> =>
+  // BASE_URL keeps the path right if the app is ever served from a subfolder; a wrong path would read as not-json.
+  loadJson(`${import.meta.env.BASE_URL}data/campus.json`, campusSchema, fetchImpl),
+);
 
 /** Loads and validates one building's floors, `public/data/buildings/<slug>.json`, written by the data compiler (6b).
  *  A slug that couldn't be a building is `invalid` without a request, and so is a file for another building. */
@@ -55,6 +72,6 @@ export function loadIndoor(slug: string, fetchImpl: Fetch = (input) => fetch(inp
 }
 
 /** Loads and validates `public/data/rooms.json`, written by the data compiler (3b). */
-export function loadRooms(fetchImpl: Fetch = (input) => fetch(input)): Promise<LoadResult<Rooms>> {
-  return loadJson(`${import.meta.env.BASE_URL}data/rooms.json`, roomsSchema, fetchImpl);
-}
+export const loadRooms = once((fetchImpl): Promise<LoadResult<Rooms>> =>
+  loadJson(`${import.meta.env.BASE_URL}data/rooms.json`, roomsSchema, fetchImpl),
+);

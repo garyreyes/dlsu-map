@@ -103,9 +103,17 @@ flowchart TD
 | `VH501`, `J-201` (as printed on a sign, D25) | **Did you mean VL501 · Velasco** (one tap accepts it) |
 | `305` (no prefix, as St. Miguel's signs print it) | Rooms numbered 305 in each building |
 | `ST404/406` | **ST404** (read as the first number, D18) |
+| `ST31`, `c40` (still typing, D38) | The rooms that start with it, 8 at most. Rejected only when none do |
+| `AG1104` (building with no room list yet, D38) | "Br. Andrew Gonzalez Hall's rooms aren't in the app yet." + the building |
+| `velsaco` (one typo, D38) | **Did you mean** Velasco |
+| `Henry Sy` (block tier, D20) | "Henry Sy Sr. Hall isn't in search yet." |
+| `Biology` (room names aren't searched in v1) | "Nothing matches "Biology". Search by room code, like ST311, or a building." |
 
 - `C311` is shown and stored as `ST311` (canonical form, ARCHITECTURE §3.3), with "also written C311" under it.
-- There is no Search button. Results update as you type, and tapping one is the only action.
+- There is no Search button. Results update as you type, and tapping one is the main action. The keyboard's **Go**
+  opens a result only when the text is exactly one room or building; otherwise it hides the keyboard (D38).
+- **Recent** holds the last 5 destinations tapped, rooms and buildings (D38).
+- **Until 3d:** tapping a room shows a plain card (code, name, "STRC · 3F") and highlights its building.
 - **Building as destination:** the route ends at that building's main entrance. S9 says "You're at Andrew Hall".
 
 ### 3.4 S3 Room card

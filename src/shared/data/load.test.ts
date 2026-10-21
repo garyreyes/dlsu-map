@@ -1,7 +1,7 @@
 // The loader is the only door between the network and the scene (ARCHITECTURE §6). If it let a bad response
 // through, the map would draw garbage or crash on a phone with no message; if it named the wrong reason, the error
 // screen would point the student the wrong way. Each failure kind is asserted by its exact reason.
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { loadCampus, loadIndoor, loadRooms, type LoadResult } from './load';
 import sample from './campus.sample.json';
 import indoorSample from './indoor.sample.json';
@@ -164,5 +164,49 @@ describe('loadRooms', () => {
   it('reports offline when the fetch fails', async () => {
     const result = await loadRooms(fakeFetch(() => Promise.reject(new TypeError('Failed to fetch'))).impl);
     expect(reasonOf(result)).toBe('offline');
+  });
+});
+
+describe('one shared load (3c)', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+
+  // A fresh copy of the module each time, so one test's kept load can't leak into the next.
+  const freshLoader = () => import('./load');
+
+  it('fetches once when search and the map both ask', async () => {
+    const { impl, urls } = fakeFetch(() => json(roomsSample));
+    vi.stubGlobal('fetch', impl);
+    const { loadRooms: load } = await freshLoader();
+    const [a, b] = await Promise.all([load(), load()]);
+    const c = await load();
+    expect(urls).toStrictEqual(['/data/rooms.json']);
+    expect(reasonOf(a)).toBe('ok');
+    expect(b).toBe(a);
+    expect(c).toBe(a);
+  });
+
+  it('tries again after a failure instead of keeping it', async () => {
+    let calls = 0;
+    const { impl, urls } = fakeFetch(() =>
+      ++calls === 1 ? Promise.reject(new TypeError('Failed to fetch')) : json(sample),
+    );
+    vi.stubGlobal('fetch', impl);
+    const { loadCampus: load } = await freshLoader();
+    expect(reasonOf(await load())).toBe('offline');
+    expect(reasonOf(await load())).toBe('ok');
+    expect(urls).toStrictEqual(['/data/campus.json', '/data/campus.json']);
+  });
+
+  it('a fetch passed in always gets its own fresh load', async () => {
+    const shared = fakeFetch(() => json(roomsSample));
+    vi.stubGlobal('fetch', shared.impl);
+    const { loadRooms: load } = await freshLoader();
+    await load();
+    const own = fakeFetch(() => json(roomsSample));
+    await load(own.impl);
+    expect(own.urls).toStrictEqual(['/data/rooms.json']);
   });
 });
