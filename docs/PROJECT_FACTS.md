@@ -147,13 +147,13 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   is not a room code and is left out. (2026-10-20)
 - Names are typed as printed, with obvious spelling fixed and trailing periods dropped; abbreviations stay
   (`Che`, `CMD`, `BCRU`). (owner, 2026-10-20)
-- **STRC's directory has one wrong code:** its 4th-floor "Stock Room · C302" is entered as **C402** (C302 is a 3rd-floor
-  lab). And `C102/104-106` is rooms 102, 104 and 106, since C105 is the Mechatronics Lab. Both are the owner's
-  calls, 2026-10-20; check the doors when next on site.
-- **Owner calls on the other signs** (2026-10-20; check the doors when next on site): Velasco lists **VH-106** twice
-  (CNC Lab, MEM CIM Lab), entered as one room with both names; **VH-201A-206** is 201A then 202–206 (no 201 or 201B).
-  St. Joseph's **601/602A/B** wrap is split as "Chemical Room" and "Devt. Biology Research Room", and **J-208/209**
-  (printed under J-202/203) is read as the same Comparative Anatomy Lab.
+- **STRC’s directory is wrong twice** (owner checked the doors, 2026-10-21): its 4th-floor “Stock Room · C302” is
+  **C402** (C302 is a 3rd-floor lab). And `C102/104-106` is not three rooms: 104 and 106 are one big lab, 105 is the
+  Mechatronics Lab, and **102 is a different room**, left out until someone reads its door.
+- **Owner calls on the other signs** (2026-10-20, all checked at the doors 2026-10-21): Velasco lists **VH-106** twice
+  (CNC Lab, MEM CIM Lab), one door with both names; **VH-201A-206** is 201A, **201B** (a separate room beside it, not on
+  the sign) and 202–206. St. Joseph's **601/602A/B** wrap is split as "Chemical Room" and "Devt. Biology Research
+  Room" (601 is next to 602), and **J-208/209** (printed under J-202/203) is the same Comparative Anatomy Lab.
 - `tsconfig.node.json` maps `@/*` so scripts can typecheck src files that use the alias. Type imports only: Node
   doesn't resolve `@/`, so a value import through it would crash `compile-data` (CI's build step catches
   it). (2026-10-20)

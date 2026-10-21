@@ -9,7 +9,7 @@ floor,code,name,floor_label,floor_checked,note
 1,SJ-119,Signum Fidei Foundation,,,
 2,SJ-201,"Facilities Management Office: Building & Grounds Maintenance Office, Civil & Sanitary Works Office, Mechanical & Electrical Works Office",,,
 2,SJ-202/203,Comparative Anatomy Lab,,,
-2,SJ-208/209,Comparative Anatomy Lab,,,"Printed on the line under J-202/203, read as the same lab"
+2,SJ-208/209,Comparative Anatomy Lab,,,"Printed on the line under J-202/203, read as the same lab; correct (owner, checked 2026-10-21)"
 2,SJ-204,General Biology Lab,,,
 2,SJ-205,Mathematics Research Office,,,
 2,SJ-206A,High Performance Computing Lab (HPCL-CENSER),,,
@@ -36,7 +36,7 @@ floor,code,name,floor_label,floor_checked,note
 5,SJ-509,Biochemistry Laboratory,,,
 5,SJ-510,Balance Room,,,
 5,SJ-511/512/513,Instrument Room,,,"Printed J-511-513 (a range, D33)"
-6,SJ-601,Chemical Room,,,"The sign wraps it as ""Chemical Room Devt. Biology / Research Room""; split as 601 and 602A/B (owner, 2026-10-20)"
+6,SJ-601,Chemical Room,,,"The sign wraps it as ""Chemical Room Devt. Biology / Research Room""; split as 601 and 602A/B; 601 is next to 602 (owner, checked 2026-10-21)"
 6,SJ-602A/B,Devt. Biology Research Room,,,"See 601"
 6,SJ-603/604,Comparative Anatomy Lab,,,
 6,SJ-605/607,Microbiology Research Lab,,,

@@ -1,7 +1,7 @@
 floor,code,name,floor_label,floor_checked,note
 1,VL-102C,Center for Engineering Sustainable Development Research Office (CESDR),,,
 1,VL-103,Computer Lab,,,
-1,VL-106,Computer Numerical Control Lab / MEM Computer Integrated Manufacturing Lab,,,"Listed twice on the sign, once per name; one room with both names (owner, 2026-10-20)"
+1,VL-106,Computer Numerical Control Lab / MEM Computer Integrated Manufacturing Lab,,,"Listed twice on the sign, once per name; one door with both names (owner, checked 2026-10-21)"
 1,VL-109,Faculty Research Lab,,,
 1,VL-107,Graduate School Lounge,,,
 1,VL-105,Machine Lab,,,
@@ -14,7 +14,7 @@ floor,code,name,floor_label,floor_checked,note
 1,VL-151,"College of Engineering: Dean's Office, Director for Graduate Studies, Vice Dean's Office",G Mezz,,
 1,VL-153,CAD/CAM Lab,G Mezz,,
 2,VL-200A,Classroom,,,
-2,VL-201A/202/203/204/205/206,Classrooms,,,"Printed VH-201A-206: 201A, then 202 to 206 (a range, D33; owner, 2026-10-20)"
+2,VL-201A/201B/202/203/204/205/206,Classrooms,,,"Printed VH-201A-206. 201A and 201B are separate rooms side by side (the sign has no plain 201); 202 to 206 all exist (owner, checked at the doors, 2026-10-21)"
 2,VL-208A&B,Computer Lab,,,
 2,VL-200B,Faculty Lounge (Shell Companies of the Phil.),,,
 2,VL-207,Audio Visual Room,,,
