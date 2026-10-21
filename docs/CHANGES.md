@@ -26,6 +26,9 @@ session needs to know. Search this file; it isn't required reading (the reading 
 - `reviewer` pass: no blocking bugs. Fixed: the chip re-checks what hides it at most every 100 ms (each check casts
   rays at the 1,862-triangle campus); a remounted map flies to the selection again; a second Share restarts "Link
   copied". Opening a link doesn't add to Recent, which holds only taps (D38).
+- 5c's dev-link e2e expected home for `?from=gate-1&to=ST311` in the built app. Under D40 that link is a plain
+  `?to=` link, so it now asserts the ST311 card, no steps list and a clean address bar. It passed locally only
+  because the home hint showed for a moment before the card opened; CI caught it.
 - Two 3c e2e tests pressed Go before the room list loaded and failed about 1 run in 9, on `main` too. They now wait
   for the result first.
 - Not yet: S4 opening under the card (5a). Miguel's G band is hard to see on the green ground at a distance; a 3▸
