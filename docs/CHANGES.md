@@ -8,6 +8,12 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-22: STRC's elevator reaches 4F
+
+- The owner says STRC's elevator goes up to 4F. 8a had it at G–3F because the 4F sign draws no ✕-box; the shaft is
+  the plain closed room at the same spot on the sign. `verticals.json` now serves 1–4. On 4F the elevator is placed
+  in that room, with a hallway stub to its door. The owner looked at 4F again in P1 and it is `checked: true`.
+
 ## 2026-10-21: STRC's labelled floors checked
 
 - The owner looked at STRC's 4 labelled floors in P1 (rooms, doors, stairs, elevator and test routes: "every floor

@@ -1,5 +1,5 @@
 [
   { "id": "east-stairs", "kind": "stairs", "servesFloors": [1, 2, 3, 4] },
   { "id": "west-stairs", "kind": "stairs", "servesFloors": [1, 2, 3, 4] },
-  { "id": "elevator", "kind": "elevator", "servesFloors": [1, 2, 3] }
+  { "id": "elevator", "kind": "elevator", "servesFloors": [1, 2, 3, 4] }
 ]

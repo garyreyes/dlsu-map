@@ -166,9 +166,9 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   look open in the dump can be drawn shut on the sign). A stair point sits in the stairwell; where the route doesn't
   go in (STRC 1F) or an elevator sits right at 3 m (STRC 2F, 3F), a short hallway stub is added. Edit specs are in
   `tools/floor-extract/out/<photo>/labels.json`. (2026-10-21)
-- **STRC's elevator serves G–3F only:** the 4F sign has no elevator box where 1F–3F have one (a small room and a
-  short stair instead). Inferred from the signs: confirm on site. STRC's stairs are `east-stairs` (the sign's left
-  end, since STRC is `turn: 180`) and `west-stairs`. (2026-10-21)
+- **STRC's elevator serves G–4F** (owner, 2026-10-22). The 4F sign draws its shaft as a plain closed room, with no ✕
+  as on 1F–3F, at the same spot on the sign (about 0.95 across, 0.65 down). Don't read a missing ✕ as a skipped floor;
+  ask. STRC's stairs are `east-stairs` (the sign's left end, since STRC is `turn: 180`) and `west-stairs`.
 - **P1 labels are canvas-texture sprites** with the system font: drei `<Text>` would fetch its default font from a
   CDN (D5), and there is no self-hosted font yet. P1's test route (`src/dev/floor-preview/test-route.ts`) is the
   cheapest by D34's seconds, stairs or elevator alike; 8b's router replaces it. (2026-10-21)
