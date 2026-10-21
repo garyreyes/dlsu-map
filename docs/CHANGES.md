@@ -8,6 +8,20 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-21: 4b routing
+
+- `src/features/routing/`: `createRouter(campus, rooms)` returns the `Router` agreed in `route.ts`. It turns the walk
+  network into a graph weighted in seconds (D34) and finds the cheapest walk with ngraph's A* over every usable door
+  (mains when leaving from G). Floors legs pick stairs or elevator (Auto: elevator for 3+ floors). The time shown is
+  real walking time plus Taft waits and floor changes; the ×1.5 street and ×1.2 steps factors only steer the choice.
+- Taft's 45 s wait is charged once per crosswalk, not per OSM piece: the real network has 8, each one link.
+- Tests: hand-drawn campuses with hand-worked seconds, and the real campus (`tests/routing.test.ts`): every gate
+  reaches every full building, all 280 rooms are reachable from Gate 1, and A* matches a plain Dijkstra from every gate
+  to every door. Five planted bugs (path not reversed, factor in the time shown, waits past the curb, Auto off by one,
+  an overestimating heuristic) each fail them.
+- Reviewed by the `reviewer` agent: nothing material. Its low findings are fixed (a duplicate link in a crossing run,
+  unknown-before-same-room, two more tests) or recorded as known limits in `docs/PROJECT_FACTS.md` "Routing".
+
 ## 2026-10-21: Route shape agreed before 4b
 
 - `src/shared/data/route.ts`: the meeting point for routes (docs/SPLIT.md). `Router(from, to, mode)` returns a
