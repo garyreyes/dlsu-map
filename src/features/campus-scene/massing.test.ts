@@ -2,7 +2,7 @@
 // renders inside out or vanishes from above. A wrong triangle → building table opens the wrong card on a tap. So
 // each case pins exact values.
 import { describe, expect, it } from 'vitest';
-import { buildMassing, FOOT_HEIGHT, FOOT_SHADE, ownerOf, type Massing } from './massing';
+import { buildMassing, FOOT_HEIGHT, FOOT_SHADE, ownerOf, selectionGroups, type Massing, type Owner } from './massing';
 
 /** A 10 m square around (0, 0) in data coordinates (x east, y north), anticlockwise. */
 const SQUARE_CCW = [-5, -5, 5, -5, 5, 5, -5, 5];
@@ -179,5 +179,43 @@ describe('ownerOf', () => {
 
   it('answers undefined for every triangle when nothing is owned', () => {
     expect(ownerOf([], 0)).toBeUndefined();
+  });
+});
+
+// The selected building is drawn with the tinted material through draw groups. A wrong range tints the wrong
+// building, or half of one, and still renders without complaint.
+describe('selectionGroups', () => {
+  const owners: Owner[] = [
+    { id: 'strc', first: 0, count: 18 },
+    { id: 'henry-sy', first: 18, count: 28 },
+    { id: 'connon', first: 46, count: 10 },
+  ];
+  const total = 56;
+
+  it('draws everything with material 0 when nothing is selected', () => {
+    expect(selectionGroups(owners, null, total)).toStrictEqual([{ start: 0, count: 168, materialIndex: 0 }]);
+  });
+
+  it('gives a middle building material 1, in vertices, with the rest either side on material 0', () => {
+    expect(selectionGroups(owners, 'henry-sy', total)).toStrictEqual([
+      { start: 0, count: 54, materialIndex: 0 },
+      { start: 54, count: 84, materialIndex: 1 },
+      { start: 138, count: 30, materialIndex: 0 },
+    ]);
+  });
+
+  it('leaves out an empty group when the selection is first or last', () => {
+    expect(selectionGroups(owners, 'strc', total)).toStrictEqual([
+      { start: 0, count: 54, materialIndex: 1 },
+      { start: 54, count: 114, materialIndex: 0 },
+    ]);
+    expect(selectionGroups(owners, 'connon', total)).toStrictEqual([
+      { start: 0, count: 138, materialIndex: 0 },
+      { start: 138, count: 30, materialIndex: 1 },
+    ]);
+  });
+
+  it('draws everything plainly for a slug with no triangles', () => {
+    expect(selectionGroups(owners, 'velasco', total)).toStrictEqual([{ start: 0, count: 168, materialIndex: 0 }]);
   });
 });

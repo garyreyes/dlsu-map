@@ -1,10 +1,10 @@
 // The app shell (ARCHITECTURE §6): lays out the map and its floating chrome, and owns the little state that ties them
 // together. No parsing, routing or fetching here.
-import { lazy, Suspense, useLayoutEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useLayoutEffect, useRef, useState } from 'react';
 import type { MapInsets } from '@/features/campus-scene';
 import { MapDidntDownload, OpenOnceOnline, SavingLine, useOfflineStatus } from '@/features/offline';
-import { HomeHint, SearchPill, SearchScreen } from '@/features/search';
-import { DEFAULT_PALETTE, type MapPaletteKey } from '@/shared/config/palette';
+import { BuildingCard, HomeHint, SearchPill, SearchScreen } from '@/features/search';
+import type { CampusBuilding } from '@/shared/data/campus';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import { LOADING_MAP, MapMessage } from '@/shared/ui/MapMessage';
 import { NotOfficialNote } from '@/shared/ui/NotOfficialNote';
@@ -18,12 +18,6 @@ const CampusMap = lazy(() => import('@/features/campus-scene').then((m) => ({ de
 /** Wide screens: the left panel's right edge (16px gutter + 400px) plus 8px of air. */
 const PANEL_EDGE = 16 + 400 + 8;
 
-/** D13's outdoor test: a preview link with `?palette=b` or `?palette=c` shows that palette. Goes once it's settled. */
-function paletteFromUrl(): MapPaletteKey {
-  const asked = new URLSearchParams(window.location.search).get('palette');
-  return asked === 'b' || asked === 'c' ? asked : DEFAULT_PALETTE;
-}
-
 export function App() {
   const wide = useIsWide();
   const search = useBackToClose();
@@ -31,7 +25,23 @@ export function App() {
   const [pillBottom, setPillBottom] = useState(62);
   const [sheetHeight, setSheetHeight] = useState(96);
   const offline = useOfflineStatus();
-  const [palette] = useState(paletteFromUrl);
+  // The building card is an overlay the phone's Back closes. The building stays set after it closes, but only
+  // counts as selected while the card is open.
+  const card = useBackToClose();
+  const [building, setBuilding] = useState<CampusBuilding | null>(null);
+  const selected = card.isOpen ? building : null;
+  const { open: openCard, close: closeCard } = card;
+  const select = useCallback(
+    (b: CampusBuilding | null) => {
+      if (!b) {
+        closeCard();
+        return;
+      }
+      setBuilding(b);
+      openCard();
+    },
+    [openCard, closeCard],
+  );
 
   useLayoutEffect(() => {
     const measure = () => {
@@ -47,7 +57,9 @@ export function App() {
   const insets: MapInsets = wide
     ? { top: 16, bottom: 0, left: PANEL_EDGE }
     : { top: pillBottom + 8, bottom: sheetHeight, left: 0 };
-  const home = (
+  const sheet = selected ? (
+    <BuildingCard building={selected} onClose={closeCard} />
+  ) : (
     <>
       <HomeHint onOpen={search.open} />
       <NotOfficialNote />
@@ -72,14 +84,20 @@ export function App() {
       {/* If the map's chunk can't download, only the map is lost: the pill and sheet stay usable. */}
       <ErrorBoundary fallback={<MapDidntDownload />}>
         <Suspense fallback={<MapMessage text={LOADING_MAP} />}>
-          <CampusMap insets={insets} sheetHeight={sheetHeight} wide={wide} palette={palette} />
+          <CampusMap
+            insets={insets}
+            sheetHeight={sheetHeight}
+            wide={wide}
+            selected={selected?.slug ?? null}
+            onSelect={select}
+          />
         </Suspense>
       </ErrorBoundary>
       {wide ? (
-        <SidePanel label="Details">{home}</SidePanel>
+        <SidePanel label="Details">{sheet}</SidePanel>
       ) : (
         <BottomSheet label="Details" onVisibleHeight={setSheetHeight}>
-          {home}
+          {sheet}
         </BottomSheet>
       )}
       {search.isOpen && <SearchScreen onClose={search.close} />}

@@ -10,10 +10,12 @@ import {
   MAX_DISTANCE,
   MAX_POLAR,
   MIN_DISTANCE,
+  SELECT_POLAR,
   SMOOTH_TIME,
 } from '@/shared/config/camera';
+import type { CampusBuilding } from '@/shared/data/campus';
 import { headingDeg } from '../gestures';
-import { fitDistance } from '../home-view';
+import { fitDistance, framing } from '../home-view';
 import { useHeading } from './headingStore';
 import { useTwistTilt } from './useTwistTilt';
 
@@ -48,6 +50,26 @@ export function goHome(c: CameraControls, home: HomeView, insets: MapInsets, ani
   void c.setTarget(home.x, 0, home.z, animate);
   void c.rotateTo(home.azimuth, HOME_POLAR, animate);
   void c.dollyTo(distance, animate);
+}
+
+/** How much ground around a selected building stays in view, as a multiple of its own size. */
+const SELECT_CONTEXT = 2;
+
+/** Flies to a selected building at the closer, lower angle (DESIGN.md, Camera), keeping the heading the student has
+ *  turned to. The whole building and some of its neighbours fit the screen the chrome leaves. */
+export function goToBuilding(
+  c: CameraControls,
+  b: Pick<CampusBuilding, 'volumes'>,
+  insets: MapInsets,
+  animate: boolean,
+) {
+  const { centre, radius } = framing(b.volumes.map((v) => v.outline));
+  const top = Math.max(...b.volumes.map((v) => v.top));
+  const view = { width: window.innerWidth, height: window.innerHeight, fovDeg: FOV_DEG, polar: SELECT_POLAR };
+  const fit = fitDistance(Math.max(radius, top / 2) * SELECT_CONTEXT, view, insets);
+  void c.setTarget(centre[0], 0, -centre[1], animate);
+  void c.rotatePolarTo(SELECT_POLAR, animate);
+  void c.dollyTo(Math.min(MAX_DISTANCE, Math.max(MIN_DISTANCE, fit)), animate);
 }
 
 /** Map-style gestures: one finger pans along the ground, pinch zooms toward the fingers, mouse right-drag turns. */

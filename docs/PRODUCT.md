@@ -54,7 +54,7 @@ signal at all. It does this with no account, no backend and no cost.
   reports carry only the destination.
 - **Data rights:** evacuation-map photos are DLSU's; never committed or shipped. Publishing traced floor plans
   needs DLSU Facilities' OK before the public launch.
-- **Open:** each building's floor labels (STRC's ground floor is "G"); the 3D palette (see Brand Commitments).
+- **Open:** each building's floor labels (STRC's ground floor is "G").
 
 ## Brand Commitments
 
@@ -69,16 +69,17 @@ signal at all. It does this with no account, no backend and no cost.
 - **Green interface (owner's choice, 2026-10-19):** the interface colour is a fixed green ("since it's for DLSU"),
   on green-tinted neutrals, whichever map palette is shown. It's a colour, not a DLSU mark, so the "not official"
   rule still holds. This replaces D13 option B's gold accent: one green marks the selection in every palette.
-- **Black map ground (owner's choice, 2026-10-19):** the default ground is near-black like Waze's dark mode, with
-  soft grey paths and a dark green haze. It replaced D13's orange option; green and grey stay for comparison.
+- **Green map ground (owner's choice, 2026-10-21):** a deep green ground with warm white buildings, sage paths and a
+  green haze (D13 option B, with Campus Green as the accent instead of gold). It beat the near-black ground (the
+  2026-10-19 default, like Waze's dark mode) and the quiet grey.
 - **Credit:** "Map data © OpenStreetMap contributors" stays on the map (ODbL).
 - **Voice:** plain English, short sentences, the words on room signs and schedules. No slang, no jokes in error
   messages.
 - **Decided 3D look (D13, "massing model"):** every building one pale color, shaped by light alone (no windows,
   textures or outlines); a flat, saturated ground; streets and paths as thin bright lines; soft darkening where walls
   meet the ground; a high, angled camera over the surrounding city. Color has one job: a single accent marks the
-  route, the selected building and "you are here". **The palette is open** (D13 lists three options to compare on
-  real phones). The style reference is a licensed photo kept in `docs/reference/`, never committed or shipped.
+  route, the selected building and "you are here". The palette is green (above). The style reference is a licensed
+  photo kept in `docs/reference/`, never committed or shipped.
 
 ## Evidence on Hand
 
