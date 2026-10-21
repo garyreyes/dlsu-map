@@ -25,6 +25,9 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   has `gh` 2.96.0, signed in as `garyreyes` with admin on the repo. (2026-10-19)
 - Git converts line endings (`core.autocrlf`), so "LF will be replaced by CRLF" warnings are expected and harmless.
   (2026-10-19)
+- **PowerShell may refuse `npm`** ("npm.ps1 cannot be loaded because running scripts is disabled"): Windows' default
+  execution policy blocks npm's PowerShell shim. Either type `npm.cmd run dev`, or once run
+  `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`. (Charles's laptop, 2026-10-21)
 - Stopping a backgrounded `npx vite` (an AI tool's background task, or closing its Git Bash) can leave its `node`
   running and holding the port. Find it with `netstat -ano | grep :<port>` and stop it with `taskkill //PID <pid> //F`.
   (2026-10-21)
