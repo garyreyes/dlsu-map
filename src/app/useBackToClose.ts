@@ -18,6 +18,8 @@ export function useBackToClose() {
   // pop the page before ours and leave the app.
   const openRef = useRef(false);
   const closingRef = useRef(false);
+  // What closeThen runs once our entry has really been popped.
+  const thenRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const onPop = () => {
@@ -26,6 +28,9 @@ export function useBackToClose() {
       openRef.current = false;
       closingRef.current = false;
       setOpen(false);
+      const then = thenRef.current;
+      thenRef.current = null;
+      then?.();
     };
     window.addEventListener('popstate', onPop);
     return () => {
@@ -51,5 +56,20 @@ export function useBackToClose() {
     }
   }, [id]);
 
-  return { isOpen, open, close };
+  /**
+   * Close, then run `then` once this overlay's history entry is gone. history.back() lands later, so an overlay
+   * opened straight after close() would push its entry first and be the one that Back pops (search → a card, 3c).
+   * While a close is already on its way (a double tap, a held key), further calls are ignored: the first one wins.
+   */
+  const closeThen = useCallback(
+    (then: () => void) => {
+      if (closingRef.current) return;
+      if (openRef.current && currentEntry() === id) thenRef.current = then;
+      close();
+      if (thenRef.current !== then) then();
+    },
+    [id, close],
+  );
+
+  return { isOpen, open, close, closeThen };
 }

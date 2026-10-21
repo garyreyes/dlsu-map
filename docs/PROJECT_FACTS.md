@@ -176,6 +176,20 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   doesn't resolve `@/`, so a value import through it would crash `compile-data` (CI's build step catches
   it). (2026-10-20)
 
+## Search (3c)
+
+- **Recent** lives in `localStorage` under `dlsu-map.recent`: a JSON array, newest first, at most 5, of
+  `{"kind":"room","code":"ST311"}` or `{"kind":"building","slug":"andrew"}`. Canonical codes only, never From.
+  Anything unreadable is dropped on read (`recent.ts`); a room no longer in `rooms.json` simply stops showing.
+  Changing the format means a new key, or `parseRecent` dropping the old entries. (2026-10-21)
+- **uFuzzy can't suggest room codes:** with `intraMode: 1` it returned nothing for `ST350`, `ST904`, `VL599`, even
+  with digits allowed in words, and `uFuzzy.IntraMode` exists only in its `.d.ts` (reading it crashes at load). Hence
+  the one-typo check in `search-results.ts` (D38). (2026-10-21)
+- **`loadCampus()` and `loadRooms()` share their first good load** (search and the map both call them at start). A
+  failure isn't kept, so the next call retries. Passing a fetch always loads afresh (tests). (2026-10-21)
+- **An overlay that opens another on close uses `closeThen`** (`useBackToClose`): `history.back()` lands later, so
+  opening the next overlay straight after `close()` would let Back pop the wrong one. (2026-10-21)
+
 ## Routing
 
 - **Assumptions until 8a maps the real stairs and elevators** (not confirmed, 2026-10-21): every full-tier building

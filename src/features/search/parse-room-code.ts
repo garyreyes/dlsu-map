@@ -10,7 +10,7 @@ const MORE = String.raw`\s*(?:[/-]\s*\d{3,4}[A-Z]?|[/&]\s*[A-Z])`;
 const CODE = new RegExp(String.raw`^([A-Z]*)\s*-?\s*([1-9]\d{2,3})([A-Z]?)(?:${MORE})*$`);
 
 /** Phone keyboards: full-width letters and digits (NFKC), smart dashes, and invisible zero-width characters. */
-function normalize(typed: string): string {
+export function normalize(typed: string): string {
   return typed
     .normalize('NFKC')
     .replace(/[\u2010-\u2015\u2212]/g, '-')
@@ -19,14 +19,14 @@ function normalize(typed: string): string {
     .toUpperCase();
 }
 
-interface PrefixMatch {
+export interface PrefixMatch {
   readonly building: string;
   readonly canonical: string;
   readonly suggestOnly: boolean;
 }
 
 /** An accepted prefix anywhere in the table wins over a suggest-only one (D25). */
-function findPrefix(table: PrefixTable, prefix: string): PrefixMatch | undefined {
+export function findPrefix(table: PrefixTable, prefix: string): PrefixMatch | undefined {
   const accepted = table.find((b) => b.prefixes.includes(prefix));
   if (accepted) return { building: accepted.building, canonical: accepted.prefixes[0], suggestOnly: false };
   const suggested = table.find((b) => b.suggestPrefixes?.includes(prefix));
