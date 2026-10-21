@@ -4,7 +4,7 @@
 import type { Walk } from '../../src/shared/data/campus.ts';
 import type { LonLat } from '../../src/shared/geo/project.ts';
 import type { Feature, Tags } from '../osm-to-geojson.ts';
-import { inRect, pointInRing, type Point, type Rect } from './geometry.ts';
+import { inRect, pointInRing, segmentsCross, type Point, type Rect } from './geometry.ts';
 import { nodeKey, sidewalks, type SidewalkPoint, type Sidewalks } from './sidewalks.ts';
 
 export type WayInfo = Walk['ways'][number];
@@ -178,32 +178,46 @@ function addSidewalks(features: readonly Feature[], ctx: WayContext): void {
   }
 }
 
-/** Whether the straight line p → q stays inside the ring (checked at 9 points along it). */
-const staysInside = (p: Point, q: Point, ring: readonly Point[]) =>
-  [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9].every((t) =>
-    pointInRing([p[0] + t * (q[0] - p[0]), p[1] + t * (q[1] - p[1])], ring),
-  );
+/**
+ * Whether the straight line p → q stays inside the outer ring and out of every hole: checked at 9 points along it,
+ * and against every hole edge, so a thin planter between two checks still blocks it.
+ */
+const staysInside = (p: Point, q: Point, [outer = [], ...holes]: readonly (readonly Point[])[]) =>
+  [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9].every((t) => {
+    const at: Point = [p[0] + t * (q[0] - p[0]), p[1] + t * (q[1] - p[1])];
+    return pointInRing(at, outer) && !holes.some((h) => pointInRing(at, h));
+  }) && !holes.some((h) => h.some((r, i) => segmentsCross(p, q, r, h[(i + 1) % h.length] as Point)));
 
 /**
- * A square (a `highway=pedestrian` area such as Central Plaza): walkable around its edge, and straight across between
- * every two points where a path reaches it, wherever that line stays inside.
+ * A square (a `highway=pedestrian` area such as Central Plaza): walkable around its edge and around every hole in it
+ * (a planter, a kiosk), and straight across between every two points where a path reaches it, wherever that line
+ * stays inside. A square drawn as several polygons (an OSM multipolygon) gets each one.
  */
 function addSquare(f: Feature, entries: ReadonlySet<string>, ctx: WayContext): void {
-  if (f.geometry.type !== 'Polygon' || closed(f.properties.tags)) return;
-  const ring = (f.geometry.coordinates[0] ?? []).slice(0, -1);
-  const meters = ring.map(ctx.toMeters);
-  if (!meters.some((p) => inRect(p, ctx.extent))) return;
+  if (closed(f.properties.tags)) return;
+  const polygons =
+    f.geometry.type === 'Polygon'
+      ? [f.geometry.coordinates]
+      : f.geometry.type === 'MultiPolygon'
+        ? f.geometry.coordinates
+        : [];
   const name = f.properties.tags.name;
-  const w = ctx.b.way({ kind: 'path', ...(name !== undefined && { name }) });
-  const ids = ring.map((c, i) => ctx.b.point(nodeKey(c), meters[i] as Point));
-  ids.forEach((id, i) => {
-    ctx.b.link(id, ids[(i + 1) % ids.length] as number, w);
-  });
-  const open = ring.map((_, i) => i).filter((i) => entries.has(nodeKey(ring[i] as LonLat)));
-  for (const [n, i] of open.entries())
-    for (const j of open.slice(n + 1))
-      if (staysInside(meters[i] as Point, meters[j] as Point, meters))
-        ctx.b.link(ids[i] as number, ids[j] as number, w);
+  for (const polygon of polygons) {
+    const rings = polygon.map((ring) => ring.slice(0, -1));
+    const meters = rings.map((ring) => ring.map(ctx.toMeters));
+    if (!(meters[0] ?? []).some((p) => inRect(p, ctx.extent))) continue;
+    const w = ctx.b.way({ kind: 'path', ...(name !== undefined && { name }) });
+    const open: { id: number; at: Point }[] = [];
+    rings.forEach((ring, r) => {
+      const ids = ring.map((c, i) => ctx.b.point(nodeKey(c), meters[r]?.[i] as Point));
+      ids.forEach((id, i) => {
+        ctx.b.link(id, ids[(i + 1) % ids.length] as number, w);
+        if (entries.has(nodeKey(ring[i] as LonLat))) open.push({ id, at: meters[r]?.[i] as Point });
+      });
+    });
+    for (const [n, p] of open.entries())
+      for (const q of open.slice(n + 1)) if (staysInside(p.at, q.at, meters)) ctx.b.link(p.id, q.id, w);
+  }
 }
 
 /** Every road node's street names, to name crosswalks. */

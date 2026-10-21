@@ -125,10 +125,15 @@ function checkReferences(c: CampusFields, ctx: z.RefinementCtx): void {
   const issue = (path: (string | number)[], message: string) => {
     ctx.addIssue({ code: 'custom', path, message });
   };
+  // A second link between the same two points would quietly replace the first one's cost in the router.
+  const pairs = new Set<string>();
   c.walk.links.forEach(([a, b, way], i) => {
     if (a >= points || b >= points) issue(['walk', 'links', i], `has a point past the last (${String(points)})`);
     if (a === b) issue(['walk', 'links', i], 'joins a point to itself');
     if (way >= c.walk.ways.length) issue(['walk', 'links', i], 'has a way that does not exist');
+    const pair = a < b ? `${String(a)},${String(b)}` : `${String(b)},${String(a)}`;
+    if (pairs.has(pair)) issue(['walk', 'links', i], 'joins two points another link already joins');
+    pairs.add(pair);
   });
   const ids = new Set<string>();
   c.gates.forEach((g, i) => {

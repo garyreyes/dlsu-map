@@ -221,6 +221,80 @@ describe('buildNetwork: squares (pedestrian areas like Central Plaza)', () => {
     expect(linkWay(network, [10, 0], [20, 10])).toBe(-1);
     expect(joined(network, [10, -10], [30, 10])).toBe(true); // still joined, around the edge
   });
+
+  // A 20 × 20 square with paths reaching it at (0, 10) and (20, 10), and a planter (a hole) between them.
+  const holed = (hole: Pt[]) => ({
+    ...area('relation/9', { highway: 'pedestrian', name: 'Plaza' }, [
+      [0, 0],
+      [20, 0],
+      [20, 10],
+      [20, 20],
+      [0, 20],
+      [0, 10],
+    ]),
+    geometry: {
+      type: 'Polygon' as const,
+      coordinates: [
+        [
+          [0, 0],
+          [20, 0],
+          [20, 10],
+          [20, 20],
+          [0, 20],
+          [0, 10],
+          [0, 0],
+        ].map((p) => toLonLat(p as Pt)),
+        [...hole, hole[0] as Pt].map(toLonLat),
+      ],
+    },
+  });
+
+  it.each<[string, Pt[]]>([
+    [
+      'a planter',
+      [
+        [5, 5],
+        [15, 5],
+        [15, 15],
+        [5, 15],
+      ],
+    ],
+    [
+      'a thin planter the straight line would pass between checks',
+      [
+        [10.5, 5],
+        [11.5, 5],
+        [11.5, 15],
+        [10.5, 15],
+      ],
+    ],
+  ])('does not cut across %s, but walks around it', (_, hole) => {
+    const { network } = build(into, outOf, holed(hole));
+    expect(linkWay(network, [0, 10], [20, 10])).toBe(-1);
+    expect(joined(network, [-10, 10], [30, 10])).toBe(true);
+    expect(linkWay(network, hole[0] as Pt, hole[1] as Pt)).toBeGreaterThanOrEqual(0); // the planter's edge
+  });
+
+  it('walks every part of a square drawn as several polygons', () => {
+    const square = (x: number): Pt[] => [
+      [x, 0],
+      [x + 10, 0],
+      [x + 10, 10],
+      [x, 10],
+    ];
+    const ring = (pts: Pt[]) => [...pts, pts[0] as Pt].map(toLonLat);
+    const plaza: Feature = {
+      type: 'Feature',
+      id: 'relation/9',
+      properties: { tags: { highway: 'pedestrian', name: 'Twin Plaza' } },
+      geometry: { type: 'MultiPolygon', coordinates: [[ring(square(0))], [ring(square(100))]] },
+    };
+    const { network } = build(plaza);
+    const way = network.ways.findIndex((w) => w.name === 'Twin Plaza');
+    expect(way).toBeGreaterThanOrEqual(0);
+    expect(linkWay(network, [0, 0], [10, 0])).toBe(way);
+    expect(linkWay(network, [100, 0], [110, 0])).toBe(way);
+  });
 });
 
 // Taft as OSM maps it here: two one-way carriageways, each with `sidewalk=right`, the LRT between them. The
