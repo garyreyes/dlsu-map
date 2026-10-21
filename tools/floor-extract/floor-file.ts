@@ -19,8 +19,11 @@ export function floorOfPhoto(photo: string): { building: string; floor: number }
   return floor >= 1 ? { building: match[1].toLowerCase(), floor } : null;
 }
 
-/** Four decimals is 0.1 mm on a 100 m building; kept inside the schema's 0.1 margin past the sign's edge. */
-const tidy = (n: number) => Math.round(Math.min(1.1, Math.max(-0.1, n)) * 10_000) / 10_000 + 0;
+/** Four decimals is 0.1 mm on a 100 m building. `+ 0` turns -0 into 0. */
+export const fourDecimals = (n: number) => Math.round(n * 10_000) / 10_000 + 0;
+
+/** Kept inside the schema's 0.1 margin past the sign's edge. */
+const tidy = (n: number) => fourDecimals(Math.min(1.1, Math.max(-0.1, n)));
 const line = (s: Segment): number[] => [s.x0, s.y0, s.x1, s.y1].map(tidy);
 
 /** The first floor file for a draft: unchecked, turn 0 until Claude sets it. */

@@ -8,6 +8,24 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-21: floor-extract review, edit and shots
+
+- The STRC cleanup helpers are now `floor-extract` commands, so the other ~66 floors don't depend on scratch files:
+  - `review <floor.json> [--tiles N]`: the file's walls numbered over the straightened photo, hallways in blue, a
+    grid in plan px. Refuses a photo straightened with other corners (its size won't match the file's plan).
+  - `edit <floor.json> <spec.json>`: `{delete, add, hallways}`, indices from the last review, new lines in plan px.
+    Checked against the compiler's schema; refuses a missing or repeated index and a line past the sign rather than
+    squeezing it in, and a spec that changes nothing. A checked floor goes back to `checked: false`. Logic in
+    `edit.ts`, 15 tests written first.
+  - `shots <building>`: compiles the data, starts Vite itself, screenshots P1 for every floor in Edge
+    (`PLAYWRIGHT_CHANNEL` to change). Fails on a page or console error, a failed load, or a request (or socket) to
+    another site, and always stops Vite, even when the browser won't start. 4 STRC floors in about 24 s.
+- `reviewer` pass: `shots` left Vite holding the port if the browser failed to start, would have flagged `data:`
+  URLs as another site, and counted any 404 as expected. All fixed and re-run; `{"delete": []}` is now refused.
+- Dropped the 2D plan-view helper: P1 shows the same fit.
+- `.claude/skills/floor-extract/SKILL.md`: the stale "fit is still unproven" line is gone; steps 5–8 now cover the
+  floor file, `fit.turn`, the review → edit loop with STRC's cleanup rules, `shots`, and the owner's check.
+
 ## 2026-10-21: 6d done: STRC's 4 floors checked
 
 - The owner checked all 4 STRC floors in P1 ("everything looks perfect") and they are now `checked: true`. From here a
