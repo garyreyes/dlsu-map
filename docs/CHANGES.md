@@ -8,6 +8,11 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-21: STRC's labelled floors checked
+
+- The owner looked at STRC's 4 labelled floors in P1 (rooms, doors, stairs, elevator and test routes: "every floor
+  looks good") and they are `checked: true` again, so the build fails if STRC's outline moves under them.
+
 ## 2026-10-21: 8a done: STRC's rooms, doors, stairs and elevator labelled
 
 - **STRC's 4 floors are labelled whole** (D39): all 70 room codes placed with their doors, both stairs on every
