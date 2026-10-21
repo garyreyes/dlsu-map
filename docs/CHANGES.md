@@ -22,6 +22,12 @@ session needs to know. Search this file; it isn't required reading (the reading 
 - `floor-extract floor <photo>`: turns the extract draft into a first floor file. It never overwrites one, since a
   floor file holds cleanup work. No floor files are committed yet; the first ones come with 6d.
 
+## 2026-10-21: D28–D32 agreed
+
+- The team agreed D28 (preview links only), D29 (floor extraction without OpenCV), D30 (16px text, 48px taps), D31
+  (entrances from OSM pins) and D32 (two Taft sidewalks). Marked agreed in DECISIONS; SUMMARY rows added.
+  ARCHITECTURE's header no longer calls D15–D21 proposed (they were agreed on 2026-10-19).
+
 ## 2026-10-21: Floor shape agreed before 6b
 
 - 6b spike: four drafts fitted onto their OSM outlines in all 8 placements. Signs are 7–16% off OSM's proportions,
