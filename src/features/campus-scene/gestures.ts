@@ -1,6 +1,6 @@
 // Gesture maths for the map: no React, no DOM. Screen points are CSS pixels with y growing downward. The touch
 // wiring that feeds these lives in components/useTwistTilt.ts.
-import { COMPASS_MIN_DEG, TILT_PER_SCREEN } from '@/shared/config/camera';
+import { COMPASS_MIN_DEG, TAP_MAX_MOVE, TAP_MAX_MS, TILT_PER_SCREEN } from '@/shared/config/camera';
 
 export interface Point {
   x: number;
@@ -95,6 +95,46 @@ export function createTwoFingerTracker(): TwoFingerTracker {
       tiltFrom = after;
       moved.clear();
       return { twist, tilt };
+    },
+  };
+}
+
+export interface TapTracker {
+  down: (id: number, at: Point, ms: number) => void;
+  /** Every move counts, so a drag that comes back to where it started is still a pan. */
+  move: (id: number, at: Point) => void;
+  /** Where the tap landed, or null when this lift ends a pan, a pinch or something it never saw start. */
+  up: (id: number, at: Point, ms: number) => Point | null;
+  cancel: (id: number) => void;
+}
+
+/**
+ * Tells a tap from a pan or a pinch. Only a lone finger counts, and only if it never strays more than TAP_MAX_MOVE
+ * from where it went down: once a second finger goes down, nothing in that gesture is a tap, even after it lifts.
+ */
+export function createTapTracker(): TapTracker {
+  const down = new Set<number>();
+  let press: { id: number; at: Point; ms: number } | null = null;
+  const strays = (from: Point, to: Point) => Math.hypot(to.x - from.x, to.y - from.y) > TAP_MAX_MOVE;
+
+  return {
+    down(id, at, ms) {
+      down.add(id);
+      press = down.size === 1 ? { id, at, ms } : null;
+    },
+    move(id, at) {
+      if (press?.id === id && strays(press.at, at)) press = null;
+    },
+    up(id, at, ms) {
+      const known = down.delete(id);
+      const p = press;
+      if (!known || p?.id !== id) return null;
+      press = null;
+      return !strays(p.at, at) && ms - p.ms <= TAP_MAX_MS ? at : null;
+    },
+    cancel(id) {
+      down.delete(id);
+      if (press?.id === id) press = null;
     },
   };
 }

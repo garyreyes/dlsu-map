@@ -414,7 +414,12 @@ real phones before choosing:
 | **B. DLSU-branded** | Deep DLSU green | Pale warm white | Gold | Instantly "La Salle"; the green ground mirrors the official map |
 | **C. Quiet** | Light warm grey | White | DLSU green | Calmest and most readable; least distinctive |
 
-**Revisit** after the Phase 2 side-by-side on real phones.
+**Settled (2026-10-21): green.** The owner picked option B's green during 2c: ground `#175f3c`, warm white
+buildings `#f2eee5`, sage paths `#5f9c7c`, roads `#7fb396`, a green haze `#4f9a72`. By then option A had become the
+owner's near-black (like Waze's dark mode) instead of orange. The accent is the interface's Campus Green `#00703c`,
+not B's gold (PRODUCT.md, 2026-10-19); the selected building leans 22% toward it. The `?palette=` preview switch and
+palettes A and C are gone from the app; the colours are `MAP_PALETTE` in `src/shared/config/palette.ts`. **Revisit
+if** labels or the selection tint are hard to read on the green in sunlight.
 
 ---
 
