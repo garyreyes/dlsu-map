@@ -178,7 +178,8 @@ interiors are added one building at a time:
   - **Surrounding city blocks** (OSM footprints within about 300 m, plus Taft Avenue and the LRT line) are drawn in
     the same tone, slightly muted, as one extra non-tappable mesh. They make the campus recognizable from above.
   - **Color carries meaning only:** a single accent color marks the route, the selected building and "you are
-    here". The palette is three tokens in `shared/config/` (D13).
+    here". The palette lives in `shared/config/palette.ts`: a deep green ground with warm white buildings (D13,
+    settled 2026-10-21).
   - **Default camera** matches the official campus map's orientation (Taft Avenue along the bottom), since that's
     how students already picture the campus. A small north arrow shows the real direction.
 - **Render loop:** `frameloop="demand"`. CameraControls, route animation, and the D-pad call `invalidate()`.
@@ -193,7 +194,8 @@ interiors are added one building at a time:
      current floor only.
   3. **Enter transition:** animate the plane from the roof down to `floorY + 1.2` over about 600 ms while the camera
      tilts in. This is the signature moment of the app.
-  4. Wall caps: draw the backfaces in a darker tone (`side: DoubleSide`) so cut walls read as solid.
+  4. Wall caps: each wall is a 0.2 m thick box, not a flat panel (D37), so a cut wall reads as solid with no
+     darker-backface trick.
   5. Floors below show as flat outlines only (no transparency, which avoids sorting cost and overdraw).
 - **Labels:** drei `<Text>` only for the current floor's rooms, hidden below a zoom threshold. Show only the selected
   room when zoomed out.
@@ -423,7 +425,7 @@ access only via `shared/data`. Added rule: **feature folders only import from `s
 
 1. **Approve the folder structure** in section 8 (the handover requires this before code).
 2. **Confirm D1–D13** in `docs/DECISIONS.md` (or push back on any of them).
-3. **Pick the palette** for the massing-model look (D13, options A/B/C).
+3. ~~**Pick the palette** for the massing-model look (D13, options A/B/C).~~ Green, 2026-10-21.
 4. **Which extra buildings** from the official map v1 should show (D6).
 5. Start collecting **real phrases** classmates would type (English, Filipino, Taglish), even 20–30 to begin with.
 6. **Get the room-code prefixes** from the enlistment/class-schedule system. That's online, so it doesn't need the

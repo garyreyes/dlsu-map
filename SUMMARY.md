@@ -94,8 +94,7 @@ There is no backend, database, account system or analytics. The app is static fi
 - **The interface works like Google Maps:** a full-screen map, a floating search bar, one bottom sheet, round map
   buttons. One fixed green marks the selection, the found floor and "you are here". No Google or DLSU marks.
 - **The map is a "massing model"** (D13): every building one pale colour shaped by light, on a flat ground with thin
-  paths. The default ground is near-black, like Waze's dark mode; the final palette is settled on real phones in
-  Phase 2. Details: `docs/DESIGN.md`.
+  paths. The ground is deep green with warm white buildings (D13, settled 2026-10-21). Details: `docs/DESIGN.md`.
 - **Signature:** the found room's floor drawn as a green band around the building, with a floor chip.
 
 ### Key techniques
@@ -113,7 +112,7 @@ code (it loads three.js from a CDN, which the real app must not do).
 ## Key decisions (short version)
 
 Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24 were agreed by the team on
-2026-10-19, D25–D27 and D33 on 2026-10-20, D28–D32 and D34–D36 on 2026-10-21.
+2026-10-19, D25–D27 and D33 on 2026-10-20, D28–D32 and D34–D37 on 2026-10-21.
 
 | # | Decision | Why |
 |---|---|---|
@@ -129,7 +128,7 @@ Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24
 | D10 | **Web app (PWA)**, not an app store download | Free, iPhone and Android, offline after first open |
 | D11 | **Zero cost.** Only Claude Code is paid | Free tiers only, no credit card on any service |
 | D12 | ~~Outdoor first, interiors later~~ | Replaced by D15: the campus is accessible |
-| D13 | **"Massing model" map look**; palette settled in Phase 2 | Matches the style reference, cheap to render |
+| D13 | **"Massing model" map look** on a green ground (palette settled 2026-10-21) | Matches the style reference, cheap to render |
 | D14 | **Live GPS outdoors**: moved to *later*, not v1 | Keeps v1 simpler |
 | D15 | **v1 includes full interiors** | Campus is accessible; one complete product |
 | D16 | **Plain From / To fields**, no sentence parser or AI model | Explicit fields remove the guessing |
@@ -153,6 +152,7 @@ Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24
 | D34 | **Routes cost seconds**: walk 1.3 m/s, +45 s per Taft crossing, stairs 20 s a floor, elevator 3 min + 5 s a floor | One number weighs walking, waiting and floors; the time shown is real time |
 | D35 | **Steps only where there's a choice**: turns at junctions, jogs under 15 m merged; a turn names the way, the covered walk, or a building within 20 m | A step every few meters on OSM's zigzags is noise |
 | D36 | **Floors are stretched onto the OSM outline** by the compiler; which way round (`fit.turn`) is set by hand | Signs are 7–16% off OSM's proportions, and the outline can't tell a sign from itself turned 180° |
+| D37 | **Indoor walls are 0.2 m thick boxes**, centred on the traced line, ends run on 0.1 m | Solid from the angled camera and when 7a's clipping plane cuts a floor open; no hairline end-on |
 
 ### Things we chose *not* to do
 
@@ -174,7 +174,7 @@ knows (data, room codes, routing, floor plans).
 |---|---|
 | 0. Gate 0 | Plan and D15–D24 agreed, GitHub CLI on both laptops, Cloudflare account. No code |
 | 1. Skeleton | Project setup, Cloudflare previews, security headers, app shell, basic offline |
-| 2. Outdoor campus | OSM snapshot, data compiler, the massing-model scene, palette settled on real phones |
+| 2. Outdoor campus | OSM snapshot, data compiler, the massing-model scene, palette settled (green) |
 | 3. Rooms + search | Room-code parser, STRC room list, search with "Did you mean", room card |
 | 4. Outdoor routing | Walkway graph, A*, step directions |
 | 5. Where are you + route player | "Where are you?", route preview, step list, Next/Back player |
@@ -192,7 +192,6 @@ knows (data, room codes, routing, floor plans).
 - **Floor labels per building:** STRC calls its ground floor "G" (rooms 1xx). Confirm for each building from its
   directory.
 - **Fitting floor plans onto OSM outlines** is unproven until the OSM snapshot exists (Phase 6).
-- **Map palette:** near-black (current default), DLSU green, or quiet grey. Decided on real phones in Phase 2.
 - **Facilities:** may we publish floor plans traced from the evacuation maps? Needed before the public launch, not
   before the beta.
 - **Who takes which lane** in `docs/SPLIT.md` is proposed, not agreed.

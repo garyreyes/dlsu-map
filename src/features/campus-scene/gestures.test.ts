@@ -3,6 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   angleDelta,
+  createTapTracker,
   createTwoFingerTracker,
   headingDeg,
   lineAngle,
@@ -10,6 +11,7 @@ import {
   tiltDelta,
   type Point,
 } from './gestures';
+import { TAP_MAX_MOVE, TAP_MAX_MS } from '@/shared/config/camera';
 
 const close = (actual: number, expected: number) => {
   expect(actual).toBeCloseTo(expected, 10);
@@ -160,5 +162,78 @@ describe('createTwoFingerTracker', () => {
     t.down(1, p(0, 0));
     t.down(2, p(100, 0));
     expect(t.move(9, p(5, 5), H)).toStrictEqual({ twist: 0, tilt: 0 });
+  });
+});
+
+// A tap selects a building; anything else is the map being moved. If a pan's end counted as a tap, every drag would
+// open a card; if a real tap didn't count, buildings couldn't be picked. Each case pins which one it is.
+describe('createTapTracker', () => {
+  it('counts a press that barely moves and lifts quickly as a tap, at the lift point', () => {
+    const t = createTapTracker();
+    t.down(1, p(100, 200), 0);
+    expect(t.up(1, p(103, 204), 120)).toStrictEqual(p(103, 204));
+  });
+
+  it(`still counts a move of exactly TAP_MAX_MOVE px held for TAP_MAX_MS`, () => {
+    const t = createTapTracker();
+    t.down(1, p(0, 0), 1000);
+    expect(t.up(1, p(TAP_MAX_MOVE, 0), 1000 + TAP_MAX_MS)).toStrictEqual(p(TAP_MAX_MOVE, 0));
+  });
+
+  it('treats a press that moved further as a pan', () => {
+    const t = createTapTracker();
+    t.down(1, p(0, 0), 0);
+    expect(t.up(1, p(TAP_MAX_MOVE + 1, 0), 100)).toBeNull();
+  });
+
+  it('treats a drag that wanders off and comes back as a pan, not a tap', () => {
+    const t = createTapTracker();
+    t.down(1, p(0, 0), 0);
+    t.move(1, p(40, 0));
+    t.move(1, p(2, 0));
+    expect(t.up(1, p(0, 0), 200)).toBeNull();
+  });
+
+  it('still counts a press that only trembles within TAP_MAX_MOVE', () => {
+    const t = createTapTracker();
+    t.down(1, p(0, 0), 0);
+    t.move(1, p(TAP_MAX_MOVE, 0));
+    t.move(1, p(0, -TAP_MAX_MOVE));
+    expect(t.up(1, p(1, 1), 200)).toStrictEqual(p(1, 1));
+  });
+
+  it('treats a press held too long as not a tap', () => {
+    const t = createTapTracker();
+    t.down(1, p(0, 0), 0);
+    expect(t.up(1, p(0, 0), TAP_MAX_MS + 1)).toBeNull();
+  });
+
+  it('never counts a pinch or twist as a tap, whichever finger lifts first', () => {
+    const t = createTapTracker();
+    t.down(1, p(0, 0), 0);
+    t.down(2, p(50, 0), 10);
+    expect(t.up(2, p(50, 0), 60)).toBeNull();
+    expect(t.up(1, p(0, 0), 80)).toBeNull();
+  });
+
+  it('starts fresh after a pinch: the next single press can be a tap', () => {
+    const t = createTapTracker();
+    t.down(1, p(0, 0), 0);
+    t.down(2, p(50, 0), 10);
+    t.up(1, p(0, 0), 60);
+    t.up(2, p(50, 0), 70);
+    t.down(3, p(10, 10), 500);
+    expect(t.up(3, p(10, 10), 550)).toStrictEqual(p(10, 10));
+  });
+
+  it('drops a press the browser cancelled', () => {
+    const t = createTapTracker();
+    t.down(1, p(0, 0), 0);
+    t.cancel(1);
+    expect(t.up(1, p(0, 0), 50)).toBeNull();
+  });
+
+  it('ignores a lift it never saw go down', () => {
+    expect(createTapTracker().up(7, p(0, 0), 10)).toBeNull();
   });
 });

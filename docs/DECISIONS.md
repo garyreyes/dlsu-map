@@ -414,7 +414,12 @@ real phones before choosing:
 | **B. DLSU-branded** | Deep DLSU green | Pale warm white | Gold | Instantly "La Salle"; the green ground mirrors the official map |
 | **C. Quiet** | Light warm grey | White | DLSU green | Calmest and most readable; least distinctive |
 
-**Revisit** after the Phase 2 side-by-side on real phones.
+**Settled (2026-10-21): green.** The owner picked option B's green during 2c: ground `#175f3c`, warm white
+buildings `#f2eee5`, sage paths `#5f9c7c`, roads `#7fb396`, a green haze `#4f9a72`. By then option A had become the
+owner's near-black (like Waze's dark mode) instead of orange. The accent is the interface's Campus Green `#00703c`,
+not B's gold (PRODUCT.md, 2026-10-19); the selected building leans 22% toward it. The `?palette=` preview switch and
+palettes A and C are gone from the app; the colours are `MAP_PALETTE` in `src/shared/config/palette.ts`. **Revisit
+if** labels or the selection tint are hard to read on the green in sunlight.
 
 ---
 
@@ -877,12 +882,12 @@ already taken). Bake lon/lat GeoJSON into the floor file (opens in geojson.io, b
 the photo, and a new snapshot means re-fitting by hand). **Revisit if** a square-ish building needs a quarter turn
 (add 90 and 270), or if measuring on site shows the signs, not OSM, have the right proportions.
 
-## D37. Indoor walls are 0.2 m thick boxes, not flat panels (2026-10-21, proposed)
+## D37. Indoor walls are 0.2 m thick boxes, not flat panels (2026-10-21, agreed)
 
 **Problem.** Floor files give each wall as a line with no thickness (D36). PLAN §5 sketched indoor walls as flat
 panels, with backfaces drawn darker so a cut wall reads as solid. The floor builder (6c) has to pick one.
 
-**Decision (proposed).** (Owner's answer, 2026-10-21.) Each wall segment becomes a box 0.2 m thick, centred on the
+**Decision.** (Owner's answer, 2026-10-21.) Each wall segment becomes a box 0.2 m thick, centred on the
 traced line, with two sides, two ends and a top. Each end runs on by 0.1 m so walls meeting at a corner close it.
 From the angled camera, walls read as solid and a wall seen end-on doesn't vanish into a hairline, and when 7a's
 clipping plane slices a floor open, the cut walls still look solid without a backface trick.

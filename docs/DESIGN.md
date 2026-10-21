@@ -254,9 +254,8 @@ boxes. The signature is the found floor drawn as a solid green band one storey t
 floor chip beside it.
 
 The app ships the light interface only (1c); the dark tokens are kept for a later night mode (ROADMAP notes).
-The map palette is still open between D13 options B green and C grey and the owner's black (A, like Waze's dark
-mode, which replaced D13's orange); the prototype ships A as the default and a switcher in the info sheet. The
-interface never changes with it.
+The map palette is settled on B, green (D13, 2026-10-21). The prototype still ships A as its default and a switcher
+in the info sheet; the app has only green. The interface never changes with the map palette.
 
 **Key Characteristics:**
 
@@ -305,6 +304,8 @@ drawn unlit, so the swatch in the info sheet is exactly the colour on screen.
   paths and roads. Off-campus blocks lean 40% toward the ground.
 - **B, Green** (`map-b-*`): deep green ground, warm white blocks, sage paths. Off-campus blocks lean 50%.
 - **C, Grey** (`map-c-*`): light grey ground, near-white blocks, white paths. Off-campus blocks lean 32%.
+
+The app uses **B** only (D13, settled 2026-10-21). A and C stay here because the prototype still has them.
 
 ### Named Rules
 
@@ -554,7 +555,7 @@ band.
 - **Don't** add entrance animations or motion that delays reading.
 - **Don't** copy prototype-only scaffolding into the real app: three.js r147 and its OrbitControls from a CDN (the
   app self-hosts React Three Fiber and works offline), the sample rooms and their "Sample room" marker, the D13
-  palette switcher (remove once the palette is decided), the "Prototype:" notes and the Start toast, and the
+  palette switcher (the palette is decided: green), the "Prototype:" notes and the Start toast, and the
   label-collision width estimate.
 - **Don't** add new text roles below 16px or tap targets below 48px (D30). Only the Beta tag and the OSM credit
   sit at 14px.

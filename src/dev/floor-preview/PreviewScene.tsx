@@ -9,7 +9,7 @@ import { entrancesOf, frameOf, outlinesAt, type Ring } from './view';
 
 /** The OSM outline the floor was fitted to (D36), and the main-entrance pin: the two things a wrong turn shows up
  *  against. Picked to stand apart from the map palette, since this page is a tool, not the map. */
-const OUTLINE = '#3ecf7a';
+const OUTLINE = '#ffd54a';
 const SLAB = '#232b27';
 const MAIN_PIN = '#fb8c00';
 const SIDE_PIN = '#c9a46a';

@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber';
 import { useEffect, useState } from 'react';
-import { MAP_PALETTES, DEFAULT_PALETTE } from '@/shared/config/palette';
+import { MAP_PALETTE } from '@/shared/config/palette';
 import type { Campus, CampusBuilding } from '@/shared/data/campus';
 import type { Indoor, IndoorFloor } from '@/shared/data/indoor';
 import { PreviewScene } from './PreviewScene';
@@ -111,7 +111,7 @@ function Page({ campus, floors, building, indoor, current, onPick }: PageProps) 
             indoor={indoor}
             floor={current.floor}
             base={current.base}
-            palette={MAP_PALETTES[DEFAULT_PALETTE]}
+            palette={MAP_PALETTE}
           />
         </Canvas>
       </div>
@@ -159,7 +159,7 @@ function Summary({ name, floor }: { name: string; floor: IndoorFloor }) {
       {floor.checked ? 'checked' : 'not checked yet'}.{' '}
       {floor.checked
         ? 'It passed your check.'
-        : `If the walls sit in the green outline, the blue hallway runs down the middle and the orange main-entrance pin is at the right end (the white arrow points north), tell Claude "${name} looks right".`}
+        : `If the walls sit in the yellow outline, the blue hallway runs down the middle and the orange main-entrance pin is at the right end (the white arrow points north), tell Claude "${name} looks right".`}
     </p>
   );
 }
