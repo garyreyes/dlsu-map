@@ -2,8 +2,9 @@ import { useEffect, useMemo } from 'react';
 import { BufferAttribute, BufferGeometry, Color } from 'three';
 import type { Campus } from '@/shared/data/campus';
 import { CITY_OPACITY, type MapPalette } from '@/shared/config/palette';
+import { ribbonPositions } from '@/shared/three/ribbons';
 import { buildMassing, type Massing } from '../massing';
-import { RIBBON_WIDTH, ribbonPositions, viaductBlocks } from '../ribbons';
+import { RIBBON_WIDTH, viaductBlocks } from '../ribbons';
 
 type Lines = readonly (readonly number[])[];
 
