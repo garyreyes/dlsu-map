@@ -8,6 +8,11 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-21: D37 agreed
+
+- Charles agreed D37 (indoor walls as 0.2 m thick boxes, proposed by Gary with 6c). Marked agreed in DECISIONS;
+  SUMMARY row added.
+
 ## 2026-10-21: 6d STRC floors cleaned up
 
 - All 4 STRC floor files cleaned up against their photos (now 128, 106, 91 and 97 walls): stair treads and stringers
