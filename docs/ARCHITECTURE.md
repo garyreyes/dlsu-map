@@ -88,8 +88,9 @@ Building 1---* Opening(kind=main|side|back) ---> Walkway network ---> Gate
 - Every room's floor exists, and its floor number matches `number ÷ 100` unless the room is marked as found on
   another floor, like a mezzanine (D26).
 - Every room is reachable from every main entrance (graph check).
-- Every door is within 3 m of a hallway line.
-- Every `servesFloors` value is a real floor of that building.
+- Every door, stair and elevator is within 3 m of a hallway line; every entrance within 5 m of the G hallway (D39).
+- Every `servesFloors` value is a real floor of that building, and each labelled floor places every room and
+  vertical that is on it (D39).
 - Every floor file sits in its building's folder, is named for its floor (`03.json`), and that floor exists (D36).
 - Every `tier: "full"` building has a room list and a `checked: true` floor file for every floor (**public launch
   gate only**; the beta build warns instead).
@@ -100,7 +101,7 @@ Building 1---* Opening(kind=main|side|back) ---> Walkway network ---> Gate
 |---|---|---|
 | `campus.json` | Buildings, outdoor meshes' source data, outdoor graph, data version hash | — |
 | `rooms.json` | Every room: code → building, floor, name, position | Map keyed by canonical code; the search index is built on the phone (D38) |
-| `buildings/<slug>.json` | One building's floors in meters (walls, hallways; 6b), then verticals and indoor graph (8a) | Loaded when the route enters the building |
+| `buildings/<slug>.json` | One building's floors in meters (walls, hallways; 6b), its indoor graph, rooms (label, doors), stairs and elevators, entrances (8a, D39) | Loaded when the route enters the building |
 
 All are precached for offline use. Budget: under 15 MB total.
 

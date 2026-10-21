@@ -8,6 +8,29 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-21: 8a part 1: the indoor graph and its build checks
+
+- **Floor files** can now carry `rooms` (codes, label, doors) and `verticals` (id, point), in sign coordinates, and
+  a building gets `data-src/floors/<building>/verticals.json` (each stair and elevator with its `servesFloors`).
+  Both optional: today's STRC files build unchanged. No floor is labelled yet; STRC's labels are 8a part 2.
+- **`buildings/<slug>.json`** gains `graph`, `rooms`, `verticals` and `entrances` (`shared/data/indoor.ts`, D39
+  proposed). The schema rejects a link to a missing point, a door on another floor's point, a stop on a floor the
+  vertical doesn't serve and a repeated link. Sample updated; Lane A's indoor-view tests still pass on it.
+- **The graph** (`scripts/compile/indoor-graph.ts`): hallway lines joined where they cross or where one ends within
+  1 m of another; each door, stair, elevator and entrance linked to its floor's nearest hallway point; stairs and
+  elevators link their stops floor to floor, straight past a floor an elevator skips.
+- **Build checks** (`indoor-links.ts`): a code not on that floor's room list, a room left out of a labelled floor, a
+  door or vertical over 3 m from a hallway, an entrance over 5 m from the G hallway (STRC's main pin is 2.3 m), a
+  vertical past the top floor, on a floor it doesn't serve or missing from one it does, and a room the main entrance
+  can't reach. The compile report notes a floor whose hallways are in pieces: STRC 1F is in 2.
+- Tests first: 12 for the graph, 18 for the checks, 27 for the two schemas, 3 through the fit. 1010 tests in all.
+- `reviewer` pass: a stair or elevator joined its hallway by a same-floor `stairs`/`elevator` link, which 8b
+  would have charged as a floor change. Now that link is `hall`, and the schema holds that only stairs and elevator
+  links join two floors, and always do. Also: an error when G is traced but there's no main entrance to check from,
+  no "Infinity m" in the entrance message, and the schema checks stop order, unique vertical ids and that every point
+  and room is on a floor in the file. **Known limit:** a hallway line that doubles back within 1 m of itself gets a
+  shortcut across the gap; watch for it in cleanup (the evacuation routes so far don't).
+
 ## 2026-10-21: 3c done: the Search screen (S2) and Recent
 
 - Typing in S2 now finds rooms and buildings as you type (user-flows §3.3): `ST311`, `st 311`, `C-311` (with "Also
