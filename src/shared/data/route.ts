@@ -1,6 +1,6 @@
 // The route meeting point between the lanes (docs/SPLIT.md): Lane B's router (4b, `src/features/routing/`) returns a
-// RouteResult, and Lane A's route preview, steps list and player (5b–5d) show it. 4c adds step text and 8b adds
-// indoor legs, both as new fields or new leg kinds, never by changing these. Costs: `src/shared/config/routing.ts`.
+// RouteResult, and Lane A's route preview, steps list and player (5b–5d) show it. 4c added `steps`; 8b adds indoor
+// legs and steps, both as new fields or new kinds, never by changing these. Costs: `src/shared/config/routing.ts`.
 import type { Campus } from './campus.ts';
 import type { Rooms } from './rooms.ts';
 
@@ -61,10 +61,56 @@ export type Leg =
       readonly seconds: number;
     };
 
+/** A turn's side and size (PLAN §6.3): slight 30–60°, a turn 60–135°, sharp over 135°. Under 30° is straight on, which
+ *  is never a step. */
+export type Turn = 'slight-left' | 'left' | 'sharp-left' | 'slight-right' | 'right' | 'sharp-right';
+
+interface StepBase {
+  /** One line for the step card (S6) and the list (S8, S11): "Turn left onto SJ Walk". No distance; that's `meters`.
+   *  Ends with "(approximate)" when the door isn't checked yet (O6). */
+  readonly text: string;
+  /** Which of `Route.legs` the step belongs to. */
+  readonly leg: number;
+}
+
+/** Where a walk step happens, and how far to walk after it. */
+interface WalkStepBase extends StepBase {
+  /** Where the camera looks: the gate or door, the turn, the curb. */
+  readonly at: XY;
+  /** To the next step, rounded for showing: to 5 m under 100 m, to 10 m from there (D35). */
+  readonly meters: number;
+}
+
+/** The directions (4c, D35), in order. A step is where the student has a choice: a turn at a junction, a crossing, a
+ *  door, a floor change. Bends with no other way to go aren't steps. */
+export type Step =
+  /** "Start at Gate 1 (South)", "Leave Velasco by the main entrance (approximate)". */
+  | (WalkStepBase & { readonly kind: 'start'; readonly approximate?: true })
+  /** "Turn left onto SJ Walk", "Bear right onto the covered walk", "Turn sharp left at Velasco", "Turn right". */
+  | (WalkStepBase & { readonly kind: 'turn'; readonly turn: Turn })
+  /** "Cross Taft Avenue at the crosswalk". `at` is the curb it starts from. */
+  | (WalkStepBase & { readonly kind: 'cross'; readonly street: string })
+  /** "Enter STRC by the main entrance (approximate)". The last step of a walk. */
+  | (StepBase & {
+      readonly kind: 'enter';
+      readonly building: string;
+      readonly at: XY;
+      readonly approximate?: true;
+    })
+  /** "Take the elevator down to G", "ST311 is on 3F: take the stairs up to 3F". Matches its floors leg. */
+  | (StepBase & {
+      readonly kind: 'floors';
+      readonly building: string;
+      readonly to: number;
+      readonly by: 'stairs' | 'elevator';
+    });
+
 export interface Route {
   /** In order: down in the From building, the walk, up in the To building. Within one building there is only a
    *  floors leg; on the room's own floor there are no legs (indoor walking comes in 8b). */
   readonly legs: readonly Leg[];
+  /** The directions over all the legs. Empty when there are no legs. */
+  readonly steps: readonly Step[];
   /** Walked, summed over the legs. Whole meters. */
   readonly meters: number;
   /** The time estimate (S5: "about 4 min"), summed over the legs. Whole seconds. */

@@ -121,7 +121,8 @@ function done(legs: readonly Leg[]): RouteResult {
   const rounded = legs.map((l) =>
     l.kind === 'walk' ? { ...l, meters: Math.round(l.meters), seconds: Math.round(l.seconds) } : l,
   );
-  return { ok: true, route: { legs: rounded, meters: Math.round(meters), seconds: Math.round(seconds) } };
+  // 4c's directions fill `steps` (the next PR, `4c-direction-text`); until then a route has none.
+  return { ok: true, route: { legs: rounded, steps: [], meters: Math.round(meters), seconds: Math.round(seconds) } };
 }
 
 const compact = (legs: readonly (Leg | null)[]): Leg[] => legs.filter((l) => l !== null);

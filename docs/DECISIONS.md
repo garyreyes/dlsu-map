@@ -793,7 +793,7 @@ if the rooms in between are listed elsewhere on it, the dash means "and". (Owner
 
 ---
 
-## D34. Routing costs in seconds, and which doors a route uses (2026-10-21, proposed)
+## D34. Routing costs in seconds, and which doors a route uses (2026-10-21, agreed)
 
 **Problem.** 4b needs one number to minimize that weighs walking, waiting at Taft and changing floors against each
 other. The S5 time estimate needs the same numbers. And until floor plans exist (8b), the router can't know which
@@ -816,3 +816,30 @@ door is nearest a room inside.
 (rejected: most aren't covered); main entrances only until 8b (simple, but sends students round to the front past a
 side door); any door from G too (ignores the PRD's spot default). **Revisit** with time-of-day elevator costs (PRD
 Could) or once 8b gives indoor distances.
+
+---
+
+## D35. Which bends become a step, and what a turn step names (2026-10-21, proposed)
+
+**Problem.** 4c turns a walk into steps (PLAN §6.3). The real walk network bends often: Gate 1 → ST311 is 428 m with 9
+bends over 30°, and between the Taft sidewalk and STRC alone it zigzags 7 times in a short stretch (path, covered
+walk, Fidel A. Reyes Street, path, covered walk, Fidel A. Reyes Street). A step at every bend means pressing Next
+every few meters. And a turn step needs a name for *which* turn, from data that only has way names, a covered flag and
+building outlines.
+
+**Decision.** (Owner's answers, 2026-10-21.)
+
+- **A step only where there's a choice:** a turn at a junction (a walk point with three or more links), a crossing
+  and a door. A bend with no other way to go is no step; the previous step's distance covers it.
+- **Jogs merge:** turns less than **15 m** apart become one, using the overall change of direction. Under **30°** it is
+  straight on and no step. The size follows PLAN §6.3: slight 30–60° ("Bear left"), turn 60–135°, sharp over 135°.
+- **A turn names the first of these that exists:** the name of the way turned onto ("Turn left onto SJ Walk"); else
+  "the covered walk" if it is covered; else a building within **20 m** of the turn, by its short name ("Turn right at
+  Velasco"); else nothing ("Turn right"). Block-tier buildings count.
+- Distances are rounded for showing: to 5 m under 100 m, to 10 m from there.
+
+**Alternatives.** A step at every bend over 60° (PLAN's literal wording; the zigzag alone becomes 4–5 steps); a step
+only where the way's name changes (fewest steps, but a real choice on an unnamed path gets none). For names: buildings
+only (students know them better than OSM's inner street names, but "at Velasco" is vaguer than "onto SJ Walk"); no
+landmarks in v1 (weakest for text-only mode). **Revisit** if beta testers don't recognise the inner-campus street
+names (Kalayaan, Bagong Lipunan, Kasaganaan): then drop way names for `path` ways and keep them for streets.

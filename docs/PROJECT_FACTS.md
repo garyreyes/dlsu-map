@@ -43,6 +43,10 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - **ESLint and `tsc` 7 can disagree on narrowing.** ESLint (TS 6 API) flags an `as` cast or `?? x` as unnecessary that
   `tsc` 7 then needs, or the reverse. Write an explicit guard (`if (!a) return;`) that both accept instead of
   toggling the cast. (2026-10-20)
+- **Adding a dependency on Charles's laptop churns the lockfile.** `npm install` there (npm 11.19) strips the
+  `"peer": true` flags from entries Gary's npm wrote, so the diff touches dozens of unrelated packages. What worked in
+  4b: keep main's `package-lock.json`, splice in only the new packages' entries by hand, then `npm ci` and
+  `npm ls --all` to prove the lock is whole. (2026-10-21)
 - **Line endings:** `.gitattributes` forces LF in the working copy on every OS. Without it, Windows checkouts get CRLF
   and `prettier --check` fails locally while passing in Linux CI. (2026-10-19)
 - **Layer rules** (`eslint.boundaries.js`) use built-in ESLint rules only. They cover static and dynamic `import()`,

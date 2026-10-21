@@ -5,7 +5,7 @@
 //        |  100 m path                  |  90 m path
 //   g1 (gate) 0,0 ------ 100 m path ---- B (beta main) 100,0          gamma: an island far away; delta: no doors
 import { describe, expect, it } from 'vitest';
-import type { From, To } from '@/shared/data/route';
+import type { From, Router, To } from '@/shared/data/route';
 import { fixtureCampus, fixtureRooms } from './fixture';
 import { createRouter } from './router';
 
@@ -36,7 +36,14 @@ const rooms = fixtureRooms(
   ['BE101', 'beta', 1],
   ['BE301', 'beta', 3],
 );
-const route = createRouter(campus, rooms);
+/** The legs and totals only: the steps are 4c's, tested in `directions.test.ts`. */
+const router = createRouter(campus, rooms);
+const route = (...args: Parameters<Router>) => {
+  const result = router(...args);
+  if (!result.ok) return result;
+  const { legs, meters, seconds } = result.route;
+  return { ok: true, route: { legs, meters, seconds } } as const;
+};
 
 const gate = { kind: 'gate', gate: 'g1', name: 'Gate g1', at: [0, 0] } as const;
 const alphaMain = { kind: 'door', building: 'alpha', door: 'main', verified: false, at: [0, 100] } as const;

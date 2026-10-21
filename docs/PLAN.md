@@ -252,9 +252,9 @@ tutorial.
    "elevator"), and a **Did you mean** list from uFuzzy when parsing fails.
 5. **Route preview:** the camera does `fitToBox(route)` and the sheet shows a summary. Changing anything under
    **Route options** re-routes instantly:
-   - **Stairs / Auto / Elevator** (this route only). **Auto** picks whichever is cheaper under the cost constants
-     in config: stairs ≈ 15 m-equivalent per floor, elevator ≈ 30 m wait + 3 m per floor. With those defaults,
-     Auto takes the elevator for 3 or more floors.
+   - **Stairs / Auto / Elevator** (this route only). Costs are in seconds (D34, which replaces the meter-equivalents
+     first written here): stairs 20 s a floor, elevator 3 min wait + 5 s a floor. **Auto** takes the elevator for 3
+     or more floors.
    - **Exit:** main by default, or another exit of the building.
 6. **Step mode:** the sheet turns into a step carousel (swipe or Next/Back). Each step is an icon, one line of text,
    and a distance. The camera flies to each step. Indoor and outdoor views switch automatically at entrance and exit
@@ -265,7 +265,7 @@ tutorial.
 ### 6.3 Direction text (generated, not hand-written)
 
 - Collapse straight runs, then classify the turn angle at each node: straight under 30°, slight 30–60°, turn 60–135°,
-  sharp over 135°.
+  sharp over 135°. Only junctions are steps, and jogs under 15 m apart merge (D35, proposed).
 - Attach the nearest labelled feature as a landmark: "Turn left after **CR**", "Pass **B310** on your right".
 - Special node types produce special text: verticals ("Take the elevator to **5F**"), exits ("Exit via the
   **main entrance**"), crossings ("Cross **Taft Ave** at the crosswalk"), bridges.
