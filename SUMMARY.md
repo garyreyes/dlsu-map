@@ -70,7 +70,7 @@ All open source with permissive licenses, mostly MIT. Full table: `docs/ARCHITEC
 | 3D | **three.js** via **React Three Fiber** + **drei** |
 | State / validation | **Zustand** / **Zod** |
 | Route finding | **ngraph.path** (A* over hallways, walkways, stairs, elevators) |
-| Search | Our room-code parser, **uFuzzy** for "Did you mean", **cmdk** lists |
+| Search | Our room-code parser, a one-typo check for "Did you mean", plain lists (D38) |
 | Offline | **vite-plugin-pwa** (service worker caches everything) |
 | Floor extraction (dev only) | **opencv-js + sharp**: evacuation-map photo → draft floor plan |
 | Quality | **Vitest**, **Playwright**, **ESLint + Prettier**, Husky, one GitHub Actions gate (`gates`) |

@@ -3,7 +3,17 @@
 import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { MapInsets } from '@/features/campus-scene';
 import { MapDidntDownload, OpenOnceOnline, SavingLine, useOfflineStatus } from '@/features/offline';
-import { BuildingCard, HomeHint, SearchPill, SearchScreen } from '@/features/search';
+import {
+  BuildingCard,
+  HomeRecent,
+  RoomCard,
+  SearchPill,
+  SearchScreen,
+  useRecent,
+  useSearchData,
+  type Hit,
+  type RoomHit,
+} from '@/features/search';
 import type { CampusBuilding } from '@/shared/data/campus';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import { LOADING_MAP, MapMessage } from '@/shared/ui/MapMessage';
@@ -25,6 +35,11 @@ const DEV_LINK = import.meta.env.DEV && new URLSearchParams(window.location.sear
 /** Wide screens: the left panel's right edge (16px gutter + 400px) plus 8px of air. */
 const PANEL_EDGE = 16 + 400 + 8;
 
+/** What the card shows: a building tapped on the map or picked in search, or a room picked in search (3c). */
+type Picked =
+  | { kind: 'building'; building: Pick<CampusBuilding, 'slug' | 'short' | 'name' | 'tier'> }
+  | { kind: 'room'; room: RoomHit };
+
 export function App() {
   const wide = useIsWide();
   const search = useBackToClose();
@@ -32,11 +47,12 @@ export function App() {
   const [pillBottom, setPillBottom] = useState(62);
   const [sheetHeight, setSheetHeight] = useState(96);
   const offline = useOfflineStatus();
-  // The building card is an overlay the phone's Back closes. The building stays set after it closes, but only
-  // counts as selected while the card is open.
+  // The card is an overlay the phone's Back closes. What it shows stays set after it closes, but only counts as
+  // selected while the card is open.
   const card = useBackToClose();
-  const [building, setBuilding] = useState<CampusBuilding | null>(null);
-  const selected = card.isOpen ? building : null;
+  const [picked, setPicked] = useState<Picked | null>(null);
+  const selected = card.isOpen ? picked : null;
+  const selectedSlug = selected && (selected.kind === 'room' ? selected.room.building.slug : selected.building.slug);
   const { open: openCard, close: closeCard } = card;
   const select = useCallback(
     (b: CampusBuilding | null) => {
@@ -44,10 +60,31 @@ export function App() {
         closeCard();
         return;
       }
-      setBuilding(b);
+      setPicked({ kind: 'building', building: b });
       openCard();
     },
     [openCard, closeCard],
+  );
+  const searchData = useSearchData();
+  const recent = useRecent();
+  const { add: addRecent } = recent;
+  const { closeThen: closeSearchThen } = search;
+  // A search result or a Recent row: remember it, close search, then open its card. The card opens only after
+  // search's history entry is gone, so Back closes the card rather than a search that is already shut.
+  const pick = useCallback(
+    (hit: Hit) => {
+      const next: Picked =
+        hit.kind === 'room'
+          ? { kind: 'room', room: hit }
+          : { kind: 'building', building: { ...hit.building, tier: 'full' } };
+      // A second tap while search is still closing is dropped whole, Recent included (closeThen ignores it).
+      closeSearchThen(() => {
+        addRecent(hit);
+        setPicked(next);
+        openCard();
+      });
+    },
+    [addRecent, closeSearchThen, openCard],
   );
   // The dev link's list is an overlay too, opened once on load, so Back closes it like S8 will in the player.
   const devSteps = useBackToClose();
@@ -75,11 +112,13 @@ export function App() {
       <Suspense fallback={null}>
         <DevSteps onClose={devSteps.close} />
       </Suspense>
+    ) : selected?.kind === 'room' ? (
+      <RoomCard room={selected.room} onClose={closeCard} />
     ) : selected ? (
-      <BuildingCard building={selected} onClose={closeCard} />
+      <BuildingCard building={selected.building} onClose={closeCard} />
     ) : (
       <>
-        <HomeHint onOpen={search.open} />
+        <HomeRecent data={searchData} recent={recent.entries} onPick={pick} onOpenSearch={search.open} />
         <NotOfficialNote />
       </>
     );
@@ -102,13 +141,7 @@ export function App() {
       {/* If the map's chunk can't download, only the map is lost: the pill and sheet stay usable. */}
       <ErrorBoundary fallback={<MapDidntDownload />}>
         <Suspense fallback={<MapMessage text={LOADING_MAP} />}>
-          <CampusMap
-            insets={insets}
-            sheetHeight={sheetHeight}
-            wide={wide}
-            selected={selected?.slug ?? null}
-            onSelect={select}
-          />
+          <CampusMap insets={insets} sheetHeight={sheetHeight} wide={wide} selected={selectedSlug} onSelect={select} />
         </Suspense>
       </ErrorBoundary>
       {wide ? (
@@ -118,7 +151,7 @@ export function App() {
           {sheet}
         </BottomSheet>
       )}
-      {search.isOpen && <SearchScreen onClose={search.close} />}
+      {search.isOpen && <SearchScreen data={searchData} recent={recent.entries} onPick={pick} onClose={search.close} />}
     </>
   );
 }

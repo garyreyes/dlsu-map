@@ -21,7 +21,7 @@ offline after the first open. There is no backend: the app is static files plus 
 | 3D | three.js 0.186 + @react-three/fiber 9.8 + drei 10.7 (`CameraControls`, `Text`), three-mesh-bvh | |
 | Styling / UI pieces | Tailwind 4, shadcn/ui pattern + Radix, react-modal-sheet, sonner, Lucide or Phosphor icons | |
 | State / validation | Zustand 5 / Zod 4 | |
-| Search | Our room-code parser + **uFuzzy** for "Did you mean" + **cmdk** for the To/From lists | Sentence parser dropped (D16) |
+| Search | Our room-code parser + a one-typo check for "Did you mean", plain button lists | Sentence parser dropped (D16); uFuzzy and cmdk dropped (D38) |
 | Routing | ngraph.graph + ngraph.path (A*) | |
 | Offline | vite-plugin-pwa (Workbox), `globPatterns` widened to `.json/.woff2/.glb` | D10 |
 | **Floor extraction (dev-only)** | **sharp** + our own TypeScript, in `tools/floor-extract/` | Proven by the spike (D17); OpenCV dropped (D29). Never shipped |
@@ -72,7 +72,8 @@ Building 1---* Opening(kind=main|side|back) ---> Walkway network ---> Gate
   (`G304` → 3, `AG1104` → 11). That is only a guess: the room list's floor wins, so a mezzanine room sits on its
   mezzanine (D26). `C-309`, `c309` and `C 309` are the same code. `ST404/406` is read as `ST404`. The parser's
   result type is in `src/shared/data/room-code.ts`.
-- **Strict** (PRD §7): a code not in the room table is rejected with "Did you mean…" suggestions from uFuzzy.
+- **Strict** (PRD §7): a code not in the room table is rejected with "Did you mean…": rooms one typo away in the
+  same building (D38).
 - **Prefixes** (owner's list, 2026-10-19): `SM` St. Miguel · `EY` Yuchengco · `VL` (alias `VE`) Velasco · `ER` Razon ·
   `SJ` St. Joseph · `G` Gokongwei · `LS` St. La Salle · `AG` Andrew · `ST` (alias `C`, as printed on its lobby
   directory) STRC · `MM` Mutien-Marie. The canonical form is the first prefix (`C311` is stored and shown as
@@ -99,7 +100,7 @@ Building 1---* Opening(kind=main|side|back) ---> Walkway network ---> Gate
 | File | Contents | Lookup structure ("index") |
 |---|---|---|
 | `campus.json` | Buildings, outdoor meshes' source data, outdoor graph, data version hash | — |
-| `rooms.json` | Every room: code → building, floor, name, position | Map keyed by canonical code; uFuzzy haystack prebuilt |
+| `rooms.json` | Every room: code → building, floor, name, position | Map keyed by canonical code; the search index is built on the phone (D38) |
 | `buildings/<slug>.json` | One building's floors in meters (walls, hallways; 6b), its indoor graph, rooms (label, doors), stairs and elevators, entrances (8a, D39) | Loaded when the route enters the building |
 
 All are precached for offline use. Budget: under 15 MB total.
@@ -165,7 +166,7 @@ dlsu-map/
     features/
       campus-scene/      Outdoor merged meshes, tap picking, camera
       indoor-view/       Floor builder (walls from floor files), clipping cutaway, floor rail
-      search/            parse-room-code.ts, fuzzy index, To/From lists (cmdk)
+      search/            parse-room-code.ts, search index and results, Recent, To/From lists
       location-picker/   "Where are you?" tap flow: building → floor → spot, gates
       routing/           Graph loader, A*, stairs/elevator cost, direction text
       route-player/      Step carousel, Next/Back, follow camera

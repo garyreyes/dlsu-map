@@ -902,6 +902,41 @@ or the 0.1 m overhang shows against the outdoor mesh.
 
 ---
 
+## D38. How search answers while typing, and what it does without a room list (2026-10-21, proposed)
+
+**Problem.** user-flows §3.3 lists what S2 shows for finished codes. Building 3c (S2) raised what it shows while a
+code is still being typed, what a real prefix shows when its building has no room list yet (6 of the 10 full
+buildings, until 9a–9d), what the keyboard's Go key does, what Recent holds, and what tapping a room shows before
+3d's room card exists.
+
+**Decision.** (Owner's answers, 2026-10-21.)
+
+1. **While typing**, S2 lists the rooms that start with what's typed (`ST31` → ST310, ST311…, 8 at most). It says
+   "isn't in our list" only when no room code starts with it, so `AG110` never flashes red on the way to `AG1104`.
+2. **A building with no room list yet:** `AG1104` shows "Br. Andrew Gonzalez Hall's rooms aren't in the app yet."
+   with the building's row, so the student can still go to the building. It never routes to a guessed room.
+3. **Go** opens a result only when the text is exactly one room or one building (name, alias or prefix). Otherwise
+   it hides the keyboard. It never accepts a Did you mean, a sign prefix (D25) or a bare number.
+4. **Recent** holds the last 5 destinations tapped, rooms and buildings, newest first, no Clear button. It shows in
+   S2 with nothing typed and on home's sheet. It never holds From (PRD §6).
+5. **Tapping a room** closes search, highlights its building and shows a plain card: code, name, "STRC · 3F". 3d adds
+   the floor band, the floor chip and Share.
+6. **Did you mean** offers rooms one typo away in the same building (one character changed, added, dropped, or two
+   neighbours swapped: `ST350` → ST305, ST310), and building names one typo away per word of 4+ letters
+   (`velsaco` → Velasco). **uFuzzy and cmdk are not used** (ARCHITECTURE §2 is updated): uFuzzy found nothing for
+   any code, even with digits allowed in words, and its one-typo setting is an enum missing from its JavaScript
+   (setting it crashed at load); cmdk added about 18 KB gzipped to the first-load chunk, mostly Radix Dialog code
+   we don't use. The rows are plain buttons with Up/Down arrows for keyboards.
+
+**Alternatives.** Rejecting partial codes until they parse (simpler, but `AG110` reads as rejected). Strict "isn't in
+our list" for buildings with no room list (reads as if the room doesn't exist). Offering "probably 11F" from the
+number (a guess, against PRD §7). Go only hiding the keyboard (one extra tap every time). Rooms-only Recent.
+Keeping uFuzzy with a lint exception, and keeping cmdk for its combobox semantics. **Revisit if** students often
+mistype in ways one typo doesn't cover, or screen-reader testing shows the button list is harder to use than a
+combobox.
+
+---
+
 ## D39. Floors are labelled whole, and stairs list their own floors (2026-10-21, proposed)
 
 **Problem.** 8a puts rooms, doors, stairs and elevators into the floor files and joins them into an indoor graph.

@@ -53,8 +53,8 @@ graph search, fuzzy search, sheets, drawing tools, and PWA.
 | Styling | Tailwind CSS v4 (`@tailwindcss/vite`) | 4.3 | MIT | Keep |
 | UI primitives | shadcn/ui pattern (copy-in) + Radix | — | MIT | **Add** |
 | Bottom sheet | react-modal-sheet (+ `motion`) | 5.6 | MIT | **Add** |
-| Search palette | cmdk | 1.1 | MIT | **Add** |
-| Fuzzy match | @leeoniya/ufuzzy | 1.0 | MIT | **Add** (tiny, tolerates typos like `GK304`) |
+| Search palette | cmdk | 1.1 | MIT | Dropped (D38): plain button list |
+| Fuzzy match | @leeoniya/ufuzzy | 1.0 | MIT | Dropped (D38): found nothing for codes; a one-typo check instead |
 | Toasts | sonner | 2.0 | MIT | **Add** ("Ready offline", "Map updated") |
 | Icons | Phosphor or Lucide | — | MIT / ISC | **Add** |
 | Validation | Zod | 4.6 | MIT | Keep |
@@ -88,8 +88,8 @@ easier to write directions like "turn left at…". Revisit if hallways get compl
 | Soft "weight" where walls meet the ground | Vertex colors darkened near each wall's base, baked when extruding (D13) | Real-time ambient occlusion (too heavy on phones) |
 | Merging static meshes | `BufferGeometryUtils.mergeGeometries` | Many separate meshes |
 | Shortest path | `ngraph.path.aStar` | Our own A* (we still unit-test our graph *builder*) |
-| Typo-tolerant search | uFuzzy over a prebuilt index | Custom Levenshtein |
-| Search UI with keyboard + recents | cmdk | Custom listbox |
+| Typo-tolerant search | A one-typo check, same building (D38) | uFuzzy (tried: no code matches) |
+| Search UI with keyboard + recents | Plain button list + arrow keys (D38) | cmdk (~18 KB gz) |
 | Swipeable bottom sheet with snap points | react-modal-sheet | Gesture code |
 | Drawing polygons/lines over a photo | Terra Draw on MapLibre + MapLibre `image` source (4 corners). The reference layer underneath is our own OSM snapshot GeoJSON, so no map tile server is needed | Click-to-draw canvas editor |
 | Line splitting / snapping | Turf `lineSplit`, `nearestPointOnLine` | Geometry math |

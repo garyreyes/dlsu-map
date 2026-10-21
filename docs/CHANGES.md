@@ -31,6 +31,27 @@ session needs to know. Search this file; it isn't required reading (the reading 
   and room is on a floor in the file. **Known limit:** a hallway line that doubles back within 1 m of itself gets a
   shortcut across the gap; watch for it in cleanup (the evacuation routes so far don't).
 
+## 2026-10-21: 3c done: the Search screen (S2) and Recent
+
+- Typing in S2 now finds rooms and buildings as you type (user-flows §3.3): `ST311`, `st 311`, `C-311` (with "Also
+  written C311"), `Andrew` or `AG`, `305` in every building, `ST404/406` as ST404. Strict (PRD §7): `ST350` gets
+  "ST350 isn't in our list." in Signal Red and **Did you mean** ST305, ST310; `X305` gets "No building uses X." and
+  every building; `VH501` and `J-201` are always suggestions (D25).
+- New rules (D38, proposed): partial codes list completions instead of a rejection; a code in a building with no room
+  list yet (6 of 10 until 9a–9d) says so and offers the building; Go opens only an exact room or building; Recent
+  holds the last 5 destinations (rooms and buildings) and also shows on home's sheet; a tapped room shows a plain
+  card (code, name, "STRC · 3F") and highlights its building until 3d.
+- **uFuzzy and cmdk were dropped** (D38): uFuzzy found nothing for codes and its one-typo option crashed at load;
+  cmdk added ~18 KB gzipped to the first-load chunk. "Did you mean" is a one-typo check; rows are plain buttons with
+  Up/Down for keyboards.
+- The logic is pure and tested first (`search-results.ts`, `recent.ts`, 50+ exact-value cases on a fixed fixture).
+  `loadCampus`/`loadRooms` now share their first good load. `useBackToClose` gained `closeThen`, so picking a result
+  opens the card only after search's history entry is gone (Back then closes the card, not a closed search).
+- Zod and the data schemas moved from the 3D chunk into the first-load chunk (search validates `rooms.json` before
+  the map loads): first-load JS is 157 KB gzipped (was 125), the 3D chunk 975 kB (was ~1,068).
+- e2e: `tests/e2e/search.spec.ts` (tap, Back, Go, Did you mean, building, Recent after reload).
+- Not in 3c: the full room card with floor band, chip and Share (3d); moving the camera to the picked building.
+
 ## 2026-10-21: floor-extract review, edit and shots
 
 - The STRC cleanup helpers are now `floor-extract` commands, so the other ~66 floors don't depend on scratch files:
