@@ -2,6 +2,7 @@
 // response must really be JSON, then the JSON must match its Zod schema. A failure is returned, never thrown, with a
 // reason the screen can act on, so the app never shows a half-loaded map (user-flows §4).
 import { campusSchema, type Campus } from './campus';
+import { indoorSchema, slugSchema, type Indoor } from './indoor';
 import type { z } from './zod';
 
 /** Why a file couldn't be used. `offline`: the request never got an answer. `http`: an error status. `not-json`:
@@ -42,4 +43,12 @@ async function loadJson<T>(path: string, schema: z.ZodType<T>, fetchImpl: Fetch)
 export function loadCampus(fetchImpl: Fetch = (input) => fetch(input)): Promise<LoadResult<Campus>> {
   // BASE_URL keeps the path right if the app is ever served from a subfolder; a wrong path would read as not-json.
   return loadJson(`${import.meta.env.BASE_URL}data/campus.json`, campusSchema, fetchImpl);
+}
+
+/** Loads and validates one building's floors, `public/data/buildings/<slug>.json`, written by the data compiler (6b).
+ *  A slug that couldn't be a building is `invalid` without a request, and so is a file for another building. */
+export function loadIndoor(slug: string, fetchImpl: Fetch = (input) => fetch(input)): Promise<LoadResult<Indoor>> {
+  if (!slugSchema.safeParse(slug).success) return Promise.resolve({ ok: false, reason: 'invalid' });
+  const schema = indoorSchema.refine((b) => b.building === slug, 'file is for another building');
+  return loadJson(`${import.meta.env.BASE_URL}data/buildings/${slug}.json`, schema, fetchImpl);
 }
