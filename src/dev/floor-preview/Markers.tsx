@@ -74,17 +74,20 @@ function Label({ text, position }: { text: string; position: [number, number, nu
   const texture = useMemo(() => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    canvas.width = 256;
-    canvas.height = 64;
+    // Twice the size it shows at, with a thin outline: the stroke is centred on the letters' edges, so a thick one
+    // fills the small holes of 6, 8 and 9 (an 8 px stroke on 36 px text did).
+    canvas.width = 512;
+    canvas.height = 128;
     if (ctx) {
-      ctx.font = '600 36px system-ui, sans-serif';
+      ctx.font = '600 72px system-ui, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.lineWidth = 8;
+      ctx.lineWidth = 6;
+      ctx.lineJoin = 'round';
       ctx.strokeStyle = '#000000';
-      ctx.strokeText(text, 128, 32, 248);
+      ctx.strokeText(text, 256, 64, 496);
       ctx.fillStyle = '#ffffff';
-      ctx.fillText(text, 128, 32, 248);
+      ctx.fillText(text, 256, 64, 496);
     }
     const t = new CanvasTexture(canvas);
     t.colorSpace = SRGBColorSpace;
