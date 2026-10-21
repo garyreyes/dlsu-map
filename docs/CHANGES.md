@@ -8,6 +8,15 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-21: 6d started: STRC draft floors
+
+- The first floor files: `data-src/floors/strc/01.json`–`04.json`, straight from `floor-extract` (126, 101, 85 and
+  124 walls), `checked: false`, `turn: 180` (owner: the guard room is at the Taft end). Not cleaned up yet: stair
+  treads still read as walls, some stubs and the 1F east end's outer walls are missing (1F's outline gap is 1.7 m at
+  the 90th percentile, so the build notes it). Here now so Lane A's floor builder (6c) can build against real data.
+- `public/data/buildings/strc.json` is built from them (12 KB, gitignored). Corners and the turn are in PROJECT_FACTS.
+- Left in 6d: cleanup of each floor, the dev-only preview (P1, needs 6c), the owner's check, then `checked: true`.
+
 ## 2026-10-21: Squares with holes, duplicate walk links, STRC C102
 
 - **Squares** (`scripts/compile/walk.ts`, follow-up from 4a): a `highway=pedestrian` area drawn as an OSM
