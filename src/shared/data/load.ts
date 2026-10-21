@@ -3,6 +3,7 @@
 // reason the screen can act on, so the app never shows a half-loaded map (user-flows §4).
 import { campusSchema, type Campus } from './campus';
 import { indoorSchema, slugSchema, type Indoor } from './indoor';
+import { roomsSchema, type Rooms } from './rooms';
 import type { z } from './zod';
 
 /** Why a file couldn't be used. `offline`: the request never got an answer. `http`: an error status. `not-json`:
@@ -51,4 +52,9 @@ export function loadIndoor(slug: string, fetchImpl: Fetch = (input) => fetch(inp
   if (!slugSchema.safeParse(slug).success) return Promise.resolve({ ok: false, reason: 'invalid' });
   const schema = indoorSchema.refine((b) => b.building === slug, 'file is for another building');
   return loadJson(`${import.meta.env.BASE_URL}data/buildings/${slug}.json`, schema, fetchImpl);
+}
+
+/** Loads and validates `public/data/rooms.json`, written by the data compiler (3b). */
+export function loadRooms(fetchImpl: Fetch = (input) => fetch(input)): Promise<LoadResult<Rooms>> {
+  return loadJson(`${import.meta.env.BASE_URL}data/rooms.json`, roomsSchema, fetchImpl);
 }

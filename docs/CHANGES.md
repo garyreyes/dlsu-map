@@ -8,6 +8,13 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-21: `loadRooms()` in shared/data
+
+- `src/shared/data/load.ts` now loads and validates `rooms.json` the same way as `campus.json`. The router needs it
+  for any route to a room (5c's dev link first, then 5b), and so will search (3c).
+- 6 new tests in `load.test.ts`, written first: the right path, duplicate codes and a wrong shape rejected, and the
+  not-json, http and offline reasons.
+
 ## 2026-10-21: D37 agreed
 
 - Charles agreed D37 (indoor walls as 0.2 m thick boxes, proposed by Gary with 6c). Marked agreed in DECISIONS;
