@@ -996,3 +996,36 @@ where there's no share sheet (less code, but desktop students couldn't share). A
 (clearer label, but a second button next to Directions). Opening a guessed card for a near miss like `ST350` (a
 silent guess, against PRD §7). **Revisit if** students want to share a building as often as a room, or the
 address bar is how they share on desktop.
+
+---
+
+## D41. Routes go inside: where the building files come from, and what indoor steps say (2026-10-22, proposed)
+
+**Problem.** 8b joins the indoor graph (8a, D39) to the outdoor route. Three things needed an answer: how the router
+gets a building's file, since `buildings/<slug>.json` is loaded per building and the router is built once; what an
+indoor turn says, since hallways have no names; and what the last step says at the room.
+
+**Decision.** (Owner's answers, 2026-10-22.)
+
+- **The router call takes the trip's building files** (`Router`'s optional 4th argument, `IndoorFiles`): the From
+  and To buildings' files that loaded, by slug. Lane A loads only those two, matching ARCHITECTURE §3.5. A building
+  left out, or a floor the trip needs that isn't labelled, is routed as before 8b (to the door, then floors only),
+  and is named in `Route.noIndoorMap` for O5.
+- **An indoor turn names a room**: "Turn left at ST305", the room whose door is nearest the turn, within 5 m; else
+  plain "Turn left". Turns follow D35 otherwise: only at junctions, jogs under 15 m merged, under 30° no step.
+- **The last step gives the side**: "ST311 is on your left", from the way the student walks up to the door; "ST311
+  is ahead" when the door is within 30° of straight on. No door counting: floor files place only listed rooms' doors.
+- **The shape grows, nothing changes** (`src/shared/data/route.ts`): an `indoor` leg per floor walked, between the
+  floors legs; `floors` legs and steps say which stairs or elevator (`via`, `at`); `enter` and `floors` steps carry
+  the walk to the next step (`meters`); a new `arrive` step; indoor turns and starts reuse `turn` and `start`.
+
+Claude's calls, not the owner's: costs stay D34's (an elevator ride waits once, however many floors); a trip from an
+upper floor with no room starts at that floor's elevator, else its first stairs (PRD UC2); an elevator that skips the
+To floor is ridden as far as it helps, then the stairs; stairs and elevators on checked floors never say
+"(approximate)".
+
+**Alternatives.** All building files given once to `createRouter` (simplest, but loads every building at start, and
+Andrew's 20 floors are the biggest). Turns as bare directions (shortest, but easy to take the wrong junction in a long
+hallway) or toward a range of rooms (most telling, longest, hardest to get right). "The 3rd door on your left"
+(unreliable: restrooms and unlisted doors aren't in the files). **Revisit if** beta testers miss turns indoors, or
+a building's rooms are numbered so that the nearest room misleads.

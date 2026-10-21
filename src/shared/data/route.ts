@@ -1,7 +1,8 @@
 // The route meeting point between the lanes (docs/SPLIT.md): Lane B's router (4b, `src/features/routing/`) returns a
 // RouteResult, and Lane A's route preview, steps list and player (5b–5d) show it. 4c added `steps`; 8b adds indoor
-// legs and steps, both as new fields or new kinds, never by changing these. Costs: `src/shared/config/routing.ts`.
+// legs and steps, both as new fields or new kinds, never by changing these (D41). Costs: `src/shared/config/routing.ts`.
 import type { Campus } from './campus.ts';
+import type { Indoor } from './indoor.ts';
 import type { Rooms } from './rooms.ts';
 
 /** A point in `campus.json`'s frame: x is meters east, y is meters north of its origin. */
@@ -49,6 +50,20 @@ export type Leg =
       readonly seconds: number;
       /** Elevator was asked for, but the building has none: S5 says "No elevator in Andrew Hall. Using stairs." */
       readonly noElevator?: true;
+      /** Which stairs or elevator, by its id in the building file (`east-stairs`), and where it is. Only on labelled
+       *  floors (8b); without them the route doesn't know which one. */
+      readonly via?: string;
+      readonly at?: XY;
+    }
+  /** Walking on one labelled floor (8b): from a door, a room or a stairs to the next of these. One per floor walked. */
+  | {
+      readonly kind: 'indoor';
+      readonly building: string;
+      readonly floor: number;
+      /** The line to draw on that floor, in the same frame as the walk. First point where the walking starts. */
+      readonly path: readonly XY[];
+      readonly meters: number;
+      readonly seconds: number;
     }
   /** Outdoors, from a gate or door to a door. */
   | {
@@ -91,24 +106,39 @@ export type Step =
   | (WalkStepBase & { readonly kind: 'turn'; readonly turn: Turn })
   /** "Cross Taft Avenue at the crosswalk". `at` is the curb it starts from. */
   | (WalkStepBase & { readonly kind: 'cross'; readonly street: string })
-  /** "Enter STRC by the main entrance (approximate)". The last step of a walk. */
+  /** "Enter STRC by the main entrance (approximate)". The last step of a walk. `meters` is the walk inside to the next
+   *  step, when the floor is labelled (8b). */
   | (StepBase & {
       readonly kind: 'enter';
       readonly building: string;
       readonly at: XY;
       readonly approximate?: true;
+      readonly meters?: number;
     })
-  /** "Take the elevator down to G", "ST311 is on 3F: take the stairs up to 3F". Matches its floors leg. */
+  /** "Take the elevator down to G", "ST311 is on 3F: take the stairs up to 3F". Matches its floors leg. On labelled
+   *  floors (8b) it names which one, "Take the east stairs up to 3F", with where it is and the walk after it. */
   | (StepBase & {
       readonly kind: 'floors';
       readonly building: string;
       readonly to: number;
       readonly by: 'stairs' | 'elevator';
+      readonly at?: XY;
+      readonly meters?: number;
+    })
+  /** "ST311 is on your left": the last step of a route to a room on a labelled floor (8b). `at` is its door. Which
+   *  side is worked out from the way the student walks up to the door; `ahead` when it's at the end of the hallway. */
+  | (StepBase & {
+      readonly kind: 'arrive';
+      readonly code: string;
+      readonly side: 'left' | 'right' | 'ahead';
+      readonly at: XY;
     });
 
 export interface Route {
-  /** In order: down in the From building, the walk, up in the To building. Within one building there is only a
-   *  floors leg; on the room's own floor there are no legs (indoor walking comes in 8b). */
+  /** In order: down in the From building, the walk, up in the To building. In a building with labelled floors (8b)
+   *  the floors legs sit between indoor legs: [indoor 3F, floors 3→1, indoor G, walk, indoor G, floors 1→4, indoor
+   *  4F]. Without them, within one building there is only a floors leg, and none on the room's own floor. Indoor steps
+   *  (start, turn) use the step kinds above; their `leg` points at an indoor leg. */
   readonly legs: readonly Leg[];
   /** The directions over all the legs. Empty when there are no legs. */
   readonly steps: readonly Step[];
@@ -116,6 +146,9 @@ export interface Route {
   readonly meters: number;
   /** The time estimate (S5: "about 4 min"), summed over the legs. Whole seconds. */
   readonly seconds: number;
+  /** Buildings where the route needed to go inside but had no labelled floor plan (no file passed, or the floor isn't
+   *  labelled), so it stops at the door or has floors legs only. S9 says "ST311 is on 3F · indoor map coming" (O5). */
+  readonly noIndoorMap?: readonly string[];
 }
 
 export type RouteResult =
@@ -127,6 +160,11 @@ export type RouteResult =
   /** Nothing joins them. The data build should prevent it; S5 says "We can't find a way from … yet." */
   | { readonly ok: false; readonly reason: 'no-route' };
 
-/** The router: built once from the loaded data, then called on every Start or route-option change. Pure. */
-export type Router = (from: From, to: To, mode: FloorMode) => RouteResult;
+/** The building files a trip can use, by slug (D41): the From and To buildings' `loadIndoor` results that loaded.
+ *  A building left out (no file yet, or it failed) is routed as before 8b, and named in `Route.noIndoorMap`. */
+export type IndoorFiles = ReadonlyMap<string, Indoor>;
+
+/** The router: built once from the loaded data, then called on every Start or route-option change. Pure. `indoor`
+ *  can differ call to call; the router keeps what it builds from each file for as long as that file object lives. */
+export type Router = (from: From, to: To, mode: FloorMode, indoor?: IndoorFiles) => RouteResult;
 export type CreateRouter = (campus: Campus, rooms: Rooms) => Router;
