@@ -122,6 +122,18 @@ describe('classify', () => {
     expect(one('white-map', [180, 180, 178], px)).toBe(expected);
   });
 
+  it.each([
+    ['a faint grey wall (V 125, 0.81 of the paper)', [125, 125, 125], 'neither', 'wall'],
+    ['the pale route (S 55, V 98)', [98, 77, 80], 'wall', 'route'],
+    ['paper texture (V 147)', [147, 147, 147], 'neither', 'neither'],
+    ['a bright red fire symbol', [220, 40, 40], 'neither', 'neither'],
+  ] as const)('a washed-out photo (Velasco 2F, paper V 155), plain and tuned: %s', (_label, px, plain, tuned) => {
+    const bg = [155, 155, 155] as const;
+    expect(one('white-map', bg, px)).toBe(plain);
+    const { dark, route } = classify(photo(bg, [px]), 'white-map', { darkRatio: 0.88, redSat: 40 });
+    expect(dark.data[0] ? 'wall' : route.data[0] ? 'route' : 'neither').toBe(tuned);
+  });
+
   it('finds a grey wall under glare that a whole-page threshold would miss', () => {
     // Left half paper 180, right half glare 230; the same V 140 pixel is a wall only where the paper around it is 230.
     const img = photo([180, 180, 180], [], 128, 64);

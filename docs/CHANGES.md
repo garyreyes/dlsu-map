@@ -8,6 +8,18 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-21: 9b started: Velasco's 5 floors traced and cleaned up
+
+- `data-src/floors/velasco/01.json`–`05.json` (124, 83, 88, 92 and 95 walls), each with one connected hallway
+  network from the red route, `turn: 180`, `checked: false`. Outline gap at the 90th percentile 0.6, 0.2, 0.5, 0.4
+  and 2.3 m; 5F's sign is narrower along one side (PROJECT_FACTS). P1 screenshots: no errors, nothing off-site.
+- **`extract --dark <ratio> --red-sat <S>`** for washed-out photos (`colours.ts` `Tuning`, 4 tests written first):
+  Velasco 2F–5F's walls sit at 0.76–0.85 of the paper and the route only reaches S 44–58, so untuned the tool found
+  few walls and read the route as walls. Defaults unchanged.
+- `floor-extract` skill: the tuning, orientation from the sign's inset and the entrance pins, white-template
+  cleanup rules (walls on the route line, cabinet/alarm/exit boxes, label underlines, double lines), a hallway to
+  each elevator for 8a, and plan px = tile px − 40.
+
 ## 2026-10-21: 3c done: the Search screen (S2) and Recent
 
 - Typing in S2 now finds rooms and buildings as you type (user-flows §3.3): `ST311`, `st 311`, `C-311` (with "Also

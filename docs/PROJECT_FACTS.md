@@ -133,6 +133,18 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - **STRC corners as read** (photo pixels, tl tr br bl): 1F 597,995 3471,1006 3474,1690 594,1707; 2F 168,664
   1856,681 1872,1092 142,1073; 3F 97,676 1795,657 1808,1066 91,1085; 4F 409,1058 3610,1096 3603,1849 405,1847.
   Re-running `extract` with these reproduces the drafts. (2026-10-21)
+- **Velasco corners as read** (photo pixels, tl tr br bl; the outermost line, which runs through the exit doors):
+  1F 582,815 3389,885 3374,1700 565,1650; 2F 589,979 2925,1085 2920,1710 584,1769; 3F 699,986 3109,1025 3105,1631
+  696,1617; 4F 651,866 3289,925 3285,1637 637,1635; 5F 361,819 3586,850 3602,1775 349,1770. On 2F–4F the
+  bottom-right corner is the end wall extended (the last room is set in); 5F is the envelope of its two blocks.
+  **2F–5F need `--dark 0.88 --red-sat 40`**: washed-out photos (paper V ~155, walls 0.76–0.85 of it, route S
+  44–58). Untuned, 2F found 58 walls and read the route as walls. (2026-10-21)
+- **Velasco is `turn: 180`** (to confirm with the owner in P1): the sign's "Assembly Area" inset has Taft on the left
+  and Henry Sy above, while OSM has them east and south; and both main-entrance pins land on the lobby's exits only
+  that way round (the lobby is 38–44% from the west end, the pins 36–39%). (2026-10-21)
+- **Velasco 5F is narrower along one long side**: its sign's two blocks differ by about 2.5 m, so with the envelope
+  as corners the floor sits 2.3 m from the outline at the 90th percentile (1F–4F: 0.2–0.6 m). Whether the floor is
+  really set back is for the owner to say. (2026-10-21)
 - **P1 Floor preview:** `npm run dev`, then open `/preview.html` (`?building=strc&floor=2` jumps straight there). It
   reads the compiled `public/data/`, so re-run `npm run compile-data` (or restart `npm run dev`) after editing a floor
   file. Read-only: the owner says which floors look right and Claude sets `checked: true` in a PR (owner's choice,
