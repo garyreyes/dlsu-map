@@ -1,7 +1,8 @@
 // The search feature's public surface. Other features and the app shell import only from here (ARCHITECTURE §6).
 export { parseRoomCode } from './parse-room-code';
 export { readDeepLink, resolveDeepLink, type DeepLink } from './deep-link';
-export type { Hit, RoomHit, SearchBuilding } from './search-results';
+export { buildSearchIndex, type SearchIndex } from './search-index';
+export { searchResults, type Hit, type RoomHit, type SearchBuilding, type SearchView } from './search-results';
 export { BuildingCard } from './components/BuildingCard';
 export { HomeRecent } from './components/HomeRecent';
 export { RoomCard } from './components/RoomCard';
