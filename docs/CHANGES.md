@@ -26,6 +26,23 @@ session needs to know. Search this file; it isn't required reading (the reading 
 - `.claude/skills/floor-extract/SKILL.md`: the stale "fit is still unproven" line is gone; steps 5–8 now cover the
   floor file, `fit.turn`, the review → edit loop with STRC's cleanup rules, `shots`, and the owner's check.
 
+## 2026-10-21: 5c done: the all-steps list (S8)
+
+- `route-player/components/AllSteps.tsx` shows a route as a list: "All steps", the trip ("Gate 1 (South) → ST311"),
+  "About 6 min · 428 m walk", then the steps grouped by place ("Outside · 428 m", "In STRC"). Each row has a Soft
+  Ink icon, the step text and a Mid Ink line ("45 m · approximate"). Tapping a row makes it the current step (green
+  icon, Pale Leaf fill) through `onPick`. ✕ and Escape close it. No three.js, so it can also be S11 (text-only).
+- The logic is pure and tested first (`steps-list.ts`): grouping by place, the icon per step (up or down comes from
+  the step's floors leg), "(approximate)" moved from the title to the subtitle, no "0 m", minutes rounded and never
+  under 1. A route with no steps says "ST311 is on this floor." and shows no totals.
+- lucide 1.52 has no stairs or elevator icon, so `StepIcon.tsx` draws those two in its style (24px, 2px round).
+- **Dev only:** under `npm run dev`, `?from=gate-1&to=ST311` opens the list for that route (From may also be
+  `strc@3` or a room code; `dev-link.ts`, tested). The shipped app never has it: it would route without the From → To
+  confirm. `tests/e2e/dev-link.spec.ts` checks the build has no dev-link code and that the link opens the normal home.
+- Only STRC has a room list so far (3b), so only STRC room codes route; `?from=AG1104` says the place isn't in the
+  data.
+- Not in 5c: moving the camera to a tapped step (5d), and opening the list from the real app (5b/5d).
+
 ## 2026-10-21: 6d done: STRC's 4 floors checked
 
 - The owner checked all 4 STRC floors in P1 ("everything looks perfect") and they are now `checked: true`. From here a
