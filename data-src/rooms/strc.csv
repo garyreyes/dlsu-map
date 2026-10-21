@@ -1,5 +1,6 @@
 floor,code,name,floor_label,floor_checked,note
-1,C104/106,Structural and Materials Testing Lab,,,"Printed C102/104-106. 104 and 106 are one big room; 102 is a different room, left out until its name is known; 105 is the Mechatronics Lab (owner, checked at the doors, 2026-10-21)"
+1,C104/106,Structural and Materials Testing Lab,,,"Printed C102/104-106. 104 and 106 are one big room; 102 is a different room (row below); 105 is the Mechatronics Lab (owner, checked at the doors, 2026-10-21)"
+1,C102,Room,,,"Name not known yet: not the testing lab (owner, 2026-10-21). Read it off the door next visit"
 1,C105,Mechatronics Lab,,,
 1,C107,Energy Laboratory,,,
 1,C107B,Biomaterials and Tissue Engineering Laboratory 1,,,
