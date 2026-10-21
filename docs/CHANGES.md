@@ -8,6 +8,11 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-21: P1 labels: 6, 8 and 9 readable
+
+- P1's room codes are drawn at twice the size with a 6 px outline instead of 8 px at 36 px text: the outline is
+  centred on the letters' edges, so it filled the small holes of 6, 8 and 9 (ST206, ST218 looked like blobs; owner).
+
 ## 2026-10-21: 8a done: STRC's rooms, doors, stairs and elevator labelled
 
 - **STRC's 4 floors are labelled whole** (D39): all 70 room codes placed with their doors, both stairs on every
