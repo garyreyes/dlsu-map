@@ -34,7 +34,28 @@ session needs to know. Search this file; it isn't required reading (the reading 
 - Not yet: S4 opening under the card (5a). Miguel's G band is hard to see on the green ground at a distance; a 3▸
   polish item.
 
----
+## 2026-10-21: Velasco's 5 floors checked
+
+- The owner checked all 5 Velasco floors in P1 ("every floor looked right") and they are now `checked: true`, so the
+  build fails if Velasco's outline moves under them. ROADMAP 9b stays in progress: Gokongwei and Miguel are left
+  (Miguel needs its 1F photo; Gokongwei has no photos yet).
+
+## 2026-10-21: 9b started: Velasco's 5 floors traced and cleaned up
+
+- `data-src/floors/velasco/01.json`–`05.json` (124, 83, 88, 92 and 95 walls), each with one connected hallway
+  network from the red route, `turn: 180`, `checked: false`. Outline gap at the 90th percentile 0.6, 0.2, 0.5, 0.4
+  and 0.3 m. P1 screenshots: no errors, nothing off-site.
+- 5F's sign draws its west and middle blocks narrower than the floor is (owner); traced as drawn it sat 2.3 m off the
+  outline, so its blocks were stretched to the east block's lines (how, in PROJECT_FACTS).
+- 8a's entrance check caught Velasco's south main pin 5.6 m from the G hallway: moved to the lobby's south door, as
+  the sign draws it (owner's call; `data-src/campus/entrances.json`, still unverified). The walk network grows by
+  one point and one link (511, 577; `tests/compile-data.test.ts` updated): the door now joins its path mid-segment.
+- **`extract --dark <ratio> --red-sat <S>`** for washed-out photos (`colours.ts` `Tuning`, 4 tests written first):
+  Velasco 2F–5F's walls sit at 0.76–0.85 of the paper and the route only reaches S 44–58, so untuned the tool found
+  few walls and read the route as walls. Defaults unchanged.
+- `floor-extract` skill: the tuning, orientation from the sign's inset and the entrance pins, white-template
+  cleanup rules (walls on the route line, cabinet/alarm/exit boxes, label underlines, double lines), a hallway to
+  each elevator for 8a, and plan px = tile px − 40.
 
 ## 2026-10-21: 8a part 1: the indoor graph and its build checks
 

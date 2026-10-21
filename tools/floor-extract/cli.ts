@@ -1,7 +1,9 @@
 // Photo of one floor's evacuation map → a draft floor (D17). Dev-only; never shipped. Run from the repo root:
 //   npm run floor-extract -- crop <photo> <x,y> [<x,y> …]          zoomed, gridded crops to read the 4 corners
 //   npm run floor-extract -- extract <photo> <tl> <tr> <br> <bl> [--style green-sign|white-map]
-//                                       straighten, split colours, find walls and route (style detected if not given)
+//                                       [--dark <ratio>] [--red-sat <S>]
+//                                       straighten, split colours, find walls and route (style detected if not given;
+//                                       --dark and --red-sat only for a washed-out photo, see colours.ts Tuning)
 //   npm run floor-extract -- floor <photo>   the draft → a first data-src/floors/<building>/<NN>.json (D36);
 //                                       never overwrites one, since it holds cleanup work
 //   npm run floor-extract -- review <floor.json> [--tiles N]   walls numbered over the photo, grid in plan px
@@ -15,7 +17,7 @@ import { basename, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 import { floorSourceSchema, type FloorSource } from '../../src/shared/data/floor-source.ts';
-import { STYLES, classify, detectStyle, type Style } from './colours.ts';
+import { STYLES, classify, detectStyle, type Style, type Tuning } from './colours.ts';
 import { checkCorners, parsePoint } from './corners.ts';
 import { applyEdit, parseEditSpec } from './edit.ts';
 import { floorFile, formatFloorFile, type Draft } from './floor-file.ts';
@@ -78,14 +80,19 @@ async function crop(photo: string, rough: readonly Point[]): Promise<void> {
   }
 }
 
-async function extract(photo: string, cornerArgs: readonly Point[], forced?: Style): Promise<void> {
+async function extract(
+  photo: string,
+  cornerArgs: readonly Point[],
+  forced?: Style,
+  tuning: Tuning = {},
+): Promise<void> {
   const started = Date.now();
   const img = await load(photo);
   const checked = checkCorners(cornerArgs, img);
   if ('error' in checked) throw new Error(checked.error);
   const { image, width, height } = warpPlan(img, checked.corners, PAD);
   const style = forced ?? detectStyle(image);
-  const { dark, route } = classify(image, style);
+  const { dark, route } = classify(image, style, tuning);
   const found = extractSegments(dark, route, { ...OPTIONS, maxGap: STYLES[style].maxGap });
   const dir = outDir(photo);
   const straight = join(dir, '1-straightened.png');
@@ -109,7 +116,8 @@ async function extract(photo: string, cornerArgs: readonly Point[], forced?: Sty
   writeFileSync(join(dir, 'draft.json'), `${JSON.stringify(draft, null, 1)}\n`);
   const seconds = ((Date.now() - started) / 1000).toFixed(1);
   console.log(
-    `${basename(photo)}: plan ${String(width)}×${String(height)} px, ${style}${forced ? ' (given)' : ' (detected)'}`,
+    `${basename(photo)}: plan ${String(width)}×${String(height)} px, ${style}${forced ? ' (given)' : ' (detected)'}` +
+      (Object.keys(tuning).length > 0 ? `, tuned ${JSON.stringify(tuning)}` : ''),
   );
   console.log(
     `  ${String(found.walls.length)} walls, ${String(found.route.length)} route segments in ${seconds} s → ${dir}`,
@@ -178,7 +186,8 @@ function edit(path: string, specPath: string): Promise<void> {
 }
 
 const USAGE =
-  'usage: floor-extract crop <photo> <x,y>… | extract <photo> <tl> <tr> <br> <bl> [--style <style>] | floor <photo>' +
+  'usage: floor-extract crop <photo> <x,y>… | extract <photo> <tl> <tr> <br> <bl> [--style <style>] [--dark <ratio>]' +
+  ' [--red-sat <S>] | floor <photo>' +
   ' | review <floor.json> [--tiles N] | edit <floor.json> <spec.json> | shots <building>';
 
 function tilesFlag(args: string[]): number {
@@ -188,6 +197,22 @@ function tilesFlag(args: string[]): number {
   const n = Number(value);
   if (Number.isInteger(n) && n >= 1 && n <= 12) return n;
   throw new Error(`--tiles must be a whole number from 1 to 12, not "${value ?? ''}"`);
+}
+
+/** A number flag within [min, max], removed from args; undefined when not given. */
+function numberFlag(args: string[], name: string, min: number, max: number): number | undefined {
+  const at = args.indexOf(name);
+  if (at < 0) return undefined;
+  const [value] = args.splice(at, 2).slice(1);
+  const n = Number(value);
+  if (value !== undefined && value !== '' && n >= min && n <= max) return n;
+  throw new Error(`${name} must be a number from ${String(min)} to ${String(max)}, not "${value ?? ''}"`);
+}
+
+function tuningFlags(args: string[]): Tuning {
+  const darkRatio = numberFlag(args, '--dark', 0.3, 0.95);
+  const redSat = numberFlag(args, '--red-sat', 20, 120);
+  return { ...(darkRatio !== undefined && { darkRatio }), ...(redSat !== undefined && { redSat }) };
 }
 
 function styleFlag(args: string[]): Style | undefined {
@@ -202,8 +227,9 @@ async function main(): Promise<void> {
   const [command, subject, ...rest] = process.argv.slice(2);
   const style = styleFlag(rest);
   const tiles = tilesFlag(rest);
+  const tuning = tuningFlags(rest);
   if (command === 'crop' && subject && rest.length > 0) return crop(subject, points(rest));
-  if (command === 'extract' && subject && rest.length === 4) return extract(subject, points(rest), style);
+  if (command === 'extract' && subject && rest.length === 4) return extract(subject, points(rest), style, tuning);
   if (command === 'floor' && subject && rest.length === 0) return floor(subject);
   if (command === 'review' && subject && rest.length === 0) return review(subject, tiles);
   if (command === 'edit' && subject && rest.length === 1 && rest[0]) return edit(subject, rest[0]);
