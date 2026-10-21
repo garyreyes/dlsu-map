@@ -15,6 +15,11 @@ const fixMessage = "Use the '@/' alias without '..' in it: '@/shared/…' or '@/
 const common = [
   { regex: '^@/(.*/)?\\.\\.(/|$)', message: fixMessage },
   { regex: '(^|/)src(/|$)', message: fixMessage },
+  // src/dev/ holds dev-only pages (P1), served by `npm run dev` and never built, so nothing may import them.
+  {
+    regex: '^(@/|\\./|(\\.\\./)+)dev(/|$)',
+    message: "src/dev/ is dev-only (npm run dev), so nothing imports it. Inside src/dev/, import with './'.",
+  },
 ];
 /** @type {Pattern} */
 const toIndex = {
@@ -96,6 +101,19 @@ export default [
   restrict(['src/features/*/components/*.{ts,tsx}'], [toIndex, noAppShell, leaveFeature(2)]),
   restrict(['src/features/*/components/*/**/*.{ts,tsx}'], [toIndex, noAppShell, leaveFeature(3)]),
   restrict(['src/shared/**/*.{ts,tsx}'], [sharedStaysBelow]),
+  // Dev-only pages: like the app shell, they reach features through their index only, and never leave src/dev/
+  // with '../../'.
+  restrict(
+    ['src/dev/*/**/*.{ts,tsx}'],
+    [
+      toIndex,
+      noAppShell,
+      {
+        regex: '^(\\.\\./){2,}',
+        message: "Don't reach out of src/dev/ with '../../'. Use '@/shared/…' or '@/features/<name>'.",
+      },
+    ],
+  ),
   {
     files: ['src/**/*.{ts,tsx}'],
     ignores: ['src/shared/data/**'],

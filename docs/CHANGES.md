@@ -8,6 +8,22 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-21: 6d P1 Floor preview
+
+- `/preview.html` under `npm run dev` (`src/dev/floor-preview/`): pick a building that has floor files and a floor;
+  see it in 3D with Gary's `FloorModel` (D37 walls), standing in the green OSM outline it was fitted to, with the
+  entrance pins (main in orange), a north arrow and the hallway in blue. Floor chips show every storey, ✓ on checked
+  ones, untraced ones greyed out. The pick lives in the URL. States: loading, data failed, no floors traced yet.
+- **Dev-only, enforced:** `preview.html` isn't a build input, so `dist/` has no trace of it (checked). New layer rule
+  in `eslint.boundaries.js`: nothing imports `src/dev/`, and `src/dev/` reaches features through their index only
+  (14 cases in `tests/boundaries.test.ts`, 8 failing first). ARCHITECTURE §6 and §7 list it.
+- Read-only by the owner's choice: the owner says which floors look right, and Claude sets `checked: true` in a PR.
+  Labels, doors, stairs, the elevator and a test route join P1 when 8a puts them in the data.
+- `reviewer` pass: the layer rule missed `./dev/…` from `src/main.tsx` (fixed test-first, 2 failing, now 16 cases);
+  `FloorPreview` split under 50 lines; the URL now always names what's on screen, fallbacks included; the 3D view and
+  untraced floor chips got labels. A server error on a floor file still reads as "no floors traced yet" (accepted
+  for a dev tool; a broken file fails loudly).
+
 ## 2026-10-21: 6d STRC floors cleaned up
 
 - All 4 STRC floor files cleaned up against their photos (now 128, 106, 91 and 97 walls): stair treads and stringers

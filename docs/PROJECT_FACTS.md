@@ -25,6 +25,9 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   has `gh` 2.96.0, signed in as `garyreyes` with admin on the repo. (2026-10-19)
 - Git converts line endings (`core.autocrlf`), so "LF will be replaced by CRLF" warnings are expected and harmless.
   (2026-10-19)
+- Stopping a backgrounded `npx vite` (an AI tool's background task, or closing its Git Bash) can leave its `node`
+  running and holding the port. Find it with `netstat -ano | grep :<port>` and stop it with `taskkill //PID <pid> //F`.
+  (2026-10-21)
 
 ## Working on the code
 
@@ -127,6 +130,12 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - **STRC corners as read** (photo pixels, tl tr br bl): 1F 597,995 3471,1006 3474,1690 594,1707; 2F 168,664
   1856,681 1872,1092 142,1073; 3F 97,676 1795,657 1808,1066 91,1085; 4F 409,1058 3610,1096 3603,1849 405,1847.
   Re-running `extract` with these reproduces the drafts. (2026-10-21)
+- **P1 Floor preview:** `npm run dev`, then open `/preview.html` (`?building=strc&floor=2` jumps straight there). It
+  reads the compiled `public/data/`, so re-run `npm run compile-data` (or restart `npm run dev`) after editing a floor
+  file. Read-only: the owner says which floors look right and Claude sets `checked: true` in a PR (owner's choice,
+  2026-10-21). It probes every full-tier building's floor file, so the console shows a 404 per building with none yet;
+  that is expected. Headless screenshots: Playwright's own browsers aren't installed here, so use
+  `chromium.launch({ channel: 'msedge' })`. (2026-10-21)
 - **Which outlines fit onto their own corners** (6b, points along a side bending under 5° dropped): Andrew, Velasco,
   Miguel, Razon's low block, Mutien-Marie and STRC (5 points in OSM, one on a nearly straight side, and skewed at its
   east end, so its east-end walls poke out up to about 1 m). Gokongwei, Yuchengco, St. Joseph, St. La Salle and
