@@ -1,12 +1,11 @@
 import { CameraControls } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
-import { useCallback, useLayoutEffect, type RefObject } from 'react';
+import { useCallback, useLayoutEffect, useRef, type RefObject } from 'react';
 import type { PerspectiveCamera } from 'three';
 import type CameraControlsImpl from 'camera-controls';
 import {
   DRAGGING_SMOOTH_TIME,
-  HOME_AZIMUTH,
-  HOME_DISTANCE,
+  FOV_DEG,
   HOME_POLAR,
   MAX_DISTANCE,
   MAX_POLAR,
@@ -14,6 +13,7 @@ import {
   SMOOTH_TIME,
 } from '@/shared/config/camera';
 import { headingDeg } from '../gestures';
+import { fitDistance } from '../home-view';
 import { useHeading } from './headingStore';
 import { useTwistTilt } from './useTwistTilt';
 
@@ -24,16 +24,30 @@ export interface MapInsets {
   left: number;
 }
 
+/** The home view, worked out from the campus data: what it looks at (scene x, z), from where, and what must fit. */
+export interface HomeView {
+  x: number;
+  z: number;
+  /** camera-controls' azimuth: Taft Avenue along the bottom of the screen. */
+  azimuth: number;
+  /** Every campus building lies within this many meters of the target. */
+  radius: number;
+}
+
 interface Props {
   controlsRef: RefObject<CameraControls | null>;
   insets: MapInsets;
+  home: HomeView;
 }
 
-/** Points the camera at the campus from the home heading and tilt. */
-export function goHome(c: CameraControls, animate: boolean) {
-  void c.setTarget(0, 0, 0, animate);
-  void c.rotateTo(HOME_AZIMUTH, HOME_POLAR, animate);
-  void c.dollyTo(HOME_DISTANCE, animate);
+/** Points the camera at the whole campus from the home heading and tilt, framed in the screen the chrome leaves. */
+export function goHome(c: CameraControls, home: HomeView, insets: MapInsets, animate: boolean) {
+  // The canvas fills the window (CampusMap), so the window is the view.
+  const view = { width: window.innerWidth, height: window.innerHeight, fovDeg: FOV_DEG, polar: HOME_POLAR };
+  const distance = Math.min(MAX_DISTANCE, Math.max(MIN_DISTANCE, fitDistance(home.radius, view, insets)));
+  void c.setTarget(home.x, 0, home.z, animate);
+  void c.rotateTo(home.azimuth, HOME_POLAR, animate);
+  void c.dollyTo(distance, animate);
 }
 
 /** Map-style gestures: one finger pans along the ground, pinch zooms toward the fingers, mouse right-drag turns. */
@@ -56,20 +70,30 @@ function configure(c: CameraControls) {
     smoothTime: SMOOTH_TIME,
     draggingSmoothTime: DRAGGING_SMOOTH_TIME,
   });
-  goHome(c, false);
 }
 
-export function CameraRig({ controlsRef, insets }: Props) {
+export function CameraRig({ controlsRef, insets, home }: Props) {
   const camera = useThree((s) => s.camera) as PerspectiveCamera;
   const size = useThree((s) => s.size);
   const invalidate = useThree((s) => s.invalidate);
   const setHeading = useHeading((s) => s.set);
   useTwistTilt(controlsRef);
 
+  // Read through refs so the attach callback stays the same: a new one would re-attach and jump the camera home
+  // every time the sheet moved.
+  const homeRef = useRef(home);
+  const insetsRef = useRef(insets);
+  useLayoutEffect(() => {
+    homeRef.current = home;
+    insetsRef.current = insets;
+  });
+
   const attach = useCallback(
     (c: CameraControls | null) => {
       controlsRef.current = c;
-      if (c) configure(c);
+      if (!c) return;
+      configure(c);
+      goHome(c, homeRef.current, insetsRef.current, false);
     },
     [controlsRef],
   );
@@ -86,8 +110,8 @@ export function CameraRig({ controlsRef, insets }: Props) {
 
   const report = useCallback(() => {
     const c = controlsRef.current;
-    if (c) setHeading(Math.round(headingDeg(c.azimuthAngle, HOME_AZIMUTH)));
-  }, [controlsRef, setHeading]);
+    if (c) setHeading(Math.round(headingDeg(c.azimuthAngle, home.azimuth)));
+  }, [controlsRef, setHeading, home.azimuth]);
 
   return <CameraControls ref={attach} makeDefault onChange={report} />;
 }

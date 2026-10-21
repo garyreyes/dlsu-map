@@ -2,7 +2,7 @@
 // public/data/buildings/<slug>.json per building that has floor files, and Lane A's floor builder and indoor view
 // (6c, 7a) read it. Same frame as campus.json. 8a adds rooms, doors, stairs, elevators and the indoor graph as new
 // fields, never by changing these.
-import { z } from 'zod';
+import { z } from './zod.ts';
 import { lineSchema } from './campus.ts';
 
 export const indoorFloorSchema = z.strictObject({

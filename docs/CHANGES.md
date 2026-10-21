@@ -8,6 +8,24 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-21: 2c part 1, the campus in 3D
+
+- The map now draws the campus from `campus.json` as D13's massing model: every building one pale colour, shaded by
+  light, the bottom 6 m of each wall darkened; the city see-through and tinted toward the ground; roads, streets and
+  footpaths as thin lines; the LRT viaduct as a deck over Taft. Building names sit on white plates that hide rather
+  than overlap and never sit under the pill or sheet; buildings without interiors only get a label when zoomed in.
+- Home is worked out from the data: the camera stands square to Taft Avenue on the main campus's side (112° on the
+  current snapshot), framing every campus building. The stand-in `HOME_AZIMUTH` and `HOME_DISTANCE` are gone.
+- Test first: wall geometry and shading, the triangle → building lookup PR 2 taps through, the home heading, and label
+  placement (`features/campus-scene/*.test.ts`).
+- Zod's eval probe no longer trips the CSP: `src/shared/data/zod.ts` turns it off before any schema is built, and
+  every schema file imports `z` from there (`tests/zod-entry.test.ts` checks). The hosting e2e test now waits for a
+  building label, so it covers `campus.json` loading too.
+- D13's outdoor test: preview links take `?palette=b` or `?palette=c` (A, black, is the default). The parameter goes
+  in part 2, once the palette is picked.
+- The OSM credit's bigger tap area works now (a missing space had broken two Tailwind classes).
+- The 3D chunk grew from about 960 kB to 1,068 kB (Zod and the scene code moved into it).
+
 ## 2026-10-21: Room lists checked at the doors
 
 - The owner checked the doors behind the room-list guesses. STRC: C402 confirmed; C102 dropped, since it is a
