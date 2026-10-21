@@ -876,3 +876,21 @@ each sign faces when photographing it (certain, but one more note for about 60 s
 already taken). Bake lon/lat GeoJSON into the floor file (opens in geojson.io, but cleanup no longer lines up with
 the photo, and a new snapshot means re-fitting by hand). **Revisit if** a square-ish building needs a quarter turn
 (add 90 and 270), or if measuring on site shows the signs, not OSM, have the right proportions.
+
+## D37. Indoor walls are 0.2 m thick boxes, not flat panels (2026-10-21, proposed)
+
+**Problem.** Floor files give each wall as a line with no thickness (D36). PLAN §5 sketched indoor walls as flat
+panels, with backfaces drawn darker so a cut wall reads as solid. The floor builder (6c) has to pick one.
+
+**Decision (proposed).** (Owner's answer, 2026-10-21.) Each wall segment becomes a box 0.2 m thick, centred on the
+traced line, with two sides, two ends and a top. Each end runs on by 0.1 m so walls meeting at a corner close it.
+From the angled camera, walls read as solid and a wall seen end-on doesn't vanish into a hairline, and when 7a's
+clipping plane slices a floor open, the cut walls still look solid without a backface trick.
+
+**Cost.** About 3 times the triangles of a flat panel (10 per segment); STRC's ground floor is 80. Centred on the
+line, an outer wall stands 0.1 m outside the OSM outline that D36 fits it to. Door gaps narrow by 0.1 m on each side.
+
+**Alternatives.** Flat double-sided panels (fewest triangles, but a hairline end-on, and the cut shows a line instead
+of a wall top). Insetting outer walls so they stay inside the outline (needs to know which walls are outer, which
+the floor file doesn't say). **Revisit if** a phone struggles with the triangle count on a 20-floor building (Andrew),
+or the 0.1 m overhang shows against the outdoor mesh.

@@ -8,6 +8,22 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-21: 6c, the floor builder
+
+- `loadIndoor(slug)` in `src/shared/data/load.ts` loads `data/buildings/<slug>.json` and checks it against
+  `indoorSchema`, with the same four failure reasons as `loadCampus`. A slug that couldn't be a building is `invalid`
+  without a request, and so is a file for another building.
+- `features/indoor-view` builds one floor in the campus frame: each wall segment is a 0.2 m thick box from the floor's
+  base to base + height (D37, proposed), and hallway lines lie flat 2 cm above the base. Wall lines with more than two
+  points give one box per segment. Lane B's floor preview (6d) uses `useIndoor(slug)` and
+  `<FloorModel indoor floor palette>` from `@/features/indoor-view`. A floor that isn't traced yet draws nothing.
+- `ribbonPositions` moved from `campus-scene` to `src/shared/three/ribbons.ts` so both features draw lines the same
+  way.
+- Test first: the loader's URL and every failure reason, and the builder's exact heights, thickness, north = -z,
+  segment counts, and faces pointing outward (`load.test.ts`, `floor-geometry.test.ts`). The sample's STRC floor
+  lands exactly on STRC's outline in the built `campus.json`.
+- Not in the student app yet: the cutaway, the floor slab and the floor rail come in 7a.
+
 ## 2026-10-21: 6d started: STRC draft floors
 
 - The first floor files: `data-src/floors/strc/01.json`–`04.json`, straight from `floor-extract` (126, 101, 85 and

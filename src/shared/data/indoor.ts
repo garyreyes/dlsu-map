@@ -20,10 +20,13 @@ export const indoorFloorSchema = z.strictObject({
   hallways: z.array(lineSchema),
 });
 
+/** A building slug, as in campus.json. Also names the file, so the loader checks it before building a path. */
+export const slugSchema = z.string().regex(/^[a-z0-9-]+$/);
+
 export const indoorSchema = z
   .strictObject({
     /** Building slug, as in campus.json. */
-    building: z.string().regex(/^[a-z0-9-]+$/),
+    building: slugSchema,
     /** Only the floors traced so far, lowest first. */
     floors: z.array(indoorFloorSchema).min(1),
   })
