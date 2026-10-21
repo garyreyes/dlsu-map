@@ -8,6 +8,14 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-21: Route shape agreed before 4b
+
+- `src/shared/data/route.ts`: the meeting point for routes (docs/SPLIT.md). `Router(from, to, mode)` returns a
+  `RouteResult`: legs in order (floors down, the outdoor walk, floors up), with the line to draw, meters and seconds,
+  or one of three reasons it can't (`same-room`, `unknown-place`, `no-route`). `route.sample.ts` has samples for 5b.
+- `src/shared/config/routing.ts`: the costs, all in seconds. Proposed **D34** records them and the door rule.
+- `docs/ROADMAP.md`: 4b in progress.
+
 ## 2026-10-20: 1▸ Phase 1 critique and polish
 
 - **Critique** (`/impeccable critique`, dual-agent; snapshot in `.impeccable/critique/`): 26/40, 3 P1s, no P0.
