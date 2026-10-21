@@ -2,7 +2,7 @@
 
 > **Status:** draft for review, written 2026-10-19 from `docs/PRD.md` and the architecture Q&A.
 > This file is the **single place the technical stack is recorded.** `docs/PLAN.md` §1 is now history; where they
-> differ, this file wins. Reasoning for each fork is in `docs/DECISIONS.md` (D15–D21, proposed).
+> differ, this file wins. Reasoning for each fork is in `docs/DECISIONS.md` (D15 onward).
 
 ## 1. What the app does
 
