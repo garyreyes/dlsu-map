@@ -8,6 +8,12 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-22: D38–D41 agreed
+
+- The team agreed D38 (search while typing), D39 (floors labelled whole, `verticals.json`), D40 (`?to=` links and
+  Share) and D41 (routes go inside). Marked agreed in DECISIONS; SUMMARY rows added. PLAN §4's `vertical` now
+  points at D39.
+
 ## 2026-10-22: 8b done: routes go inside
 
 - **The router goes inside buildings with labelled floors** (D41). Given the trip's building files, a route walks in,

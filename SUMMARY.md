@@ -112,7 +112,7 @@ code (it loads three.js from a CDN, which the real app must not do).
 ## Key decisions (short version)
 
 Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24 were agreed by the team on
-2026-10-19, D25–D27 and D33 on 2026-10-20, D28–D32 and D34–D37 on 2026-10-21.
+2026-10-19, D25–D27 and D33 on 2026-10-20, D28–D32 and D34–D37 on 2026-10-21, D38–D41 on 2026-10-22.
 
 | # | Decision | Why |
 |---|---|---|
@@ -153,6 +153,10 @@ Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24
 | D35 | **Steps only where there's a choice**: turns at junctions, jogs under 15 m merged; a turn names the way, the covered walk, or a building within 20 m | A step every few meters on OSM's zigzags is noise |
 | D36 | **Floors are stretched onto the OSM outline** by the compiler; which way round (`fit.turn`) is set by hand | Signs are 7–16% off OSM's proportions, and the outline can't tell a sign from itself turned 180° |
 | D37 | **Indoor walls are 0.2 m thick boxes**, centred on the traced line, ends run on 0.1 m | Solid from the angled camera and when 7a's clipping plane cuts a floor open; no hairline end-on |
+| D38 | **Search lists completions while typing**; a building with no room list says so; Go opens only an exact match; a one-typo "Did you mean" (no uFuzzy, no cmdk) | `AG110` never flashes red on the way to `AG1104`; neither library worked for codes |
+| D39 | **Floors are labelled whole**, and `verticals.json` lists each stair and elevator's `servesFloors` | A forgotten room fails the build, not a student; signs draw shafts on floors they skip |
+| D40 | **A `?to=` link opens what Go would open**, read once then cleaned from the address bar; Share copies the link without a share sheet | No silent guesses from a link; Back and reload behave like any other pick |
+| D41 | **Routes go inside**: the trip's building files per call, indoor turns named by a room door within 5 m, the last step gives the side | Loads only two buildings; hallways have no names; door counting is unreliable |
 
 ### Things we chose *not* to do
 
