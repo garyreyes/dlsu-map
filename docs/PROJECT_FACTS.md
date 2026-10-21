@@ -139,6 +139,11 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   2026-10-21). It probes every full-tier building's floor file, so the console shows a 404 per building with none yet;
   that is expected. Headless screenshots: Playwright's own browsers aren't installed here, so use
   `chromium.launch({ channel: 'msedge' })`. (2026-10-21)
+- **Cleanup is a review → edit loop** (`floor-extract review`, `edit`; the steps are in the `floor-extract` skill).
+  Edit specs stay in `tools/floor-extract/out/`, not in git: the floor file's diff already shows one wall per line.
+  `edit` on a checked floor sets it back to `checked: false` (owner's check was of the old walls; 2026-10-21).
+  `floor-extract shots <building>` starts and stops its own Vite, so it never leaves a dev server on a port.
+  (2026-10-21)
 - **Which outlines fit onto their own corners** (6b, points along a side bending under 5° dropped): Andrew, Velasco,
   Miguel, Razon's low block, Mutien-Marie and STRC (5 points in OSM, one on a nearly straight side, and skewed at its
   east end, so its east-end walls poke out up to about 1 m). Gokongwei, Yuchengco, St. Joseph, St. La Salle and

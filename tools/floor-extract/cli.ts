@@ -4,18 +4,23 @@
 //                                       straighten, split colours, find walls and route (style detected if not given)
 //   npm run floor-extract -- floor <photo>   the draft → a first data-src/floors/<building>/<NN>.json (D36);
 //                                       never overwrites one, since it holds cleanup work
+//   npm run floor-extract -- review <floor.json> [--tiles N]   walls numbered over the photo, grid in plan px
+//   npm run floor-extract -- edit <floor.json> <spec.json>     apply a cleanup: delete walls, add walls, hallways
+//   npm run floor-extract -- shots <building>                  P1 screenshots of every floor (shots.ts)
 // Photos are DLSU's (data-src/photos/, gitignored); `crop` and `extract` write to tools/floor-extract/out/
-// (gitignored); `floor` writes the floor file, which is committed (D21).
+// (gitignored), as do `review` and `shots`; `floor` and `edit` write the floor file, which is committed (D21).
 // The rules live in the other files of this folder (pure, tested); this file only reads, writes and prints.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
+import { floorSourceSchema, type FloorSource } from '../../src/shared/data/floor-source.ts';
 import { STYLES, classify, detectStyle, type Style } from './colours.ts';
 import { checkCorners, parsePoint } from './corners.ts';
+import { applyEdit, parseEditSpec } from './edit.ts';
 import { floorFile, formatFloorFile, type Draft } from './floor-file.ts';
 import type { Point, Rgb } from './image.ts';
-import { cropGridSvg, overlaySvg, preview3dSvg } from './preview.ts';
+import { cropGridSvg, overlaySvg, preview3dSvg, reviewSvg } from './preview.ts';
 import { extractSegments, normalise } from './segments.ts';
 import { warpPlan } from './warp.ts';
 
@@ -26,6 +31,8 @@ const PAD = 40;
 /** The spike's numbers (STRC 4F at 4032×3024 and 2F at 2048×1536 both read well with them); the gap is per style. */
 const OPTIONS = { wallMin: 45, routeMin: 60, maxThickness: 40 };
 const CROP = { size: 400, scale: 2, step: 25 };
+/** `review` tiles overlap by this much, px, so a wall number on a tile's edge shows whole on one of them. */
+const OVERLAP = 80;
 
 async function load(photo: string): Promise<Rgb> {
   const { data, info } = await sharp(photo).rotate().removeAlpha().raw().toBuffer({ resolveWithObject: true });
@@ -123,8 +130,65 @@ async function floor(photo: string): Promise<void> {
   return Promise.resolve();
 }
 
+function readFloor(path: string): FloorSource {
+  const parsed = floorSourceSchema.safeParse(JSON.parse(readFileSync(path, 'utf8')));
+  if (!parsed.success) throw new Error(`${path} is not a floor file: ${parsed.error.issues[0]?.message ?? ''}`);
+  return parsed.data;
+}
+
+async function review(path: string, tiles: number): Promise<void> {
+  const floor = readFloor(path);
+  const dir = outDir(floor.extractedFrom);
+  const straight = join(dir, '1-straightened.png');
+  if (!existsSync(straight)) throw new Error(`no ${straight}; run extract on ${floor.extractedFrom} first`);
+  const { width, height } = await sharp(straight).metadata();
+  const [w, h] = [floor.plan.width + 2 * PAD, floor.plan.height + 2 * PAD];
+  if (width !== w || height !== h) {
+    throw new Error(
+      `${straight} is ${String(width)}×${String(height)}, not ${String(w)}×${String(h)}: re-run extract with the same corners`,
+    );
+  }
+  const full = await sharp(straight)
+    .composite([{ input: Buffer.from(reviewSvg(floor, { width, height }, PAD)) }])
+    .png()
+    .toBuffer();
+  const step = Math.ceil(width / tiles);
+  for (let t = 0; t < tiles; t++) {
+    const left = Math.max(0, t * step - OVERLAP);
+    const file = join(dir, `review-${String(t + 1)}.png`);
+    await sharp(full)
+      .extract({ left, top: 0, width: Math.min(width - left, step + 2 * OVERLAP), height })
+      .toFile(file);
+    console.log(`  ${file}`);
+  }
+  console.log(
+    `${path}: ${String(floor.walls.length)} walls (0–${String(floor.walls.length - 1)}), ${String(floor.hallways.length)} hallways, plan ${String(floor.plan.width)}×${String(floor.plan.height)} px`,
+  );
+}
+
+function edit(path: string, specPath: string): Promise<void> {
+  const floor = readFloor(path);
+  const result = applyEdit(floor, parseEditSpec(JSON.parse(readFileSync(specPath, 'utf8'))));
+  writeFileSync(path, formatFloorFile(result.file));
+  const counts = `−${String(result.removed)}, +${String(result.added)}`;
+  console.log(`${path}: ${String(floor.walls.length)} → ${String(result.file.walls.length)} walls (${counts})`);
+  if (result.unchecked) console.log('  it was checked: now checked: false, so the owner looks again in P1');
+  console.log('  wall numbers have changed: run review again before the next spec');
+  return Promise.resolve();
+}
+
 const USAGE =
-  'usage: floor-extract crop <photo> <x,y>… | extract <photo> <tl> <tr> <br> <bl> [--style <style>] | floor <photo>';
+  'usage: floor-extract crop <photo> <x,y>… | extract <photo> <tl> <tr> <br> <bl> [--style <style>] | floor <photo>' +
+  ' | review <floor.json> [--tiles N] | edit <floor.json> <spec.json> | shots <building>';
+
+function tilesFlag(args: string[]): number {
+  const at = args.indexOf('--tiles');
+  if (at < 0) return 4;
+  const [value] = args.splice(at, 2).slice(1);
+  const n = Number(value);
+  if (Number.isInteger(n) && n >= 1 && n <= 12) return n;
+  throw new Error(`--tiles must be a whole number from 1 to 12, not "${value ?? ''}"`);
+}
 
 function styleFlag(args: string[]): Style | undefined {
   const at = args.indexOf('--style');
@@ -135,11 +199,15 @@ function styleFlag(args: string[]): Style | undefined {
 }
 
 async function main(): Promise<void> {
-  const [command, photo, ...rest] = process.argv.slice(2);
+  const [command, subject, ...rest] = process.argv.slice(2);
   const style = styleFlag(rest);
-  if (command === 'crop' && photo && rest.length > 0) return crop(photo, points(rest));
-  if (command === 'extract' && photo && rest.length === 4) return extract(photo, points(rest), style);
-  if (command === 'floor' && photo && rest.length === 0) return floor(photo);
+  const tiles = tilesFlag(rest);
+  if (command === 'crop' && subject && rest.length > 0) return crop(subject, points(rest));
+  if (command === 'extract' && subject && rest.length === 4) return extract(subject, points(rest), style);
+  if (command === 'floor' && subject && rest.length === 0) return floor(subject);
+  if (command === 'review' && subject && rest.length === 0) return review(subject, tiles);
+  if (command === 'edit' && subject && rest.length === 1 && rest[0]) return edit(subject, rest[0]);
+  if (command === 'shots' && subject && rest.length === 0) return (await import('./shots.ts')).shots(subject);
   throw new Error(USAGE);
 }
 

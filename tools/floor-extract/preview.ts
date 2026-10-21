@@ -112,3 +112,46 @@ export function cropGridSvg(size: number, scale: number, left: number, top: numb
   }
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${String(size * scale)}" height="${String(size * scale)}">${lines.join('')}</svg>`;
 }
+
+const pairs = (line: readonly number[]): [number, number][] =>
+  line.flatMap((v, i) => (i % 2 === 0 ? [[v, line[i + 1] ?? v] as [number, number]] : []));
+
+/**
+ * A floor file over its straightened photo, for cleanup: walls red and numbered by their index in the file, hallways
+ * blue, and a grid labelled in plan px (what `edit` takes). `pad` is the straightened image's padding.
+ */
+export function reviewSvg(
+  floor: { plan: { width: number; height: number }; walls: number[][]; hallways: number[][] },
+  size: { width: number; height: number },
+  pad: number,
+): string {
+  const { width: W, height: H } = floor.plan;
+  const at = ([x, y]: [number, number]) => `${String(pad + x * W)},${String(pad + y * H)}`;
+  const poly = (line: readonly number[], style: string) =>
+    `<polyline points="${pairs(line).map(at).join(' ')}" fill="none" ${style}/>`;
+  const grid: string[] = [];
+  const shade = (g: number) => (g % 250 ? '#8cf' : '#06c');
+  for (let g = 0; g <= W; g += 50) {
+    grid.push(
+      `<line x1="${String(pad + g)}" y1="0" x2="${String(pad + g)}" y2="${String(size.height)}" stroke="${shade(g)}" opacity="0.5"/>`,
+    );
+    if (g % 100 === 0)
+      grid.push(`<text x="${String(pad + g + 2)}" y="14" font-size="13" fill="#06c">${String(g)}</text>`);
+  }
+  for (let g = 0; g <= H; g += 50) {
+    grid.push(
+      `<line x1="0" y1="${String(pad + g)}" x2="${String(size.width)}" y2="${String(pad + g)}" stroke="${shade(g)}" opacity="0.5"/>`,
+    );
+    grid.push(`<text x="2" y="${String(pad + g - 2)}" font-size="13" fill="#06c">${String(g)}</text>`);
+  }
+  const walls = floor.walls.map((line, i) => {
+    const p = pairs(line);
+    const first: [number, number] = p[0] ?? [0, 0];
+    const last: [number, number] = p.at(-1) ?? first;
+    const [mx, my] = [pad + ((first[0] + last[0]) / 2) * W, pad + ((first[1] + last[1]) / 2) * H];
+    return `${poly(line, 'stroke="#d00" stroke-width="4" opacity="0.8"')}<text x="${String(mx + 3)}" y="${String(my - 3)}" font-size="15" font-weight="bold" fill="#a0f" stroke="white" stroke-width="3" paint-order="stroke">${String(i)}</text>`;
+  });
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${String(size.width)}" height="${String(size.height)}">
+  <rect width="100%" height="100%" fill="white" opacity="0.5"/>${grid.join('')}
+  ${floor.hallways.map((h) => poly(h, 'stroke="#06f" stroke-width="6" opacity="0.6"')).join('')}${walls.join('')}</svg>`;
+}
