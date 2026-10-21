@@ -8,6 +8,11 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-21: STRC's labelled floors checked
+
+- The owner looked at STRC's 4 labelled floors in P1 (rooms, doors, stairs, elevator and test routes: "every floor
+  looks good") and they are `checked: true` again, so the build fails if STRC's outline moves under them.
+
 ## 2026-10-21: P1 labels: 6, 8 and 9 readable
 
 - P1's room codes are drawn at twice the size with a 6 px outline instead of 8 px at 36 px text: the outline is
