@@ -119,8 +119,14 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   nearest traced wall (90th percentile 0.6–1.2 m). (2026-10-21)
 - **The outline can't tell which way round a sign goes.** Over all 8 placements, a quarter turn always scores far
   worse (median 1.6–5 m off), but the right way and turned 180° tie for box-shaped buildings (STRC, Miguel) and only
-  just differ for St. Joseph. Hence `fit.turn` by hand. Both STRC signs (2F, 4F) are drawn the same way round, odd
-  rooms along the top. (2026-10-21)
+  just differ for St. Joseph. Hence `fit.turn` by hand. All 4 STRC signs are drawn the same way round, odd
+  rooms along the top and "YOU ARE HERE" at the left end. (2026-10-21)
+- **STRC is `turn: 180`** (owner, 2026-10-21): the ground-floor guard room, at the sign's left end, is at the east
+  (Taft) end, where the main-entrance pin is. So the odd rooms are on the south side. Both turns fit the outline
+  equally (median 0.1–0.3 m on every floor), so this came from the owner, not the fit.
+- **STRC corners as read** (photo pixels, tl tr br bl): 1F 597,995 3471,1006 3474,1690 594,1707; 2F 168,664
+  1856,681 1872,1092 142,1073; 3F 97,676 1795,657 1808,1066 91,1085; 4F 409,1058 3610,1096 3603,1849 405,1847.
+  Re-running `extract` with these reproduces the drafts. (2026-10-21)
 - **Which outlines fit onto their own corners** (6b, points along a side bending under 5° dropped): Andrew, Velasco,
   Miguel, Razon's low block, Mutien-Marie and STRC (5 points in OSM, one on a nearly straight side, and skewed at its
   east end, so its east-end walls poke out up to about 1 m). Gokongwei, Yuchengco, St. Joseph, St. La Salle and
