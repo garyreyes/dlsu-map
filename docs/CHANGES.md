@@ -8,6 +8,14 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-21: 6d done: STRC's 4 floors checked
+
+- The owner checked all 4 STRC floors in P1 ("everything looks perfect") and they are now `checked: true`. From here a
+  checked floor fails the build if STRC's outline moves under it (gap past 1.5 m at the 90th percentile; they sit at
+  0.5–0.6 m). ROADMAP 6d → done: STRC end to end, photo → floor file → fit → 3D → checked.
+- Stairs, the elevator, doors and room labels are not in the floor files yet (stair treads were removed in cleanup so
+  they don't read as walls). They come back as their own data in 8a, and P1 shows them then.
+
 ## 2026-10-21: 6d P1 Floor preview
 
 - `/preview.html` under `npm run dev` (`src/dev/floor-preview/`): pick a building that has floor files and a floor;
