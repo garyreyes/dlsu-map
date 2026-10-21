@@ -112,6 +112,15 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   rectangle, extend the outer walls' lines to make the 4 corners. (2026-10-20)
 - What the draft always gets wrong (cleanup, D17): stair and ramp treads read as walls, boxes around exit signs and
   "YOU ARE HERE", some short wall stubs and outer walls missed. 0.4–1.9 s per floor. (2026-10-20)
+- **Signs aren't drawn to OSM's proportions** (6b spike, D36). Long side ÷ short side, straightened sign against the
+  OSM outline's smallest rectangle: STRC 4F 4.06 and 2F 4.21 against 3.61 (62.8 × 17.4 m); St. Joseph 3F 8.31
+  against 7.31 (109.6 × 15.0 m); Miguel 3F 1.75 against 1.88 (57.3 × 30.5 m). Which is right is unknown; measuring
+  STRC's width on site would settle it. Stretched onto the outline, the outline sits a median 0.1–0.4 m from the
+  nearest traced wall (90th percentile 0.6–1.2 m). (2026-10-21)
+- **The outline can't tell which way round a sign goes.** Over all 8 placements, a quarter turn always scores far
+  worse (median 1.6–5 m off), but the right way and turned 180° tie for box-shaped buildings (STRC, Miguel) and only
+  just differ for St. Joseph. Hence `fit.turn` by hand. Both STRC signs (2F, 4F) are drawn the same way round, odd
+  rooms along the top. STRC's OSM outline has 4 corners but is skewed at one end. (2026-10-21)
 
 ## Room lists
 

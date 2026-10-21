@@ -37,7 +37,7 @@ against a small hand-written sample in the agreed shape, so it never waits.
 | **Campus data** | `campus.json` + buildings (2b) | the scene (2c) | 2a starts |
 | **Room codes** | `parseRoomCode()` (3a) + `rooms.json` (3b) | search and room card (3c, 3d) | 3a starts |
 | **Routes** | `route(from, to, mode)` returning steps (4b, 4c) | route preview, steps list, player (5b–5d) | 4b starts |
-| **Floor files** | floor GeoJSON + `checked` flag (6b, 6d) | floor builder and indoor view (6c, 7a) | 6a starts |
+| **Floor files** | `buildings/<slug>.json`, floors in meters + `checked` (6b, 6d; shape in `shared/data/indoor.ts`) | floor builder and indoor view (6c, 7a) | 6a starts |
 | **Indoor graph** | joined indoor/outdoor routing (8b) | indoor steps (8c) | 8a starts |
 
 Agree a shape by writing the TypeScript types (and a sample file) into `src/shared/data/` in one small PR that both
