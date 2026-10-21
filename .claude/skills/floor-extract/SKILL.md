@@ -21,10 +21,16 @@ Bash needs Node on PATH first: `export PATH="/c/Program Files/nodejs:$PATH"`.
    building that isn't a rectangle, extend the outer walls' lines to make 4 corners.
 4. **Extract:** `npm run -s floor-extract -- extract data-src/photos/<file> tl tr br bl` (add `--style green-sign` or
    `--style white-map` only if the detected style is wrong; STRC is green-sign, every other building white-map).
+   **A washed-out photo** finds few walls and reads the red route as walls (Velasco 2F: 58 walls, 0 route). Measure
+   paper, wall and route V and S on `1-straightened.png` (a few rows of pixels); if walls are above 0.65 of the
+   paper or the route below S 70, re-run with `--dark 0.88 --red-sat 40` (Velasco 2F–5F; colours.ts `Tuning`).
+   Note the tuning beside the corners in PROJECT_FACTS.
 5. **Inspect** `out/<name>/2-overlay.png`: red = walls, blue = route. If it looks sane, write the floor file:
    `npm run -s floor-extract -- floor data-src/photos/<file>` → `data-src/floors/<building>/<NN>.json`, `checked:
    false`, `fit.turn: 0`. Set `fit.turn` (0 or 180) by hand from something on the sign the owner can place: STRC's
-   ground-floor guard room is at the Taft end, so STRC is 180 (PROJECT_FACTS).
+   ground-floor guard room is at the Taft end, so STRC is 180 (PROJECT_FACTS). The white template's "Assembly Area"
+   inset shows the building among its neighbours (Taft, Henry Sy, Bloemen) in the sign's own orientation, and the
+   main-entrance pins in campus.json should land on the floor's lobby exits; check both.
 6. **Clean up, in a review → edit loop** (D17). The draft always needs it.
    - `npm run -s floor-extract -- review data-src/floors/<building>/<NN>.json [--tiles N]` draws the file's walls
      over the straightened photo, red and **numbered by their index in the file**, the hallways in blue, and a grid
@@ -43,6 +49,12 @@ Bash needs Node on PATH first: `export PATH="/c/Program Files/nodejs:$PATH"`.
      - Close the outer walls at both ends, and keep one line where the outer wall is drawn double.
      - Add the light-grey walls the extraction misses: room dividers, short stubs, hallway walls.
      - Box in lift shafts (the ✕-box).
+     - On the white template, a "wall" lying on the red route line is the route: delete it (it can be a whole corridor
+       side, as on Velasco 2F's x 982). Also delete the boxes of fire hose cabinets, alarms and exit signs, the
+       underlines the extraction draws under room numbers, and one line of every wall drawn double (6–8 px apart).
+     - Give each floor's elevator a hallway line to its door, so 8a can hang it within 3 m (Velasco 2F–5F).
+     - Coordinates: plan px = tile px − 40 (the padding), plus the tile's left edge; dump the walls in plan px
+       (`walls[i] × plan.width / plan.height`) rather than reading numbers off a crowded tile.
      - If the route has boxes drawn around exit signs or "YOU ARE HERE", redraw the hallways as the main hallway
        line plus one branch to each stair.
    - Room labels, doors, stairs and elevators aren't in the floor file until 8a adds them.
@@ -51,7 +63,7 @@ Bash needs Node on PATH first: `export PATH="/c/Program Files/nodejs:$PATH"`.
      missed outer walls or rough corners; on a checked floor that fails the build.
 7. **Look before the owner does:** `npm run -s floor-extract -- shots <building>` compiles the data, opens P1 (the
    dev floor preview) in Edge for every floor file and writes `out/shots/<building>-NN.png`. It fails on a page or
-   console error, a failed load (other buildings' missing floor files aside), or a request to another site. Check each floor sits inside the yellow outline with the main pin (orange) at
-   the right end.
+   console error, a failed load (other buildings' missing floor files aside), or a request to another site. Check
+   each floor sits inside the yellow outline with the main pin (orange) at the right end.
 8. **Owner checks** in P1 (`npm.cmd run dev`, then `/preview.html?building=<slug>&floor=<n>`). Only the owner says a
    floor is right; then Claude sets `checked: true` in a PR.

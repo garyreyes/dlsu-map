@@ -133,6 +133,22 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - **STRC corners as read** (photo pixels, tl tr br bl): 1F 597,995 3471,1006 3474,1690 594,1707; 2F 168,664
   1856,681 1872,1092 142,1073; 3F 97,676 1795,657 1808,1066 91,1085; 4F 409,1058 3610,1096 3603,1849 405,1847.
   Re-running `extract` with these reproduces the drafts. (2026-10-21)
+- **Velasco corners as read** (photo pixels, tl tr br bl; the outermost line, which runs through the exit doors):
+  1F 582,815 3389,885 3374,1700 565,1650; 2F 589,979 2925,1085 2920,1710 584,1769; 3F 699,986 3109,1025 3105,1631
+  696,1617; 4F 651,866 3289,925 3285,1637 637,1635; 5F 361,819 3586,850 3602,1775 349,1770. On 2F–4F the
+  bottom-right corner is the end wall extended (the last room is set in); 5F is the envelope of its two blocks.
+  **2F–5F need `--dark 0.88 --red-sat 40`**: washed-out photos (paper V ~155, walls 0.76–0.85 of it, route S
+  44–58). Untuned, 2F found 58 walls and read the route as walls. (2026-10-21)
+- **Velasco is `turn: 180`** (owner checked all 5 floors in P1, 2026-10-21): the sign's "Assembly Area" inset has
+  Taft on the left and Henry Sy above, while OSM has them east and south; and both main-entrance pins land on the
+  lobby's exits only that way round (the lobby is 38–44% from the west end, the pins 36–39%). (2026-10-21)
+- **Velasco 5F's sign draws parts of it narrower; the floor isn't** (owner, 2026-10-21: "same as the floors
+  below"). Traced as drawn, it sat 2.3 m from the outline at the 90th percentile. So after cleanup its plan y was
+  stretched by a one-off transform: west block (plan x < 1372) from 0–847 and middle block (1372–1984) from 52–900
+  to the east block's bottom, 941; then the top of x 526–1870 from 52 to 0 (lobby and elevator left as drawn). Each
+  wall moves with the block its midpoint is in. Now 0.3 m. Re-tracing 5F means redoing this. (2026-10-21)
+- **Velasco's south main-entrance pin moved** about 5.4 m east and 1.7 m north, to the lobby's south door where the
+  sign draws it (owner's call, 2026-10-21): it was 5.6 m from the G hallway, past 8a's 5 m. Still `verified: false`.
 - **P1 Floor preview:** `npm run dev`, then open `/preview.html` (`?building=strc&floor=2` jumps straight there). It
   reads the compiled `public/data/`, so re-run `npm run compile-data` (or restart `npm run dev`) after editing a floor
   file. Read-only: the owner says which floors look right and Claude sets `checked: true` in a PR (owner's choice,

@@ -115,9 +115,25 @@ export function localPaper(img: Rgb): Float32Array {
   return out;
 }
 
+/**
+ * Per-photo overrides for a washed-out photo (Velasco 2F: paper V 155, grey walls at 0.76–0.85 of it, the red route
+ * only S 44–58), set on `extract` by hand after measuring. `darkRatio` replaces the style's; `redSat` is the
+ * least saturation that still counts as red, for the route and for red that is never a wall (70 by default).
+ */
+export interface Tuning {
+  readonly darkRatio?: number;
+  readonly redSat?: number;
+}
+
 /** Wall ink and the route, as masks the size of the image. Red (fire equipment, exit signs) is never a wall. */
-export function classify(img: Rgb, style: Style): { dark: Mask; route: Mask } {
-  const rules = STYLES[style];
+export function classify(img: Rgb, style: Style, tuning: Tuning = {}): { dark: Mask; route: Mask } {
+  const redSat = tuning.redSat ?? 70;
+  const base = STYLES[style];
+  const rules = {
+    ...base,
+    darkRatio: tuning.darkRatio ?? base.darkRatio,
+    isRouteHue: style === 'white-map' ? (h: number, s: number) => isRed(h, s, redSat) : base.isRouteHue,
+  };
   const paper = localPaper(img);
   const dark = emptyMask(img.width, img.height);
   const route = emptyMask(img.width, img.height);
@@ -128,7 +144,7 @@ export function classify(img: Rgb, style: Style): { dark: Mask; route: Mask } {
     const isRoute = rules.isRouteHue(h, s) && v >= local * rules.routeMinRatio && v <= local * rules.routeMaxRatio;
     const coloured = !rules.tintedWalls && s >= 80;
     if (isRoute) route.data[i] = 1;
-    else if (v <= local * rules.darkRatio && !isRed(h, s, 70) && !coloured) dark.data[i] = 1;
+    else if (v <= local * rules.darkRatio && !isRed(h, s, redSat) && !coloured) dark.data[i] = 1;
   }
   return { dark, route };
 }
