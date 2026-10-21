@@ -2,13 +2,17 @@
 // Start or route-option change. Pure: no React, no fetch. Costs and the door rule: D34.
 import type { Campus, CampusBuilding, Entrance } from '@/shared/data/campus';
 import type { Room } from '@/shared/data/rooms';
-import type { From, Leg, RouteResult, Router, To, WalkEnd } from '@/shared/data/route';
+import type { From, Leg, RouteResult, Router, Step, To, WalkEnd } from '@/shared/data/route';
+import { createDirections } from './directions.ts';
 import { floorsLeg } from './floors.ts';
 import { buildWalkGraph, cheapestWalk, type WalkGraph } from './walk-graph.ts';
 
 /** What the router reads from `campus.json`. The full Campus fits; the tests pass less. */
 export type RouterCampus = Pick<Campus, 'walk' | 'gates' | 'entrances'> & {
-  readonly buildings: readonly Pick<CampusBuilding, 'slug' | 'tier' | 'levels'>[];
+  readonly buildings: readonly Pick<
+    CampusBuilding,
+    'slug' | 'name' | 'short' | 'tier' | 'levels' | 'floorLabels' | 'volumes'
+  >[];
 };
 export interface RouterRooms {
   readonly rooms: readonly Pick<Room, 'code' | 'building' | 'floor'>[];
@@ -33,21 +37,33 @@ interface Places {
   hasElevator(building: string): boolean;
 }
 
+/** A leg, and its steps once its place among the legs is known. */
+interface Part {
+  readonly leg: Leg;
+  readonly steps: (index: number) => Step[];
+}
+
 export function createRouter(campus: RouterCampus, rooms: RouterRooms): Router {
   const g = buildWalkGraph(campus.walk);
   const places = placesOf(campus, rooms, g);
+  const directions = createDirections(campus.walk, g, campus.buildings);
   return (from, to, mode) => {
     const a = places.from(from);
     const b = places.to(to);
     if (a === null || b === null || b.building === undefined) return { ok: false, reason: 'unknown-place' };
     if (from.kind === 'room' && to.kind === 'room' && from.code === to.code) return { ok: false, reason: 'same-room' };
-    const floors = (building: string, f: number, t: number) =>
-      floorsLeg(building, f, t, mode, places.hasElevator(building));
-    if (a.building === b.building) return done(compact([floors(b.building, a.floor, b.floor)]));
+    /** `last`: the leg up to the To room, whose step says which floor the room is on. */
+    const floors = (building: string, f: number, t: number, last: boolean): Part | null => {
+      const leg = floorsLeg(building, f, t, mode, places.hasElevator(building));
+      const room = last && to.kind === 'room' ? to.code : undefined;
+      return leg === null ? null : { leg, steps: (i) => [directions.floors(leg, i, room)] };
+    };
+    if (a.building === b.building) return done(compact([floors(b.building, a.floor, b.floor, true)]));
     const walk = walkLeg(g, a, b);
     if (walk === null) return { ok: false, reason: 'no-route' };
-    const down = a.building === undefined ? null : floors(a.building, a.floor, 1);
-    return done(compact([down, walk, floors(b.building, 1, b.floor)]));
+    const down = a.building === undefined ? null : floors(a.building, a.floor, 1, false);
+    const outdoors = { leg: walk.leg, steps: (i: number) => directions.walk(walk.points, walk.leg.from, walk.to, i) };
+    return done(compact([down, outdoors, floors(b.building, 1, b.floor, true)]));
   };
 }
 
@@ -94,8 +110,15 @@ function placesOf(campus: RouterCampus, rooms: RouterRooms, g: WalkGraph): Place
   };
 }
 
+interface Outdoors {
+  readonly leg: Leg & { readonly kind: 'walk' };
+  /** The walk points, for the directions. */
+  readonly points: readonly number[];
+  readonly to: Extract<WalkEnd, { kind: 'door' }>;
+}
+
 /** The outdoor leg between two spots, or null if nothing joins them (or one has no doors). */
-function walkLeg(g: WalkGraph, a: Spot, b: Spot): Leg | null {
+function walkLeg(g: WalkGraph, a: Spot, b: Spot): Outdoors | null {
   const walk = cheapestWalk(
     g,
     a.openings.map((o) => o.point),
@@ -103,26 +126,29 @@ function walkLeg(g: WalkGraph, a: Spot, b: Spot): Leg | null {
   );
   const first = a.openings.find((o) => o.point === walk?.points[0]);
   const last = b.openings.find((o) => o.point === walk?.points.at(-1));
-  if (walk === null || first === undefined || last === undefined) return null;
-  return {
+  // A To spot is always a building, so its openings are doors.
+  if (walk === null || first === undefined || last === undefined || last.end.kind !== 'door') return null;
+  const leg = {
     kind: 'walk',
     from: first.end,
     to: last.end,
     path: walk.points.map((p) => g.at(p)),
     meters: walk.meters,
     seconds: walk.seconds,
-  };
+  } as const;
+  return { leg, points: walk.points, to: last.end };
 }
 
 /** Totals come from the unrounded legs; each number is rounded to a whole once, here. */
-function done(legs: readonly Leg[]): RouteResult {
+function done(parts: readonly Part[]): RouteResult {
+  const legs = parts.map((p) => p.leg);
   const meters = legs.reduce((m, l) => m + (l.kind === 'walk' ? l.meters : 0), 0);
   const seconds = legs.reduce((s, l) => s + l.seconds, 0);
   const rounded = legs.map((l) =>
     l.kind === 'walk' ? { ...l, meters: Math.round(l.meters), seconds: Math.round(l.seconds) } : l,
   );
-  // 4c's directions fill `steps` (the next PR, `4c-direction-text`); until then a route has none.
-  return { ok: true, route: { legs: rounded, steps: [], meters: Math.round(meters), seconds: Math.round(seconds) } };
+  const steps = parts.flatMap((p, i) => p.steps(i));
+  return { ok: true, route: { legs: rounded, steps, meters: Math.round(meters), seconds: Math.round(seconds) } };
 }
 
-const compact = (legs: readonly (Leg | null)[]): Leg[] => legs.filter((l) => l !== null);
+const compact = (parts: readonly (Part | null)[]): Part[] => parts.filter((p) => p !== null);

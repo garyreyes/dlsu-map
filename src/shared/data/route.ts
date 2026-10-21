@@ -77,7 +77,8 @@ interface StepBase {
 interface WalkStepBase extends StepBase {
   /** Where the camera looks: the gate or door, the turn, the curb. */
   readonly at: XY;
-  /** To the next step, rounded for showing: to 5 m under 100 m, to 10 m from there (D35). */
+  /** To the next step, rounded for showing: to 5 m under 100 m, to 10 m from there (D35). 0 when the next step is on
+   *  the same spot, as when a gate sits on the curb of a crossing. */
   readonly meters: number;
 }
 

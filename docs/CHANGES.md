@@ -8,6 +8,26 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-21: 4c direction text
+
+- `src/features/routing/directions.ts` and `turns.ts`: every route now carries its steps (D35). A step is where the
+  student has a choice: a turn at a junction, a crossing, a door, a floor change. Bends 10° or more that are under
+  15 m apart merge into one turn by their overall change of direction; a turn names the way, then "the covered walk",
+  then a building within 20 m. "(approximate)" on unchecked doors (O6); "ST311 is on 3F: take the stairs up to 3F"
+  on the last floors leg, with the building's floor labels.
+- The walk graph keeps each link's way (of the cheapest link, when two join the same points), so the directions name
+  the way the route actually used. The router's buildings now include `name`, `short`, `floorLabels` and `volumes`.
+- Real campus, checked by hand: Gate 1 → ST311 is Start · left onto the Taft sidewalk · left onto the covered walk ·
+  right onto the covered walk · Enter STRC · ST311 is on 3F. Over 190 trips: at most 6 walk steps, turns at least
+  16.9 m apart, shown distances within 5 m a step of the real walk.
+- Tests: 46 new in `directions.test.ts` (written first, every turn size and step kind shown reachable) and the real
+  campus in `tests/routing.test.ts`. Nine planted bugs each fail tests, among them left/right swapped (23 fail), no
+  merging (21) and no junction rule (1).
+- **Fixed from the review** (each with a test that failed first): a bend into the door right after a junction turn
+  merged with it and dropped the turn; two streets crossed back to back (Taft, then Dagonoy) were one step; a step on
+  the same spot as the next showed 5 m, now 0. Merging chains, which the review queried, is intended and now pinned.
+- PROJECT_FACTS "Routing": Claude's own calls in the directions, and what the real campus gives.
+
 ## 2026-10-21: Step shape agreed before 4c
 
 - `src/shared/data/route.ts`: `Route.steps`, a list of `Step`s (`start`, `turn`, `cross`, `enter`, `floors`), each

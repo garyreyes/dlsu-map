@@ -1,11 +1,11 @@
 // The router (4b) on the real campus, compiled from data-src as the build does. Distances are bounded by geometry
 // rather than pinned, so an OSM refresh doesn't break them; what is pinned was checked by hand on 2026-10-21: the 8
-// Taft crosswalks, and that each gate named after a building is right by it.
+// Taft crosswalks, that each gate named after a building is right by it, and the Gate 1 → ST311 directions.
 import { readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { buildingSourcesSchema } from '../src/shared/data/buildings.ts';
 import { toPrefixTable } from '../src/shared/data/prefix-table.ts';
-import type { Leg, XY } from '../src/shared/data/route.ts';
+import type { From, Leg, XY } from '../src/shared/data/route.ts';
 import { compileCampus, type Snapshot } from '../scripts/compile/campus.ts';
 import { entranceSourcesSchema, gateSourcesSchema } from '../scripts/compile/campus-walk.ts';
 import { compileRooms } from '../scripts/compile/rooms.ts';
@@ -117,6 +117,50 @@ describe('routing on the real campus', () => {
     expect(walk?.meters).toBeLessThanOrEqual(3 * line);
     expect(result.ok && result.route.seconds).toBe(200 + (walk?.seconds ?? 0) + 40);
   });
+});
+
+// The directions (4c, D35) on the real campus. Gate 1 → ST311 was checked by hand on 2026-10-21, point by point:
+// out of the gate heading east, then north-north-west up the sidewalk (+86°, left); off Taft into campus, a 65° right
+// and a 157° hairpin drawn 1 m apart (net 92°, left); three jogs near STRC within 13 m (net 88°, right); and a
+// right-left jog onto Fidel A. Reyes Street 4 m long (net 2°, straight on, so no step).
+describe('directions on the real campus', () => {
+  it('Gate 1 → ST311: the steps checked by hand', () => {
+    const result = route({ kind: 'gate', gate: 'gate-1' }, { kind: 'room', code: 'ST311' }, 'auto');
+    expect(result.ok && result.route.steps.map((s) => (s.kind === 'turn' ? [s.turn, s.text] : s.text))).toStrictEqual([
+      'Start at Gate 1 (South)',
+      ['left', 'Turn left onto the Taft Avenue sidewalk'],
+      ['left', 'Turn left onto the covered walk'],
+      ['right', 'Turn right onto the covered walk'],
+      'Enter STRC by the main entrance (approximate)',
+      'ST311 is on 3F: take the stairs up to 3F',
+    ]);
+  });
+  type Leaving = Extract<From, { kind: 'gate' | 'building' }>;
+  const froms: Leaving[] = [
+    ...campus.gates.map((g): Leaving => ({ kind: 'gate', gate: g.id })),
+    ...full.map((building): Leaving => ({ kind: 'building', building, floor: 1 })),
+  ];
+  it.each(froms.map((f) => [f.kind === 'gate' ? f.gate : f.building, f] as const))(
+    'from %s to every other full building: few steps, in order, adding up',
+    (_name, from) => {
+      for (const building of full.filter((b) => from.kind === 'gate' || b !== from.building)) {
+        const result = route(from, { kind: 'building', building }, 'auto');
+        const walk = onlyWalk(result.ok && result.route.legs);
+        const steps = result.ok ? result.route.steps : [];
+        // 6 at most on 2026-10-21; a big jump means the merging broke, not that the campus grew.
+        expect(steps.length).toBeLessThanOrEqual(8);
+        expect(steps[0]?.kind).toBe('start');
+        expect(steps.at(-1)).toMatchObject({ kind: 'enter', building, at: walk.to.at });
+        expect(steps.every((s) => s.leg === 0)).toBe(true);
+        const shown = steps.reduce((m, s) => m + ('meters' in s ? s.meters : 0), 0);
+        expect(Math.abs(shown - walk.meters)).toBeLessThanOrEqual(5 * steps.length);
+        steps.forEach((s, i) => {
+          const before = steps[i - 1];
+          if (s.kind === 'turn' && before?.kind === 'turn') expect(straight(s.at, before.at)).toBeGreaterThan(15);
+        });
+      }
+    },
+  );
 });
 
 /** The cost of a walk, summed the way the router sums it. */
