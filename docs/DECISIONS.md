@@ -686,7 +686,7 @@ planet extract.
 
 ---
 
-## D28. Preview links only; production stays dark until the private beta (2026-10-20, proposed)
+## D28. Preview links only; production stays dark until the private beta (2026-10-20, agreed)
 
 **Problem.** D5 gives every PR a preview link, but Cloudflare only makes previews for a Worker that already exists
 (checked live, PROJECT_FACTS "Cloudflare"). Creating it with a normal deploy also publishes
@@ -706,7 +706,7 @@ Dependabot PRs and can't be a required check).
 
 ---
 
-## D29. Floor extraction without OpenCV (2026-10-20, proposed)
+## D29. Floor extraction without OpenCV (2026-10-20, agreed)
 
 **Problem.** ARCHITECTURE §2 named `@techstark/opencv-js` + `sharp` for `tools/floor-extract/`, as the spike used.
 OpenCV is a 10 MB WebAssembly package with an awkward async start, and the spike used only three of its functions:
@@ -722,7 +722,7 @@ per floor on real photos (the spike took about 4 s).
 
 ---
 
-## D30. Reading text at 16px, taps at 48px; only the Beta tag and credit at 14px (2026-10-20, proposed)
+## D30. Reading text at 16px, taps at 48px; only the Beta tag and credit at 14px (2026-10-20, agreed)
 
 **Problem.** PRODUCT.md sets a 16px text floor and 48px tap targets, but the prototype shipped 12–14px roles (Beta
 tag, OSM credit, row subtitles, section labels, code tags, map labels, the floor chip) and 44px chips, a 44px
@@ -738,7 +738,7 @@ prototype's sizes and fixing only tap targets (breaks PRODUCT.md's floor, so PRO
 
 ---
 
-## D31. Building entrances from pins on openstreetmap.org (2026-10-20, proposed)
+## D31. Building entrances from pins on openstreetmap.org (2026-10-20, agreed)
 
 **Problem.** OSM has a door for none of the 10 full buildings. Its only "entrances" on their outlines are street
 gates (Gates 4A/4B, 5A/5B, 6, Gate 1). STRC, Miguel and Yuchengco touch no path at all, so routing (4a) has nothing
@@ -757,7 +757,7 @@ OSM outlines).
 
 ---
 
-## D32. Taft Avenue gets two sidewalks that meet only at crosswalks (2026-10-20, proposed)
+## D32. Taft Avenue gets two sidewalks that meet only at crosswalks (2026-10-20, agreed)
 
 **Problem.** OSM has no sidewalks here, so walking means following street centre lines. On a centre line nothing
 stops a route crossing Taft Avenue mid-block, under the LRT, which is unsafe and not what anyone does. Andrew can

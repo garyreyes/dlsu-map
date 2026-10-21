@@ -113,7 +113,7 @@ code (it loads three.js from a CDN, which the real app must not do).
 ## Key decisions (short version)
 
 Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24 were agreed by the team on
-2026-10-19, D25–D27 and D33 on 2026-10-20, D34 and D35 on 2026-10-21.
+2026-10-19, D25–D27 and D33 on 2026-10-20, D28–D32 and D34–D35 on 2026-10-21.
 
 | # | Decision | Why |
 |---|---|---|
@@ -144,6 +144,11 @@ Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24
 | D25 | **Sign-only prefixes are suggested** (`VH501` → "Did you mean VL501?"), never accepted | Students type what the sign says |
 | D26 | **A room's floor is where its directory or map puts it**; number ÷ 100 is only a guess | Mezzanines exist |
 | D27 | **OSM snapshot from the main API**, converted by our own tested code | Every Overpass server failed |
+| D28 | **Preview links only**: production stays dark until the private beta | A normal deploy would publish the beta link months early |
+| D29 | **Floor extraction without OpenCV**: sharp plus our own tested TypeScript | Only three OpenCV functions were used; 10 MB to load them |
+| D30 | **Reading text 16px, taps 48px**; only the Beta tag and OSM credit at 14px | PRODUCT.md's floor holds everywhere a student reads |
+| D31 | **Building entrances from pins on openstreetmap.org**, snapped to the outline | OSM has no doors for the 10 full buildings |
+| D32 | **Taft gets two sidewalks** that meet only at crosswalks | Routes must never cross Taft mid-block |
 | D33 | **A dash on Velasco, St. Joseph and St. Miguel signs is a range** (`VH-304-309` = 304 to 309) | Rooms in between are on no other line |
 | D34 | **Routes cost seconds**: walk 1.3 m/s, +45 s per Taft crossing, stairs 20 s a floor, elevator 3 min + 5 s a floor | One number weighs walking, waiting and floors; the time shown is real time |
 | D35 | **Steps only where there's a choice**: turns at junctions, jogs under 15 m merged; a turn names the way, the covered walk, or a building within 20 m | A step every few meters on OSM's zigzags is noise |
