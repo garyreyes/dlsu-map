@@ -16,7 +16,7 @@ export interface FloorFile {
 
 /** What the floors are labelled against (8a). Each entrance's index in `entrances` is its index in campus.json. */
 export interface IndoorInputs {
-  readonly rooms: readonly { code: string; building: string; floor: number }[];
+  readonly rooms: readonly { code: string; building: string; floor: number; floorLabel?: string }[];
   readonly verticals: readonly { path: string; building: string; list: readonly VerticalSource[] }[];
   readonly entrances: readonly { building: string; kind: 'main' | 'side' | 'back'; point: Point }[];
 }

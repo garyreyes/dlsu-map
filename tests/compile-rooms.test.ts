@@ -71,7 +71,8 @@ describe('compiling the real room lists', () => {
 
 describe('Velasco, St. Joseph and St. Miguel (D33: a dash on these signs is a range)', () => {
   it.each([
-    ['velasco', 72, [14, 12, 16, 17, 13]],
+    // Velasco: the directory's 72, plus 201C, 403A and 403B from the signs.
+    ['velasco', 75, [14, 13, 16, 19, 13]],
     ['sj', 78, [15, 13, 11, 9, 12, 18]],
     ['miguel', 69, [24, 18, 15, 12]],
   ])('%s has %i rooms, floor by floor as the directory lists them', (building, total, perFloor) => {
@@ -132,4 +133,11 @@ describe('Velasco, St. Joseph and St. Miguel (D33: a dash on these signs is a ra
   it.each(['VL201', 'SJ102', 'SJ301', 'SM301', 'SM302'])('has no %s (the directory skips it)', (code) => {
     expect(room(code)).toBeUndefined();
   });
+
+  it.each(['VL201C', 'VL403A', 'VL403B'])(
+    'has %s, on its sign but not in the directory, as an unnamed Room',
+    (code) => {
+      expect(room(code)?.name).toBe('Room');
+    },
+  );
 });

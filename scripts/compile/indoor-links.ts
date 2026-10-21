@@ -27,8 +27,8 @@ export interface LinkInput {
   readonly floors: readonly LabelledFloor[];
   /** The building's verticals.json, or an empty list at the path it would have. */
   readonly verticals: { readonly path: string; readonly list: readonly VerticalSource[] };
-  /** This building's rooms from its room list. */
-  readonly rooms: readonly { code: string; floor: number }[];
+  /** This building's rooms from its room list. One with its own `floorLabel` (a mezzanine) needn't be placed. */
+  readonly rooms: readonly { code: string; floor: number; floorLabel?: string }[];
   /** This building's entrances, with their index in campus.json's `entrances`. */
   readonly entrances: readonly { index: number; kind: 'main' | 'side' | 'back'; point: Point }[];
 }
@@ -73,7 +73,7 @@ function checkRooms(input: LinkInput, f: LabelledFloor, errors: string[]): strin
       return on === f.floor;
     }),
   );
-  for (const r of input.rooms.filter((x) => x.floor === f.floor && !placed.has(x.code))) {
+  for (const r of input.rooms.filter((x) => x.floor === f.floor && !x.floorLabel && !placed.has(x.code))) {
     errors.push(`${f.path}: ${r.code} is on floor ${String(f.floor)}'s room list but not placed`);
   }
   return valid;

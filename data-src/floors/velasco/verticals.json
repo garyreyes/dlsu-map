@@ -1,0 +1,6 @@
+[
+  { "id": "east-stairs", "kind": "stairs", "servesFloors": [1, 2, 3, 4, 5] },
+  { "id": "main-stairs", "kind": "stairs", "servesFloors": [1, 2, 3, 4, 5] },
+  { "id": "west-stairs", "kind": "stairs", "servesFloors": [1, 2, 3, 4, 5] },
+  { "id": "elevator", "kind": "elevator", "servesFloors": [1, 2, 3, 4, 5] }
+]
