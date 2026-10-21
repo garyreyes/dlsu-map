@@ -134,9 +134,10 @@ describe('compiling the real walk network', () => {
     expect(c?.entrances.filter((e) => e.building === 'yuchengco')).toHaveLength(2);
   });
 
-  it('keeps its size: 510 points, 576 links', () => {
-    expect((c?.walk.points.length ?? 0) / 2).toBe(510);
-    expect(c?.walk.links).toHaveLength(576);
+  // 510 and 576 until Velasco's south main pin moved to its lobby door (9b): its door now joins a path mid-segment.
+  it('keeps its size: 511 points, 577 links', () => {
+    expect((c?.walk.points.length ?? 0) / 2).toBe(511);
+    expect(c?.walk.links).toHaveLength(577);
   });
 
   it('walks Taft on its sidewalks and crosses at crosswalks (D32)', () => {

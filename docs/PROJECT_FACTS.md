@@ -142,9 +142,13 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - **Velasco is `turn: 180`** (to confirm with the owner in P1): the sign's "Assembly Area" inset has Taft on the left
   and Henry Sy above, while OSM has them east and south; and both main-entrance pins land on the lobby's exits only
   that way round (the lobby is 38–44% from the west end, the pins 36–39%). (2026-10-21)
-- **Velasco 5F is narrower along one long side**: its sign's two blocks differ by about 2.5 m, so with the envelope
-  as corners the floor sits 2.3 m from the outline at the 90th percentile (1F–4F: 0.2–0.6 m). Whether the floor is
-  really set back is for the owner to say. (2026-10-21)
+- **Velasco 5F's sign draws parts of it narrower; the floor isn't** (owner, 2026-10-21: "same as the floors
+  below"). Traced as drawn, it sat 2.3 m from the outline at the 90th percentile. So after cleanup its plan y was
+  stretched by a one-off transform: west block (plan x < 1372) from 0–847 and middle block (1372–1984) from 52–900
+  to the east block's bottom, 941; then the top of x 526–1870 from 52 to 0 (lobby and elevator left as drawn). Each
+  wall moves with the block its midpoint is in. Now 0.3 m. Re-tracing 5F means redoing this. (2026-10-21)
+- **Velasco's south main-entrance pin moved** about 5.4 m east and 1.7 m north, to the lobby's south door where the
+  sign draws it (owner's call, 2026-10-21): it was 5.6 m from the G hallway, past 8a's 5 m. Still `verified: false`.
 - **P1 Floor preview:** `npm run dev`, then open `/preview.html` (`?building=strc&floor=2` jumps straight there). It
   reads the compiled `public/data/`, so re-run `npm run compile-data` (or restart `npm run dev`) after editing a floor
   file. Read-only: the owner says which floors look right and Claude sets `checked: true` in a PR (owner's choice,
