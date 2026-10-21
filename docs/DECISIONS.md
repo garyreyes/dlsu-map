@@ -899,3 +899,31 @@ line, an outer wall stands 0.1 m outside the OSM outline that D36 fits it to. Do
 of a wall top). Insetting outer walls so they stay inside the outline (needs to know which walls are outer, which
 the floor file doesn't say). **Revisit if** a phone struggles with the triangle count on a 20-floor building (Andrew),
 or the 0.1 m overhang shows against the outdoor mesh.
+
+---
+
+## D38. Floors are labelled whole, and stairs list their own floors (2026-10-21, proposed)
+
+**Problem.** 8a puts rooms, doors, stairs and elevators into the floor files and joins them into an indoor graph.
+Three things needed an answer: how the build knows which floors an elevator stops at, when a floor counts as
+labelled, and whether the four skybridges join the graph now.
+
+**Decision.** (Owner's answers, 2026-10-21.)
+
+- **`data-src/floors/<building>/verticals.json`** lists each stair and elevator with its `servesFloors`; floor
+  files only place them. An evacuation sign draws an elevator shaft on every floor, also on floors it skips, so the
+  floors can't be read off the signs.
+- **A floor is labelled whole.** A floor file without `rooms` asks nothing. Once it has `rooms`, every room the
+  room list puts on that floor must be placed, each code once, and every vertical that stops there must be placed
+  once it has `verticals`. The build fails on a door or vertical more than 3 m from a hallway, an entrance more than
+  5 m from the G hallway, and, once G is traced, any placed room that can't be reached from every main entrance.
+- **Bridges wait for 9b/9c.** None of the bridged buildings (Miguel, Gokongwei, St. Joseph, Yuchengco) has floor
+  files yet; they join the graph when one of each pair is traced.
+- The shape Lane A reads is in `src/shared/data/indoor.ts`: `graph` (points with a floor each; links `hall`,
+  `door`, `stairs`, `elevator`, `entrance`), `rooms` (label and door points), `verticals` (`stops` on each
+  labelled floor) and `entrances` (index into campus.json's `entrances`).
+
+**Alternatives.** `servesFloors` read off which floor files place a vertical (less to type, but routes a skip-stop
+elevator to floors it skips). Labelling room by room (no all-or-nothing floor, but a forgotten room fails silently
+until launch). Bridges now, on made-up fixtures (a shape with nothing real to test it against). **Revisit if** a
+building's labelling has to land in parts, or a bridge turns out to join a floor that isn't traced.

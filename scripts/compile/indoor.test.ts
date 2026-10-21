@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import type { CampusBuilding } from '../../src/shared/data/campus.ts';
 import type { FloorSource } from '../../src/shared/data/floor-source.ts';
-import { compileIndoor, type FloorFile } from './indoor.ts';
+import { compileIndoor, type FloorFile, type IndoorInputs } from './indoor.ts';
 
 /** 40 m east–west by 10 m north–south, 4 storeys of 3.4 m. */
 const box: CampusBuilding = {
@@ -83,6 +83,10 @@ describe('compileIndoor', () => {
             hallways: [[0, 5, 40, 5]],
           },
         ],
+        graph: { points: [0, 5, 40, 5], floors: [3, 3], links: [[0, 1, 'hall']] },
+        rooms: [],
+        verticals: [],
+        entrances: [],
       },
     ]);
   });
@@ -147,6 +151,67 @@ describe('compileIndoor', () => {
     ],
   ])('fails the build on %s', (_, bad, error) => {
     const result = compileIndoor([bad, file('box', 1)], [box, tower]);
+    expect(result.errors).toStrictEqual([error]);
+    expect(result.buildings).toStrictEqual([]);
+  });
+});
+
+describe('compileIndoor, labelled floors (8a)', () => {
+  /** BX101 a quarter of the way along, its door 1 m north of the hallway; the stairs at the east end. */
+  const labelled = (floor: number, change: Partial<FloorSource> = {}) =>
+    file('box', floor, {
+      rooms: floor === 1 ? [{ codes: ['BX101'], label: [0.25, 0.25], doors: [[0.25, 0.4]] }] : [],
+      verticals: [{ id: 'east-stairs', point: [0.95, 0.5] }],
+      ...change,
+    });
+  const inputs: IndoorInputs = {
+    rooms: [{ code: 'BX101', building: 'box', floor: 1 }],
+    verticals: [
+      {
+        path: 'data-src/floors/box/verticals.json',
+        building: 'box',
+        list: [{ id: 'east-stairs', kind: 'stairs', servesFloors: [1, 2, 3, 4] }],
+      },
+    ],
+    entrances: [
+      { building: 'tower', kind: 'main', point: [0, 0] },
+      { building: 'box', kind: 'main', point: [0, 5] },
+    ],
+  };
+
+  it('fits rooms, doors and stairs onto the outline, and joins them into one graph', () => {
+    const { buildings, errors } = compileIndoor([labelled(1), labelled(2)], [box], inputs);
+    expect(errors).toStrictEqual([]);
+    const b = buildings[0];
+    const xy = (i: number | undefined) => [b?.graph.points[2 * (i ?? -1)], b?.graph.points[2 * (i ?? -1) + 1]];
+    expect(b?.rooms).toHaveLength(1);
+    expect(b?.rooms[0]).toMatchObject({ code: 'BX101', floor: 1, label: [10, 7.5] });
+    expect(xy(b?.rooms[0]?.doors[0])).toStrictEqual([10, 6]);
+    expect(b?.verticals[0]?.stops.map((s) => [s.floor, ...xy(s.point)])).toStrictEqual([
+      [1, 38, 5],
+      [2, 38, 5],
+    ]);
+    expect(b?.entrances).toStrictEqual([{ entrance: 1, point: 0 }]);
+    expect(xy(0)).toStrictEqual([0, 5]);
+  });
+
+  it.each<[string, FloorFile[], Partial<IndoorInputs>, string]>([
+    [
+      'a door far from the hallway, in meters',
+      [labelled(1, { rooms: [{ codes: ['BX101'], label: [0.25, 0.1], doors: [[0.25, 0.05]] }] }), labelled(2)],
+      {},
+      "data-src/floors/box/01.json: BX101's door is 4.5 m from the nearest hallway (3 m at most)",
+    ],
+    [
+      'a verticals.json for a building with no floor files',
+      [labelled(1), labelled(2)],
+      {
+        verticals: [...inputs.verticals, { path: 'data-src/floors/tower/verticals.json', building: 'tower', list: [] }],
+      },
+      'data-src/floors/tower/verticals.json: tower has no floor files',
+    ],
+  ])('fails the build on %s', (_, files, change, error) => {
+    const result = compileIndoor(files, [box, tower], { ...inputs, ...change });
     expect(result.errors).toStrictEqual([error]);
     expect(result.buildings).toStrictEqual([]);
   });
