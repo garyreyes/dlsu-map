@@ -150,6 +150,7 @@ No server, so "outbound calls" means fetching our own `/data/*.json`. The rules:
 | **Logic** | `features/*/*.ts` (e.g. `parse-room-code.ts`, `build-steps.ts`) | Pure functions, unit-tested. No React, no fetch |
 | **Data access** | `shared/data/` | The **only** place that fetches `/data/*.json` and validates it with Zod |
 | **App shell / routing** | `src/app/` | Thin: URL ↔ state sync, providers. Calls features, no logic |
+| **Dev-only pages** | `src/dev/` | Served by `npm run dev` only (P1 at `/preview.html`), never built. Like the app shell, reach features through their index; nothing imports `src/dev/` |
 
 Features import only from `shared/` or another feature's `index.ts`. No auth or payment SDKs exist, so no wrapper
 modules are needed.
@@ -174,6 +175,9 @@ dlsu-map/
       three/             Materials, extrusion/ribbon builders, clipping helper
       ui/                Sheet, Button, Toast wrappers
       config/            Cost constants, palette tokens (prefixes and floor labels live in buildings.json)
+    dev/
+      floor-preview/     P1 Floor preview (6d): /preview.html under npm run dev; never built or imported
+  preview.html           P1's page. Not a build input, so it never ships
   data-src/
     campus/              buildings.json, walkways, roads; osm/snapshot-<date>.geojson
     rooms/<building>.csv Room lists from lobby directories

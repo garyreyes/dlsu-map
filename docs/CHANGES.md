@@ -25,6 +25,30 @@ session needs to know. Search this file; it isn't required reading (the reading 
   data.
 - Not in 5c: moving the camera to a tapped step (5d), and opening the list from the real app (5b/5d).
 
+## 2026-10-21: 6d done: STRC's 4 floors checked
+
+- The owner checked all 4 STRC floors in P1 ("everything looks perfect") and they are now `checked: true`. From here a
+  checked floor fails the build if STRC's outline moves under it (gap past 1.5 m at the 90th percentile; they sit at
+  0.5–0.6 m). ROADMAP 6d → done: STRC end to end, photo → floor file → fit → 3D → checked.
+- Stairs, the elevator, doors and room labels are not in the floor files yet (stair treads were removed in cleanup so
+  they don't read as walls). They come back as their own data in 8a, and P1 shows them then.
+
+## 2026-10-21: 6d P1 Floor preview
+
+- `/preview.html` under `npm run dev` (`src/dev/floor-preview/`): pick a building that has floor files and a floor;
+  see it in 3D with Gary's `FloorModel` (D37 walls), standing in the yellow OSM outline it was fitted to, with the
+  entrance pins (main in orange), a north arrow and the hallway in blue. Floor chips show every storey, ✓ on checked
+  ones, untraced ones greyed out. The pick lives in the URL. States: loading, data failed, no floors traced yet.
+- **Dev-only, enforced:** `preview.html` isn't a build input, so `dist/` has no trace of it (checked). New layer rule
+  in `eslint.boundaries.js`: nothing imports `src/dev/`, and `src/dev/` reaches features through their index only
+  (14 cases in `tests/boundaries.test.ts`, 8 failing first). ARCHITECTURE §6 and §7 list it.
+- Read-only by the owner's choice: the owner says which floors look right, and Claude sets `checked: true` in a PR.
+  Labels, doors, stairs, the elevator and a test route join P1 when 8a puts them in the data.
+- `reviewer` pass: the layer rule missed `./dev/…` from `src/main.tsx` (fixed test-first, 2 failing, now 16 cases);
+  `FloorPreview` split under 50 lines; the URL now always names what's on screen, fallbacks included; the 3D view and
+  untraced floor chips got labels. A server error on a floor file still reads as "no floors traced yet" (accepted
+  for a dev tool; a broken file fails loudly).
+
 ## 2026-10-21: `loadRooms()` in shared/data
 
 - `src/shared/data/load.ts` now loads and validates `rooms.json` the same way as `campus.json`. The router needs it
