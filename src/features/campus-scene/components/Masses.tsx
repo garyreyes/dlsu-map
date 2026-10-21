@@ -1,5 +1,5 @@
 import { useThree } from '@react-three/fiber';
-import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import { useEffect, useLayoutEffect, useMemo, type RefObject } from 'react';
 import { BufferAttribute, BufferGeometry, Color, MeshLambertMaterial, type Mesh } from 'three';
 import type { Campus } from '@/shared/data/campus';
 import { CITY_OPACITY, SELECTED_TINT, type MapPalette } from '@/shared/config/palette';
@@ -72,6 +72,8 @@ interface CampusProps extends Props {
   selected: string | null;
   /** A tap on a campus building (its slug) or on anything else (null). */
   onTap: (slug: string | null) => void;
+  /** The campus mesh, for taps here and for what hides the floor band (CampusMap). */
+  massRef: RefObject<Mesh | null>;
 }
 
 /**
@@ -79,7 +81,7 @@ interface CampusProps extends Props {
  * shading with the wall-foot darkening baked into vertex colours; no outlines, windows or textures. The selected
  * building is the one exception, a 22% lean toward Campus Green, drawn through a second material on its triangles.
  */
-export function CampusMasses({ campus, palette, selected, onTap }: CampusProps) {
+export function CampusMasses({ campus, palette, selected, onTap, massRef }: CampusProps) {
   const { geometry, owners } = useMemo(() => {
     const m = buildings(campus);
     return { geometry: massGeometry(m), owners: m.owners };
@@ -113,12 +115,11 @@ export function CampusMasses({ campus, palette, selected, onTap }: CampusProps) 
     invalidate();
   }, [geometry, owners, selected, invalidate]);
 
-  const mesh = useRef<Mesh>(null);
-  useTapPick(mesh, owners, onTap);
+  useTapPick(massRef, owners, onTap);
   const bridgeGeometry = useCampusGeometry(bridges, campus);
   return (
     <>
-      <mesh ref={mesh} geometry={geometry} material={materials} />
+      <mesh ref={massRef} geometry={geometry} material={materials} />
       <mesh geometry={bridgeGeometry} raycast={noHit}>
         <meshLambertMaterial vertexColors color={palette.building} />
       </mesh>

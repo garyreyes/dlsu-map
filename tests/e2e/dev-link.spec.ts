@@ -15,9 +15,10 @@ test('the built app has no dev-link code', () => {
   expect(withDevCode).toEqual([]);
 });
 
-test('a dev link opens the normal home screen in the built app', async ({ page }) => {
+test('a dev link in the built app is only a ?to= link: the room card, no route and no From (D40)', async ({ page }) => {
   await page.goto('/?from=gate-1&to=ST311');
-  await expect(page.getByRole('button', { name: 'Search for a room or building' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Type a room, like ST311' })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'ST311' }).getByRole('heading', { name: 'ST311' })).toBeVisible();
   await expect(page.getByRole('region', { name: 'All steps' })).toHaveCount(0);
+  // From is never read from a link, and the address bar no longer holds it either.
+  await expect(page).toHaveURL(/\/$/);
 });

@@ -1,7 +1,7 @@
 import { CameraControls } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import { useCallback, useLayoutEffect, useRef, type RefObject } from 'react';
-import type { PerspectiveCamera } from 'three';
+import { Vector3, type PerspectiveCamera } from 'three';
 import type CameraControlsImpl from 'camera-controls';
 import {
   DRAGGING_SMOOTH_TIME,
@@ -40,6 +40,9 @@ interface Props {
   controlsRef: RefObject<CameraControls | null>;
   insets: MapInsets;
   home: HomeView;
+  /** The controls attached (true) or went with the canvas (false): a selection made before they attached flies once
+   *  they do, and again if the canvas is ever made anew. */
+  onAttach: (attached: boolean) => void;
 }
 
 /** Points the camera at the whole campus from the home heading and tilt, framed in the screen the chrome leaves. */
@@ -55,21 +58,31 @@ export function goHome(c: CameraControls, home: HomeView, insets: MapInsets, ani
 /** How much ground around a selected building stays in view, as a multiple of its own size. */
 const SELECT_CONTEXT = 2;
 
-/** Flies to a selected building at the closer, lower angle (DESIGN.md, Camera), keeping the heading the student has
- *  turned to. The whole building and some of its neighbours fit the screen the chrome leaves. */
-export function goToBuilding(
-  c: CameraControls,
-  b: Pick<CampusBuilding, 'volumes'>,
-  insets: MapInsets,
-  animate: boolean,
-) {
+/** What the camera looks at for a selected building (scene coordinates), and from how far. */
+export interface BuildingView {
+  target: Vector3;
+  distance: number;
+}
+
+/** The whole building and some of its neighbours, fitted to the screen the chrome leaves, at the closer angle. */
+export function buildingView(b: Pick<CampusBuilding, 'volumes'>, insets: MapInsets): BuildingView {
   const { centre, radius } = framing(b.volumes.map((v) => v.outline));
   const top = Math.max(...b.volumes.map((v) => v.top));
   const view = { width: window.innerWidth, height: window.innerHeight, fovDeg: FOV_DEG, polar: SELECT_POLAR };
   const fit = fitDistance(Math.max(radius, top / 2) * SELECT_CONTEXT, view, insets);
-  void c.setTarget(centre[0], 0, -centre[1], animate);
-  void c.rotatePolarTo(SELECT_POLAR, animate);
-  void c.dollyTo(Math.min(MAX_DISTANCE, Math.max(MIN_DISTANCE, fit)), animate);
+  return {
+    target: new Vector3(centre[0], 0, -centre[1]),
+    distance: Math.min(MAX_DISTANCE, Math.max(MIN_DISTANCE, fit)),
+  };
+}
+
+/** Flies to a selected building at the closer, lower angle (DESIGN.md, Camera). It keeps the heading the student has
+ *  turned to, unless `azimuth` names one that sees the floor band. */
+export function goToBuilding(c: CameraControls, view: BuildingView, azimuth: number | null, animate: boolean) {
+  void c.setTarget(view.target.x, view.target.y, view.target.z, animate);
+  if (azimuth === null) void c.rotatePolarTo(SELECT_POLAR, animate);
+  else void c.rotateTo(azimuth, SELECT_POLAR, animate);
+  void c.dollyTo(view.distance, animate);
 }
 
 /** Map-style gestures: one finger pans along the ground, pinch zooms toward the fingers, mouse right-drag turns. */
@@ -94,7 +107,7 @@ function configure(c: CameraControls) {
   });
 }
 
-export function CameraRig({ controlsRef, insets, home }: Props) {
+export function CameraRig({ controlsRef, insets, home, onAttach }: Props) {
   const camera = useThree((s) => s.camera) as PerspectiveCamera;
   const size = useThree((s) => s.size);
   const invalidate = useThree((s) => s.invalidate);
@@ -113,11 +126,15 @@ export function CameraRig({ controlsRef, insets, home }: Props) {
   const attach = useCallback(
     (c: CameraControls | null) => {
       controlsRef.current = c;
-      if (!c) return;
+      if (!c) {
+        onAttach(false);
+        return;
+      }
       configure(c);
       goHome(c, homeRef.current, insetsRef.current, false);
+      onAttach(true);
     },
-    [controlsRef],
+    [controlsRef, onAttach],
   );
 
   // Shift the projection so the camera target sits in the middle of the uncovered map (the prototype's formula).

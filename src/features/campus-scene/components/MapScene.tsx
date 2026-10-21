@@ -1,9 +1,11 @@
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef, type RefObject } from 'react';
-import { Color, type Fog } from 'three';
+import { Color, type Fog, type Mesh } from 'three';
 import type { CameraControls } from '@react-three/drei';
 import type { Campus } from '@/shared/data/campus';
 import { HAZE_FAR, HAZE_NEAR, SKY_LIGHT, SUN_LIGHT, type MapPalette } from '@/shared/config/palette';
+import type { FloorBand } from '../floor-band';
+import { FloorBandMesh } from './FloorBand';
 import { CampusMasses, CityMasses, PathLines } from './Masses';
 
 const GROUND_SIZE = 20000;
@@ -18,14 +20,17 @@ interface Props {
   /** The home view's azimuth, so the sun comes from the screen's upper left at home (DESIGN.md, Map depth). */
   homeAzimuth: number;
   selected: string | null;
+  /** The selected room's floor band, if a room is selected. */
+  band: FloorBand | null;
   onTap: (slug: string | null) => void;
+  massRef: RefObject<Mesh | null>;
 }
 
 /**
  * The world under the chrome (DESIGN.md, Map depth): an unlit flat ground in the palette colour, a green haze that
  * fades the distance and fills the sky, the light rig, and the campus, city and paths on top.
  */
-export function MapScene({ controlsRef, campus, palette, homeAzimuth, selected, onTap }: Props) {
+export function MapScene({ controlsRef, campus, palette, homeAzimuth, selected, band, onTap, massRef }: Props) {
   const fog = useRef<Fog>(null);
   const skyGround = useMemo(
     () => new Color(SKY_LIGHT.color).lerp(new Color(palette.ground), SKY_LIGHT.groundTint),
@@ -57,7 +62,8 @@ export function MapScene({ controlsRef, campus, palette, homeAzimuth, selected, 
         <meshBasicMaterial color={palette.ground} />
       </mesh>
       <PathLines campus={campus} palette={palette} />
-      <CampusMasses campus={campus} palette={palette} selected={selected} onTap={onTap} />
+      <CampusMasses campus={campus} palette={palette} selected={selected} onTap={onTap} massRef={massRef} />
+      {band && <FloorBandMesh band={band} />}
       <CityMasses campus={campus} palette={palette} />
     </>
   );

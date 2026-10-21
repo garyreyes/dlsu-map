@@ -11,6 +11,8 @@ import type { SearchData } from './useSearchData';
 interface Props {
   data: SearchData;
   recent: readonly RecentEntry[];
+  /** What the field starts with: a deep link's text it couldn't open as a card (D40), else empty. */
+  initialQuery?: string;
   /** A row was tapped, or Go pressed on an exact match. */
   onPick: (hit: Hit) => void;
   onClose: () => void;
@@ -23,8 +25,8 @@ interface Props {
  * arrow, Escape or the phone's back button. Modal: the map and chrome behind it are inert while it's open, and focus
  * returns to the opener on close.
  */
-export function SearchScreen({ data, recent, onPick, onClose }: Props) {
-  const [query, setQuery] = useState('');
+export function SearchScreen({ data, recent, initialQuery = '', onPick, onClose }: Props) {
+  const [query, setQuery] = useState(initialQuery);
   const input = useRef<HTMLInputElement>(null);
   const list = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);

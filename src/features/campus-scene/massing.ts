@@ -56,7 +56,7 @@ function point(outline: readonly number[], i: number): [number, number] {
 }
 
 /** Twice the signed area; positive when the outline runs anticlockwise (x east, y north). */
-function signedArea(outline: readonly number[]): number {
+export function signedArea(outline: readonly number[]): number {
   let s = 0;
   for (let i = 0; i < outline.length / 2; i++) {
     const [[x1, y1], [x2, y2]] = [point(outline, i), point(outline, i + 1)];
