@@ -132,8 +132,9 @@ src/shared/config/room-codes.ts ┘              5. Link verticals across floors
 - **Coordinates:** write in WGS84 (lon/lat) so it lines up with OSM. The compiler projects to local meters
   (origin at a fixed campus corner, x = east, z = south, y = up), as in the handover.
 - **Feature types, IMDF-lite:** `building`, `level`, `unit` (room, `type` as in the handover), `opening` (door/exit),
-  `vertical` (stairs/elevator with `servesFloors`), `amenity` (cr, fire-exit, water, etc.), `hallway`
-  (LineString centerline), `walkway`, `road`, `crossing`, `bridge` (links two buildings' floors).
+  `vertical` (stairs/elevator with `servesFloors`, listed in `verticals.json`, D39), `amenity` (cr, fire-exit,
+  water, etc.), `hallway` (LineString centerline), `walkway`, `road`, `crossing`, `bridge` (links two buildings'
+  floors).
 - **The compile report is a CI gate:** the build fails if any room is unreachable, any door is more than 3 m from a
   hallway, or any vertical has a floor that doesn't exist. This catches tracing mistakes automatically.
 - **Runtime:** the app loads `campus.json` at start, then `buildings/<id>.json` when needed. Everything is precached.

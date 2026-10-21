@@ -902,7 +902,7 @@ or the 0.1 m overhang shows against the outdoor mesh.
 
 ---
 
-## D38. How search answers while typing, and what it does without a room list (2026-10-21, proposed)
+## D38. How search answers while typing, and what it does without a room list (2026-10-21, agreed)
 
 **Problem.** user-flows §3.3 lists what S2 shows for finished codes. Building 3c (S2) raised what it shows while a
 code is still being typed, what a real prefix shows when its building has no room list yet (6 of the 10 full
@@ -937,7 +937,7 @@ combobox.
 
 ---
 
-## D39. Floors are labelled whole, and stairs list their own floors (2026-10-21, proposed)
+## D39. Floors are labelled whole, and stairs list their own floors (2026-10-21, agreed)
 
 **Problem.** 8a puts rooms, doors, stairs and elevators into the floor files and joins them into an indoor graph.
 Three things needed an answer: how the build knows which floors an elevator stops at, when a floor counts as
@@ -965,7 +965,7 @@ building's labelling has to land in parts, or a bridge turns out to join a floor
 
 ---
 
-## D40. What a `?to=` link opens, and what Share does without a share sheet (2026-10-21, proposed)
+## D40. What a `?to=` link opens, and what Share does without a share sheet (2026-10-21, agreed)
 
 **Problem.** 3d builds the room card's Share and the deep link `…/?to=ST311` (user-flows §3.4, §3.9). Four things
 needed an answer: which links open a card and which open search, what happens to the address bar once a link is
@@ -999,7 +999,7 @@ address bar is how they share on desktop.
 
 ---
 
-## D41. Routes go inside: where the building files come from, and what indoor steps say (2026-10-22, proposed)
+## D41. Routes go inside: where the building files come from, and what indoor steps say (2026-10-22, agreed)
 
 **Problem.** 8b joins the indoor graph (8a, D39) to the outdoor route. Three things needed an answer: how the router
 gets a building's file, since `buildings/<slug>.json` is loaded per building and the router is built once; what an
