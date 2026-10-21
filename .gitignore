@@ -15,6 +15,7 @@ dist/
 
 # Compiled by `npm run compile-data` (run by `dev` and `build`) from data-src/; never edited by hand
 public/data/*.json
+public/data/buildings/
 
 # Local Cloudflare runtime state (wrangler dev) and Playwright output (1b)
 .wrangler/

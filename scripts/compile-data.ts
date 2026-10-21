@@ -1,18 +1,21 @@
 // data-src → public/data (ARCHITECTURE §4). Run by `npm run compile-data`, and first thing in `build` and `dev`, so
 // a broken data constraint fails CI (ARCHITECTURE §3.4). Prints the compile report; exits 1 on any error and then
 // writes nothing. The rules live in scripts/compile/ (pure, tested); this file only reads, writes and prints.
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import type { z } from 'zod';
 import { buildingSourcesSchema } from '../src/shared/data/buildings.ts';
 import type { Campus } from '../src/shared/data/campus.ts';
+import { floorSourceSchema } from '../src/shared/data/floor-source.ts';
 import { toPrefixTable } from '../src/shared/data/prefix-table.ts';
 import { compileCampus, type Snapshot } from './compile/campus.ts';
 import { entranceSourcesSchema, gateSourcesSchema } from './compile/campus-walk.ts';
+import { compileIndoor, type FloorFile } from './compile/indoor.ts';
 import { compileRooms, type RoomList } from './compile/rooms.ts';
 
 const root = new URL('../', import.meta.url);
 const read = (path: string): string => readFileSync(new URL(path, root), 'utf8');
 const ROOMS_DIR = 'data-src/rooms/';
+const FLOORS_DIR = 'data-src/floors/';
 
 /** The newest pinned snapshot: names sort by date (`snapshot-2026-10-20.geojson`). */
 function latestSnapshot(): string {
@@ -32,6 +35,25 @@ function roomLists(): RoomList[] {
     .map((f) => ({ building: f.replace(/\.csv$/, ''), file: ROOMS_DIR + f, text: read(ROOMS_DIR + f) }));
 }
 
+/** Every data-src/floors/<building>/<NN>.json, read with its schema; null if any is invalid (each one printed). */
+function floorFiles(): FloorFile[] | null {
+  if (!existsSync(new URL(FLOORS_DIR, root))) return [];
+  const paths = readdirSync(new URL(FLOORS_DIR, root), { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .flatMap((d) =>
+      readdirSync(new URL(`${FLOORS_DIR}${d.name}/`, root))
+        .filter((f) => f.endsWith('.json'))
+        .map((f) => `${FLOORS_DIR}${d.name}/${f}`),
+    );
+  const files: FloorFile[] = [];
+  for (const path of paths) {
+    const floor = readSource(path, floorSourceSchema);
+    if (!floor) return null;
+    files.push({ path, floor });
+  }
+  return files;
+}
+
 /** A data-src file read with its schema, or null after printing what is wrong with it. */
 function readSource<T>(path: string, schema: z.ZodType<T>): T | null {
   const parsed = schema.safeParse(JSON.parse(read(path)));
@@ -43,8 +65,9 @@ function readSource<T>(path: string, schema: z.ZodType<T>): T | null {
 
 function write(name: string, data: unknown): void {
   const json = JSON.stringify(data);
-  mkdirSync(new URL('public/data/', root), { recursive: true });
-  writeFileSync(new URL(`public/data/${name}`, root), json);
+  const file = new URL(`public/data/${name}`, root);
+  mkdirSync(new URL('.', file), { recursive: true });
+  writeFileSync(file, json);
   console.log(`  wrote public/data/${name} (${(json.length / 1024).toFixed(0)} KB)`);
 }
 
@@ -69,19 +92,22 @@ function main(): number {
   const sources = readSource('data-src/campus/buildings.json', buildingSourcesSchema);
   const gates = readSource('data-src/campus/gates.json', gateSourcesSchema);
   const entrances = readSource('data-src/campus/entrances.json', entranceSourcesSchema);
-  if (!sources || !gates || !entrances) return 1;
+  const floors = floorFiles();
+  if (!sources || !gates || !entrances || !floors) return 1;
   const snapshotPath = latestSnapshot();
   const campusResult = compileCampus(sources, JSON.parse(read(snapshotPath)) as Snapshot, { gates, entrances });
-  // Rooms are checked against the same buildings the campus has: prefixes from buildings.json, floors from OSM.
-  // Without a campus there are no floors to check rooms against: report the campus errors alone, not one per room.
+  // Rooms and floors are checked against the same buildings the campus has: prefixes from buildings.json, floors and
+  // outlines from OSM. Without a campus there is nothing to check them against: report the campus errors alone.
   const buildings = campusResult.campus?.buildings;
   const roomsResult = buildings
     ? compileRooms(roomLists(), toPrefixTable(buildings), new Map(buildings.map((b) => [b.slug, b.levels])))
     : { rooms: null, errors: [], notes: ['rooms: not checked, because the campus has errors'] };
+  const indoorResult = buildings ? compileIndoor(floors, buildings) : { buildings: [], errors: [], notes: [] };
 
-  console.log(`compile-data: ${snapshotPath}, ${ROOMS_DIR}*.csv`);
-  for (const note of [...campusResult.notes, ...roomsResult.notes]) console.log(`  note: ${note}`);
-  const errors = [...campusResult.errors, ...roomsResult.errors];
+  console.log(`compile-data: ${snapshotPath}, ${ROOMS_DIR}*.csv, ${FLOORS_DIR}*/*.json`);
+  const notes = [...campusResult.notes, ...roomsResult.notes, ...indoorResult.notes];
+  for (const note of notes) console.log(`  note: ${note}`);
+  const errors = [...campusResult.errors, ...roomsResult.errors, ...indoorResult.errors];
   if (!campusResult.campus || !roomsResult.rooms || errors.length > 0) {
     for (const error of errors) console.error(`  error: ${error}`);
     console.error(`compile-data failed: ${String(errors.length)} error(s); public/data was not written`);
@@ -90,6 +116,9 @@ function main(): number {
   printCampus(campusResult.campus);
   write('campus.json', campusResult.campus);
   write('rooms.json', roomsResult.rooms);
+  // A building whose floor files were all removed must not keep a stale file.
+  rmSync(new URL('public/data/buildings/', root), { recursive: true, force: true });
+  for (const b of indoorResult.buildings) write(`buildings/${b.building}.json`, b);
   return 0;
 }
 

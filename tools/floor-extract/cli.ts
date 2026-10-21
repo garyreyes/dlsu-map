@@ -2,20 +2,25 @@
 //   npm run floor-extract -- crop <photo> <x,y> [<x,y> …]          zoomed, gridded crops to read the 4 corners
 //   npm run floor-extract -- extract <photo> <tl> <tr> <br> <bl> [--style green-sign|white-map]
 //                                       straighten, split colours, find walls and route (style detected if not given)
-// Photos are DLSU's (data-src/photos/, gitignored); everything written goes to tools/floor-extract/out/ (gitignored).
+//   npm run floor-extract -- floor <photo>   the draft → a first data-src/floors/<building>/<NN>.json (D36);
+//                                       never overwrites one, since it holds cleanup work
+// Photos are DLSU's (data-src/photos/, gitignored); `crop` and `extract` write to tools/floor-extract/out/
+// (gitignored); `floor` writes the floor file, which is committed (D21).
 // The rules live in the other files of this folder (pure, tested); this file only reads, writes and prints.
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 import { STYLES, classify, detectStyle, type Style } from './colours.ts';
 import { checkCorners, parsePoint } from './corners.ts';
+import { floorFile, formatFloorFile, type Draft } from './floor-file.ts';
 import type { Point, Rgb } from './image.ts';
 import { cropGridSvg, overlaySvg, preview3dSvg } from './preview.ts';
 import { extractSegments, normalise } from './segments.ts';
 import { warpPlan } from './warp.ts';
 
 const OUT = fileURLToPath(new URL('./out/', import.meta.url));
+const FLOORS = fileURLToPath(new URL('../../data-src/floors/', import.meta.url));
 /** Padding around the straightened plan, px: keeps the outer wall inside the image. */
 const PAD = 40;
 /** The spike's numbers (STRC 4F at 4032×3024 and 2F at 2048×1536 both read well with them); the gap is per style. */
@@ -104,7 +109,22 @@ async function extract(photo: string, cornerArgs: readonly Point[], forced?: Sty
   );
 }
 
-const USAGE = 'usage: floor-extract crop <photo> <x,y>… | extract <photo> <tl> <tr> <br> <bl> [--style <style>]';
+async function floor(photo: string): Promise<void> {
+  const draftPath = join(outDir(photo), 'draft.json');
+  if (!existsSync(draftPath)) throw new Error(`no ${draftPath}; run extract first`);
+  const file = floorFile(JSON.parse(readFileSync(draftPath, 'utf8')) as Draft);
+  if (!file) throw new Error(`${basename(photo)} is not named <building>_<NN>F, so its floor is unknown`);
+  const dir = join(FLOORS, file.building);
+  const target = join(dir, `${String(file.floor).padStart(2, '0')}.json`);
+  if (existsSync(target)) throw new Error(`${target} exists and may hold cleanup; delete it first to start over`);
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(target, formatFloorFile(file));
+  console.log(`${basename(photo)} → ${target}: ${String(file.walls.length)} walls, turn 0 (set fit.turn by hand)`);
+  return Promise.resolve();
+}
+
+const USAGE =
+  'usage: floor-extract crop <photo> <x,y>… | extract <photo> <tl> <tr> <br> <bl> [--style <style>] | floor <photo>';
 
 function styleFlag(args: string[]): Style | undefined {
   const at = args.indexOf('--style');
@@ -119,6 +139,7 @@ async function main(): Promise<void> {
   const style = styleFlag(rest);
   if (command === 'crop' && photo && rest.length > 0) return crop(photo, points(rest));
   if (command === 'extract' && photo && rest.length === 4) return extract(photo, points(rest), style);
+  if (command === 'floor' && photo && rest.length === 0) return floor(photo);
   throw new Error(USAGE);
 }
 
