@@ -1,6 +1,7 @@
 // Small hand-drawn campuses for the routing tests. Points are written as x, y in meters (x east, y north), so each
 // test reads as a little map. Only the tests import this.
 import type { Walk } from '@/shared/data/campus';
+import { indoorSchema, type Indoor } from '@/shared/data/indoor';
 import type { XY } from '@/shared/data/route';
 import type { RouterCampus, RouterRooms } from './router';
 
@@ -82,4 +83,68 @@ export function fixtureCampus(segs: readonly Seg[], places: Places): RouterCampu
 
 export function fixtureRooms(...rooms: readonly [code: string, building: string, floor: number][]): RouterRooms {
   return { rooms: rooms.map(([code, building, floor]) => ({ code, building, floor })) };
+}
+
+type IndoorLinkKind = Indoor['graph']['links'][number][2];
+
+/** A hand-drawn building file: named points (floor, x, y), links between them by name, rooms by their door points,
+ *  verticals by their stops, and entrances by their index in the campus's `entrances`. */
+export interface IndoorSpec {
+  readonly building: string;
+  readonly points: Readonly<Record<string, readonly [floor: number, x: number, y: number]>>;
+  readonly links: readonly (readonly [a: string, b: string, kind: IndoorLinkKind])[];
+  readonly rooms?: Readonly<Record<string, readonly string[]>>;
+  readonly verticals?: readonly {
+    readonly id: string;
+    readonly kind: 'stairs' | 'elevator';
+    readonly servesFloors: readonly number[];
+    readonly stops: readonly string[];
+  }[];
+  readonly entrances?: Readonly<Record<number, string>>;
+}
+
+/** The building file for a spec, checked against its schema, and the point index of each name. */
+export function fixtureIndoor(spec: IndoorSpec): { file: Indoor; point: (name: string) => number } {
+  const names = Object.keys(spec.points);
+  const point = (name: string): number => {
+    const i = names.indexOf(name);
+    if (i < 0) throw new Error(`no point ${name}`);
+    return i;
+  };
+  const at = (name: string) => spec.points[name] ?? [0, 0, 0];
+  const floorOf = (name: string): number => at(name)[0];
+  const floors = [...new Set(names.map(floorOf))].sort((a, b) => a - b);
+  const file = indoorSchema.parse({
+    building: spec.building,
+    floors: floors.map((floor) => ({
+      floor,
+      base: 3 * (floor - 1),
+      height: 3,
+      checked: true,
+      walls: [],
+      hallways: [],
+    })),
+    graph: {
+      points: names.flatMap((n) => [at(n)[1], at(n)[2]]),
+      floors: names.map(floorOf),
+      links: spec.links.map(([a, b, kind]) => [point(a), point(b), kind]),
+    },
+    rooms: Object.entries(spec.rooms ?? {}).map(([code, doors]) => ({
+      code,
+      floor: floorOf(doors[0] ?? ''),
+      label: [at(doors[0] ?? '')[1], at(doors[0] ?? '')[2]],
+      doors: doors.map(point),
+    })),
+    verticals: (spec.verticals ?? []).map((v) => ({
+      id: v.id,
+      kind: v.kind,
+      servesFloors: [...v.servesFloors],
+      stops: v.stops.map((s) => ({ floor: floorOf(s), point: point(s) })),
+    })),
+    entrances: Object.entries(spec.entrances ?? {}).map(([entrance, p]) => ({
+      entrance: Number(entrance),
+      point: point(p),
+    })),
+  });
+  return { file, point };
 }

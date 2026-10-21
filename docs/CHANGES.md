@@ -8,6 +8,28 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-22: 8b done: routes go inside
+
+- **The router goes inside buildings with labelled floors** (D41). Given the trip's building files, a route walks in,
+  along the hallways, up the stairs or elevator the mode asks for, and to the room's door: one `indoor` leg per floor,
+  a `floors` leg per climb naming which stairs or elevator. The door is the one cheapest for the whole trip, inside
+  and out (D34's "8b adds the indoor distance"). A trip can start in a room, at a G tap's main entrance, or at an upper
+  floor's elevator.
+- **Indoor steps:** turns at hallway junctions (D35's rules), named by a room door within 5 m but never the trip's own
+  rooms; "Take the east stairs up to 3F"; "ST311 is on your right". The enter step gets the meters walked inside.
+- **Elevator rides wait once**, however many floors (car nodes, as in P1's test route). Elevator is ridden as far as
+  it goes, then the stairs; "Elevator" in a building with none takes the stairs and says so (`noElevator`).
+- **Without a plan** (no file, or the room's floor isn't labelled), routing is as before 8b, and `Route.noIndoorMap`
+  names the building for O5. STRC is the only building labelled whole; Velasco is traced, not labelled.
+- Tests first: `src/features/routing/indoor-router.test.ts` (16 hand-worked trips on a 4-floor fixture: every mode,
+  the skip-stop elevator, the door chosen by the whole trip, both sides and turn naming) and
+  `tests/indoor-routing.test.ts` (every STRC room from every gate on each mode, room to room, room to every building).
+  `tests/real-data.ts` now compiles the real campus, rooms and floors for both routing test files.
+- From the review: `cheapestWalk` now says which start and target it took, since two doors on one walk point can
+  differ inside (none do yet); a link between floors counts only between two stairs or elevator stops; a room whose
+  door is also a stop still gets its arrival step. Not done: when Elevator or Auto falls back to the stairs because
+  the elevator skips a floor, nothing flags it the way `noElevator` does (no elevator skips a floor yet).
+
 ## 2026-10-22: Indoor route shape agreed before 8b
 
 - `src/shared/data/route.ts` grows for indoor routing, nothing in it changes: an `indoor` leg per floor walked;

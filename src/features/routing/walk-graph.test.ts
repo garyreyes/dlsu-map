@@ -162,7 +162,18 @@ describe('cheapestWalk', () => {
       points: [point([0, 0])],
       meters: 0,
       seconds: 0,
+      start: 0,
+      target: 0,
     });
+  });
+
+  it('says which start and target it took, when two share a point but not their end costs (8b)', () => {
+    const { g, point } = graphOf([[[0, 0], [100, 0], 'path']]);
+    const a = point([0, 0]);
+    const b = point([100, 0]);
+    // Two doors on one walk point, the second cheaper to reach inside; at B the first can't be reached at all.
+    const walk = cheapestWalk(g, [a, a], [b, b], { starts: [100, 50], targets: [Infinity, 0] });
+    expect([walk?.start, walk?.target]).toStrictEqual([1, 1]);
   });
 
   it('is null when nothing joins them, or there is no start or no target', () => {
