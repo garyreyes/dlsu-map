@@ -14,6 +14,8 @@ export interface LinkCost {
   readonly cost: number;
   /** What the student is shown: real walking seconds plus any crossing wait. */
   readonly seconds: number;
+  /** Its way in `walk.ways`: of the cheapest link, when two join the same points. The directions (4c) name it. */
+  readonly way: number;
 }
 
 export interface WalkGraph {
@@ -110,7 +112,7 @@ export function buildWalkGraph(walk: Walk): WalkGraph {
     const wait = waits.get(i) ?? 0;
     const cost = walking * WAY_FACTOR[walk.ways[w]?.kind ?? 'path'] + wait;
     const old = costs.get(pair(a, b));
-    if (old === undefined || cost < old.cost) costs.set(pair(a, b), { meters, cost, seconds: walking + wait });
+    if (old === undefined || cost < old.cost) costs.set(pair(a, b), { meters, cost, seconds: walking + wait, way: w });
   });
   const graph = createGraph<undefined, LinkCost>();
   for (let p = 0; p < walk.points.length / 2; p++) graph.addNode(p);
@@ -148,7 +150,7 @@ export function cheapestWalk(g: WalkGraph, starts: readonly number[], targets: r
   return { points: best.points, meters: sum(g, best.points, 'meters'), seconds: sum(g, best.points, 'seconds') };
 }
 
-function sum(g: WalkGraph, points: readonly number[], field: keyof LinkCost): number {
+function sum(g: WalkGraph, points: readonly number[], field: 'meters' | 'cost' | 'seconds'): number {
   let total = 0;
   for (let i = 1; i < points.length; i++) total += g.link(points[i - 1] ?? -1, points[i] ?? -1)?.[field] ?? 0;
   return total;

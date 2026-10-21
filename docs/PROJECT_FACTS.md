@@ -155,6 +155,16 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   where no sidewalk is drawn gets no wait; one with three or more curb ends (a T) splits 45 s between them; a median
   drawn as sidewalk makes two crossings (90 s). `tests/routing.test.ts` expects exactly 8 waits, so a refresh that
   adds one of these fails there first.
+- **Directions (4c, D35) calls Claude made, not the owner** (2026-10-21): a bend under 10° is a wobble in the drawing
+  and never joins a merged turn; merging chains (bends each within 15 m of the one before are one turn, however long
+  the chain); a merged turn sits at its first junction but is named after the way it ends on; a building names a turn
+  by its `short`; a real distance never shows below 5 m, but a step on the same spot as the next shows 0; crossing
+  links in a row are one step per street name, and an unnamed one reads "Cross the street"; the bend onto the last
+  link into a door is left to the Enter step and never joins a turn.
+- **What the real campus gives** (2026-10-21, 190 trips, every gate and full building to every full building): at most
+  6 steps on a walk, back-to-back turns at least 16.9 m apart, and no trip crosses Taft (so the cross step is tested on
+  fixtures only). OSM draws many jogs a few meters long, so merging matters: near STRC three bends within 13 m are one
+  right turn. Only one trip each gets a bare "Bear left" / "Bear right" with no name.
 
 ## Cloudflare
 
