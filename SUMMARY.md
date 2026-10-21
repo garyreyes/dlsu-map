@@ -113,7 +113,7 @@ code (it loads three.js from a CDN, which the real app must not do).
 ## Key decisions (short version)
 
 Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24 were agreed by the team on
-2026-10-19, D25–D27 and D33 on 2026-10-20, D28–D32 and D34–D35 on 2026-10-21.
+2026-10-19, D25–D27 and D33 on 2026-10-20, D28–D32 and D34–D36 on 2026-10-21.
 
 | # | Decision | Why |
 |---|---|---|
@@ -152,6 +152,7 @@ Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24
 | D33 | **A dash on Velasco, St. Joseph and St. Miguel signs is a range** (`VH-304-309` = 304 to 309) | Rooms in between are on no other line |
 | D34 | **Routes cost seconds**: walk 1.3 m/s, +45 s per Taft crossing, stairs 20 s a floor, elevator 3 min + 5 s a floor | One number weighs walking, waiting and floors; the time shown is real time |
 | D35 | **Steps only where there's a choice**: turns at junctions, jogs under 15 m merged; a turn names the way, the covered walk, or a building within 20 m | A step every few meters on OSM's zigzags is noise |
+| D36 | **Floors are stretched onto the OSM outline** by the compiler; which way round (`fit.turn`) is set by hand | Signs are 7–16% off OSM's proportions, and the outline can't tell a sign from itself turned 180° |
 
 ### Things we chose *not* to do
 
