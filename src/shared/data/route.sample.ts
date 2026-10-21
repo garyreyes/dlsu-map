@@ -1,11 +1,14 @@
-// Hand-written samples in the agreed shape, so Lane A can build 5b–5d before the real router (4b) lands. The doors
-// are real (`campus.json`, 2026-10-20); the walk is a short stand-in line, not the real path. Times follow D34.
-import type { Route, RouteResult } from './route';
+// Hand-written samples in the agreed shape, so Lane A can build 5b–5d before the real router (4b) and directions (4c)
+// land. The doors are real (`campus.json`, 2026-10-20); the walk is a short stand-in line, not the real path. Times
+// follow D34, steps D35.
+import type { Route, RouteResult, Step } from './route';
 
 const andrewMain = { kind: 'door', building: 'andrew', door: 'main', verified: false, at: [-93.8, 250.2] } as const;
 const strcMain = { kind: 'door', building: 'strc', door: 'main', verified: false, at: [-85.6, 196] } as const;
+const bend = [-100, 205] as const;
 
-/** AG1104 → ST311, Auto: elevator down 10 floors (3 min wait + 5 s a floor), walk, stairs up 2 (20 s a floor). */
+/** AG1104 → ST311, Auto: elevator down 10 floors (3 min wait + 5 s a floor), walk, stairs up 2 (20 s a floor). Both
+ *  doors are unchecked, so their steps say "(approximate)". Andrew has no floor labels, so its ground floor is 1F. */
 export const sampleRoute = {
   legs: [
     { kind: 'floors', building: 'andrew', from: 11, to: 1, by: 'elevator', seconds: 230 },
@@ -13,17 +16,38 @@ export const sampleRoute = {
       kind: 'walk',
       from: andrewMain,
       to: strcMain,
-      path: [andrewMain.at, [-92, 222], strcMain.at],
-      meters: 55,
-      seconds: 42,
+      path: [andrewMain.at, bend, strcMain.at],
+      meters: 63,
+      seconds: 48,
     },
     { kind: 'floors', building: 'strc', from: 1, to: 3, by: 'stairs', seconds: 40 },
   ],
-  meters: 55,
-  seconds: 312,
+  steps: [
+    { kind: 'floors', leg: 0, building: 'andrew', to: 1, by: 'elevator', text: 'Take the elevator down to 1F' },
+    {
+      kind: 'start',
+      leg: 1,
+      at: andrewMain.at,
+      meters: 45,
+      approximate: true,
+      text: 'Leave Andrew by the main entrance (approximate)',
+    },
+    { kind: 'turn', leg: 1, at: bend, meters: 15, turn: 'left', text: 'Turn left at STRC' },
+    {
+      kind: 'enter',
+      leg: 1,
+      building: 'strc',
+      at: strcMain.at,
+      approximate: true,
+      text: 'Enter STRC by the main entrance (approximate)',
+    },
+    { kind: 'floors', leg: 2, building: 'strc', to: 3, by: 'stairs', text: 'ST311 is on 3F: take the stairs up to 3F' },
+  ],
+  meters: 63,
+  seconds: 318,
 } as const satisfies Route;
 
-/** Gate 2 → STRC (a building, so its ground floor): one walk leg, no floors. */
+/** Gate 2 → STRC (a building, so its ground floor): one walk leg, no floors. The bend is under 30°, so not a step. */
 export const sampleGateRoute = {
   legs: [
     {
@@ -35,6 +59,17 @@ export const sampleGateRoute = {
       seconds: 166,
     },
   ],
+  steps: [
+    { kind: 'start', leg: 0, at: [66.5, 50.4], meters: 220, text: 'Start at Gate 2 (North)' },
+    {
+      kind: 'enter',
+      leg: 0,
+      building: 'strc',
+      at: strcMain.at,
+      approximate: true,
+      text: 'Enter STRC by the main entrance (approximate)',
+    },
+  ],
   meters: 216,
   seconds: 166,
 } as const satisfies Route;
@@ -42,9 +77,44 @@ export const sampleGateRoute = {
 /** AG201 → AG1104 with Elevator asked for, in a building with none (user-flows' example): stairs, and S5 says so. */
 export const sampleNoElevator = {
   legs: [{ kind: 'floors', building: 'andrew', from: 2, to: 11, by: 'stairs', seconds: 180, noElevator: true }],
+  steps: [
+    {
+      kind: 'floors',
+      leg: 0,
+      building: 'andrew',
+      to: 11,
+      by: 'stairs',
+      text: 'AG1104 is on 11F: take the stairs up to 11F',
+    },
+  ],
   meters: 0,
   seconds: 180,
 } as const satisfies Route;
+
+/** One of every turn, and a crossing, for the step icons (S6, S8). Not one route: the points are made up. */
+export const sampleTurnSteps = [
+  { kind: 'turn', leg: 0, at: [0, 0], meters: 40, turn: 'slight-left', text: 'Bear left onto the covered walk' },
+  { kind: 'turn', leg: 0, at: [0, 0], meters: 60, turn: 'left', text: 'Turn left onto SJ Walk' },
+  { kind: 'turn', leg: 0, at: [0, 0], meters: 15, turn: 'sharp-left', text: 'Turn sharp left at Velasco' },
+  { kind: 'turn', leg: 0, at: [0, 0], meters: 25, turn: 'slight-right', text: 'Bear right onto Central Plaza' },
+  {
+    kind: 'turn',
+    leg: 0,
+    at: [0, 0],
+    meters: 140,
+    turn: 'right',
+    text: 'Turn right onto the Taft Avenue sidewalk',
+  },
+  { kind: 'turn', leg: 0, at: [0, 0], meters: 10, turn: 'sharp-right', text: 'Turn sharp right' },
+  {
+    kind: 'cross',
+    leg: 0,
+    at: [0, 0],
+    meters: 30,
+    street: 'Taft Avenue',
+    text: 'Cross Taft Avenue at the crosswalk',
+  },
+] as const satisfies readonly Step[];
 
 export const sampleResults = {
   ok: { ok: true, route: sampleRoute },

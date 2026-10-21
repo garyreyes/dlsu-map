@@ -8,6 +8,19 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-21: Step shape agreed before 4c
+
+- `src/shared/data/route.ts`: `Route.steps`, a list of `Step`s (`start`, `turn`, `cross`, `enter`, `floors`), each
+  with one line of text, its leg, and for walk steps the camera point and the rounded distance to the next step.
+  `Turn` is the six turn sizes for icons. Added as a new field; nothing in 4b's shape changed.
+- `route.sample.ts`: the samples now carry steps, plus `sampleTurnSteps` with one of every turn and a crossing, so
+  Lane A can build the step card (S6) and the list (S8) now.
+- The router returns `steps: []` until the next PR (`4c-direction-text`) fills them. Its tests compare legs and totals
+  only; the steps get their own tests.
+- **D35 proposed** (owner's answers): only junctions are steps, jogs under 15 m merge, and a turn names the way, then
+  "the covered walk", then a building within 20 m. **D34 agreed** (Gary approved #33); SUMMARY and PLAN §6.2 updated.
+- PROJECT_FACTS: the npm lockfile `"peer": true` churn and the fix used in 4b.
+
 ## 2026-10-21: 4b routing
 
 - `src/features/routing/`: `createRouter(campus, rooms)` returns the `Router` agreed in `route.ts`. It turns the walk
