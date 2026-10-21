@@ -117,6 +117,10 @@ function segmentsMeet(a: Point, b: Point, c: Point, d: Point): boolean {
   );
 }
 
+/** Whether segments ab and cd cross each other, not counting a touch at an end. */
+export const segmentsCross = (a: Point, b: Point, c: Point, d: Point): boolean =>
+  side(a, b, c) * side(a, b, d) < 0 && side(c, d, a) * side(c, d, b) < 0;
+
 const edges = (ring: readonly Point[]): [Point, Point][] =>
   ring.map((p, i) => [p, ring[(i + 1) % ring.length] as Point]);
 

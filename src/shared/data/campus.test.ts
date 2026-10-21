@@ -90,6 +90,7 @@ describe('campusSchema', () => {
   it.each<[string, Mutate]>([
     ['a link to a point that does not exist', (c) => (c.walk.links[2] = [2, 4, 2])],
     ['a link from a point to itself', (c) => (c.walk.links[2] = [2, 2, 2])],
+    ['the same two points linked twice', (c) => c.walk.links.push([2, 1, 0])],
     ['a link to a way that does not exist', (c) => (c.walk.links[2] = [2, 3, 3])],
     ['a negative point index', (c) => (c.walk.links[2] = [-1, 3, 2])],
     ['a fractional point index', (c) => (c.walk.links[2] = [2.5, 3, 2])],
