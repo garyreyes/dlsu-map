@@ -1,7 +1,7 @@
 // The rooms meeting point between the lanes (docs/SPLIT.md): Lane B's compiler (3b) writes public/data/rooms.json in
 // this shape, and Lane A's search and room card (3c, 3d) read it. The loader validates it with roomsSchema.
 // Additive changes only: each room's position on its floor joins with the floor files (6d).
-import { z } from 'zod';
+import { z } from './zod.ts';
 
 export const roomSchema = z.strictObject({
   /** Canonical code: canonical prefix + number (never starting with 0) + optional capital letter. `ST315A`. That the

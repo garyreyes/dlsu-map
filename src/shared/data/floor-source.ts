@@ -2,7 +2,7 @@
 // tools/floor-extract and cleaned up by Claude (D17). Lines stay in the sign's own coordinates, so cleanup can be
 // checked against the photo; the compiler fits them onto the building's OSM outline (D36) and writes meters into
 // public/data/buildings/<slug>.json (`indoor.ts`). Rooms, doors, stairs and elevators join in 8a, as new fields.
-import { z } from 'zod';
+import { z } from './zod.ts';
 
 /** 0–1 across the straightened sign, with a little room past the edge: outer walls traced on the frame can land at
  *  -0.001 or 1.001. */
