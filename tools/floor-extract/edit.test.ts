@@ -65,6 +65,87 @@ describe('applyEdit', () => {
   it('refuses a line past the sign rather than squeezing it in', () => {
     expect(() => applyEdit(floor, { add: [[0, 0, 2400, 0]] })).toThrow(/walls\.4\.2/);
   });
+
+  it('places rooms given in plan px: label and doors as 0–1 fractions of the sign', () => {
+    const rooms = [
+      {
+        codes: ['ST204', 'ST206'],
+        label: [500, 250] as [number, number],
+        doors: [[500, 400] as [number, number], [1001, 400] as [number, number]],
+      },
+    ];
+    expect(applyEdit(floor, { rooms }).file.rooms).toStrictEqual([
+      {
+        codes: ['ST204', 'ST206'],
+        label: [0.25, 0.5],
+        doors: [
+          [0.25, 0.8],
+          [0.5005, 0.8],
+        ],
+      },
+    ]);
+  });
+
+  it('places stairs and elevators given in plan px', () => {
+    const { file } = applyEdit(floor, { verticals: [{ id: 'east-stairs', point: [2000, 0] }] });
+    expect(file.verticals).toStrictEqual([{ id: 'east-stairs', point: [1, 0] }]);
+  });
+
+  it('replaces every room and vertical when given, and leaves them alone when not', () => {
+    const labelled: FloorSource = {
+      ...floor,
+      rooms: [{ codes: ['ST201'], label: [0.1, 0.1], doors: [[0.1, 0.5]] }],
+      verticals: [{ id: 'lift', point: [0.9, 0.9] }],
+    };
+    const walls = applyEdit(labelled, { delete: [0] }).file;
+    expect(walls.rooms).toStrictEqual(labelled.rooms);
+    expect(walls.verticals).toStrictEqual(labelled.verticals);
+    const relabelled = applyEdit(labelled, { rooms: [{ codes: ['ST202'], label: [0, 0], doors: [[0, 250]] }] }).file;
+    expect(relabelled.rooms).toStrictEqual([{ codes: ['ST202'], label: [0, 0], doors: [[0, 0.5]] }]);
+    expect(relabelled.verticals).toStrictEqual(labelled.verticals);
+  });
+
+  it('unchecks a checked floor when only its labels change', () => {
+    const edited = applyEdit({ ...floor, checked: true }, { verticals: [{ id: 'lift', point: [0, 0] }] });
+    expect(edited.file.checked).toBe(false);
+    expect(edited.unchecked).toBe(true);
+  });
+
+  it.each<[string, Parameters<typeof applyEdit>[1], RegExp]>([
+    // A code in the right shape but not on the floor (`C204`) is the compiler's to catch, against the room list.
+    [
+      'a printed code with a dash',
+      { rooms: [{ codes: ['C-112'], label: [0, 0], doors: [[0, 0]] }] },
+      /rooms\.0\.codes\.0/,
+    ],
+    [
+      'the same code in two rooms',
+      {
+        rooms: [
+          { codes: ['ST201'], label: [0, 0], doors: [[0, 0]] },
+          { codes: ['ST201'], label: [9, 9], doors: [[9, 9]] },
+        ],
+      },
+      /each room code once per floor/,
+    ],
+    [
+      'a door past the sign',
+      { rooms: [{ codes: ['ST201'], label: [0, 0], doors: [[0, 600]] }] },
+      /rooms\.0\.doors\.0\.1/,
+    ],
+    [
+      'the same vertical twice',
+      {
+        verticals: [
+          { id: 'lift', point: [0, 0] },
+          { id: 'lift', point: [9, 9] },
+        ],
+      },
+      /each vertical once per floor/,
+    ],
+  ])('refuses %s', (_, spec, message) => {
+    expect(() => applyEdit(floor, spec)).toThrow(message);
+  });
 });
 
 describe('parseEditSpec', () => {
@@ -77,6 +158,13 @@ describe('parseEditSpec', () => {
     expect(parseEditSpec(spec)).toStrictEqual(spec);
   });
 
+  it('reads a spec with only rooms or only verticals', () => {
+    const rooms = { rooms: [{ codes: ['ST201'], label: [10, 20], doors: [[10, 40]] }] };
+    expect(parseEditSpec(rooms)).toStrictEqual(rooms);
+    const verticals = { verticals: [{ id: 'east-stairs', point: [10, 20] }] };
+    expect(parseEditSpec(verticals)).toStrictEqual(verticals);
+  });
+
   it.each<[string, unknown, RegExp]>([
     ['a misspelt key', { deletes: [1] }, /deletes/],
     ['the same index twice', { delete: [3, 3] }, /wall 3 is listed twice/],
@@ -85,6 +173,11 @@ describe('parseEditSpec', () => {
     ['a single point', { add: [[0, 0]] }, /at least 2 points/],
     ['nothing to do', {}, /nothing to change/],
     ['only empty lists', { delete: [], add: [] }, /nothing to change/],
+    ['a room with no door', { rooms: [{ codes: ['ST201'], label: [0, 0], doors: [] }] }, /rooms\.0\.doors/],
+    ['a room with no code', { rooms: [{ codes: [], label: [0, 0], doors: [[0, 0]] }] }, /rooms\.0\.codes/],
+    ['a label that is not one point', { rooms: [{ codes: ['ST201'], label: [0, 0, 1], doors: [[0, 0]] }] }, /label/],
+    ['a misspelt room key', { rooms: [{ code: ['ST201'], label: [0, 0], doors: [[0, 0]] }] }, /code/],
+    ['a vertical id with capitals', { verticals: [{ id: 'East', point: [0, 0] }] }, /verticals\.0\.id/],
   ])('refuses %s', (_, spec, message) => {
     expect(() => parseEditSpec(spec)).toThrow(message);
   });

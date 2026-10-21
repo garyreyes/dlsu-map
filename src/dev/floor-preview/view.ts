@@ -2,6 +2,7 @@
 // put the camera, and how to name a floor. Pure. Data coordinates are meters, x east and y north; the scene's are x
 // east, y up and z south (as in the floor builder).
 import type { Campus, CampusBuilding } from '@/shared/data/campus';
+import type { Indoor } from '@/shared/data/indoor';
 
 export type Ring = [number, number][];
 
@@ -32,6 +33,12 @@ export function entrancesOf(campus: Campus, slug: string): Pin[] {
       y: campus.walk.points[2 * e.point + 1] ?? 0,
       main: e.kind === 'main',
     }));
+}
+
+/** The graph point where the building's main entrance joins its G floor, or null before G is traced. */
+export function mainEntrancePoint(campus: Campus, indoor: Indoor): number | null {
+  const main = indoor.entrances.find((e) => campus.entrances[e.entrance]?.kind === 'main');
+  return main?.point ?? null;
 }
 
 /** Centre and size of the building's own outline, to aim the camera and place the north arrow. */

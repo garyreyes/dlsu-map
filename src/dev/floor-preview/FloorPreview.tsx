@@ -1,11 +1,13 @@
 import { Canvas } from '@react-three/fiber';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MAP_PALETTE } from '@/shared/config/palette';
 import type { Campus, CampusBuilding } from '@/shared/data/campus';
 import type { Indoor, IndoorFloor } from '@/shared/data/indoor';
 import { PreviewScene } from './PreviewScene';
+import { RoutePicker } from './RoutePicker';
+import { testRoute } from './test-route';
 import { usePreviewData } from './usePreviewData';
-import { floorName } from './view';
+import { floorName, mainEntrancePoint } from './view';
 
 interface Pick {
   building?: string;
@@ -82,6 +84,14 @@ function Page({ campus, floors, building, indoor, current, onPick }: PageProps) 
     history.replaceState(null, '', `?building=${building.slug}&floor=${String(current.floor)}`);
   }, [building.slug, current.floor]);
   const name = `${building.short} ${floorName(building, current.floor)}`;
+  // The test route's room, kept per building so switching buildings doesn't route to a code it doesn't have.
+  const [picked, setPicked] = useState<{ building: string; code: string }>({ building: '', code: '' });
+  const to = picked.building === building.slug ? picked.code : '';
+  const start = useMemo(() => mainEntrancePoint(campus, indoor), [campus, indoor]);
+  const route = useMemo(() => {
+    const room = indoor.rooms.find((r) => r.code === to);
+    return room && start !== null ? testRoute(indoor.graph, start, room.doors) : null;
+  }, [indoor, to, start]);
   return (
     <div className="fixed inset-0 flex flex-col bg-surface text-ink">
       <header className="flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-line px-4 py-3">
@@ -101,6 +111,16 @@ function Page({ campus, floors, building, indoor, current, onPick }: PageProps) 
             onPick(building.slug, f);
           }}
         />
+        <RoutePicker
+          building={building}
+          indoor={indoor}
+          to={to}
+          route={route}
+          canStart={start !== null}
+          onPick={(code) => {
+            setPicked({ building: building.slug, code });
+          }}
+        />
       </header>
       <Summary name={name} floor={current} />
       <div className="relative min-h-0 flex-1" role="img" aria-label={`3D view of ${name}`}>
@@ -112,6 +132,7 @@ function Page({ campus, floors, building, indoor, current, onPick }: PageProps) 
             floor={current.floor}
             base={current.base}
             palette={MAP_PALETTE}
+            route={route}
           />
         </Canvas>
       </div>
@@ -159,7 +180,7 @@ function Summary({ name, floor }: { name: string; floor: IndoorFloor }) {
       {floor.checked ? 'checked' : 'not checked yet'}.{' '}
       {floor.checked
         ? 'It passed your check.'
-        : `If the walls sit in the yellow outline, the blue hallway runs down the middle and the orange main-entrance pin is at the right end (the white arrow points north), tell Claude "${name} looks right".`}
+        : `If the walls sit in the yellow outline, the blue hallway runs down the middle, each code sits in its room with a green dot at its door, stairs (orange) and elevator (violet) are where the sign has them, and the orange main-entrance pin is at the right end (the white arrow points north), tell Claude "${name} looks right".`}
     </p>
   );
 }

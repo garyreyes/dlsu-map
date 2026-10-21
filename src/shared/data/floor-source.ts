@@ -20,10 +20,10 @@ const planPoint = z.tuple([planNumber, planNumber]);
 
 /** A room code as in rooms.json: canonical (`ST311`, not the printed `C311`), which the compiler checks against the
  *  floor's rooms; this schema can only check its shape. */
-const roomCode = z.string().regex(/^[A-Z]+[1-9]\d{2,3}[A-Z]?$/, 'needs a canonical room code like ST311');
+export const roomCode = z.string().regex(/^[A-Z]+[1-9]\d{2,3}[A-Z]?$/, 'needs a canonical room code like ST311');
 
 /** A stair or elevator's name within its building: `east-stairs`. */
-const verticalId = z.string().regex(/^[a-z0-9-]+$/, 'needs lowercase letters, digits and dashes');
+export const verticalId = z.string().regex(/^[a-z0-9-]+$/, 'needs lowercase letters, digits and dashes');
 
 const roomPlace = z.strictObject({
   /** Usually one; a combined room drawn as one space has each of its codes here (D18). */

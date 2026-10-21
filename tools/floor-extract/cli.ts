@@ -179,9 +179,13 @@ function edit(path: string, specPath: string): Promise<void> {
   const result = applyEdit(floor, parseEditSpec(JSON.parse(readFileSync(specPath, 'utf8'))));
   writeFileSync(path, formatFloorFile(result.file));
   const counts = `−${String(result.removed)}, +${String(result.added)}`;
-  console.log(`${path}: ${String(floor.walls.length)} → ${String(result.file.walls.length)} walls (${counts})`);
+  const { rooms, verticals } = result.file;
+  const labels = `${String(rooms?.length ?? 0)} rooms, ${String(verticals?.length ?? 0)} stairs and elevators`;
+  console.log(
+    `${path}: ${String(floor.walls.length)} → ${String(result.file.walls.length)} walls (${counts}); ${labels}`,
+  );
   if (result.unchecked) console.log('  it was checked: now checked: false, so the owner looks again in P1');
-  console.log('  wall numbers have changed: run review again before the next spec');
+  if (result.removed > 0) console.log('  wall numbers have changed: run review again before the next spec');
   return Promise.resolve();
 }
 

@@ -95,7 +95,7 @@ with a full-app polish.
 
 | ID | Sub-phase | Lane | Depends on | Status |
 |---|---|---|---|---|
-| 8a | Hallways, doors, stairs and elevators (`servesFloors`); build checks: door within 3 m of a hallway, valid floors, every room reachable 🧪. Bridges moved to 9b/9c (D39) | B | 6d | in progress |
+| 8a | Hallways, doors, stairs and elevators (`servesFloors`); build checks: door within 3 m of a hallway, valid floors, every room reachable 🧪. Bridges moved to 9b/9c (D39) | B | 6d | done |
 | 8b | Join indoor and outdoor at entrances; Stairs / Elevator / Auto across floors; indoor direction text 🧪 | B | 4c, 8a | not started |
 | 8c | Indoor steps (S7) in the player; "indoor map coming" (O5); "(approximate)" (O6) | A | 5d, 7b, 8b | not started |
 | 8▸ | Impeccable critique + polish (Phase 8) | A | 8a–8c | not started |
