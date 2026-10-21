@@ -8,6 +8,11 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-21: D35 agreed
+
+- Gary agreed D35 (the step rules) when approving #35. Marked agreed in DECISIONS; SUMMARY row added; PLAN §6.3 no
+  longer says proposed.
+
 ## 2026-10-21: 4c direction text
 
 - `src/features/routing/directions.ts` and `turns.ts`: every route now carries its steps (D35). A step is where the

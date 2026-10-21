@@ -265,7 +265,7 @@ tutorial.
 ### 6.3 Direction text (generated, not hand-written)
 
 - Collapse straight runs, then classify the turn angle at each node: straight under 30°, slight 30–60°, turn 60–135°,
-  sharp over 135°. Only junctions are steps, and jogs under 15 m apart merge (D35, proposed).
+  sharp over 135°. Only junctions are steps, and jogs under 15 m apart merge (D35).
 - Attach the nearest labelled feature as a landmark: "Turn left after **CR**", "Pass **B310** on your right".
 - Special node types produce special text: verticals ("Take the elevator to **5F**"), exits ("Exit via the
   **main entrance**"), crossings ("Cross **Taft Ave** at the crosswalk"), bridges.
