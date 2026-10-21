@@ -79,7 +79,7 @@ with a full-app polish.
 | ID | Sub-phase | Lane | Depends on | Status |
 |---|---|---|---|---|
 | 6a | `tools/floor-extract` built properly from the spike: corners, colour split, wall merge | B | 1a | done |
-| 6b | Verification spike, then the fit onto OSM outlines (ARCHITECTURE §4 step 4, unproven) | B | 2a, 6a | not started |
+| 6b | Verification spike, then the fit onto OSM outlines (ARCHITECTURE §4 step 4, unproven) | B | 2a, 6a | done |
 | 6c | ↺ Floor builder (walls from a floor file), moved up from Phase 7 so the floor preview works | A | 2c | not started |
 | 6d | Dev-only floor preview (P1) + the `checked: true` step; STRC end to end, all 4 floors | B | 6b, 6c | not started |
 

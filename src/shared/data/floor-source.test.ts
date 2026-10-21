@@ -10,6 +10,7 @@ const good = {
   floor: 3,
   extractedFrom: 'strc_03F.jpg',
   checked: false,
+  plan: { width: 3201, height: 789 },
   fit: { turn: 0 },
   walls: [
     [-0.001, 0, 1.001, 0],
@@ -30,6 +31,8 @@ describe('floorSourceSchema', () => {
   });
 
   it.each<[string, Loose]>([
+    ['no sign size', { plan: undefined }],
+    ['a sign size of 0', { plan: { width: 0, height: 789 } }],
     ['a quarter turn', { fit: { turn: 90 } }],
     ['no fit', { fit: undefined }],
     ['a wall far off the sign', { walls: [[0, 0, 1.5, 0]] }],

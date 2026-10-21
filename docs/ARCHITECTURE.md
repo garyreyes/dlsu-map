@@ -89,6 +89,7 @@ Building 1---* Opening(kind=main|side|back) ---> Walkway network ---> Gate
 - Every room is reachable from every main entrance (graph check).
 - Every door is within 3 m of a hallway line.
 - Every `servesFloors` value is a real floor of that building.
+- Every floor file sits in its building's folder, is named for its floor (`03.json`), and that floor exists (D36).
 - Every `tier: "full"` building has a room list and a `checked: true` floor file for every floor (**public launch
   gate only**; the beta build warns instead).
 

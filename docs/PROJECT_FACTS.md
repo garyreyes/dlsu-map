@@ -120,7 +120,18 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - **The outline can't tell which way round a sign goes.** Over all 8 placements, a quarter turn always scores far
   worse (median 1.6–5 m off), but the right way and turned 180° tie for box-shaped buildings (STRC, Miguel) and only
   just differ for St. Joseph. Hence `fit.turn` by hand. Both STRC signs (2F, 4F) are drawn the same way round, odd
-  rooms along the top. STRC's OSM outline has 4 corners but is skewed at one end. (2026-10-21)
+  rooms along the top. (2026-10-21)
+- **Which outlines fit onto their own corners** (6b, points along a side bending under 5° dropped): Andrew, Velasco,
+  Miguel, Razon's low block, Mutien-Marie and STRC (5 points in OSM, one on a nearly straight side, and skewed at its
+  east end, so its east-end walls poke out up to about 1 m). Gokongwei, Yuchengco, St. Joseph, St. La Salle and
+  Razon's tower get the smallest rectangle around them. Yuchengco has several volumes from the ground; a floor goes on
+  the largest one standing at its height, so check Yuchengco's in 9c. (2026-10-21)
+- **`turn: 0` can't flip on a new snapshot.** The campus grid sits about 25° off north, so of the two sides a sign's
+  top can go on, one always faces clearly more north: north parts differ by at least 0.84 (short sides) and 1.8 (long
+  sides) across all 16 buildings. A building squared to east–west would sit on the tie and could flip. (2026-10-21)
+- **Storey height = the own outline's top ÷ `levels`.** Connon, St. La Salle and Yuchengco have a part rising past
+  their main block (stair tower, roof deck); using the tallest top gave 4.08, 4.53 and 3.78 m storeys instead of
+  3.4. Henry Sy comes out 3.57 m and Andrew 4.5 m, from their OSM `height`. (2026-10-21)
 
 ## Room lists
 

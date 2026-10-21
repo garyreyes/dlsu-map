@@ -23,6 +23,8 @@ export const floorSourceSchema = z.strictObject({
   extractedFrom: z.string().regex(/^[^/\\]+\.(jpe?g|png|heic)$/i),
   /** Set by the owner only, after the 3D preview (ARCHITECTURE §4 step 6). */
   checked: z.boolean(),
+  /** The straightened sign's size in pixels, as floor-extract wrote it: which of its sides is the long one. */
+  plan: z.strictObject({ width: z.int().positive(), height: z.int().positive() }),
   /** How the sign sits on the outline (D36). The outline alone can't tell a sign from the same sign turned round,
    *  so Claude sets the turn by hand and the preview checks it. The sign's long side always lies along the
    *  outline's long side; then `turn: 0` points the sign's top as near north as that allows, and 180 as near

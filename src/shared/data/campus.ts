@@ -38,7 +38,8 @@ export const buildingSchema = z
     /** Floor number → the label on its signs, only where seen: `{ "1": "G" }`. Others show as "2F". */
     floorLabels: z.record(z.string().regex(/^\d+$/), z.string().min(1)).optional(),
     levels: z.number().int().positive(),
-    /** A podium and a tower are two volumes. */
+    /** A podium and a tower are two volumes. The building's own outline comes first, then its parts: `levels`
+     *  counts the storeys of that first one. */
     volumes: z.array(volumeSchema).min(1),
   })
   .refine((b) => b.tier === 'block' || b.prefixes.length > 0, 'a full-tier building needs a room prefix');

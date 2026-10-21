@@ -9,7 +9,7 @@ export interface Rect {
 }
 
 /** Twice the signed area (shoelace); positive when the ring runs anticlockwise. */
-function signedArea2(ring: readonly Point[]): number {
+export function signedArea2(ring: readonly Point[]): number {
   let sum = 0;
   for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
     const [xi, yi] = ring[i] as Point;
