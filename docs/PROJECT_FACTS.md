@@ -139,9 +139,9 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   bottom-right corner is the end wall extended (the last room is set in); 5F is the envelope of its two blocks.
   **2F–5F need `--dark 0.88 --red-sat 40`**: washed-out photos (paper V ~155, walls 0.76–0.85 of it, route S
   44–58). Untuned, 2F found 58 walls and read the route as walls. (2026-10-21)
-- **Velasco is `turn: 180`** (to confirm with the owner in P1): the sign's "Assembly Area" inset has Taft on the left
-  and Henry Sy above, while OSM has them east and south; and both main-entrance pins land on the lobby's exits only
-  that way round (the lobby is 38–44% from the west end, the pins 36–39%). (2026-10-21)
+- **Velasco is `turn: 180`** (owner checked all 5 floors in P1, 2026-10-21): the sign's "Assembly Area" inset has
+  Taft on the left and Henry Sy above, while OSM has them east and south; and both main-entrance pins land on the
+  lobby's exits only that way round (the lobby is 38–44% from the west end, the pins 36–39%). (2026-10-21)
 - **Velasco 5F's sign draws parts of it narrower; the floor isn't** (owner, 2026-10-21: "same as the floors
   below"). Traced as drawn, it sat 2.3 m from the outline at the 90th percentile. So after cleanup its plan y was
   stretched by a one-off transform: west block (plan x < 1372) from 0–847 and middle block (1372–1984) from 52–900

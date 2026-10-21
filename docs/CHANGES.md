@@ -8,6 +8,12 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-21: Velasco's 5 floors checked
+
+- The owner checked all 5 Velasco floors in P1 ("every floor looked right") and they are now `checked: true`, so the
+  build fails if Velasco's outline moves under them. ROADMAP 9b stays in progress: Gokongwei and Miguel are left
+  (Miguel needs its 1F photo; Gokongwei has no photos yet).
+
 ## 2026-10-21: 9b started: Velasco's 5 floors traced and cleaned up
 
 - `data-src/floors/velasco/01.json`–`05.json` (124, 83, 88, 92 and 95 walls), each with one connected hallway
