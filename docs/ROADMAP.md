@@ -43,7 +43,7 @@ with a full-app polish.
 |---|---|---|---|---|
 | 2a | `scripts/fetch-osm.ts`: pinned OSM snapshot committed to `data-src/campus/osm/`, plus the Zod schemas in `shared/data` | B | 1a | done |
 | 2b | Data compiler v1: `data-src` → `public/data/campus.json` + buildings (full vs block tier), compile report 🧪 | B | 2a | done |
-| 2c | Massing-model scene from DESIGN.md (black ground, green haze, see-through city, labels), tap a building for its card (S3b); settle D13's palette on real phones outdoors and remove the palette switch | A | 1c, 2b | not started |
+| 2c | Massing-model scene from DESIGN.md (black ground, green haze, see-through city, labels), tap a building for its card (S3b); settle D13's palette on real phones outdoors and remove the palette switch | A | 1c, 2b | in progress |
 | 2▸ | Impeccable critique + polish (Phase 2) | A | 2a–2c | not started |
 
 ## Phase 3: Rooms + search ▸

@@ -8,10 +8,7 @@ export const FAR = 8000;
 
 /** Home view: about 52° from straight down. */
 export const HOME_POLAR = (52 * Math.PI) / 180;
-/** Home heading: the camera sits east of campus so Taft Avenue runs along the bottom of the screen. 2c works it
- *  out from the real Taft Avenue line; this is the stand-in until then. */
-export const HOME_AZIMUTH = Math.PI / 2;
-export const HOME_DISTANCE = 900;
+// The home heading, target and distance come from the campus data: features/campus-scene/home-view.ts.
 
 export const MIN_DISTANCE = 90;
 export const MAX_DISTANCE = 2600;

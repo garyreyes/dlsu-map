@@ -229,7 +229,16 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   `react-hooks/immutability` flags writes to `.current`. The compiler itself isn't in the build, so stable callbacks
   (like a ref callback that sets the camera up) still need `useCallback`. (2026-10-20)
 - **The 3D map is a lazy chunk** (`React.lazy` in `src/app/App.tsx`): the pill and sheet load in about 385 kB, and
-  three.js follows in about 960 kB, so search works before the scene is ready (user-flows §3.2). (2026-10-20)
+  three.js follows in about 960 kB (1,068 kB from 2c), so search works before the scene is ready (user-flows §3.2). (2026-10-20)
+- **The scene's coordinates:** campus data is meters with x east and y north; the scene is x east, y up and z = -y,
+  so north is -z and the map isn't mirrored. camera-controls' azimuth 0 puts the camera south of its target (+z), π/2
+  east. `massing.ts` and `home-view.ts` pin both with tests. (2c, 2026-10-21)
+- **Colour and light settings:** the canvas is `flat` (no tone mapping), so the unlit ground is exactly its palette
+  colour. Light intensities are the prototype's values × π, because three.js's lighting has been physical since r155
+  and the prototype was tuned on the old model. (2c, 2026-10-21)
+- **Labels are DOM, not drei `<Text>`:** plates need the Float shadow and the system font, and DOM text needs no font
+  download. `LabelProjector` (inside the canvas) writes each plate's position on every frame the canvas draws, with
+  `style.setProperty`: a plain assignment through a ref trips `react-hooks/immutability`. (2c, 2026-10-21)
 
 ## Offline (1d)
 
@@ -259,10 +268,12 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 ## Zod and the CSP
 
 - **Zod 4 probes for `eval` when it builds a schema, and the CSP blocks it** (`script-src 'self'`; no
-  `'unsafe-eval'`). `tests/e2e/hosting.spec.ts` reports it as "script-src blocked eval". Until 2c nothing in the
-  first-load bundle imports a schema, which is why `canReachSite` lives in `reach.ts`, apart from `load.ts`.
-  **2c will hit this** when the scene calls `loadCampus`. Likely fix: `z.config({ jitless: true })` once at start-up
-  (Zod's own switch for CSP-restricted pages). Never relax the CSP for it. (2026-10-20)
+  `'unsafe-eval'`). `tests/e2e/hosting.spec.ts` reports it as "script-src blocked eval". Setting
+  `z.config({ jitless: true })` before the first *parse* is too late: an object schema reads the setting when it is
+  built, which happens on import. So `src/shared/data/zod.ts` sets it and every schema file imports `z` from there
+  (`tests/zod-entry.test.ts` fails on a direct `'zod'` import in `src/`). Never relax the CSP for it. (2c, 2026-10-21)
+- **Schema files import siblings with `.ts`** (`./zod.ts`, `./campus.ts`): the data compiler runs them in Node, which
+  needs the extension. Vite doesn't mind either way. (2026-10-21)
 
 ## Tool versions pinned in CI
 

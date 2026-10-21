@@ -1,8 +1,8 @@
 // The only place the app fetches its own data (ARCHITECTURE §6). Every file is checked twice before use: the
 // response must really be JSON, then the JSON must match its Zod schema. A failure is returned, never thrown, with a
 // reason the screen can act on, so the app never shows a half-loaded map (user-flows §4).
-import type { z } from 'zod';
 import { campusSchema, type Campus } from './campus';
+import type { z } from './zod';
 
 /** Why a file couldn't be used. `offline`: the request never got an answer. `http`: an error status. `not-json`:
  *  something else came back, like the hosting's index.html fallback for a missing file. `invalid`: broken or
