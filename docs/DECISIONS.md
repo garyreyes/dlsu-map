@@ -1173,7 +1173,7 @@ the goal-room mark and "Indoor map still saving" are Lane A only. Change spot (D
 against a sample while Charles does the router (8c stays open until his part lands). **Revisit if** Charles would
 rather Lane A write the router change.
 
-## D48. The 8c-2 contract: a spot on From, and a door choice as the router's last argument (2026-10-22, proposed)
+## D48. The 8c-2 contract: a spot on From, and a door choice as the router's last argument (2026-10-22, agreed)
 
 **Problem.** Change spot (D42) and the exit choice (D43) need the router to take two things it can't yet: where on
 From's floor the student stands, and which door to leave by. Both change `src/shared/data/route.ts`, which both lanes
@@ -1197,7 +1197,7 @@ Naming doors by kind and name instead of index (Velasco has two unnamed main ent
 apart). Putting the exit on `From` (it's a route option in S5, not where the student is). **Revisit if** the entrance
 index stops being stable between `campus.json` and the building files, which come from the same build.
 
-## D49. A size budget for the JavaScript, checked on every build (2026-10-22, proposed)
+## D49. A size budget for the JavaScript, checked on every build (2026-10-22, agreed)
 
 **Problem.** Vite warns when a chunk is over 500 kB before compression. Two chunks were over it: the first-load
 chunk at 569 kB (179 kB gzipped) and the lazy 3D chunk at 995 kB (266 kB gzipped). The first-load growth since 1d is
@@ -1223,3 +1223,14 @@ At the time of writing: first load 179 kB gzipped (index 109, vendor 70), three 
 unnoticed). `size-limit` or Lighthouse CI (a new dependency outside ARCHITECTURE §2 for what a short script does).
 **Revisit if** the first load nears 200 kB (about 21 kB of room today: split the route screens first), a budget
 blocks a feature that needs the bytes, or testers on slow phones find the first load slow even within budget.
+
+**When it gets too big, in this order** (agreed by Gary and Charles, 2026-10-22):
+
+1. **Load later what the first screen doesn't show.** The route screens first (about 5 kB): give `route-player` a
+   second entry for its components, so the shell's hooks stay in the first load and the screens don't.
+2. **Swap a heavy library for a lighter one that does the same job:** `zod/mini` for zod (same schemas, a fraction
+   of the size), and look at whether the sheet still needs all of `motion`.
+3. **Move work out of the phone's download:** anything computed from the data at startup belongs in the data
+   compiler, which runs at build time.
+4. **Only then raise the budget,** as a new D-number that says what the bytes buy. The PWA saves everything after
+   the first visit, so the budget is really about that first visit on mobile data.
