@@ -14,6 +14,11 @@ const pxLine = z
 /** A point in plan px: [x, y]. */
 const pxPoint = z.tuple([z.number(), z.number()]);
 
+/** A box in plan px: [left, top, right, bottom]. */
+const pxBox = z
+  .tuple([z.number(), z.number(), z.number(), z.number()])
+  .refine(([x0, y0, x1, y1]) => x0 < x1 && y0 < y1, 'needs left < right and top < bottom');
+
 const editSpecSchema = z
   .strictObject({
     /** Indices into the file's walls as it is now, i.e. as the last `review` numbered them. */
@@ -25,6 +30,8 @@ const editSpecSchema = z
           ctx.issues.push({ code: 'custom', message: `wall ${String(twice)} is listed twice`, input: ctx.value });
       })
       .optional(),
+    /** Boxes: every wall with both ends inside one is deleted too (a band of roof hatching, a block of stair treads). */
+    deleteInside: z.array(pxBox).optional(),
     /** New walls, added after the kept ones. */
     add: z.array(pxLine).optional(),
     /** Replaces every hallway line. */
@@ -39,7 +46,7 @@ const editSpecSchema = z
   // An empty `hallways`, `rooms` or `verticals` removes them all; empty `delete` and `add` lists do nothing.
   .refine(
     (s) =>
-      (s.delete?.length ?? 0) + (s.add?.length ?? 0) > 0 ||
+      (s.delete?.length ?? 0) + (s.deleteInside?.length ?? 0) + (s.add?.length ?? 0) > 0 ||
       s.hallways !== undefined ||
       s.rooms !== undefined ||
       s.verticals !== undefined,
@@ -67,13 +74,20 @@ export interface Edited {
 /** The floor file with the spec applied, checked against the schema the compiler uses. Throws on any mistake. */
 export function applyEdit(floor: FloorSource, spec: EditSpec): Edited {
   const name = `${floor.building} ${String(floor.floor)}F`;
-  const gone = new Set(spec.delete ?? []);
-  for (const i of gone) {
+  for (const i of spec.delete ?? []) {
     if (i >= floor.walls.length) {
       throw new Error(`no wall ${String(i)}: ${name} has walls 0–${String(floor.walls.length - 1)}`);
     }
   }
   const { width, height } = floor.plan;
+  const inside = (w: readonly number[]) =>
+    (spec.deleteInside ?? []).some(([x0, y0, x1, y1]) =>
+      [0, 2].every((k) => {
+        const [x, y] = [(w[k] ?? NaN) * width, (w[k + 1] ?? NaN) * height];
+        return x >= x0 && x <= x1 && y >= y0 && y <= y1;
+      }),
+    );
+  const gone = new Set([...(spec.delete ?? []), ...floor.walls.flatMap((w, i) => (inside(w) ? [i] : []))]);
   const toPlan = (line: readonly number[]) => line.map((v, i) => fourDecimals(i % 2 === 0 ? v / width : v / height));
   const point = ([x, y]: readonly [number, number]): [number, number] => [
     fourDecimals(x / width),

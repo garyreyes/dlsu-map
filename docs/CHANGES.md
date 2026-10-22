@@ -8,6 +8,18 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-22: floor-extract helpers from St. Joseph
+
+- `floor-extract walls <floor file> [--gaps y0,y1]`: every wall in plan px with its index, or the gaps along one wall
+  band, for reading door gaps and room dividers (`plan-px.ts`).
+- `floor-extract far <floor file>`: the outline points more than 1.5 m from every wall, back in plan px, to find a
+  missed outer wall before changing corners or turn (`far.ts`; `scripts/compile/indoor.ts` now exports
+  `floorOutline` and `GAP_CHECK` so it fits floors exactly as `compile-data` does).
+- `crop` also writes `crops.png` with all the corners; an `edit` spec's `deleteInside` boxes delete every wall wholly
+  inside them.
+- Tests first: `plan-px.test.ts`, `far.test.ts` and three new cases in `edit.test.ts`. The `floor-extract` skill's
+  steps 3 and 6 use the new commands.
+
 ## 2026-10-22: 9c started: St. Joseph's 6 floors traced, cleaned and labelled
 
 - **All 6 St. Joseph floors** are traced from the signs, cleaned up and labelled: 85 rooms with their doors, and

@@ -1,5 +1,6 @@
 // Photo of one floor's evacuation map → a draft floor (D17). Dev-only; never shipped. Run from the repo root:
-//   npm run floor-extract -- crop <photo> <x,y> [<x,y> …]          zoomed, gridded crops to read the 4 corners
+//   npm run floor-extract -- crop <photo> <x,y> [<x,y> …]          zoomed, gridded crops to read the 4 corners, and
+//                                       crops.png with them all (4 crops: tl tr above, bl br below)
 //   npm run floor-extract -- extract <photo> <tl> <tr> <br> <bl> [--style green-sign|white-map]
 //                                       [--dark <ratio>] [--red-sat <S>]
 //                                       straighten, split colours, find walls and route (style detected if not given;
@@ -8,6 +9,8 @@
 //                                       never overwrites one, since it holds cleanup work
 //   npm run floor-extract -- review <floor.json> [--tiles N]   walls numbered over the photo, grid in plan px
 //   npm run floor-extract -- edit <floor.json> <spec.json>     apply a cleanup: delete walls, add walls, hallways
+//   npm run floor-extract -- walls <floor.json> [--gaps <y0,y1>]   walls in plan px, or the gaps along one wall band
+//   npm run floor-extract -- far <floor.json>                  outline points with no wall near them, in plan px
 //   npm run floor-extract -- shots <building>                  P1 screenshots of every floor (shots.ts)
 // Photos are DLSU's (data-src/photos/, gitignored); `crop` and `extract` write to tools/floor-extract/out/
 // (gitignored), as do `review` and `shots`; `floor` and `edit` write the floor file, which is committed (D21).
@@ -16,18 +19,24 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
+import { fitFrame } from '../../scripts/compile/fit.ts';
+import { GAP_CHECK, floorOutline } from '../../scripts/compile/indoor.ts';
+import { campusSchema } from '../../src/shared/data/campus.ts';
 import { floorSourceSchema, type FloorSource } from '../../src/shared/data/floor-source.ts';
 import { STYLES, classify, detectStyle, type Style, type Tuning } from './colours.ts';
 import { checkCorners, parsePoint } from './corners.ts';
 import { applyEdit, parseEditSpec } from './edit.ts';
+import { farFromWalls } from './far.ts';
 import { floorFile, formatFloorFile, type Draft } from './floor-file.ts';
 import type { Point, Rgb } from './image.ts';
 import { cropGridSvg, overlaySvg, preview3dSvg, reviewSvg } from './preview.ts';
+import { gapsInBand, wallsInPx } from './plan-px.ts';
 import { extractSegments, normalise } from './segments.ts';
 import { warpPlan } from './warp.ts';
 
 const OUT = fileURLToPath(new URL('./out/', import.meta.url));
 const FLOORS = fileURLToPath(new URL('../../data-src/floors/', import.meta.url));
+const CAMPUS = fileURLToPath(new URL('../../public/data/campus.json', import.meta.url));
 /** Padding around the straightened plan, px: keeps the outer wall inside the image. */
 const PAD = 40;
 /** The spike's numbers (STRC 4F at 4032×3024 and 2F at 2048×1536 both read well with them); the gap is per style. */
@@ -78,6 +87,26 @@ async function crop(photo: string, rough: readonly Point[]): Promise<void> {
       .toFile(file);
     console.log(`  ${file}: around (${String(x)}, ${String(y)}), grid lines labelled in photo pixels`);
   }
+  await montage(dir, rough.length);
+}
+
+/** All the crops in one picture, two across; four corners (given tl tr br bl) read as they sit on the sign. */
+async function montage(dir: string, count: number): Promise<void> {
+  const side = CROP.size * CROP.scale;
+  const order = count === 4 ? [1, 2, 4, 3] : Array.from({ length: count }, (_, i) => i + 1);
+  const rows = Math.ceil(order.length / 2);
+  const file = join(dir, 'crops.png');
+  await sharp({ create: { width: 2 * side, height: rows * side, channels: 3, background: '#ffffff' } })
+    .composite(
+      order.map((n, i) => ({
+        input: join(dir, `crop-${String(n)}.png`),
+        left: (i % 2) * side,
+        top: Math.floor(i / 2) * side,
+      })),
+    )
+    .png()
+    .toFile(file);
+  console.log(`  ${file}: every crop in one picture`);
 }
 
 async function extract(
@@ -189,10 +218,56 @@ function edit(path: string, specPath: string): Promise<void> {
   return Promise.resolve();
 }
 
+function walls(path: string, band?: Point): Promise<void> {
+  const floor = readFloor(path);
+  if (band) {
+    const gaps = gapsInBand(floor, band[0], band[1]).map(([a, b]) => `${String(a)}–${String(b)}`);
+    console.log(`${path}: gaps along y ${String(band[0])}–${String(band[1])}, plan px: ${gaps.join(' ') || 'none'}`);
+    return Promise.resolve();
+  }
+  const { across, down } = wallsInPx(floor);
+  console.log(`${path}: plan ${String(floor.plan.width)}×${String(floor.plan.height)} px; walls as #index`);
+  console.log('across (y: x from–to):');
+  for (const w of across) console.log(`  y${String(w.y)}: ${String(w.from)}–${String(w.to)} #${String(w.index)}`);
+  console.log('down (x: y from–to):');
+  for (const w of down) console.log(`  x${String(w.x)}: ${String(w.from)}–${String(w.to)} #${String(w.index)}`);
+  return Promise.resolve();
+}
+
+function far(path: string): Promise<void> {
+  const floor = readFloor(path);
+  if (!existsSync(CAMPUS)) throw new Error(`no ${CAMPUS}; run npm run compile-data first`);
+  const campus = campusSchema.parse(JSON.parse(readFileSync(CAMPUS, 'utf8')));
+  const building = campus.buildings.find((b) => b.slug === floor.building);
+  const ring = building && floorOutline(building, floor.floor);
+  if (!ring) throw new Error(`${floor.building} has no outline at floor ${String(floor.floor)} in ${CAMPUS}`);
+  const found = farFromWalls(ring, fitFrame(ring, floor.plan, floor.fit.turn), floor.walls, GAP_CHECK);
+  const { width, height } = floor.plan;
+  const at = found.map(
+    (p) => `${String(Math.round(p.x * width))},${String(Math.round(p.y * height))} ${String(p.meters)} m`,
+  );
+  console.log(
+    `${path}: ${String(found.length)} outline points more than ${String(GAP_CHECK)} m from every wall, plan px`,
+  );
+  for (const line of at) console.log(`  ${line}`);
+  return Promise.resolve();
+}
+
+/** `--gaps y0,y1`, removed from args; undefined when not given. */
+function gapsFlag(args: string[]): Point | undefined {
+  const at = args.indexOf('--gaps');
+  if (at < 0) return undefined;
+  const [value] = args.splice(at, 2).slice(1);
+  const band = value === undefined ? null : parsePoint(value);
+  if (band && band[0] < band[1]) return band;
+  throw new Error(`--gaps must be y0,y1 in plan px with y0 < y1, not "${value ?? ''}"`);
+}
+
 const USAGE =
   'usage: floor-extract crop <photo> <x,y>… | extract <photo> <tl> <tr> <br> <bl> [--style <style>] [--dark <ratio>]' +
   ' [--red-sat <S>] | floor <photo>' +
-  ' | review <floor.json> [--tiles N] | edit <floor.json> <spec.json> | shots <building>';
+  ' | review <floor.json> [--tiles N] | edit <floor.json> <spec.json> | walls <floor.json> [--gaps <y0,y1>]' +
+  ' | far <floor.json> | shots <building>';
 
 function tilesFlag(args: string[]): number {
   const at = args.indexOf('--tiles');
@@ -232,11 +307,14 @@ async function main(): Promise<void> {
   const style = styleFlag(rest);
   const tiles = tilesFlag(rest);
   const tuning = tuningFlags(rest);
+  const band = gapsFlag(rest);
   if (command === 'crop' && subject && rest.length > 0) return crop(subject, points(rest));
   if (command === 'extract' && subject && rest.length === 4) return extract(subject, points(rest), style, tuning);
   if (command === 'floor' && subject && rest.length === 0) return floor(subject);
   if (command === 'review' && subject && rest.length === 0) return review(subject, tiles);
   if (command === 'edit' && subject && rest.length === 1 && rest[0]) return edit(subject, rest[0]);
+  if (command === 'walls' && subject && rest.length === 0) return walls(subject, band);
+  if (command === 'far' && subject && rest.length === 0) return far(subject);
   if (command === 'shots' && subject && rest.length === 0) return (await import('./shots.ts')).shots(subject);
   throw new Error(USAGE);
 }
