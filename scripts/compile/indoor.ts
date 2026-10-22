@@ -32,7 +32,7 @@ export interface IndoorResult {
 
 /** Above this, most of the outline has no wall near it: the corners were read wrong or the turn is. Spike: 0.6–1.2 m
  *  (PROJECT_FACTS). */
-const GAP_CHECK = 1.5;
+export const GAP_CHECK = 1.5;
 /** Slack when comparing heights that come from sums of storeys. */
 const EPSILON = 0.01;
 
@@ -63,6 +63,10 @@ function outlineAt(building: CampusBuilding, base: number): Point[] | null {
  *  outline's. A part rising past it, like a stair tower or roof deck (Connon, LS, Yuchengco), would otherwise
  *  stretch every storey. */
 const storeyHeight = (building: CampusBuilding): number => (building.volumes[0]?.top ?? 0) / building.levels;
+
+/** The outline a floor is fitted onto, as `compile-data` picks it; `floor-extract far` uses it too. */
+export const floorOutline = (building: CampusBuilding, floor: number): Point[] | null =>
+  outlineAt(building, (floor - 1) * storeyHeight(building));
 
 const fitLine = (frame: Frame, line: readonly number[]): number[] =>
   pairs(line).flatMap(([x, y]) => fitPoint(frame, x, y).map(round));

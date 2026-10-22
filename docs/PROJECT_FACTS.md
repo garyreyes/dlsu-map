@@ -160,6 +160,11 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   `edit` on a checked floor sets it back to `checked: false` (owner's check was of the old walls; 2026-10-21).
   `floor-extract shots <building>` starts and stops its own Vite, so it never leaves a dev server on a port.
   (2026-10-21)
+- **Helpers for labelling and fit** (2026-10-22, from St. Joseph): `walls <floor file>` lists walls in plan px with
+  their index, `walls … --gaps y0,y1` the door gaps along one wall band, and `far <floor file>` the outline points
+  more than 1.5 m from every wall, in plan px (it reads the compiled `public/data/campus.json`, so run
+  `compile-data` first). `crop` also writes `crops.png`, the four corners in one picture. An `edit` spec's
+  `deleteInside` boxes delete every wall wholly inside them (roof hatching, stair treads).
 - **Labelling a floor (8a):** an `edit` spec's `rooms` and `verticals` are in plan px and replace the floor's whole
   list. Doors go in the gap of the corridor wall in front of the room; read the gaps from the walls dumped in plan px,
   not by eye, and check them against `review` (on STRC 4F, the wall line runs on past what was traced, so gaps that
