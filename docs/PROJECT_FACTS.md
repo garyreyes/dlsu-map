@@ -275,6 +275,10 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   failure isn't kept, so the next call retries. Passing a fetch always loads afresh (tests). (2026-10-21)
 - **An overlay that opens another on close uses `closeThen`** (`useBackToClose`): `history.back()` lands later, so
   opening the next overlay straight after `close()` would let Back pop the wrong one. (2026-10-21)
+- **Overlay history entries carry their depth** (`dlsu-depth`), and an overlay closes on Back only when history drops
+  below its own entry. Every overlay hears every `popstate`, so one opened inside another's Back (search closing,
+  then a card and Where are you opening) would otherwise be taken for the one that closed. Keep `history.state` when
+  calling `replaceState`, as `useDeepLink` does. (2026-10-22)
 
 ## Routing
 
@@ -311,6 +315,11 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   6 steps on a walk, back-to-back turns at least 16.9 m apart, and no trip crosses Taft (so the cross step is tested on
   fixtures only). OSM draws many jogs a few meters long, so merging matters: near STRC three bends within 13 m are one
   right turn. Only one trip each gets a bare "Bear left" / "Bear right" with no name.
+- **The app loads building files once per trip** (5b, `useRoute` with `tripBuildings`): a room's building at either
+  end, and a building tapped on an upper floor; never a gate, a G tap or a building as To, which the router walks
+  without a file. A building with no file yet (St. Joseph and Miguel today) is still asked for: wrangler and
+  Cloudflare answer with `index.html`, `loadIndoor` reads `not-json`, and the route stops at its door (O5). A route
+  option reuses the loaded files, so the router's per-file models are kept. (2026-10-22)
 
 ## Cloudflare
 
@@ -359,6 +368,13 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - **Labels are DOM, not drei `<Text>`:** plates need the Float shadow and the system font, and DOM text needs no font
   download. `LabelProjector` (inside the canvas) writes each plate's position on every frame the canvas draws, with
   `style.setProperty`: a plain assignment through a ref trips `react-hooks/immutability`. (2c, 2026-10-21)
+- **The route line's white edge writes no depth and is drawn before the green** (`RouteLine.tsx`): with both writing
+  depth 2 cm apart, they fought at campus distances and the line read white. The faint stretch behind a building is
+  the same ribbon again with `depthFunc: GreaterDepth`, so it draws only where something nearer already is. The
+  see-through city writes no depth, so the line just shows tinted under it. (5b, 2026-10-22)
+- **The camera frames a trip once per `MapTrip.here` object:** `useRoute` keeps the same object for every mode of one
+  trip, so a route option redraws the line without a flight. A new trip, or reopening the preview, gets a new one.
+  (5b, 2026-10-22)
 
 ## Offline (1d)
 

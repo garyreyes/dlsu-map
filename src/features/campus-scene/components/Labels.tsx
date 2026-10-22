@@ -1,9 +1,9 @@
 import { useFrame, useThree } from '@react-three/fiber';
-import { useMemo, useRef, type RefObject } from 'react';
+import { useEffect, useMemo, useRef, type RefObject } from 'react';
 import { Vector3, type Mesh } from 'three';
 import type { CameraControls } from '@react-three/drei';
 import type { CampusBuilding } from '@/shared/data/campus';
-import { chipAnchor, type BandSample, type ScreenPoint } from '../floor-band';
+import { chipAnchor, floorBand, type BandSample, type ScreenPoint } from '../floor-band';
 import { MINOR_LABEL_DISTANCE, placeLabels, type LabelBox, type Rect } from '../labels';
 import type { MapInsets } from './CameraRig';
 import { sees, toScene } from './visibility';
@@ -18,6 +18,10 @@ export type LabelElements = Map<string, HTMLElement>;
 const CHIP_GAP = 8;
 /** The chip's id among the label boxes. Building slugs never start with a dot. */
 const CHIP_ID = '.floor-chip';
+/** The "you are here" dot's id among the label boxes. */
+const HERE_ID = '.here';
+/** The dot's size with its white ring, in px (DESIGN.md, "You are here" dot: 18px plus a 3px ring). */
+const HERE_SIZE = 24;
 /** Which band point the chip marks is re-checked at most this often, in ms: each check casts rays at the campus. */
 const CHIP_CHECK_MS = 100;
 
@@ -28,15 +32,36 @@ interface Anchor {
   minor: boolean;
 }
 
-/** The middle of the building's own outline (its first volume), just above its tallest part. */
-function anchorFor(b: CampusBuilding): Anchor {
-  const [first] = b.volumes;
-  const outline = first?.outline ?? [];
+/** The middle of the building's own outline (its first volume), in data coordinates. */
+function middleOf(b: Pick<CampusBuilding, 'volumes'>): [number, number] {
+  const outline = b.volumes[0]?.outline ?? [];
   let [x, y] = [0, 0];
   for (let i = 0; i + 1 < outline.length; i += 2) [x, y] = [x + (outline[i] ?? 0), y + (outline[i + 1] ?? 0)];
   const n = Math.max(1, outline.length / 2);
+  return [x / n, y / n];
+}
+
+/** The middle of the building's own outline, just above its tallest part. */
+function anchorFor(b: CampusBuilding): Anchor {
+  const [x, y] = middleOf(b);
   const top = Math.max(...b.volumes.map((v) => v.top));
-  return { id: b.slug, point: new Vector3(x / n, top + ROOF_GAP, -y / n), minor: b.tier === 'block' };
+  return { id: b.slug, point: new Vector3(x, top + ROOF_GAP, -y), minor: b.tier === 'block' };
+}
+
+/** Where the student is, for the dot (5b): a building's floor, or a point on the ground (a gate). */
+export type MapHere =
+  | { readonly kind: 'floor'; readonly building: string; readonly floor: number }
+  | { readonly kind: 'ground'; readonly at: readonly [number, number] };
+
+/** The dot's scene point: the middle of the building at the chosen floor's mid-height, so it reads on the right
+ *  building even when its base is hidden; on the ground for a gate. Null for a building that isn't in the data. */
+export function herePoint(here: MapHere, building: CampusBuilding | undefined): Vector3 | null {
+  if (here.kind === 'ground') return new Vector3(here.at[0], 0, -here.at[1]);
+  if (!building) return null;
+  const [x, y] = middleOf(building);
+  const band = floorBand(building, here.floor);
+  const h = band ? (band.bottom + band.top) / 2 : Math.max(...building.volumes.map((v) => v.top));
+  return new Vector3(x, h, -y);
 }
 
 interface LayerProps {
@@ -47,13 +72,17 @@ interface LayerProps {
   /** The floor chip's text ("3F", "G"), shown while a room is selected. */
   chip: string | null;
   chipRef: RefObject<HTMLElement | null>;
+  /** Shows the "you are here" dot, while a route is on the map. */
+  here: boolean;
+  hereRef: RefObject<HTMLElement | null>;
 }
 
 /**
  * Building names on white plates (DESIGN.md, Map labels), in a layer over the canvas. Hidden until the projector
- * places them; decorative for screen readers, since every building is reachable from search.
+ * places them; decorative for screen readers, since every building is reachable from search and the route preview
+ * names From in words.
  */
-export function LabelLayer({ buildings, elementsRef, selected, chip, chipRef }: LayerProps) {
+export function LabelLayer({ buildings, elementsRef, selected, chip, chipRef, here, hereRef }: LayerProps) {
   return (
     <div className="pointer-events-none fixed inset-0 z-1 overflow-hidden" aria-hidden>
       {buildings.map((b) => (
@@ -85,6 +114,15 @@ export function LabelLayer({ buildings, elementsRef, selected, chip, chipRef }: 
           {chip}
         </span>
       )}
+      {/* "You are here" (DESIGN.md): an 18px Campus Green dot with a 3px white ring and the Float shadow. */}
+      {here && (
+        <span
+          ref={hereRef}
+          data-here-dot
+          className="absolute top-0 left-0 size-6 rounded-full border-3 border-white bg-accent shadow-float"
+          style={{ visibility: 'hidden' }}
+        />
+      )}
     </div>
   );
 }
@@ -100,10 +138,22 @@ interface ProjectorProps {
   chipRef: RefObject<HTMLElement | null>;
   /** What can hide the band from the camera. */
   massRef: RefObject<Mesh | null>;
+  /** The "you are here" dot's scene point (herePoint); placed before everything else, the chip included. */
+  here: Vector3 | null;
+  hereRef: RefObject<HTMLElement | null>;
+}
+
+/** The dot's box around its projected point, placed before everything else; null when it's behind the camera. */
+function hereBox(projected: Vector3, size: { width: number; height: number }): LabelBox | null {
+  if (projected.z > 1) return null;
+  const [x, y] = [((projected.x + 1) / 2) * size.width, ((1 - projected.y) / 2) * size.height];
+  const half = HERE_SIZE / 2;
+  return { id: HERE_ID, rank: -3, left: x - half, top: y - half, width: HERE_SIZE, height: HERE_SIZE };
 }
 
 /** Each frame the canvas draws: projects every anchor to the screen, then shows the labels that fit (labels.ts). */
-export function LabelProjector({ buildings, elementsRef, insets, selected, band, chipRef, massRef }: ProjectorProps) {
+export function LabelProjector(props: ProjectorProps) {
+  const { buildings, elementsRef, insets, selected, band, chipRef, massRef, here, hereRef } = props;
   const anchors = useMemo(() => buildings.map(anchorFor), [buildings]);
   const controls = useThree((s) => s.controls) as CameraControls | null;
   // Plate sizes never change (fixed text, system font), so each is measured once; the chip once per floor label.
@@ -111,6 +161,10 @@ export function LabelProjector({ buildings, elementsRef, insets, selected, band,
   const scratch = useMemo(() => new Vector3(), []);
   const seen = useMemo(() => new Vector3(), []);
   const invalidate = useThree((s) => s.invalidate);
+  // Frames run on demand, so a dot that comes, moves or goes asks for one to be placed.
+  useEffect(() => {
+    invalidate();
+  }, [here, invalidate]);
   // The band point the chip marks, and when (and for which band) that was worked out. Between checks the chip follows
   // the same point, projected fresh each frame; a skipped check asks for one more frame, so the map never comes to
   // rest on a stale answer (frames only run on demand).
@@ -124,6 +178,9 @@ export function LabelProjector({ buildings, elementsRef, insets, selected, band,
   useFrame(({ camera, size }) => {
     const distance = controls?.distance ?? Infinity;
     const boxes: LabelBox[] = [];
+    const dot = hereRef.current;
+    const hereAt = dot && here ? hereBox(scratch.copy(here).project(camera), size) : null;
+    if (hereAt) boxes.push(hereAt);
     const chip = chipRef.current;
     if (chip && band.length > 0) {
       const points = band.map((p): ScreenPoint => {
@@ -184,7 +241,10 @@ export function LabelProjector({ buildings, elementsRef, insets, selected, band,
     ];
     const shown = placeLabels(boxes, keepOut, size);
     const byId = new Map(boxes.map((b) => [b.id, b]));
-    const placed: [string, HTMLElement][] = chip ? [[CHIP_ID, chip]] : [];
+    const placed: [string, HTMLElement][] = [
+      ...(dot ? [[HERE_ID, dot] as [string, HTMLElement]] : []),
+      ...(chip ? [[CHIP_ID, chip] as [string, HTMLElement]] : []),
+    ];
     for (const [id, el] of [...placed, ...elementsRef.current]) {
       const box = byId.get(id);
       if (box && shown.has(id)) {

@@ -25,6 +25,58 @@ session needs to know. Search this file; it isn't required reading (the reading 
 - Not done: the 6F bridge to William Hall (a block-tier building with no floors) and the 3F bridge to Miguel (not
   traced yet). ROADMAP 9c is in progress; Yuchengco and St. La Salle are left.
 
+## 2026-10-22: 5b done: Route preview (S5)
+
+- **Setting From opens the route preview** (user-flows §3.6, D43): the card's one line on top, then **From** and
+  **To** chips (From reopens Where are you; To reopens search), "About 5 min · 323 m walk · via stairs", **Start**,
+  and folded **Route options** with Stairs / Auto / Elevator (a new shared segmented control). A choice re-routes at
+  once from what's loaded; a new trip starts on Auto. Options are left out when the route changes no floor.
+- **With From already set, a room card opens the preview at once** (user-flows §3.1), so the next room is one tap
+  from Start. Directions on either card does the same. Until 5d, Start opens the all-steps list, and Back returns to
+  the preview (D43).
+- **Routes now go inside STRC and Velasco:** `useRoute` loads the trip's building files (D41), only those the router
+  walks (`tripBuildings`, test first). It loads once per trip and reuses them for every route option and on reopening.
+- **S5 says where the route makes do:** "No elevator in Andrew. Using stairs.", and for a building with no indoor
+  map yet, "St. Joseph has no indoor map yet, so directions stop at its door." (start, door to door, or only the
+  floor, by where it's missing). Test first in `preview.test.ts`, every wording reached.
+- **On the map:** the outdoor walk as a green line on a white edge, faint where a building hides it; the "you are
+  here" dot on From's floor or gate (`hereOf`, test first); and the camera frames the whole trip once per trip, then
+  goes back to the building when the preview closes. Indoor lines wait for 7a (D43).
+- **Fixed from the review:** Escape in search (opened from the To chip, or the pill over any sheet) closed the sheet
+  under it too and left its history entry behind. Search now hears Escape first and marks it handled.
+- **Known limit:** the "no indoor map yet" line also shows when a building's file exists but doesn't cover the room
+  (Velasco's two G Mezz rooms) or didn't load offline. Saying which needs more from the router.
+- e2e: new `route-preview.spec.ts` (Start lists ST311's indoor arrive step, so the files reach the router; options;
+  chips; O5 line; the dot; Escape), and `where-are-you.spec.ts` now expects the preview.
+
+## 2026-10-22: D42 agreed
+
+- The team agreed D42 (Where are you opens by itself only under a room card, Change spot waits for 8c, the steps list
+  stands in for S5 until 5b). Marked agreed in DECISIONS; SUMMARY row added. PLAN §6.2's first-open flow and
+  precision chips now point at it.
+
+## 2026-10-22: 5a done: Where are you (S4)
+
+- **S4 opens by itself under a room card when From is empty** (D23, D42), with the card cut to one line above it
+  ("ST311 · STRC · 3rd floor (3F)"). A building card gets Directions instead, so browsing the map never asks.
+  Directions is now on both cards (not on block-tier buildings, which have no entrances).
+- **Four ways to set From:** type the room you're in (search's own results and Did you mean; Enter takes only an
+  exact room, D38), pick a building and then a floor chip with its signs' labels, tap a building on the map while S4
+  is open, or I'm outside (gate chips, or next to a building = its main entrance). "You're already at ST311" when
+  From is To. Change spot moved to 8c (D42).
+- **Until 5b, setting From opens the all-steps list** in place of S5, with its From → To line and a "Change where I
+  am" button. `useDevRoute` became `useRoute(from, to)` and `RouteSteps`, shared with the dev link. It doesn't pass
+  building files yet, so routes stop at the door as before 8b.
+- **From stays in memory** (`src/app/useTrip.ts`): never in the URL, history, Recent or storage, and an e2e test
+  checks all four. It carries to the next room, so that card doesn't ask again.
+- **Fixed:** picking a room in search opened its card and S4 inside search's Back, and the card took S4's history
+  entry for its own being popped and closed. Entries now carry their depth (PROJECT_FACTS).
+- Tests first: `location-picker/places.test.ts` and `choose.test.ts` (floor chips, gate chips, every choice →
+  From, the code accept rule against search's real results). `tests/e2e/where-are-you.spec.ts` covers every way in,
+  Back, Directions with From set, and the map tap. Room-card and search specs now close S4 to reach the card.
+- From the review: no bugs; picking another room while S4 or the steps are open re-aims them at it, as S5's To chip
+  will (user-flows §3.6).
+
 ## 2026-10-22: 9b Velasco labelled
 
 - **All 5 Velasco floors are labelled** (8a's way, D39): 73 rooms with their doors, and `verticals.json` with

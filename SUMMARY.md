@@ -112,7 +112,7 @@ code (it loads three.js from a CDN, which the real app must not do).
 ## Key decisions (short version)
 
 Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24 were agreed by the team on
-2026-10-19, D25–D27 and D33 on 2026-10-20, D28–D32 and D34–D37 on 2026-10-21, D38–D41 on 2026-10-22.
+2026-10-19, D25–D27 and D33 on 2026-10-20, D28–D32 and D34–D37 on 2026-10-21, D38–D42 on 2026-10-22.
 
 | # | Decision | Why |
 |---|---|---|
@@ -157,6 +157,7 @@ Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24
 | D39 | **Floors are labelled whole**, and `verticals.json` lists each stair and elevator's `servesFloors` | A forgotten room fails the build, not a student; signs draw shafts on floors they skip |
 | D40 | **A `?to=` link opens what Go would open**, read once then cleaned from the address bar; Share copies the link without a share sheet | No silent guesses from a link; Back and reload behave like any other pick |
 | D41 | **Routes go inside**: the trip's building files per call, indoor turns named by a room door within 5 m, the last step gives the side | Loads only two buildings; hallways have no names; door counting is unreliable |
+| D42 | **Where are you opens by itself only under a room card**; Change spot waits for 8c; until 5b the steps list stands in for the route preview | Browsing the map never asks; `From` has no spot yet; testers get real routes now |
 
 ### Things we chose *not* to do
 
