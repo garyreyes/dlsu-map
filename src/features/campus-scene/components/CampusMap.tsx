@@ -1,35 +1,26 @@
 import { Canvas } from '@react-three/fiber';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import type { CameraControls } from '@react-three/drei';
-import { Vector3, type Mesh } from 'three';
+import type { Mesh } from 'three';
 import { MapDidntDownload } from '@/features/offline';
-import { FAR, FOV_DEG, NEAR, SELECT_POLAR } from '@/shared/config/camera';
+import { FAR, FOV_DEG, NEAR } from '@/shared/config/camera';
 import { MAP_PALETTE } from '@/shared/config/palette';
 import type { Campus, CampusBuilding } from '@/shared/data/campus';
 import type { Route } from '@/shared/data/route';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import { LOADING_MAP, MapMessage } from '@/shared/ui/MapMessage';
 import { useReducedMotion } from '@/shared/ui/useMediaQuery';
-import { bandSamples, bestHeading, floorBand, headingCandidates, type BandSample } from '../floor-band';
+import { bandSamples, floorBand } from '../floor-band';
 import { headingDeg } from '../gestures';
 import { framing, homeAzimuth, mainCampusCentre } from '../home-view';
-import {
-  buildingView,
-  CameraRig,
-  goHome,
-  goToBuilding,
-  tripView,
-  type BuildingView,
-  type HomeView,
-  type MapInsets,
-} from './CameraRig';
+import { CameraRig, goHome, type HomeView, type MapInsets } from './CameraRig';
 import { herePoint, LabelLayer, LabelProjector, type LabelElements, type MapHere } from './Labels';
 import { MapButtons } from './MapButtons';
 import { MapCredit } from './MapCredit';
 import { MapFailed } from './MapFailed';
 import { MapScene } from './MapScene';
+import { useCameraFlights } from './useCameraFlights';
 import { useCampus } from './useCampus';
-import { cameraAt, sees, toScene } from './visibility';
 
 /** A selected room's floor: drawn as the band, labelled on the chip. */
 export interface MapFloor {
@@ -96,21 +87,6 @@ export function CampusMap({ insets, sheetHeight, wide, selected, floor, trip, on
   );
 }
 
-/**
- * The heading nearest the student's own whose view of `view` sees the most of the band (DESIGN.md, Camera), or null
- * to keep the heading when there's no band.
- */
-function bandHeading(c: CameraControls, view: BuildingView, band: readonly BandSample[], mass: Mesh | null) {
-  if (band.length === 0 || !mass) return null;
-  const points = band.map((p) => toScene(p));
-  const from = new Vector3();
-  const seen = (azimuth: number) => {
-    cameraAt(view.target, azimuth, SELECT_POLAR, view.distance, from);
-    return points.filter((p) => sees(mass, from, p)).length;
-  };
-  return bestHeading(headingCandidates(c.azimuthAngle), seen, points.length);
-}
-
 type Status = 'loading' | 'ready' | 'failed';
 
 /** The route's outdoor walk as flat x, y lists, for the line and the trip's framing. */
@@ -150,43 +126,24 @@ function CampusView(props: Props & { campus: Campus }) {
   );
   const samples = useMemo(() => (band ? bandSamples(band) : []), [band]);
 
-  // A new selection, or a new floor of it, flies to its building, turning to a heading that sees the band. Read the
-  // insets through a ref: the sheet growing for the card must not fly again, and nor must any later pan. A selection
-  // made before the controls attached (a deep link opened while the map loads) flies once they do.
-  const insetsRef = useRef(insets);
-  useEffect(() => {
-    insetsRef.current = insets;
-  });
-  useEffect(() => {
-    const c = controlsRef.current;
-    if (!building || !c || !controlsReady) return;
-    const view = buildingView(building, insetsRef.current);
-    goToBuilding(c, view, bandHeading(c, view, samples, massRef.current), !reduced);
-  }, [building, samples, controlsReady, reduced]);
-
-  // A new trip frames all of it: the walk, the From building or gate and the To building, from a heading that sees the
-  // band (DESIGN.md, "You are here" dot). A route option redraws the line without flying again, so the lines are read
-  // through a ref.
+  // The trip on the map: the walk's line and the "you are here" dot.
   const here = trip?.here ?? null;
   const route = trip?.route ?? null;
   const lines = useMemo(() => walkLines(route), [route]);
-  const linesRef = useRef(lines);
-  useEffect(() => {
-    linesRef.current = lines;
-  });
   const fromBuilding = here?.kind === 'floor' ? bySlug.get(here.building) : undefined;
   const hereAt = useMemo(() => (here ? herePoint(here, fromBuilding) : null), [here, fromBuilding]);
-  useEffect(() => {
-    const c = controlsRef.current;
-    if (!here || !c || !controlsReady) return;
-    const outlines = [
-      ...linesRef.current,
-      ...[fromBuilding, building].flatMap((b) => b?.volumes.map((v) => v.outline) ?? []),
-      ...(here.kind === 'ground' ? [here.at] : []),
-    ];
-    const view = tripView(outlines, insetsRef.current);
-    goToBuilding(c, view, bandHeading(c, view, samples, massRef.current), !reduced);
-  }, [here, fromBuilding, building, samples, controlsReady, reduced]);
+  useCameraFlights({
+    controlsRef,
+    controlsReady,
+    massRef,
+    insets,
+    reduced,
+    building,
+    samples,
+    here,
+    fromBuilding,
+    lines,
+  });
 
   const recenter = () => {
     if (controlsRef.current) goHome(controlsRef.current, home, insets, !reduced);

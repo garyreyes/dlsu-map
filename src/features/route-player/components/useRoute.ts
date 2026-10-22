@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createRouter } from '@/features/routing';
 import type { Campus } from '@/shared/data/campus';
 import { loadCampus, loadIndoor, loadRooms, type LoadFailure, type LoadResult } from '@/shared/data/load';
@@ -65,8 +65,16 @@ async function loadTrip(from: From, to: To): Promise<LoadResult<Loaded>> {
 export function useRoute(from: From | null, to: To | null, mode: FloorMode): RouteState | null {
   // Each answer remembers the trip it was for, so a new From or To reads as loading until its own answer arrives.
   const [answer, setAnswer] = useState<{ from: From; to: To; result: LoadResult<Loaded> } | null>(null);
+  const answerRef = useRef(answer);
+  useEffect(() => {
+    answerRef.current = answer;
+  });
   useEffect(() => {
     if (from === null || to === null) return;
+    // Reopened for the same trip (Back from S5, then Directions): what loaded still holds, `here` included, so the
+    // camera frames it once rather than twice. A failure loads again.
+    const last = answerRef.current;
+    if (last?.from === from && last.to === to && last.result.ok) return;
     let live = true;
     void loadTrip(from, to)
       .then((result) => {

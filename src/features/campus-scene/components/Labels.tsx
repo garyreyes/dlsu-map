@@ -143,6 +143,14 @@ interface ProjectorProps {
   hereRef: RefObject<HTMLElement | null>;
 }
 
+/** The dot's box around its projected point, placed before everything else; null when it's behind the camera. */
+function hereBox(projected: Vector3, size: { width: number; height: number }): LabelBox | null {
+  if (projected.z > 1) return null;
+  const [x, y] = [((projected.x + 1) / 2) * size.width, ((1 - projected.y) / 2) * size.height];
+  const half = HERE_SIZE / 2;
+  return { id: HERE_ID, rank: -3, left: x - half, top: y - half, width: HERE_SIZE, height: HERE_SIZE };
+}
+
 /** Each frame the canvas draws: projects every anchor to the screen, then shows the labels that fit (labels.ts). */
 export function LabelProjector(props: ProjectorProps) {
   const { buildings, elementsRef, insets, selected, band, chipRef, massRef, here, hereRef } = props;
@@ -171,14 +179,8 @@ export function LabelProjector(props: ProjectorProps) {
     const distance = controls?.distance ?? Infinity;
     const boxes: LabelBox[] = [];
     const dot = hereRef.current;
-    if (dot && here) {
-      scratch.copy(here).project(camera);
-      if (scratch.z <= 1) {
-        const [x, y] = [((scratch.x + 1) / 2) * size.width, ((1 - scratch.y) / 2) * size.height];
-        const half = HERE_SIZE / 2;
-        boxes.push({ id: HERE_ID, rank: -3, left: x - half, top: y - half, width: HERE_SIZE, height: HERE_SIZE });
-      }
-    }
+    const hereAt = dot && here ? hereBox(scratch.copy(here).project(camera), size) : null;
+    if (hereAt) boxes.push(hereAt);
     const chip = chipRef.current;
     if (chip && band.length > 0) {
       const points = band.map((p): ScreenPoint => {

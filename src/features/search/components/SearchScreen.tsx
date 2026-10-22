@@ -34,12 +34,16 @@ export function SearchScreen({ data, recent, initialQuery = '', onPick, onClose 
 
   useEffect(() => {
     input.current?.focus(); // the student tapped search, so the keyboard should come up
+    // Escape closes only search, never the sheet under it (S4, the route preview, the steps): it's heard in the
+    // capture phase, before their listeners, and marked handled, which they check.
     const onKey = (e: globalThis.KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key !== 'Escape') return;
+      e.preventDefault();
+      onClose();
     };
-    window.addEventListener('keydown', onKey);
+    window.addEventListener('keydown', onKey, true);
     return () => {
-      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('keydown', onKey, true);
     };
   }, [onClose]);
 

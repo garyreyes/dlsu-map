@@ -82,3 +82,17 @@ test('the map shows where you are', async ({ page }) => {
   await fromGate(page, 'ST311');
   await expect(page.locator('[data-here-dot]')).toBeVisible();
 });
+
+test('Escape in search from the To chip closes only search, and Back still lands on the card', async ({ page }) => {
+  await fromGate(page, 'ST311');
+  await preview(page)
+    .getByRole('button', { name: /^To ST311/ })
+    .click();
+  await expect(page.getByRole('dialog', { name: 'Search' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog', { name: 'Search' })).toHaveCount(0);
+  await expect(summary(page)).toBeVisible();
+  await page.goBack();
+  await expect(preview(page)).toHaveCount(0);
+  await expect(card(page, 'ST311').getByRole('button', { name: 'Directions' })).toBeVisible();
+});
