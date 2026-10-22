@@ -68,7 +68,7 @@ with a full-app polish.
 
 | ID | Sub-phase | Lane | Depends on | Status |
 |---|---|---|---|---|
-| 5a | Where are you (S4): type a room (D23), building list + map tap, floor chips, I'm outside; Change spot moved to 8c (D42) | A | 3c | in progress |
+| 5a | Where are you (S4): type a room (D23), building list + map tap, floor chips, I'm outside; Change spot moved to 8c (D42) | A | 3c | done |
 | 5b | Route preview (S5): From → To chips, route options, the route line on the map | A | 4b, 5a | not started |
 | 5c | ↺ All-steps list (S8), which is also the text-only mode (S11); built before the 3D player | A | 4c | done |
 | 5d | Step player (S6): Next/Back, camera follow, X, "Change where I am", Arrived (S9), Find next room | A | 5b, 5c | not started |

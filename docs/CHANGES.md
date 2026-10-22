@@ -8,6 +8,28 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-22: 5a done: Where are you (S4)
+
+- **S4 opens by itself under a room card when From is empty** (D23, D42), with the card cut to one line above it
+  ("ST311 · STRC · 3rd floor (3F)"). A building card gets Directions instead, so browsing the map never asks.
+  Directions is now on both cards (not on block-tier buildings, which have no entrances).
+- **Four ways to set From:** type the room you're in (search's own results and Did you mean; Enter takes only an
+  exact room, D38), pick a building and then a floor chip with its signs' labels, tap a building on the map while S4
+  is open, or I'm outside (gate chips, or next to a building = its main entrance). "You're already at ST311" when
+  From is To. Change spot moved to 8c (D42).
+- **Until 5b, setting From opens the all-steps list** in place of S5, with its From → To line and a "Change where I
+  am" button. `useDevRoute` became `useRoute(from, to)` and `RouteSteps`, shared with the dev link. It doesn't pass
+  building files yet, so routes stop at the door as before 8b.
+- **From stays in memory** (`src/app/useTrip.ts`): never in the URL, history, Recent or storage, and an e2e test
+  checks all four. It carries to the next room, so that card doesn't ask again.
+- **Fixed:** picking a room in search opened its card and S4 inside search's Back, and the card took S4's history
+  entry for its own being popped and closed. Entries now carry their depth (PROJECT_FACTS).
+- Tests first: `location-picker/places.test.ts` and `choose.test.ts` (floor chips, gate chips, every choice →
+  From, the code accept rule against search's real results). `tests/e2e/where-are-you.spec.ts` covers every way in,
+  Back, Directions with From set, and the map tap. Room-card and search specs now close S4 to reach the card.
+- From the review: no bugs; picking another room while S4 or the steps are open re-aims them at it, as S5's To chip
+  will (user-flows §3.6).
+
 ## 2026-10-22: 9b Velasco labelled
 
 - **All 5 Velasco floors are labelled** (8a's way, D39): 73 rooms with their doors, and `verticals.json` with

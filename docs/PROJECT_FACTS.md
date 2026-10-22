@@ -244,6 +244,10 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   failure isn't kept, so the next call retries. Passing a fetch always loads afresh (tests). (2026-10-21)
 - **An overlay that opens another on close uses `closeThen`** (`useBackToClose`): `history.back()` lands later, so
   opening the next overlay straight after `close()` would let Back pop the wrong one. (2026-10-21)
+- **Overlay history entries carry their depth** (`dlsu-depth`), and an overlay closes on Back only when history drops
+  below its own entry. Every overlay hears every `popstate`, so one opened inside another's Back (search closing,
+  then a card and Where are you opening) would otherwise be taken for the one that closed. Keep `history.state` when
+  calling `replaceState`, as `useDeepLink` does. (2026-10-22)
 
 ## Routing
 
