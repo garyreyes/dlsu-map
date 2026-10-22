@@ -387,7 +387,11 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - **The cut's slide is driven off `performance.now()`, not R3F's clock delta** (`useCutSlide.ts`): with
   `frameloop="demand"`, the first frame after idle can carry a huge delta. To screenshot a frame mid-slide, Playwright's
   `page.clock.install()` before `goto`, then `pauseAt` and `runFor(ms)`; plain timed screenshots miss it, since the
-  ease-out is about 80% done by 150 ms. (7b, 2026-10-22)
+  ease-out was about 80% done by 150 ms (the cubic one since 7▸ is about 58%). (7b, 2026-10-22)
+- **An indoor step's camera target and dot height come from `floorBand`, not the floor file** (`floorHeight` in
+  `useTripMarks.ts`): campus-scene doesn't load floor files. Today every traced floor's `base` equals the band's even
+  storey split exactly (STRC, Velasco, SJ). A building whose first volume doesn't start at 0 m would put the dot off
+  the cut slab by that offset. (7▸, 2026-10-22)
 - **e2e specs that step through camera flights run with `reducedMotion: 'reduce'`:** CI draws the 3D in software, and
   each 650 ms flight made a walk through every step brush the 30 s test limit. (5d, 2026-10-22)
 

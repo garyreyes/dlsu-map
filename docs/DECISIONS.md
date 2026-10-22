@@ -1122,3 +1122,31 @@ room.
 **Alternatives.** Sliding only on the way in (leaving looks abrupt next to it). Sliding in and between floors but
 cutting on the way out. Keeping 58° (more 3D, walls hide more) or going steeper, about 30° (reads as a flat plan).
 **Revisit if** testers find the slide slow on repeated floor changes, or 40° hides too much of a tall building.
+
+## D46. The indoor cut is a plan: closer camera, darker walls, the goal floor on the rail (2026-10-22, proposed)
+
+**Problem.** The Phase 7 critique (7▸, 22/40) found the cut floor unreadable on a phone. Indoor steps used the
+building's own view (the building and its neighbours), so a floor plan was about 70×135 CSS px. Walls and slab were
+the same cream, so rooms read only by side shading. The rail showed only the current floor, and looked like Google
+Maps' tappable level picker. The 600 ms slide was 97% done by 300 ms and read as a flicker. The Shaped-by-Light
+Rule (one colour per building, no fills) left no room for a plan's own needs.
+
+**Decision.** (Owner's answers, 2026-10-22, 7▸.)
+
+1. **A named exception, the Indoor Cut**, beside the selected building's tint: the cut floor may use a darker tone
+   of the building colour for its walls, and (from 8c) one Campus Green mark for the goal room and the indoor line.
+   Nothing else on the map changes.
+2. **An indoor step on a labelled floor flies to its spot** at the floor's height, about 22 m across, from 40°,
+   facing the way the student walks, as outdoor steps do. The camera may come closer indoors than outdoors. Without a
+   spot (an unlabelled floor), the building's view stays.
+3. **The rail marks the goal floor**, where the route's stay in the building ends, with an outlined chip, and says it
+   ("Going to 3F"). Other rows lose their pill shape so the rail reads as a gauge. It stays display-only.
+4. **The slide eases with a cubic ease-out** over the full 600 ms (it was the camera's exponential curve), so the cut
+   is seen passing the floors. This replaces D45 point 1's "with the camera flight's ease-out".
+5. **The cut building keeps its selection tint**, its name label hides while it is cut, and off-campus blocks no
+   longer draw over the cut.
+
+**Alternatives.** Keeping Shaped-by-Light strict (contrast from shading alone; the critique's screenshots show it
+doesn't read). Making the rail tappable to preview other floors (48px rows make a tall rail; no use case asks for it
+yet). Drawing the indoor line and goal-room mark now (new drawing, not polish: moved to 8c with "Indoor map still
+saving"). **Revisit if** testers still can't read the plan at 22 m, or tap the rail expecting it to move.

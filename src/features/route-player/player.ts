@@ -18,7 +18,8 @@ export interface StepCard {
 
 /**
  * Where the map looks for a step (D44). Outdoors, the step's spot, facing `toward` (the way the student walks from
- * there). Indoors, the building and floor the cutaway opens, and on a labelled floor the step's spot too (7▸).
+ * there). Indoors, the building and floor the cutaway opens, and on a labelled floor the step's spot too, seen from
+ * close and facing the walk like outdoors (7▸); without a spot the whole building.
  */
 export type StepFocus =
   | { readonly kind: 'ground'; readonly at: XY; readonly toward: XY | null }
@@ -58,15 +59,36 @@ export function stepFocus(route: Route, index: number): StepFocus | null {
   const step = route.steps[index];
   const leg = step && route.legs[step.leg];
   if (!step || !leg) return null;
+  const at = 'at' in step ? step.at : undefined;
   switch (leg.kind) {
-    // A floors step: where the student takes the stairs or elevator, so the floor they leave from.
-    case 'floors':
-      return { kind: 'floor', building: leg.building, floor: leg.from };
-    case 'indoor':
-      return { kind: 'floor', building: leg.building, floor: leg.floor };
+    // A floors step: the stairs or elevator the student takes, on the floor they leave from. They're about to climb,
+    // so there is nothing to face.
+    case 'floors': {
+      const spot = at ?? leg.at;
+      const goal = goalFloor(route, step.leg, leg.building);
+      const floor = { kind: 'floor', building: leg.building, floor: leg.from, goal } as const;
+      return spot ? { ...floor, at: spot, toward: null } : floor;
+    }
+    // An indoor step: its spot on that floor, facing the way along the hallway (7▸).
+    case 'indoor': {
+      const goal = goalFloor(route, step.leg, leg.building);
+      const floor = { kind: 'floor', building: leg.building, floor: leg.floor, goal } as const;
+      return at ? { ...floor, at, toward: towardOf(leg.path, at) } : floor;
+    }
     case 'walk':
-      return 'at' in step && step.at ? { kind: 'ground', at: step.at, toward: towardOf(leg.path, step.at) } : null;
+      return at ? { kind: 'ground', at, toward: towardOf(leg.path, at) } : null;
   }
+}
+
+/** The floor the route's stay in the leg's building ends on: the last floor of the unbroken run of indoor and floors
+ *  legs there. The room's floor on the way in, the exit floor on the way out. */
+function goalFloor(route: Route, legIndex: number, building: string): number {
+  let goal = 0;
+  for (const leg of route.legs.slice(legIndex)) {
+    if (leg.kind === 'walk' || leg.building !== building) break;
+    goal = leg.kind === 'floors' ? leg.to : leg.floor;
+  }
+  return goal;
 }
 
 /** How far ahead the camera looks along the walk, in meters, so a short jog (off a curb, round a post) doesn't turn it. */

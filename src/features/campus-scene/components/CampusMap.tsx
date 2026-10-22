@@ -88,6 +88,17 @@ export function CampusMap({ insets, sheetHeight, wide, selected, floor, trip, on
 type Status = 'loading' | 'ready' | 'failed';
 
 /** The indoor step the cutaway opens (7a), with what its rail needs; null on the ground. */
+/** An indoor step's focus without its spot, so the camera frames the building (D46). */
+function withoutSpot(focus: MapFocus | null): MapFocus | null {
+  if (focus?.kind !== 'floor' || focus.at === undefined) return focus;
+  return {
+    kind: 'floor',
+    building: focus.building,
+    floor: focus.floor,
+    ...(focus.goal === undefined ? {} : { goal: focus.goal }),
+  };
+}
+
 const cutStep = (focus: MapFocus | null, b: CampusBuilding | undefined): CutawayStep | null =>
   focus?.kind === 'floor' && b
     ? {
@@ -147,6 +158,13 @@ function CampusView(props: Props & { campus: Campus }) {
     here,
     focus,
   );
+  // The cut building shows the step's floor in its place, and the rail says which one it is, so the band's chip
+  // stands down.
+  const cut = useCutaway(cutStep(focus, focusBuilding));
+  // The camera comes in close to a step's spot only once its floor is cut open: while the floor file loads, or if it
+  // fails, the step frames the whole building with the band, as on an untraced floor.
+  const cutOn = cut !== null;
+  const flightFocus = useMemo(() => (cutOn ? focus : withoutSpot(focus)), [focus, cutOn]);
   useCameraFlights({
     controlsRef,
     controlsReady,
@@ -158,12 +176,9 @@ function CampusView(props: Props & { campus: Campus }) {
     here,
     fromBuilding,
     lines,
-    focus,
+    focus: flightFocus,
     focusBuilding,
   });
-  // The camera still turns to see the band's floor; the cut building shows that floor in its place, and the rail
-  // says which one it is, so the band's chip stands down.
-  const cut = useCutaway(cutStep(focus, focusBuilding));
 
   const recenter = () => {
     if (controlsRef.current) goHome(controlsRef.current, home, insets, !reduced);
@@ -229,6 +244,7 @@ function CampusView(props: Props & { campus: Campus }) {
               massRef={massRef}
               here={hereAt}
               hereRef={hereRef}
+              cutSlug={cut ? (focusBuilding?.slug ?? null) : null}
             />
           </Canvas>
         </ErrorBoundary>

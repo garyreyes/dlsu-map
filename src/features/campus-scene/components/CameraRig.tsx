@@ -7,6 +7,9 @@ import {
   DRAGGING_SMOOTH_TIME,
   FOV_DEG,
   HOME_POLAR,
+  INDOOR_MIN_DISTANCE,
+  INDOOR_STEP_RADIUS,
+  INDOOR_TARGET_HEIGHT,
   MAX_DISTANCE,
   MAX_POLAR,
   MIN_DISTANCE,
@@ -105,6 +108,23 @@ export function stepView(at: readonly [number, number], insets: MapInsets): Buil
     target: new Vector3(at[0], 0, -at[1]),
     distance: Math.min(MAX_DISTANCE, Math.max(MIN_DISTANCE, fit)),
   };
+}
+
+/** An indoor step in the player (7▸): its spot on the cut floor and the hallway round it, close enough to read the plan
+ *  on a phone, seen from the step angle. `floorHeight` is the floor's height above the ground, in meters. */
+export function indoorStepView(at: readonly [number, number], floorHeight: number, insets: MapInsets): BuildingView {
+  const view = { width: window.innerWidth, height: window.innerHeight, fovDeg: FOV_DEG, polar: STEP_POLAR };
+  const fit = fitDistance(INDOOR_STEP_RADIUS, view, insets);
+  return {
+    target: new Vector3(at[0], floorHeight + INDOOR_TARGET_HEIGHT, -at[1]),
+    distance: Math.min(MAX_DISTANCE, Math.max(INDOOR_MIN_DISTANCE, fit)),
+  };
+}
+
+/** How close the camera may dolly: the campus's limit, or the closer one on an indoor step (7▸). Set before a flight,
+ *  since the flight's own dolly is held to it. */
+export function limitDolly(c: CameraControls, indoor: boolean) {
+  c.minDistance = indoor ? INDOOR_MIN_DISTANCE : MIN_DISTANCE;
 }
 
 /** Flies to a selected building at the closer, lower angle (DESIGN.md, Camera), or to a step at `polar`. It keeps the

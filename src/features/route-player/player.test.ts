@@ -87,15 +87,130 @@ describe('stepFocus', () => {
     expect(focus).toEqual({ kind: 'ground', at: [-85.6, 196], toward: [-71.2, 187] });
   });
 
-  it('frames a floors step on the floor it leaves from', () => {
-    expect(stepFocus(sampleRoute, 0)).toEqual({ kind: 'floor', building: 'andrew', floor: 11 });
-    expect(stepFocus(sampleRoute, 4)).toEqual({ kind: 'floor', building: 'strc', floor: 1 });
-    expect(stepFocus(sampleIndoorRoute, 2)).toEqual({ kind: 'floor', building: 'strc', floor: 1 });
+  it('frames a floors step on the floor it leaves from, with no spot when the floor is not labelled', () => {
+    expect(stepFocus(sampleRoute, 0)).toEqual({ kind: 'floor', building: 'andrew', floor: 11, goal: 1 });
+    expect(stepFocus(sampleRoute, 4)).toEqual({ kind: 'floor', building: 'strc', floor: 1, goal: 3 });
   });
 
-  it('frames an indoor turn and the arrive step on their floor (no cutaway until 7a, D44)', () => {
-    expect(stepFocus(sampleIndoorRoute, 3)).toEqual({ kind: 'floor', building: 'strc', floor: 3 });
-    expect(stepFocus(sampleIndoorRoute, 4)).toEqual({ kind: 'floor', building: 'strc', floor: 3 });
+  it('puts a floors step at its stairs, with nothing to face since the student is about to climb (7▸)', () => {
+    expect(stepFocus(sampleIndoorRoute, 2)).toEqual({
+      kind: 'floor',
+      building: 'strc',
+      floor: 1,
+      at: [-83.3, 188.3],
+      toward: null,
+      goal: 3,
+    });
+  });
+
+  it('takes a floors step’s spot from its leg when the step has none', () => {
+    const route: Route = {
+      ...sampleIndoorRoute,
+      steps: [{ kind: 'floors', leg: 2, building: 'strc', to: 3, by: 'stairs', text: 'Take the stairs up to 3F' }],
+    };
+    expect(stepFocus(route, 0)).toEqual({
+      kind: 'floor',
+      building: 'strc',
+      floor: 1,
+      at: [-83.3, 188.3],
+      toward: null,
+      goal: 3,
+    });
+  });
+
+  it('puts an indoor turn and the arrive step at their spot, facing the way along the hallway (7▸)', () => {
+    // The turn at (-96, 187) is 14 m from the door, so the camera faces the door: the walk's end.
+    expect(stepFocus(sampleIndoorRoute, 3)).toEqual({
+      kind: 'floor',
+      building: 'strc',
+      floor: 3,
+      at: [-96, 187],
+      toward: [-108.2, 180.1],
+      goal: 3,
+    });
+    // At the door itself the last stretch carries on as far again.
+    expect(stepFocus(sampleIndoorRoute, 4)).toEqual({
+      kind: 'floor',
+      building: 'strc',
+      floor: 3,
+      at: [-108.2, 180.1],
+      toward: [-120.4, 173.2],
+      goal: 3,
+    });
+  });
+
+  it('marks the floor the route climbs to as the goal of a step on the ground floor', () => {
+    const route: Route = {
+      ...sampleIndoorRoute,
+      steps: [
+        { kind: 'turn', leg: 1, at: [-85, 194], meters: 4, turn: 'left', text: 'Turn left' },
+        ...sampleIndoorRoute.steps,
+      ],
+    };
+    expect(stepFocus(route, 0)).toEqual({
+      kind: 'floor',
+      building: 'strc',
+      floor: 1,
+      at: [-85, 194],
+      toward: [-83.3, 188.3],
+      goal: 3,
+    });
+  });
+
+  it('marks the ground floor as the goal of a step on the way out of the From building', () => {
+    const route: Route = {
+      legs: [
+        {
+          kind: 'indoor',
+          building: 'strc',
+          floor: 3,
+          path: [
+            [0, 0],
+            [10, 0],
+            [30, 0],
+          ],
+          meters: 30,
+          seconds: 20,
+        },
+        { kind: 'floors', building: 'strc', from: 3, to: 1, by: 'stairs', seconds: 40, at: [30, 0] },
+        {
+          kind: 'indoor',
+          building: 'strc',
+          floor: 1,
+          path: [
+            [30, 0],
+            [30, 20],
+          ],
+          meters: 20,
+          seconds: 15,
+        },
+        sampleGateRoute.legs[0],
+      ],
+      steps: [{ kind: 'turn', leg: 0, at: [10, 0], meters: 20, turn: 'left', text: 'Turn left' }],
+      meters: 50,
+      seconds: 100,
+    };
+    expect(stepFocus(route, 0)).toEqual({
+      kind: 'floor',
+      building: 'strc',
+      floor: 3,
+      at: [10, 0],
+      toward: [30, 0],
+      goal: 1,
+    });
+  });
+
+  it('stops looking for the goal at the first leg in another building', () => {
+    const route: Route = {
+      legs: [
+        { kind: 'floors', building: 'andrew', from: 11, to: 1, by: 'stairs', seconds: 1 },
+        { kind: 'floors', building: 'strc', from: 1, to: 3, by: 'stairs', seconds: 1 },
+      ],
+      steps: [{ kind: 'floors', leg: 0, building: 'andrew', to: 1, by: 'stairs', text: 'Down' }],
+      meters: 0,
+      seconds: 2,
+    };
+    expect(stepFocus(route, 0)).toEqual({ kind: 'floor', building: 'andrew', floor: 11, goal: 1 });
   });
 
   it('starts a gate route on the ground at the gate', () => {

@@ -8,6 +8,27 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-22: 7▸ Phase 7 critique and polish
+
+- **Critique** (`/impeccable critique`, dual-agent; snapshot in `.impeccable/critique/`): 22/40, 2 P0s. The cut
+  floor was about 70×135 CSS px on a phone, nothing marked the goal, and the slide read as a flicker. Detector clean
+  in source; the live overlay's Roboto and type-scale notes are app-wide, not Phase 7.
+- **Proposed D46** (owner's answers): the Indoor Cut Rule, a named exception to Shaped-by-Light. DESIGN.md has a new
+  "Indoor cut (S7)" section with the values as built, and updated Floor rail, dot, camera, Step card and Motion.
+- **Closer indoor camera:** an indoor step on a labelled floor flies to its spot at the floor's height, about 22 m
+  around it, from 40°, facing the walk (`indoorStepView`). Pinch may come to 35 m on those steps, 90 m elsewhere.
+  The "you are here" dot stands at the spot. `stepFocus` now gives indoor steps `at`, `toward` and `goal`.
+- **Rail:** the goal floor (where the stay in the building ends) is an outlined chip and is said aloud ("Going to
+  3F"). Other rows lost their pill look. Still display-only.
+- **Slide:** cubic ease-out over the 600 ms (was the camera's exponential curve, 97% done at 300 ms).
+- **Materials** (`cutTones`): walls at 80% of the slab, hallways 3.1:1 on the slab, the cut keeps the selection
+  tint, the cut draws after the see-through city blocks, and the building's label hides while it is cut.
+- **Moved to 8c:** the indoor line and goal-room mark, and "Indoor map still saving".
+- **Review fixes:** the close-up waits for the cut (while a floor file loads or fails, the step frames the building
+  with the band, as before); `flyToStep` split out of `useCameraFlights`; the selection tint has one formula.
+- Tests: 1407 unit (`stepFocus` goal and spot, `railRows` goal and tall window, the cubic slide written first, seen
+  failing), e2e 68/68, detector exit 0.
+
 ## 2026-10-22: 7b done: The cut slides in, out and between floors
 
 - **The cut slides** (PLAN §5, D45): stepping into a building, the cut comes down from the roof to the

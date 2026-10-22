@@ -401,7 +401,9 @@ The map has its own depth model, made by light, not by shadows or outlines.
 - **Campus leads:** every off-campus building is see-through (35% opacity, owner's choice) and tinted toward the
   ground, so campus buildings show through it and only campus buildings can hide the selection.
 - **Camera:** 40° field of view, about 52° from straight down for the overview with Taft Avenue toward the bottom;
-  a closer, lower angle (about 58°) for a selected building, from the first heading that sees its floor band.
+  a closer, lower angle (about 58°) for a selected building, from the first heading that sees its floor band; 40°
+  for a step in the player, outdoors about 70 m around its spot, indoors about 22 m (D46). Pinch stops at 90 m, or
+  35 m on an indoor step.
 
 ### Named Rules
 
@@ -409,7 +411,11 @@ The map has its own depth model, made by light, not by shadows or outlines.
 weight, not shadowed cards.
 
 **The Shaped-by-Light Rule.** Map buildings get one colour and the lights. No outlines, windows, textures or
-per-building colours; the only exception is the selected building's 22% tint toward the accent.
+per-building colours. Two named exceptions: the selected building's 22% tint toward the accent, and the Indoor Cut.
+
+**The Indoor Cut Rule.** A building cut open on a step is a floor plan, so it may separate its parts by tone: its
+walls are a darker tone of its own tinted colour and its hallways a deeper green (D46). From 8c it may carry one
+Campus Green mark for the goal room and the indoor line. Nothing outside the cut changes, and no new hue arrives.
 
 ## Shapes
 
@@ -512,14 +518,33 @@ green tint and the camera flies to a heading that shows the band.
 
 On a step inside a building, the building is cut open on the step's floor and the band stands down. A narrow white
 pill with the Float shadow sits on top of the map buttons' column and lists the floors top to bottom in 16px: the
-step's floor in the floor chip's look (Campus Green, white bold), other traced floors in Deep Ink, floors not traced
-yet in Soft Ink. Over 9 rows, it shows a window around the step's floor with the top floor, G and ⋮ for the gaps.
-Display only: no tap targets, and the highlight moves with Next and Back without animating.
+step's floor in the floor chip's look (Campus Green, white bold); the goal floor, where the route's stay in the
+building ends, as the same chip outlined (2px Campus Green ring, green bold text, no fill), so the ring carries it,
+not colour alone; other traced floors as plain Deep Ink text with no shape behind them, so nothing reads as a
+button; floors not traced yet in Soft Ink. Over 9 rows, it shows a window around the step's floor with the top
+floor, G, the goal floor and ⋮ for the gaps. It is read aloud as one image: "Floor G, 1 of 4. Going to 3F". Display
+only: no tap targets, and the highlights move with Next and Back without animating (D46).
+
+### Indoor cut (S7)
+
+The building on an indoor step, cut 1.2 m above the step's floor so rooms read as a plan with low walls. The floors
+above stand in their places for the slide to pass through; the building's blocks below the cut (the stump) keep
+their wall-foot darkening. Values for the green palette (all derived in `cutTones` from the map palette):
+
+- **Slab and stump:** building white leaned 22% toward Campus Green, about #bdd2c0 (the selection tint, kept while
+  cut). Lambert, opaque.
+- **Walls:** the slab's colour at 80%, about #97a89a, 0.2 m thick boxes on the traced lines, both sides drawn. No
+  wall-foot darkening and no cut-face colour.
+- **Hallways:** `path` leaned 65% toward Campus Green, 1 m wide, unlit, just above the slab: 3.1:1 against it.
+- **Rooms:** the space between walls; no fills, labels or door marks in v1.
+- **Order:** the cut draws after the see-through off-campus blocks, so none wash over it; the building's name label
+  hides while it is cut. The route line and the dot are never clipped.
 
 ### "You are here" dot
 
 An 18px Campus Green dot with a 3px white ring and the Float shadow, placed at the chosen floor's height in the
-middle of the chosen building, or on the ground at the gate. It is placed before the floor chip, and building labels
+middle of the chosen building, or on the ground at the gate. On an indoor step with a spot, it stands at that spot
+1 m above the floor. It is placed before the floor chip, and building labels
 give way to it. On the route preview the camera frames the whole trip (the walk, the From building or gate, and the
 To building) from a heading that sees the band; a route option redraws the line without moving the camera.
 
@@ -528,7 +553,7 @@ To building) from a heading that sees the band; a route option redraws the line 
 The route's outdoor walk as a flat 5.5m Campus Green ribbon on a 1.1m white edge each side, just above the paths:
 the edge does for the line what the white ring does for the dot, so it reads on the deep-green ground. Where a campus
 building stands in front of it, the line shows through at 45%, so the whole way stays traceable. Indoor legs aren't
-drawn until the cutaway (7a, D43).
+drawn yet: they come with the goal-room mark in 8c, on the cut floor (D43, D46).
 
 ### Step card (S6)
 
@@ -540,11 +565,12 @@ beside the full-width primary **Next** ("I'm here" on the last step), so Next is
 A sideways swipe on the card steps too.
 
 On the map, an outdoor step flies to its spot from about 40° off straight down, about 70 m around it in view, turned
-so the walk from there points up the screen (it looks 15 m ahead, past small jogs). An indoor step frames its
-building from the same 40°, cut open on that step's floor (7a); until its floor file is in, or on an untraced floor,
-the floor band shows instead. The cut slides in 600 ms with the flight's ease-out: down from the roof going in, up to
-the roof coming out, and from floor to floor on stairs (D45). Reduced motion cuts. The "you are here" dot moves to
-each step (D44).
+so the walk from there points up the screen (it looks 15 m ahead, past small jogs). An indoor step on a labelled
+floor flies to its spot at the floor's height from the same 40°, about 22 m around it, turned the same way; without
+a spot it frames the whole building. Either way the building is cut open on that step's floor (7a); until its floor
+file is in, or on an untraced floor, the floor band shows instead. The cut slides over 600 ms with a cubic ease-out:
+down from the roof going in, up to the roof coming out, and from floor to floor on stairs (D45, D46). Reduced motion
+cuts. The "you are here" dot moves to each step (D44).
 
 ### Arrived (S9)
 
@@ -557,6 +583,8 @@ centred secondary **Done**.
 - **Sheet snap:** 260ms `cubic-bezier(0.16, 1, 0.3, 1)`; the map buttons and credit ride the same curve. Dragging
   disables the transition.
 - **Camera flight:** 650ms, exponential ease-out; recenter flies home. Map controls use 0.12 damping.
+- **Cut slide:** 600ms, cubic ease-out (`1 - (1 - p)³`: half done at about 125ms), so the plane is seen passing the
+  floors; an interrupted slide carries on from where the plane is.
 - **Gestures (phone):** one finger pans, pinch zooms, a two-finger twist turns the map with the fingers (as in Google
   Maps), and two fingers dragged up or down tilt it.
 - **Toast:** 160ms ease-out fade and 8px rise.
