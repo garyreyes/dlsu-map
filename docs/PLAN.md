@@ -260,8 +260,9 @@ tutorial.
      or more floors.
    - **Exit:** main by default, or another exit of the building.
 6. **Step mode:** the sheet turns into a step carousel (swipe or Next/Back). Each step is an icon, one line of text,
-   and a distance. The camera flies to each step. Indoor and outdoor views switch automatically at entrance and exit
-   steps.
+   and a distance. The camera flies to each step and the "you are here" dot moves with it: outdoors from higher up,
+   facing the walk; indoors, until the cutaway, the building with the floor band on the step's floor (D44). Indoor and
+   outdoor views switch automatically at entrance and exit steps.
 7. **Explore mode (optional, fun):** a Game-Boy-style D-pad that walks the avatar along the route, with haptic ticks
    on Android (`navigator.vibrate`).
 

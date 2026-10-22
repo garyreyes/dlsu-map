@@ -1083,7 +1083,7 @@ and the time looks shorter than the trip). Dropping the room line and putting th
 but the sheet jumps between S4 and S5). **Revisit if** testers miss the exit choice, or the indoor-map line reads
 as noise once most buildings have their maps.
 
-## D44. Step player (S6): the camera and the dot follow each step (2026-10-22, proposed)
+## D44. Step player (S6): the camera and the dot follow each step (2026-10-22, agreed)
 
 **Problem.** user-flows §3.7 says the camera moves to each step, but not how. Indoor steps exist for STRC and
 Velasco (8b), yet the cutaway that shows a building's inside is 7a, after 5d, so an indoor step's spot sits inside a
