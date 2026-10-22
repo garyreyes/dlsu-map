@@ -8,6 +8,12 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-22: D46 agreed
+
+- Gary agreed D46 (the indoor cut is a plan). Marked agreed in `docs/DECISIONS.md`, added to `SUMMARY.md` and
+  `docs/PLAN.md`. It is the interim indoor look: floors are traced from evacuation maps only, and a Sims-like
+  bird's-eye restyle comes after the build, noted in `docs/ROADMAP.md`.
+
 ## 2026-10-22: 7▸ Phase 7 critique and polish
 
 - **Critique** (`/impeccable critique`, dual-agent; snapshot in `.impeccable/critique/`): 22/40, 2 P0s. The cut
