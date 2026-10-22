@@ -1172,3 +1172,27 @@ the goal-room mark and "Indoor map still saving" are Lane A only. Change spot (D
 **Alternatives.** One PR with the router change done in Lane A (bigger, and in Charles's folder). Building the pickers
 against a sample while Charles does the router (8c stays open until his part lands). **Revisit if** Charles would
 rather Lane A write the router change.
+
+## D48. The 8c-2 contract: a spot on From, and a door choice as the router's last argument (2026-10-22, proposed)
+
+**Problem.** Change spot (D42) and the exit choice (D43) need the router to take two things it can't yet: where on
+From's floor the student stands, and which door to leave by. Both change `src/shared/data/route.ts`, which both lanes
+read, so the shape is agreed before the router (Lane B) or the pickers (Lane A) are built.
+
+**Decision.** (Draft for Charles, 2026-10-22.)
+
+1. **`From`'s `building` kind gets an optional `spot`:** an entrance (G only, by its index in `campus.json`'s
+   `entrances`, needs no building file) or a stairs or elevator on that floor (by its id in the building file). S4
+   offers only spots the data has, the same ids the floor file and `indoor.ts` already use.
+2. **The router takes an optional fifth argument, `doors`:** `exit` for From's building and `entrance` for To's, by
+   entrance index. Left out, the router picks as now. Only the exit gets a picker in 8c-2; `entrance` waits for a
+   reason. An exit is ignored when the spot is an entrance, because the student is already at a door.
+3. **A spot or door the router can't place gives `unknown-place`,** never a quiet fallback to the default, so a bad
+   pick shows up instead of routing from somewhere else.
+4. **`WalkEnd`'s door gets an optional `entrance` index,** so Route options can show which door the route took.
+5. All new fields are optional and `doors` comes last, so every existing call and sample still means the same (D41).
+
+**Alternatives.** Turning `mode` into an options object (tidier, but it changes every call in both lanes at once).
+Naming doors by kind and name instead of index (Velasco has two unnamed main entrances, so names don't tell them
+apart). Putting the exit on `From` (it's a route option in S5, not where the student is). **Revisit if** the entrance
+index stops being stable between `campus.json` and the building files, which come from the same build.
