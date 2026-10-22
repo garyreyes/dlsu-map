@@ -1,25 +1,10 @@
 import { useMemo } from 'react';
-import type { Indoor } from '@/shared/data/indoor';
-import type { Cutaway, RailRow } from '../cutaway';
+import type { CutawayStep, CutawayView } from '../cutaway';
 import { cutawayAt } from '../floor-geometry';
 import { railRows } from '../floor-rail';
 import { useIndoor } from './useIndoor';
 
-/** The building a step is inside, with what its rail needs from campus.json. */
-export interface CutawayStep {
-  readonly building: string;
-  readonly floor: number;
-  readonly levels: number;
-  readonly floorLabels?: Readonly<Record<string, string>> | undefined;
-}
-
-export interface CutawayView {
-  cutaway: Cutaway;
-  indoor: Indoor;
-  rail: RailRow[];
-  /** The building's floor count, for the rail's spoken "3 of 4". */
-  levels: number;
-}
+export type { CutawayStep, CutawayView };
 
 /** The cutaway for an indoor step (7a): null outdoors, while the floor file loads, when it fails, and on a floor not
  *  traced yet, so the map keeps the floor band in every one of those cases (D44). */
@@ -29,11 +14,13 @@ export function useCutaway(step: CutawayStep | null): CutawayView | null {
   const floor = step?.floor;
   const levels = step?.levels;
   const labels = step?.floorLabels;
+  const volumes = step?.volumes;
   return useMemo(() => {
-    if (!indoor || floor === undefined || levels === undefined) return null;
+    if (!indoor || floor === undefined || levels === undefined || !volumes) return null;
     const cutaway = cutawayAt(indoor, floor);
     if (!cutaway) return null;
     const traced = indoor.floors.map((f) => f.floor);
-    return { cutaway, indoor, rail: railRows(levels, labels, traced, floor), levels };
-  }, [indoor, floor, levels, labels]);
+    const roof = Math.max(...volumes.map((v) => v.top));
+    return { cutaway, indoor, rail: railRows(levels, labels, traced, floor), levels, roof, volumes };
+  }, [indoor, floor, levels, labels, volumes]);
 }
