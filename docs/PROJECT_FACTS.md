@@ -192,9 +192,10 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   towers 2.3 m out on that side, and G's sign has no towers. 90th percentile 1.8 → 1.3 m. Re-tracing G means
   redoing this. (2026-10-22)
 - **St. Joseph's stairs and elevator** (owner, 2026-10-22): `south-stairs` and the `elevator` (the sign's left end
-  on 2F–6F, G's right end), `north-stairs` (the other end), `lobby-stairs` (G–2F, from the lobby) and
-  `south-middle-stairs` and `north-middle-stairs` (2F–6F; 2F labels them DECK; the G sign doesn't show them). All
-  read off the signs. Stairs can change at 2F: G to 3F by stairs takes the lobby stairs, then a middle stair.
+  on 2F–6F, G's right end), `north-stairs` (the other end) and `lobby-stairs` (G–2F, from the lobby). All read off
+  the signs. The two middle stairwells on 2F–6F (2F labels them DECK) are **emergency only** (owner, 2026-10-22), so
+  they aren't verticals: above 2F only the end stairs and the elevator are used. Their short hallway stubs stay as
+  dead ends. Stairs can change at 2F: the lobby stairs, then an end stair.
 - **St. Joseph's south side-entrance pin moved** about 7 m north, to the TO CHAPEL passage between 104 and 101
   where the G sign draws the exit (owner, 2026-10-22). Still `verified: false`.
 - **P1 labels are canvas-texture sprites** with the system font: drei `<Text>` would fetch its default font from a

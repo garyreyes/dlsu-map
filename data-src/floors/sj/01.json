@@ -2,7 +2,7 @@
   "building": "sj",
   "floor": 1,
   "extractedFrom": "sj_01F.jpg",
-  "checked": false,
+  "checked": true,
   "plan": {
     "width": 2595,
     "height": 372
