@@ -1123,7 +1123,7 @@ room.
 cutting on the way out. Keeping 58° (more 3D, walls hide more) or going steeper, about 30° (reads as a flat plan).
 **Revisit if** testers find the slide slow on repeated floor changes, or 40° hides too much of a tall building.
 
-## D46. The indoor cut is a plan: closer camera, darker walls, the goal floor on the rail (2026-10-22, proposed)
+## D46. The indoor cut is a plan: closer camera, darker walls, the goal floor on the rail (2026-10-22, agreed)
 
 **Problem.** The Phase 7 critique (7▸, 22/40) found the cut floor unreadable on a phone. Indoor steps used the
 building's own view (the building and its neighbours), so a floor plan was about 70×135 CSS px. Walls and slab were
@@ -1149,4 +1149,7 @@ Rule (one colour per building, no fills) left no room for a plan's own needs.
 **Alternatives.** Keeping Shaped-by-Light strict (contrast from shading alone; the critique's screenshots show it
 doesn't read). Making the rail tappable to preview other floors (48px rows make a tall rail; no use case asks for it
 yet). Drawing the indoor line and goal-room mark now (new drawing, not polish: moved to 8c with "Indoor map still
-saving"). **Revisit if** testers still can't read the plan at 22 m, or tap the rail expecting it to move.
+saving"). **Revisit if** testers still can't read the plan at 22 m, or tap the rail expecting it to move; and when
+DLSU's real floor plans arrive or the post-build indoor restyle starts. **This is the interim look** (owner,
+2026-10-22): today's floors are traced from evacuation maps only, and the final indoor view is meant to be a
+Sims-like bird's-eye dollhouse, designed once the app is built and iterated from there.

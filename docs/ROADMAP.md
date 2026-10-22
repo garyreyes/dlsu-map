@@ -136,6 +136,9 @@ owner checks it in the floor preview and marks it `checked: true`.
   fixed in DESIGN.md, so Phase 1's screens stay valid. Phase 7 adds indoor materials without changing existing
   tokens. A dark interface (Waze-style night mode) is not planned; if it is added, re-run `/impeccable polish` on
   every earlier phase.
+- **Indoor restyle, planned but not scheduled:** a Sims-like bird's-eye dollhouse look for the indoor view, once the
+  whole app is built and DLSU's real floor plans replace the evacuation-map tracings. Until then indoor work keeps to
+  legibility and correctness; D46 is the interim look.
 - **Not on this roadmap:** GPS (D14) and everything in PRD §4 "Later".
 - **The prototype** (`prototypes/map-home/`) is a reference for look and gestures, not code to copy: it loads
   three.js from a CDN, which the real app must not do.
