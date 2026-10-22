@@ -1055,7 +1055,7 @@ Building Change spot now (a contract change in Lane B's router, for a choice the
 Returning to the card with From shown until 5b (nothing to test on a phone), or merging 5a and 5b (one huge PR).
 **Revisit if** students mostly pick buildings, not rooms, as destinations.
 
-## D43. Route preview (S5): Start opens all steps until 5d, exit choice in 8c, line outdoors (2026-10-22, proposed)
+## D43. Route preview (S5): Start opens all steps until 5d, exit choice in 8c, line outdoors (2026-10-22, agreed)
 
 **Problem.** Building 5b (S5) raised four things the docs left open: Start needs somewhere to go before the step
 player (5d) exists; user-flows §3.6 puts "which exit to use" in Route options, but the router's contract takes only
@@ -1104,7 +1104,7 @@ indoor steps (the map stops helping indoors). Leaving the dot on From (nothing m
 heading (calmer, but "turn left" can point right on screen). **Revisit if** testers find the turning map
 disorienting, or once 7a's cutaway lands.
 
-## D45. The cut slides in, out and between floors; indoor steps at 40° (2026-10-22, proposed)
+## D45. The cut slides in, out and between floors; indoor steps at 40° (2026-10-22, agreed)
 
 **Problem.** PLAN §5 asks for one animation: the cut slides from the roof down to the floor as a step enters a
 building. It says nothing about leaving the building, a floor change inside it, or stepping into another building.

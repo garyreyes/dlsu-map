@@ -10,7 +10,7 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ## 2026-10-22: 7b done: The cut slides in, out and between floors
 
-- **The cut slides** (PLAN §5, D45 proposed): stepping into a building, the cut comes down from the roof to the
+- **The cut slides** (PLAN §5, D45): stepping into a building, the cut comes down from the roof to the
   floor in 600 ms with the camera flight's ease-out; stepping out, it goes back up to the roof and the building then
   rejoins the campus; on the stairs it moves from floor to floor; into a second building, the first rejoins at once
   and the second slides in. Reduced motion cuts. Logic in `indoor-view/slide.ts`, played by `useCutSlide` in the
