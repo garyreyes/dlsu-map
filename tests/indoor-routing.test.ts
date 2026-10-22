@@ -1,7 +1,7 @@
 // The router going inside (8b, D41) over the real building files, compiled from data-src as the build does. STRC
-// (G–4F) and Velasco (G–5F) are labelled whole, with their stairs and elevator on every floor, so every one of their
-// rooms must be reached from every gate on each of Stairs, Elevator and Auto, with the climb each asks for. Velasco's
-// G Mezz rooms are on no sign, so they stop at the door (O5).
+// (G–4F), Velasco (G–5F) and St. Joseph (G–6F) are labelled whole, each with stairs and an elevator on every floor, so
+// every one of their rooms must be reached from every gate on each of Stairs, Elevator and Auto, with the climb each
+// asks for. Velasco's G Mezz rooms are on no sign, so they stop at the door (O5).
 import { describe, expect, it } from 'vitest';
 import type { FloorMode, Leg, Route, RouteResult, Step } from '../src/shared/data/route.ts';
 import { createRouter } from '../src/features/routing/router.ts';
@@ -10,6 +10,8 @@ import { campus, indoor, rooms } from './real-data.ts';
 const router = createRouter(campus, rooms);
 const strc = rooms.rooms.filter((r) => r.building === 'strc');
 const velasco = rooms.rooms.filter((r) => r.building === 'velasco' && r.floorLabel === undefined);
+const sj = rooms.rooms.filter((r) => r.building === 'sj');
+const labelled = [...strc, ...velasco, ...sj];
 const mezz = rooms.rooms.filter((r) => r.building === 'velasco' && r.floorLabel !== undefined);
 const ok = (result: RouteResult): Route => {
   if (!result.ok) throw new Error(`no route: ${result.reason}`);
@@ -20,15 +22,16 @@ const floorsLegs = (r: Route): Floors[] => r.legs.filter((l): l is Floors => l.k
 const modes: FloorMode[] = ['auto', 'stairs', 'elevator'];
 
 describe('indoor routing on the real campus', () => {
-  it('has building files for STRC and Velasco, every room placed but the G Mezz', () => {
-    expect([...indoor.keys()].sort()).toStrictEqual(['strc', 'velasco']);
+  it('has building files for STRC, Velasco and St. Joseph, every room placed but the G Mezz', () => {
+    expect([...indoor.keys()].sort()).toStrictEqual(['sj', 'strc', 'velasco']);
+    expect(indoor.get('sj')?.rooms).toHaveLength(sj.length);
     expect(indoor.get('strc')?.rooms).toHaveLength(strc.length);
     expect(indoor.get('velasco')?.rooms).toHaveLength(velasco.length);
     expect(mezz.map((r) => r.code)).toStrictEqual(['VL151', 'VL153']);
   });
 
   it.each(campus.gates.map((g) => [g.id]))('reaches every labelled room from %s on each mode, inside', (gate) => {
-    for (const room of [...strc, ...velasco]) {
+    for (const room of labelled) {
       for (const mode of modes) {
         const r = ok(router({ kind: 'gate', gate }, { kind: 'room', code: room.code }, mode, indoor));
         expect(r.noIndoorMap).toBeUndefined();
@@ -38,10 +41,19 @@ describe('indoor routing on the real campus', () => {
         const climbs = floorsLegs(r);
         if (room.floor === 1) expect(climbs).toStrictEqual([]);
         else {
-          // One climb straight to the room's floor, by what the mode asks for (Auto: elevator for 3 floors or more).
+          // Up to the room's floor by what the mode asks for (Auto: elevator for 3 floors or more). The elevator is one
+          // ride; stairs can change at a floor (St. Joseph's lobby stairs stop at 2F), at 20 s a floor all the same.
           const by = mode === 'stairs' || (mode === 'auto' && room.floor - 1 < 3) ? 'stairs' : 'elevator';
-          const seconds = by === 'elevator' ? 180 + 5 * (room.floor - 1) : 20 * (room.floor - 1);
-          expect(climbs).toMatchObject([{ from: 1, to: room.floor, by, seconds }]);
+          if (by === 'elevator') {
+            expect(climbs).toMatchObject([{ from: 1, to: room.floor, by, seconds: 180 + 5 * (room.floor - 1) }]);
+          } else {
+            expect(climbs.every((c) => c.by === 'stairs' && c.seconds === 20 * (c.to - c.from))).toBe(true);
+            expect(climbs.map((c) => [c.from, c.to]).flat()).toStrictEqual([
+              1,
+              ...climbs.slice(1).flatMap((c) => [c.from, c.from]),
+              room.floor,
+            ]);
+          }
         }
         const summed = r.legs.reduce((s, l) => s + l.seconds, 0);
         expect(Math.abs(summed - r.seconds)).toBeLessThanOrEqual(r.legs.length);
@@ -67,7 +79,7 @@ describe('indoor routing on the real campus', () => {
   });
 
   it('routes from every labelled room to every other building, leaving by a door', () => {
-    for (const room of [...strc, ...velasco]) {
+    for (const room of labelled) {
       const others = campus.buildings.filter((b) => b.tier === 'full' && b.slug !== room.building);
       for (const building of others.map((b) => b.slug)) {
         const r = ok(router({ kind: 'room', code: room.code }, { kind: 'building', building }, 'auto', indoor));
