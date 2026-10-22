@@ -1082,3 +1082,24 @@ heights inside solid blocks read badly). Saying "indoor map coming" only on S9 (
 and the time looks shorter than the trip). Dropping the room line and putting the floor on the To chip (more map,
 but the sheet jumps between S4 and S5). **Revisit if** testers miss the exit choice, or the indoor-map line reads
 as noise once most buildings have their maps.
+
+## D44. Step player (S6): the camera and the dot follow each step (2026-10-22, proposed)
+
+**Problem.** user-flows §3.7 says the camera moves to each step, but not how. Indoor steps exist for STRC and
+Velasco (8b), yet the cutaway that shows a building's inside is 7a, after 5d, so an indoor step's spot sits inside a
+solid block. The "you are here" dot marks From on S5; nothing said what it does once the student steps through. And a
+turn reads wrong if the map is turned so the walk points down the screen.
+
+**Decision.** (Owner's answers, 2026-10-22.)
+
+1. **Indoor steps, until 7a:** the camera frames the building, and the green floor band moves to the floor that step
+   is on. 7a swaps this for the cutaway.
+2. **The dot moves to each step's spot** (the turn, the door, the stairs), at that step's floor inside a building, so
+   the map shows where the student should be now.
+3. **Outdoor steps face the way the student walks:** the camera turns so the walk from that step points up the
+   screen, as in navigation apps. Reduced motion makes the flight a cut, as everywhere.
+
+**Alternatives.** Flying to an indoor step's spot anyway (the camera shows a roof). Keeping the whole-trip view for
+indoor steps (the map stops helping indoors). Leaving the dot on From (nothing marks the step). Keeping the student's
+heading (calmer, but "turn left" can point right on screen). **Revisit if** testers find the turning map
+disorienting, or once 7a's cutaway lands.
