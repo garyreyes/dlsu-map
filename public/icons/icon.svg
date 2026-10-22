@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- The app icon (10a): a campus building on the green map ground (map-b), with the found floor's green band one
+       storey tall around it (DESIGN.md signature). Full bleed for maskable icons; the building stays inside the
+       80% safe circle. scripts/render-icons.mjs renders the PNG sizes from this file. -->
+  <rect width="512" height="512" fill="#175f3c"/>
+  <polygon points="256,96 376,156 256,216 136,156" fill="#f2eee5"/>
+  <polygon points="136,156 256,216 256,416 136,356" fill="#ddd7ca"/>
+  <polygon points="256,216 376,156 376,356 256,416" fill="#c9c2b3"/>
+  <polygon points="136,236 256,296 256,340 136,280" fill="#00703c"/>
+  <polygon points="256,296 376,236 376,280 256,340" fill="#005a30"/>
+</svg>

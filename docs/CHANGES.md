@@ -8,6 +8,25 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-23: 10a offline hardening (code; real-phone tests still open)
+
+- **O4 update prompt** (`features/offline`): "Map updated." with a Reload button when a newer version is waiting.
+  Only on S1 or S9, never mid-route or with search open (`shouldOfferUpdate`, 6 tests). On phones it sits above the
+  sheet. Reload on S9 keeps the destination by reloading as a `?to=` link. The app also checks for a new version
+  when it comes back to the foreground, at most once an hour. Our own SKIP_WAITING + `controllerchange` reload,
+  because the plugin's helper didn't reload a tab open during the first save (found in review, PROJECT_FACTS).
+- **`storage.persist()`** is asked once, after the first save.
+- **iPhone/iPad hint (O7):** "Add to Home Screen: tap Share, then Add to Home Screen" in the saving line's spot,
+  after "✓ Ready offline" has gone, until closed. `isIos` counts iPadOS's Mac user agent with touch (11 tests).
+- **Web app manifest and icons:** name, standalone, white theme, 192/512/maskable PNGs and the 180 px
+  `apple-touch-icon`, rendered from `public/icons/icon.svg` by `npm run icons`. All precached.
+- **No download percentage (D50, proposed).** user-flows O2 updated.
+- **e2e:** `install.spec.ts` (second tab during a first save ends "Ready offline", manifest and icons served, the
+  iPhone hint) and `update.spec.ts` (a faked new version shows the toast, a card keeps it away, Reload applies it).
+  `update.spec.ts` rewrites `dist/sw.js`, so it runs as its own Playwright project after the rest.
+- **Still open:** airplane-mode and week-unused tests on a real iPhone and Android; the ⓘ "saved offline" line (O3)
+  comes with 10b, which reads `useSavedOffline()`. No CSP or `_headers` change.
+
 ## 2026-10-22: D48 and D49 agreed
 
 - Gary and Charles agreed D48 (the 8c-2 contract) and D49 (the size budget). Marked agreed in `docs/DECISIONS.md`,

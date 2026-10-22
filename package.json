@@ -17,6 +17,7 @@
     "format": "prettier --write .",
     "prepare": "husky",
     "e2e": "playwright test",
+    "icons": "node scripts/render-icons.mjs",
     "fetch-osm": "node scripts/fetch-osm.ts",
     "compile-data": "node scripts/compile-data.ts",
     "floor-extract": "node tools/floor-extract/cli.ts"
