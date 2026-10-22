@@ -18,6 +18,7 @@ floor,code,name,floor_label,floor_checked,note
 2,VL-208A&B,Computer Lab,,,
 2,VL-200B,Faculty Lounge (Shell Companies of the Phil.),,,
 2,VL-207,Audio Visual Room,,,
+2,VL-201C,Room,,,"On the evacuation sign, not in the directory: name not known yet (owner, 2026-10-22). Read it off the door next visit"
 3,VL-303B,Analog Electronics Lab,,,
 3,VL-304/305/306/307/308/309,Classrooms,,,"Printed VH-304-309 (a range, D33)"
 3,VL-313,COE Lab Stock Room,,,
@@ -43,6 +44,8 @@ floor,code,name,floor_label,floor_checked,note
 4,VL-403,Lab Stock Room,,,
 4,VL-401,Interfacing & Networking Lab,,,
 4,VL-404B,Radio Room,,,
+4,VL-403A,Room,,,"On the evacuation sign, not in the directory: name not known yet (owner, 2026-10-22). Read it off the door next visit"
+4,VL-403B,Room,,,"On the evacuation sign, not in the directory: name not known yet (owner, 2026-10-22). Read it off the door next visit"
 5,VL-511,Biomedical Instrumentation & Information Lab,,,
 5,VL-501/502/503,Classrooms,,,"Printed VH-501-503 (a range, D33)"
 5,VL-507/508/509,Classrooms,,,"Printed VH-507-509 (a range, D33)"

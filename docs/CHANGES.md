@@ -8,6 +8,20 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-22: 9b Velasco labelled
+
+- **All 5 Velasco floors are labelled** (8a's way, D39): 73 rooms with their doors, and `verticals.json` with
+  `east-stairs`, `main-stairs`, `west-stairs` and `elevator`, each read off the signs as serving G–5F. Routes now go
+  inside Velasco as they do in STRC (8b). The owner checked all 5 labelled floors in P1 ("all looks about correct"),
+  so they stay `checked: true`.
+- The signs and the directory disagree in places; the owner's calls are in PROJECT_FACTS "Room lists". `velasco.csv`
+  gains 201C, 403A and 403B as "Room".
+- **G Mezz rooms aren't placed:** no sign draws the mezzanine, so VL151 and VL153 stop at Velasco's door. The compiler
+  no longer requires a room with its own `floor_label` on its floor's file (test first, in `indoor-links.test.ts`).
+- Hallway stubs added to reach doors past 3 m: G (107/108, 102C, the elevator), 2F (the corridor past 200A), 3F (303C),
+  4F (408 through 411, and 403A/403B through 403).
+- `tests/indoor-routing.test.ts` now routes every labelled STRC and Velasco room from every gate on each mode.
+
 ## 2026-10-22: D38–D41 agreed
 
 - The team agreed D38 (search while typing), D39 (floors labelled whole, `verticals.json`), D40 (`?to=` links and

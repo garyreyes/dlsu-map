@@ -93,6 +93,20 @@ describe('linkBuilding', () => {
     expect(out.graph.links).toContainEqual([stops[0]?.point, stops[1]?.point, 'elevator']);
   });
 
+  it('asks nothing of a room with its own floor label, such as a mezzanine no sign draws', () => {
+    const mezz = { code: 'BX151', floor: 1, floorLabel: 'G Mezz' };
+    expect(linkBuilding(input({ rooms: [...ROOMS, mezz] })).errors).toStrictEqual([]);
+    const placed = hallFloor(1, {
+      rooms: [
+        { codes: ['BX101', 'BX103'], label: [10, 8], doors: [[10, 6]] },
+        { codes: ['BX151'], label: [30, 8], doors: [[30, 6]] },
+      ],
+    });
+    const out = linkBuilding(input({ floors: [placed], rooms: [...ROOMS, mezz] }));
+    expect(out.errors).toStrictEqual([]);
+    expect(out.rooms.map((r) => r.code)).toStrictEqual(['BX101', 'BX103', 'BX151']);
+  });
+
   it('asks nothing of a floor that is not labelled yet', () => {
     const out = linkBuilding(input({ floors: [hallFloor(1), hallFloor(2)] }));
     expect(out.errors).toStrictEqual([]);

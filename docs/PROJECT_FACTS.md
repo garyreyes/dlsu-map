@@ -169,6 +169,14 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - **STRC's elevator serves G–4F** (owner, 2026-10-22). The 4F sign draws its shaft as a plain closed room, with no ✕
   as on 1F–3F, at the same spot on the sign (about 0.95 across, 0.65 down). Don't read a missing ✕ as a skipped floor;
   ask. STRC's stairs are `east-stairs` (the sign's left end, since STRC is `turn: 180`) and `west-stairs`.
+- **Velasco's stairs and elevator** (labelled 2026-10-22): `east-stairs` (the sign's left end, `turn: 180`),
+  `main-stairs` (just past the lobby, on the far side from the elevator), `west-stairs` (the right end) and
+  `elevator` (the ✕-box in the notch above the lobby). All four are drawn on every floor, so `servesFloors` is G–5F
+  for each, read off the signs rather than checked on site. The small stairs drawn inside rooms (beside 109 and in
+  101 on G, over 302 on 3F, beside 402 on 4F) are left out: no route needs them, and the G ones may be the mezzanine's.
+- **Velasco's G Mezz rooms (VL151, VL153) aren't placed** (owner, 2026-10-22): no sign draws the mezzanine. The
+  compiler's whole-floor check skips a room with its own `floor_label`, so a route to one stops at Velasco's door
+  with `noIndoorMap` (O5). Place them once someone finds the mezzanine's stairs.
 - **P1 labels are canvas-texture sprites** with the system font: drei `<Text>` would fetch its default font from a
   CDN (D5), and there is no self-hosted font yet. P1's test route (`src/dev/floor-preview/test-route.ts`) is the
   cheapest by D34's seconds, stairs or elevator alike; 8b's router replaces it. (2026-10-21)
@@ -207,9 +215,18 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   315 the 3F sign draws. The directory's pairs **214/219, 404/406, 407/409** are separate rooms on the signs (214 and
   219 face each other across the hallway) and are placed as drawn. (owner, 2026-10-21)
 - **Owner calls on the other signs** (2026-10-20, all checked at the doors 2026-10-21): Velasco lists **VH-106** twice
-  (CNC Lab, MEM CIM Lab), one door with both names; **VH-201A-206** is 201A, **201B** (a separate room beside it, not on
-  the sign) and 202–206. St. Joseph's **601/602A/B** wrap is split as "Chemical Room" and "Devt. Biology Research
-  Room" (601 is next to 602), and **J-208/209** (printed under J-202/203) is the same Comparative Anatomy Lab.
+  (CNC Lab, MEM CIM Lab), one door with both names; **VH-201A-206** is 201A, **201B** (a separate room beside it) and
+  202–206. St. Joseph's **601/602A/B** wrap is split as "Chemical Room" and "Devt. Biology Research Room" (601 is next
+  to 602), and **J-208/209** (printed under J-202/203) is the same Comparative Anatomy Lab.
+- **Velasco's signs against its directory** (owner, 2026-10-22, when labelling; none checked at the doors yet):
+  - Sign-only rooms **201C, 403A, 403B** are in `velasco.csv` as "Room".
+  - **303C** is the small room right of 303B. **313 and 314** are one room. **513** is the right part of the room the
+    5F sign labels 512 (split where both its door gaps are). 5F's second "503", bottom right, is **505**.
+  - 4F, the owner's "best reading": **401** spans the sign's 401A and 401B. **403** is the space the sign labels 403,
+    and 403A and 403B open off it. **404A/B** share the one 404, and **410A/B** the one 410. **407** is the narrow room
+    between 412 and 411, and **408** the small one behind 411. **413 and 414** are placed apart, as drawn.
+  - Check 407 and 408 on site first: by number they'd sit between 409 and the main stairs, but that block is drawn
+    like the restroom block on the floors below.
 - `tsconfig.node.json` maps `@/*` so scripts can typecheck src files that use the alias. Type imports only: Node
   doesn't resolve `@/`, so a value import through it would crash `compile-data` (CI's build step catches
   it). (2026-10-20)
