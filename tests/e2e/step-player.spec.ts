@@ -10,6 +10,10 @@ const allSteps = (page: Page) => page.getByRole('region', { name: 'All steps' })
 const arrived = (page: Page) => page.getByRole('region', { name: 'Arrived' });
 const counter = (page: Page) => player(page).getByText(/^Step \d+ of \d+$/);
 
+// Camera flights become cuts: CI draws the 3D in software, where a 650 ms flight per step made a walk through every
+// step brush the 30 s test limit. The cut is the reduced-motion path students get too.
+test.use({ reducedMotion: 'reduce' });
+
 /** Gate 2 → ST311: opens the room from a link, sets From to the gate, then presses Start. */
 async function start(page: Page) {
   await page.goto('/?to=ST311');
@@ -33,7 +37,7 @@ async function arrive(page: Page) {
   await expect(arrived(page)).toBeVisible();
 }
 
-test('Next and Back walk the steps; the last one reads I’m here and opens Arrived', async ({ page }) => {
+test('Next and Back walk the steps, and the arrow keys do too', async ({ page }) => {
   await start(page);
   await expect(player(page)).toContainText('Start at Gate 2 (North)');
   await expect(player(page).getByRole('button', { name: 'Back' })).toBeDisabled();
@@ -42,15 +46,21 @@ test('Next and Back walk the steps; the last one reads I’m here and opens Arri
   await expect(counter(page)).toHaveText(`Step 2 of ${String(n)}`);
   await player(page).getByRole('button', { name: 'Back' }).click();
   await expect(counter(page)).toHaveText(`Step 1 of ${String(n)}`);
-  // The arrow keys do the same on a keyboard.
   await page.keyboard.press('ArrowRight');
   await expect(counter(page)).toHaveText(`Step 2 of ${String(n)}`);
+  await page.keyboard.press('ArrowLeft');
+  await expect(counter(page)).toHaveText(`Step 1 of ${String(n)}`);
+});
 
-  for (let i = 2; i < n; i++) await player(page).getByRole('button', { name: 'Next' }).click();
+test('the last step reads I’m here, and only a tap on it opens Arrived', async ({ page }) => {
+  await start(page);
+  const n = await total(page);
+  for (let i = 1; i < n; i++) await player(page).getByRole('button', { name: 'Next' }).click();
   await expect(counter(page)).toHaveText(`Step ${String(n)} of ${String(n)}`);
   await expect(player(page)).toContainText(/ST311 is (on your (left|right)|ahead)/);
-  // Arriving takes a tap on I'm here: → on the last step stays put.
+  // → on the last step stays put: arriving is said only by tapping.
   await page.keyboard.press('ArrowRight');
+  await expect(player(page).getByRole('button', { name: 'I’m here' })).toBeVisible();
   await expect(arrived(page)).toHaveCount(0);
   await player(page).getByRole('button', { name: 'I’m here' }).click();
   await expect(arrived(page)).toContainText('You’re at ST311');
