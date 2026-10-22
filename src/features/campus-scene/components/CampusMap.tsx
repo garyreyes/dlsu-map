@@ -90,7 +90,14 @@ type Status = 'loading' | 'ready' | 'failed';
 /** The indoor step the cutaway opens (7a), with what its rail needs; null on the ground. */
 const cutStep = (focus: MapFocus | null, b: CampusBuilding | undefined): CutawayStep | null =>
   focus?.kind === 'floor' && b
-    ? { building: b.slug, floor: focus.floor, levels: b.levels, floorLabels: b.floorLabels, volumes: b.volumes }
+    ? {
+        building: b.slug,
+        floor: focus.floor,
+        goal: focus.goal,
+        levels: b.levels,
+        floorLabels: b.floorLabels,
+        volumes: b.volumes,
+      }
     : null;
 
 /** The route's outdoor walk as flat x, y lists, for the line and the trip's framing. */

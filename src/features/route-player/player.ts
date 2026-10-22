@@ -18,11 +18,23 @@ export interface StepCard {
 
 /**
  * Where the map looks for a step (D44). Outdoors, the step's spot, facing `toward` (the way the student walks from
- * there). Indoors, until the cutaway (7a), the building with the floor band on that step's floor.
+ * there). Indoors, the building and floor the cutaway opens, and on a labelled floor the step's spot too (7▸).
  */
 export type StepFocus =
   | { readonly kind: 'ground'; readonly at: XY; readonly toward: XY | null }
-  | { readonly kind: 'floor'; readonly building: string; readonly floor: number };
+  | {
+      readonly kind: 'floor';
+      readonly building: string;
+      readonly floor: number;
+      /** Where on that floor the step happens (a turn, the stairs, the room's door), when the floor is labelled (8b).
+       *  Without it the map frames the whole building (7▸). */
+      readonly at?: XY;
+      /** The way the student walks from `at`, so the camera faces it, as outdoors. */
+      readonly toward?: XY | null;
+      /** The floor the route's stay in this building ends on: the room's floor, or the exit floor on the way out. The
+       *  floor rail marks it (7▸). */
+      readonly goal?: number;
+    };
 
 /** A step index inside the route: 0 to its last step, and 0 for a route with no steps. */
 export const clampStep = (route: Route, index: number): number => Math.max(0, Math.min(index, route.steps.length - 1));

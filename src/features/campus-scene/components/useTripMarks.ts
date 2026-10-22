@@ -19,7 +19,19 @@ export type MapFocus =
       readonly at: readonly [number, number];
       readonly toward: readonly [number, number] | null;
     }
-  | { readonly kind: 'floor'; readonly building: string; readonly floor: number };
+  | {
+      readonly kind: 'floor';
+      readonly building: string;
+      readonly floor: number;
+      /** Where on that floor the step happens (a turn, the stairs, the room's door), when the floor is labelled (8b).
+       *  Without it the map frames the whole building (7▸). */
+      readonly at?: readonly [number, number];
+      /** The way the student walks from `at`, so the camera faces it, as outdoors. */
+      readonly toward?: readonly [number, number] | null;
+      /** The floor the route's stay in this building ends on: the room's floor, or the exit floor on the way out. The
+       *  floor rail marks it (7▸). */
+      readonly goal?: number;
+    };
 
 const labelOf = (b: CampusBuilding | undefined, floor: number) =>
   b?.floorLabels?.[String(floor)] ?? `${String(floor)}F`;
