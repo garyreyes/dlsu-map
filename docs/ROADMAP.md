@@ -69,7 +69,7 @@ with a full-app polish.
 | ID | Sub-phase | Lane | Depends on | Status |
 |---|---|---|---|---|
 | 5a | Where are you (S4): type a room (D23), building list + map tap, floor chips, I'm outside; Change spot moved to 8c (D42) | A | 3c | done |
-| 5b | Route preview (S5): From → To chips, route options, the route line on the map | A | 4b, 5a | not started |
+| 5b | Route preview (S5): From → To chips, route options, the route line on the map; exit choice moved to 8c (D43) | A | 4b, 5a | done |
 | 5c | ↺ All-steps list (S8), which is also the text-only mode (S11); built before the 3D player | A | 4c | done |
 | 5d | Step player (S6): Next/Back, camera follow, X, "Change where I am", Arrived (S9), Find next room | A | 5b, 5c | not started |
 | 5▸ | Impeccable critique + polish (Phase 5) | A | 5a–5d | not started |
@@ -97,7 +97,7 @@ with a full-app polish.
 |---|---|---|---|---|
 | 8a | Hallways, doors, stairs and elevators (`servesFloors`); build checks: door within 3 m of a hallway, valid floors, every room reachable 🧪. Bridges moved to 9b/9c (D39) | B | 6d | done |
 | 8b | Join indoor and outdoor at entrances; Stairs / Elevator / Auto across floors; indoor direction text 🧪 | B | 4c, 8a | done |
-| 8c | Indoor steps (S7) in the player; Change spot in S4 (D42); "indoor map coming" (O5); "(approximate)" (O6) | A | 5d, 7b, 8b | not started |
+| 8c | Indoor steps (S7) in the player; Change spot in S4 (D42); which exit in Route options (D43); "indoor map coming" (O5); "(approximate)" (O6) | A | 5d, 7b, 8b | not started |
 | 8▸ | Impeccable critique + polish (Phase 8) | A | 8a–8c | not started |
 
 ## Phase 9: Data rollout (alongside Phases 6–8, with the `floor-extract` skill)
