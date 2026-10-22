@@ -34,7 +34,7 @@ export function BuildingCard({ building, onDirections, onClose }: Props) {
   );
 }
 
-/** The building card cut to one line while Where are you is open under it (D41). */
+/** The building card cut to one line while Where are you is open under it (D42). */
 export function BuildingLine({ building }: { building: Pick<CampusBuilding, 'short' | 'name'> }) {
   return <p className="min-w-0 flex-1 pt-3 font-semibold text-ink">{building.name}</p>;
 }

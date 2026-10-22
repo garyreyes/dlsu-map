@@ -17,7 +17,7 @@ test('the built app has no dev-link code', () => {
 
 test('a dev link in the built app is only a ?to= link: the room card, no route and no From (D40)', async ({ page }) => {
   await page.goto('/?from=gate-1&to=ST311');
-  // From wasn't read, so Where are you asks for it over the ST311 card (D23, D41).
+  // From wasn't read, so Where are you asks for it over the ST311 card (D23, D42).
   await expect(page.getByRole('region', { name: 'Where are you?' })).toContainText('ST311 · STRC');
   await expect(page.getByRole('region', { name: 'All steps' })).toHaveCount(0);
   // From is never read from a link, and the address bar no longer holds it either.

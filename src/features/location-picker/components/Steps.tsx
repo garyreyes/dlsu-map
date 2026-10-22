@@ -36,7 +36,7 @@ interface FloorStepProps {
 
 /**
  * The floor step: the building's floors as chips, with the labels on its signs. Spot isn't asked (PRD UC2); the
- * line under the chips says where each floor starts, and Change spot comes in 8c (D41).
+ * line under the chips says where each floor starts, and Change spot comes in 8c (D42).
  */
 export function FloorStep({ building, onFloor, onBack }: FloorStepProps) {
   const ground = building.floors[0]?.label ?? 'G';

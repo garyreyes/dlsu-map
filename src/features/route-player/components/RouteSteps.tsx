@@ -19,7 +19,7 @@ interface Props {
 }
 
 /**
- * A trip's all-steps list (S8). Until the route preview (5b) exists it stands in for it once From is set (D41), and
+ * A trip's all-steps list (S8). Until the route preview (5b) exists it stands in for it once From is set (D42), and
  * it is what the dev link (5c) shows. `from` and `to` must keep their identity between renders, or it routes again.
  */
 export function RouteSteps({ from, to, onChangeFrom, onClose }: Props) {

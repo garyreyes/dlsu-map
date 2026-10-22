@@ -10,7 +10,7 @@ const row = (page: Page, text: string) =>
   searchDialog(page).getByRole('list').getByRole('button').filter({ hasText: text });
 const card = (page: Page, name: string) => page.getByRole('region', { name });
 const where = (page: Page) => page.getByRole('region', { name: 'Where are you?' });
-/** From is empty in a fresh page, so Where are you opens over a room's card (D23, D41); close it to see the card. */
+/** From is empty in a fresh page, so Where are you opens over a room's card (D23, D42); close it to see the card. */
 async function closeWhere(page: Page) {
   await where(page).getByRole('button', { name: 'Close Where are you' }).click();
 }

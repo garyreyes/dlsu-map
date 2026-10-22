@@ -1,4 +1,4 @@
-// 5a: Where are you (S4) end to end on the real data (user-flows §3.5, D23, D41). The choices are unit-tested in
+// 5a: Where are you (S4) end to end on the real data (user-flows §3.5, D23, D42). The choices are unit-tested in
 // choose.test.ts and places.test.ts; this proves the wiring: S4 opens by itself only under a room card, every way in
 // sets From and shows the route's steps (the stand-in for S5 until 5b), Back unwinds in order, and From never leaves
 // memory: not in the address bar, history, Recent or storage (PRD §6).
@@ -62,6 +62,18 @@ test('a building with no room list yet goes on to its floors, never to a guessed
       .getByRole('group', { name: /which floor/ })
       .getByRole('button'),
   ).toHaveCount(21); // + back
+});
+
+test('a building tapped on the map picks it here, and the card stays the destination', async ({ page }) => {
+  await openST311(page);
+  // Just under its label plate, which floats over the middle of its roof (as in building-card.spec.ts).
+  const label = page.locator('[data-map-label]').filter({ hasText: 'Mutien-Marie', visible: true });
+  await expect(label).toBeVisible();
+  const box = await label.boundingBox();
+  if (!box) throw new Error('no box for Mutien-Marie');
+  await page.mouse.click(box.x + box.width / 2, box.y + box.height + 10);
+  await expect(where(page).getByRole('group', { name: 'Mutien-Marie Hall: which floor?' })).toBeVisible();
+  await expect(where(page)).toContainText('ST311 · STRC');
 });
 
 test('a building, then a floor with its own label, sets From', async ({ page }) => {

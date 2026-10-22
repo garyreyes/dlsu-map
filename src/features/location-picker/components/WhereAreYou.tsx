@@ -22,7 +22,7 @@ interface Props {
 }
 
 /**
- * S4 Where are you? (user-flows §3.5, D23, D41): the code box on top, the buildings under it, I'm outside last. A
+ * S4 Where are you? (user-flows §3.5, D23, D42): the code box on top, the buildings under it, I'm outside last. A
  * building goes on to its floors; From is set by a room, a floor, a gate or next to a building. No autofocus: a
  * student who only wanted the floor closes it without the keyboard in the way.
  */

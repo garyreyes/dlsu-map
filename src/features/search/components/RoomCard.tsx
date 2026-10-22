@@ -56,7 +56,7 @@ export function RoomCard({
 }
 
 /**
- * The room card cut to one line while Where are you is open under it (user-flows §3.4, D41): code, building and
+ * The room card cut to one line while Where are you is open under it (user-flows §3.4, D42): code, building and
  * floor, so the student never has to remember where they're going.
  */
 export function RoomLine({ room }: { room: RoomHit }) {
