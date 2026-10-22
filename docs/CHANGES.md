@@ -8,6 +8,25 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-22: 7a done: Cutaway and floor rail
+
+- **An indoor step opens the building up** (PLAN §5, user-flows S7): on a step-player step inside a building whose
+  floor file has that floor, the building leaves the merged campus mesh, a stump of its own blocks stands up to the
+  floor's slab, and the traced floors from there up are drawn under one clipping plane 1.2 m above the slab, so the
+  rooms read as a plan with low walls. Outdoors, while the file loads, and on a floor not traced yet, the floor band
+  stays (D44). Only in the player (owner's choice, 7a): the room card keeps the band.
+- **Floor rail:** display only, on top of the map buttons' column, so it rides above the compass. The step's floor in
+  a Campus Green chip, untraced floors muted, and buildings over 9 rows show a window around the floor with the top
+  floor, G and ⋮ gaps (owner's choices from the `shape` brief). Read aloud as "Floor 3F, 3 of 4".
+- **Contract:** `src/features/indoor-view/cutaway.ts`. **Test first:** `stumpBlocks` and `campusGroups`
+  (`massing.ts`), `cutHeight`, `floorsFrom` and `cutawayAt` (`floor-geometry.ts`), `railRows` (`floor-rail.ts`),
+  `cutPlane` (`shared/three/clipping.ts`).
+- **Built by three parallel builders** (split and stump, cut floors, rail) against the contract, integrated and
+  reviewed by the main session. **Fixed from the review:** cut walls drew one-sided and read paper-thin from above.
+- **Known limits:** G has no slab, so its rooms show the ground. The first step into a building picks its camera
+  heading before the cut exists, later steps after, so the turn can differ. Stepping between two buildings flashes
+  the band while the second file loads. `loadIndoor` isn't deduplicated like `loadCampus`.
+
 ## 2026-10-22: 5d done: Step player (S6) and Arrived (S9)
 
 - **Start now plays the route** (user-flows §3.7): a step card with "Step 3 of 9", the step's icon and line, its

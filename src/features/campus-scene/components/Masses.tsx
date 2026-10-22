@@ -1,10 +1,11 @@
 import { useThree } from '@react-three/fiber';
 import { useEffect, useLayoutEffect, useMemo, type RefObject } from 'react';
 import { BufferAttribute, BufferGeometry, Color, MeshLambertMaterial, type Mesh } from 'three';
+import type { Cutaway } from '@/features/indoor-view';
 import type { Campus } from '@/shared/data/campus';
 import { CITY_OPACITY, SELECTED_TINT, type MapPalette } from '@/shared/config/palette';
 import { ribbonPositions } from '@/shared/three/ribbons';
-import { buildMassing, selectionGroups, type Massing } from '../massing';
+import { buildMassing, campusGroups, selectionGroups, stumpBlocks, type Massing } from '../massing';
 import { useTapPick } from './useTapPick';
 import { RIBBON_WIDTH, viaductBlocks } from '../ribbons';
 
@@ -30,7 +31,6 @@ const linesOf = (campus: Campus, kind: Campus['paths'][number]['kind']) =>
   campus.paths.filter((p) => p.kind === kind).map((p) => p.line);
 
 // One builder per mesh, at module level so useCampusGeometry's memo only reruns when the campus changes.
-const buildings = (c: Campus) => buildMassing(c.buildings.map((b) => ({ id: b.slug, volumes: b.volumes })));
 const bridges = (c: Campus) => massGeometry(buildMassing([{ id: 'bridges', volumes: c.bridges }]));
 const city = (c: Campus) =>
   massGeometry(
@@ -74,6 +74,24 @@ interface CampusProps extends Props {
   onTap: (slug: string | null) => void;
   /** The campus mesh, for taps here and for what hides the floor band (CampusMap). */
   massRef: RefObject<Mesh | null>;
+  /** The building the step player is inside: out of the campus mesh, a stump up to the cut floor's slab instead. */
+  cutaway?: Cutaway | null;
+}
+
+/** The cut building's stump, rebuilt only when the building or the slab height changes; null with no cutaway. */
+function useStumpGeometry(campus: Campus, slug: string | undefined, base: number | undefined) {
+  const geometry = useMemo(() => {
+    const building = campus.buildings.find((b) => b.slug === slug);
+    if (!building || base === undefined) return null;
+    return massGeometry(buildMassing([{ id: building.slug, volumes: stumpBlocks(building.volumes, base) }]));
+  }, [campus, slug, base]);
+  useEffect(
+    () => () => {
+      geometry?.dispose();
+    },
+    [geometry],
+  );
+  return geometry;
 }
 
 /**
@@ -81,11 +99,12 @@ interface CampusProps extends Props {
  * shading with the wall-foot darkening baked into vertex colours; no outlines, windows or textures. The selected
  * building is the one exception, a 22% lean toward Campus Green, drawn through a second material on its triangles.
  */
-export function CampusMasses({ campus, palette, selected, onTap, massRef }: CampusProps) {
+export function CampusMasses({ campus, palette, selected, onTap, massRef, cutaway = null }: CampusProps) {
+  const cutSlug = cutaway?.building;
   const { geometry, owners } = useMemo(() => {
-    const m = buildings(campus);
+    const m = buildMassing(campusGroups(campus.buildings, cutSlug ?? null));
     return { geometry: massGeometry(m), owners: m.owners };
-  }, [campus]);
+  }, [campus, cutSlug]);
   useEffect(
     () => () => {
       geometry.dispose();
@@ -117,12 +136,18 @@ export function CampusMasses({ campus, palette, selected, onTap, massRef }: Camp
 
   useTapPick(massRef, owners, onTap);
   const bridgeGeometry = useCampusGeometry(bridges, campus);
+  const stumpGeometry = useStumpGeometry(campus, cutSlug, cutaway?.base);
   return (
     <>
       <mesh ref={massRef} geometry={geometry} material={materials} />
       <mesh geometry={bridgeGeometry} raycast={noHit}>
         <meshLambertMaterial vertexColors color={palette.building} />
       </mesh>
+      {stumpGeometry && (
+        <mesh geometry={stumpGeometry} raycast={noHit}>
+          <meshLambertMaterial vertexColors color={palette.building} />
+        </mesh>
+      )}
     </>
   );
 }

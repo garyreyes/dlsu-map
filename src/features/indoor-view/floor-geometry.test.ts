@@ -5,7 +5,17 @@ import { describe, expect, it } from 'vitest';
 import type { IndoorFloor } from '@/shared/data/indoor';
 import sample from '@/shared/data/indoor.sample.json';
 import { indoorSchema } from '@/shared/data/indoor';
-import { buildFloor, floorOf, HALLWAY_LIFT, HALLWAY_WIDTH, WALL_THICKNESS } from './floor-geometry';
+import { CUT_ABOVE_FLOOR } from './cutaway';
+import {
+  buildFloor,
+  cutawayAt,
+  cutHeight,
+  floorOf,
+  floorsFrom,
+  HALLWAY_LIFT,
+  HALLWAY_WIDTH,
+  WALL_THICKNESS,
+} from './floor-geometry';
 
 const indoor = indoorSchema.parse(sample);
 
@@ -144,5 +154,47 @@ describe('floorOf', () => {
 
   it('answers undefined for a floor not traced yet', () => {
     expect(floorOf(indoor, 2)).toBeUndefined();
+  });
+});
+
+describe('cutHeight', () => {
+  it('is the floor base plus CUT_ABOVE_FLOOR', () => {
+    expect(cutHeight(indoor, 3)).toBeCloseTo(6.8 + CUT_ABOVE_FLOOR);
+    expect(cutHeight({ ...indoor, floors: [floor({ floor: 4, base: 8.4 })] }, 4)).toBeCloseTo(9.6);
+  });
+
+  it('answers undefined for a floor not traced yet', () => {
+    expect(cutHeight(indoor, 2)).toBeUndefined();
+  });
+});
+
+describe('floorsFrom', () => {
+  const strc = {
+    ...indoor,
+    floors: [1, 2, 3, 4].map((n) => floor({ floor: n, base: (n - 1) * 3.4 })),
+  };
+
+  it('lists the traced floors from the given one up, lowest first', () => {
+    expect(floorsFrom(strc, 3).map((f) => f.floor)).toEqual([3, 4]);
+  });
+
+  it('starts above an untraced number, and is empty above the top', () => {
+    expect(floorsFrom(indoor, 2).map((f) => f.floor)).toEqual([3]);
+    expect(floorsFrom(strc, 5)).toEqual([]);
+  });
+
+  it('sorts floors that the file lists out of order', () => {
+    const shuffled = { ...strc, floors: [...strc.floors].reverse() };
+    expect(floorsFrom(shuffled, 1).map((f) => f.floor)).toEqual([1, 2, 3, 4]);
+  });
+});
+
+describe('cutawayAt', () => {
+  it('names the building, the floor and its slab for a traced floor', () => {
+    expect(cutawayAt(indoor, 3)).toEqual({ building: 'strc', floor: 3, base: 6.8 });
+  });
+
+  it('is null on a floor not traced yet, so the map keeps the floor band', () => {
+    expect(cutawayAt(indoor, 2)).toBeNull();
   });
 });

@@ -199,3 +199,20 @@ export function selectionGroups(owners: readonly Owner[], selected: string | nul
   ];
   return parts.filter((g) => g.count > 0);
 }
+
+/** A building's blocks cut off at height `slab` (the cutaway's stump); blocks that start at or above it, or end up
+ *  under 1 cm, go. */
+export function stumpBlocks(volumes: readonly Block[], slab: number): Block[] {
+  return volumes
+    .filter((v) => v.base < slab && Math.min(v.top, slab) - v.base >= 0.01)
+    .map((v) => ({ ...v, top: Math.min(v.top, slab) }));
+}
+
+/** One group per building, leaving out `without` (the cut building, drawn as a stump instead). Order is kept for the
+ *  tap table. */
+export function campusGroups(
+  buildings: readonly { slug: string; volumes: readonly Block[] }[],
+  without: string | null,
+): MassGroup[] {
+  return buildings.filter((b) => b.slug !== without).map((b) => ({ id: b.slug, volumes: b.volumes }));
+}

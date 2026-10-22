@@ -2,6 +2,7 @@ import { Canvas } from '@react-three/fiber';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import type { CameraControls } from '@react-three/drei';
 import type { Mesh } from 'three';
+import { FloorRail, useCutaway, type CutawayStep } from '@/features/indoor-view';
 import { MapDidntDownload } from '@/features/offline';
 import { FAR, FOV_DEG, NEAR } from '@/shared/config/camera';
 import { MAP_PALETTE } from '@/shared/config/palette';
@@ -85,6 +86,12 @@ export function CampusMap({ insets, sheetHeight, wide, selected, floor, trip, on
 
 type Status = 'loading' | 'ready' | 'failed';
 
+/** The indoor step the cutaway opens (7a), with what its rail needs; null on the ground. */
+const cutStep = (focus: MapFocus | null, b: CampusBuilding | undefined): CutawayStep | null =>
+  focus?.kind === 'floor' && b
+    ? { building: b.slug, floor: focus.floor, levels: b.levels, floorLabels: b.floorLabels }
+    : null;
+
 /** The route's outdoor walk as flat x, y lists, for the line and the trip's framing. */
 const walkLines = (route: Route | null) =>
   (route?.legs ?? []).flatMap((l) => (l.kind === 'walk' ? [l.path.flat()] : []));
@@ -142,6 +149,9 @@ function CampusView(props: Props & { campus: Campus }) {
     focus,
     focusBuilding,
   });
+  // The camera still turns to see the band's floor; the cut building shows that floor in its place, and the rail
+  // says which one it is, so the band's chip stands down.
+  const cut = useCutaway(cutStep(focus, focusBuilding));
 
   const recenter = () => {
     if (controlsRef.current) goHome(controlsRef.current, home, insets, !reduced);
@@ -165,7 +175,7 @@ function CampusView(props: Props & { campus: Campus }) {
           buildings={campus.buildings}
           elementsRef={elementsRef}
           selected={selected}
-          chip={chip}
+          chip={cut ? null : chip}
           chipRef={chipRef}
           here={hereAt !== null}
           hereRef={hereRef}
@@ -175,6 +185,7 @@ function CampusView(props: Props & { campus: Campus }) {
         <ErrorBoundary fallback={<MapFailed onShow={failed} />}>
           <Canvas
             flat
+            gl={{ localClippingEnabled: true }}
             frameloop="demand"
             dpr={[1, 2]}
             camera={{ fov: FOV_DEG, near: NEAR, far: FAR }}
@@ -190,6 +201,7 @@ function CampusView(props: Props & { campus: Campus }) {
               selected={selected}
               band={band}
               route={lines}
+              cut={cut}
               onTap={tap}
               massRef={massRef}
             />
@@ -214,6 +226,7 @@ function CampusView(props: Props & { campus: Campus }) {
           onCompass={unturn}
           onRecenter={recenter}
           bottom={wide ? 'calc(env(safe-area-inset-bottom, 0px) + 24px)' : sheetHeight + 12}
+          above={cut && <FloorRail rows={cut.rail} levels={cut.levels} />}
         />
       )}
       <Credit sheetHeight={sheetHeight} wide={wide} />
