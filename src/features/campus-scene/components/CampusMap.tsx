@@ -1,5 +1,5 @@
 import { Canvas } from '@react-three/fiber';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { CameraControls } from '@react-three/drei';
 import type { Mesh } from 'three';
 import { FloorRail, useCutaway, type CutawayStep } from '@/features/indoor-view';
@@ -7,6 +7,7 @@ import { MapDidntDownload } from '@/features/offline';
 import { FAR, FOV_DEG, NEAR } from '@/shared/config/camera';
 import { MAP_PALETTE } from '@/shared/config/palette';
 import type { Campus, CampusBuilding } from '@/shared/data/campus';
+import { preloadIndoor } from '@/shared/data/load';
 import type { Route } from '@/shared/data/route';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import { LOADING_MAP, MapMessage } from '@/shared/ui/MapMessage';
@@ -89,7 +90,7 @@ type Status = 'loading' | 'ready' | 'failed';
 /** The indoor step the cutaway opens (7a), with what its rail needs; null on the ground. */
 const cutStep = (focus: MapFocus | null, b: CampusBuilding | undefined): CutawayStep | null =>
   focus?.kind === 'floor' && b
-    ? { building: b.slug, floor: focus.floor, levels: b.levels, floorLabels: b.floorLabels }
+    ? { building: b.slug, floor: focus.floor, levels: b.levels, floorLabels: b.floorLabels, volumes: b.volumes }
     : null;
 
 /** The route's outdoor walk as flat x, y lists, for the line and the trip's framing. */
@@ -128,6 +129,10 @@ function CampusView(props: Props & { campus: Campus }) {
   const focus = trip?.focus ?? null;
   const route = trip?.route ?? null;
   const lines = useMemo(() => walkLines(route), [route]);
+  // Every building the route goes inside starts loading now, so stepping in never waits on its floor file (7b).
+  useEffect(() => {
+    if (route) preloadIndoor(route.legs.flatMap((l) => ('building' in l ? [l.building] : [])));
+  }, [route]);
   const { band, samples, chip, hereAt, fromBuilding, focusBuilding } = useTripMarks(
     bySlug,
     building,
@@ -202,6 +207,7 @@ function CampusView(props: Props & { campus: Campus }) {
               band={band}
               route={lines}
               cut={cut}
+              reduced={reduced}
               onTap={tap}
               massRef={massRef}
             />

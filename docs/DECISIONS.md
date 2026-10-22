@@ -1055,7 +1055,7 @@ Building Change spot now (a contract change in Lane B's router, for a choice the
 Returning to the card with From shown until 5b (nothing to test on a phone), or merging 5a and 5b (one huge PR).
 **Revisit if** students mostly pick buildings, not rooms, as destinations.
 
-## D43. Route preview (S5): Start opens all steps until 5d, exit choice in 8c, line outdoors (2026-10-22, proposed)
+## D43. Route preview (S5): Start opens all steps until 5d, exit choice in 8c, line outdoors (2026-10-22, agreed)
 
 **Problem.** Building 5b (S5) raised four things the docs left open: Start needs somewhere to go before the step
 player (5d) exists; user-flows §3.6 puts "which exit to use" in Route options, but the router's contract takes only
@@ -1103,3 +1103,22 @@ turn reads wrong if the map is turned so the walk points down the screen.
 indoor steps (the map stops helping indoors). Leaving the dot on From (nothing marks the step). Keeping the student's
 heading (calmer, but "turn left" can point right on screen). **Revisit if** testers find the turning map
 disorienting, or once 7a's cutaway lands.
+
+## D45. The cut slides in, out and between floors; indoor steps at 40° (2026-10-22, agreed)
+
+**Problem.** PLAN §5 asks for one animation: the cut slides from the roof down to the floor as a step enters a
+building. It says nothing about leaving the building, a floor change inside it, or stepping into another building.
+And the camera saw an indoor step from 58° (the room card's angle), where the 1.2 m walls hide the far side of each
+room.
+
+**Decision.** (Owner's answers, 2026-10-22, 7b.)
+
+1. **Every change of the cut slides, 600 ms, with the camera flight's ease-out:** in from the roof, out to the roof
+   (then the building rejoins the campus), from one floor's cut to the other's, and into a second building from its
+   roof (the first rejoins at once). Reduced motion makes every slide a cut.
+2. **Indoor steps are seen from 40°**, the outdoor steps' angle (`STEP_POLAR`), so going inside changes the target,
+   not the tilt, and the low walls hide less.
+
+**Alternatives.** Sliding only on the way in (leaving looks abrupt next to it). Sliding in and between floors but
+cutting on the way out. Keeping 58° (more 3D, walls hide more) or going steeper, about 30° (reads as a flat plan).
+**Revisit if** testers find the slide slow on repeated floor changes, or 40° hides too much of a tall building.

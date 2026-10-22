@@ -63,12 +63,42 @@ export const loadCampus = once((fetchImpl): Promise<LoadResult<Campus>> =>
   loadJson(`${import.meta.env.BASE_URL}data/campus.json`, campusSchema, fetchImpl),
 );
 
-/** Loads and validates one building's floors, `public/data/buildings/<slug>.json`, written by the data compiler (6b).
- *  A slug that couldn't be a building is `invalid` without a request, and so is a file for another building. */
-export function loadIndoor(slug: string, fetchImpl: Fetch = (input) => fetch(input)): Promise<LoadResult<Indoor>> {
-  if (!slugSchema.safeParse(slug).success) return Promise.resolve({ ok: false, reason: 'invalid' });
+function fetchIndoor(slug: string, fetchImpl: Fetch): Promise<LoadResult<Indoor>> {
   const schema = indoorSchema.refine((b) => b.building === slug, 'file is for another building');
   return loadJson(`${import.meta.env.BASE_URL}data/buildings/${slug}.json`, schema, fetchImpl);
+}
+
+// One shared load per building, and the data of the ones that came back good, for `peekIndoor`.
+const sharedIndoor = new Map<string, Promise<LoadResult<Indoor>>>();
+const settledIndoor = new Map<string, Indoor>();
+
+/** Loads and validates one building's floors, `public/data/buildings/<slug>.json`, written by the data compiler (6b).
+ *  A slug that couldn't be a building is `invalid` without a request, and so is a file for another building. Like
+ *  `once`, the first good load is shared and a failure isn't kept; a test passes its own fetch and gets a fresh load. */
+export function loadIndoor(slug: string, fetchImpl?: Fetch): Promise<LoadResult<Indoor>> {
+  if (!slugSchema.safeParse(slug).success) return Promise.resolve({ ok: false, reason: 'invalid' });
+  if (fetchImpl) return fetchIndoor(slug, fetchImpl);
+  let shared = sharedIndoor.get(slug);
+  if (!shared) {
+    shared = fetchIndoor(slug, (input) => fetch(input)).then((result) => {
+      if (result.ok) settledIndoor.set(slug, result.data);
+      else sharedIndoor.delete(slug);
+      return result;
+    });
+    sharedIndoor.set(slug, shared);
+  }
+  return shared;
+}
+
+/** A building's floors if its shared load has already come back good, else undefined. Lets a screen draw on the same
+ *  render instead of showing a loading frame. */
+export function peekIndoor(slug: string): Indoor | undefined {
+  return settledIndoor.get(slug);
+}
+
+/** Starts the shared load of each building so its floors are ready before anyone steps there. Fire and forget. */
+export function preloadIndoor(slugs: Iterable<string>): void {
+  for (const slug of slugs) void loadIndoor(slug);
 }
 
 /** Loads and validates `public/data/rooms.json`, written by the data compiler (3b). */

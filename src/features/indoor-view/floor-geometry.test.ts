@@ -2,18 +2,22 @@
 // or turned faces inward, the floor would sit outside its building or look hollow, and nothing else would notice:
 // the shape of the output is the same either way. So each case asserts exact positions.
 import { describe, expect, it } from 'vitest';
+import type { Volume } from '@/shared/data/campus';
 import type { IndoorFloor } from '@/shared/data/indoor';
 import sample from '@/shared/data/indoor.sample.json';
 import { indoorSchema } from '@/shared/data/indoor';
 import { CUT_ABOVE_FLOOR } from './cutaway';
 import {
   buildFloor,
+  buildSlab,
   cutawayAt,
   cutHeight,
   floorOf,
   floorsFrom,
   HALLWAY_LIFT,
   HALLWAY_WIDTH,
+  SLAB_LIFT,
+  slabOutlines,
   WALL_THICKNESS,
 } from './floor-geometry';
 
@@ -196,5 +200,77 @@ describe('cutawayAt', () => {
 
   it('is null on a floor not traced yet, so the map keeps the floor band', () => {
     expect(cutawayAt(indoor, 2)).toBeNull();
+  });
+});
+
+describe('slabOutlines', () => {
+  const podium: Volume = { outline: [0, 0, 20, 0, 20, 10, 0, 10], base: 0, top: 6.8 };
+  const tower: Volume = { outline: [0, 0, 5, 0, 5, 5], base: 6.8, top: 20 };
+
+  it('reads a base off by float rounding as the same height', () => {
+    const lifted: Volume = { ...tower, base: 6.800000000000001 };
+    expect(slabOutlines([podium, lifted], 6.8)).toEqual([lifted.outline]);
+    expect(slabOutlines([{ ...podium, top: 6.799999999999999 }, tower], 6.8)).toEqual([tower.outline]);
+  });
+
+  it('keeps the outline of every volume standing at that base', () => {
+    expect(slabOutlines([podium, tower], 3.4)).toEqual([podium.outline]);
+    expect(slabOutlines([podium, tower], 0)).toEqual([podium.outline]);
+  });
+
+  it('includes a volume that starts exactly at the base, and drops one that ends exactly there', () => {
+    expect(slabOutlines([podium, tower], 6.8)).toEqual([tower.outline]);
+  });
+
+  it('is empty above every volume', () => {
+    expect(slabOutlines([podium, tower], 20)).toEqual([]);
+  });
+});
+
+describe('SLAB_LIFT', () => {
+  it('is above the base and below HALLWAY_LIFT, so hallways stay on top', () => {
+    expect(SLAB_LIFT).toBeGreaterThan(0);
+    expect(SLAB_LIFT).toBeLessThan(HALLWAY_LIFT);
+  });
+});
+
+describe('buildSlab', () => {
+  /** Sum of the triangles' areas seen from above, positive when they face up. */
+  function areaUp(p: Float32Array) {
+    let sum = 0;
+    for (let t = 0; t < p.length; t += 9) {
+      const [ax = 0, , az = 0, bx = 0, , bz = 0, cx = 0, , cz = 0] = Array.from(p.subarray(t, t + 9));
+      sum += ((bz - az) * (cx - ax) - (bx - ax) * (cz - az)) / 2;
+    }
+    return sum;
+  }
+
+  it('lays a square flat at base + SLAB_LIFT as two triangles facing up', () => {
+    const p = buildSlab([[0, 0, 10, 0, 10, 10, 0, 10]], 6.8);
+    expect(triangles(p)).toBe(2);
+    const { min, max } = bounds(p);
+    expect(min[1]).toBeCloseTo(6.8 + SLAB_LIFT);
+    expect(max[1]).toBeCloseTo(6.8 + SLAB_LIFT);
+    expect(areaUp(p)).toBeCloseTo(100);
+  });
+
+  it('puts north at -z', () => {
+    const { min, max } = bounds(buildSlab([[0, 5, 10, 5, 10, 8]], 0));
+    expect(min[2]).toBeCloseTo(-8);
+    expect(max[2]).toBeCloseTo(-5);
+  });
+
+  it('faces up whichever way the ring winds, and fills a concave L exactly', () => {
+    const l = [0, 0, 10, 0, 10, 4, 4, 4, 4, 10, 0, 10];
+    const reversed = [];
+    for (let i = l.length - 2; i >= 0; i -= 2) reversed.push(l[i] ?? 0, l[i + 1] ?? 0);
+    expect(areaUp(buildSlab([l], 0))).toBeCloseTo(64);
+    expect(areaUp(buildSlab([reversed], 0))).toBeCloseTo(64);
+  });
+
+  it('draws one slab per outline, and nothing for none', () => {
+    const square = [0, 0, 1, 0, 1, 1, 0, 1];
+    expect(triangles(buildSlab([square, square.map((v) => v + 5)], 0))).toBe(4);
+    expect(buildSlab([], 0).length).toBe(0);
   });
 });

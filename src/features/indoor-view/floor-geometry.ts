@@ -3,6 +3,8 @@
 // camera and stay solid where 7a's cutaway slices them. Hallway centre lines lie flat on the floor. No React, no DOM.
 // Data coordinates are meters, x east and y north, the frame of campus.json; the scene's are x east, y up and z
 // south, so north is -z (as in campus-scene's massing.ts). Tests: floor-geometry.test.ts.
+import { ShapeUtils, Vector2 } from 'three';
+import type { Volume } from '@/shared/data/campus';
 import type { Indoor, IndoorFloor } from '@/shared/data/indoor';
 import { ribbonPositions } from '@/shared/three/ribbons';
 import { CUT_ABOVE_FLOOR, type Cutaway } from './cutaway';
@@ -13,6 +15,8 @@ export const WALL_THICKNESS = 0.2;
 export const HALLWAY_WIDTH = 1;
 /** Hallways sit this far above the floor's base so they don't flicker against a slab drawn at the base. */
 export const HALLWAY_LIFT = 0.02;
+/** A floor's slab sits this far above the floor's base, meters: under HALLWAY_LIFT, so hallways stay on top of it. */
+export const SLAB_LIFT = 0.01;
 
 export interface FloorGeometry {
   /** x, y, z per vertex, three vertices per triangle, each face with its own normal. */
@@ -89,6 +93,36 @@ export function buildFloor({ base, height, walls, hallways }: IndoorFloor): Floo
     walls: { positions: new Float32Array(buf.pos), normals: new Float32Array(buf.nor) },
     hallways: ribbonPositions(hallways, HALLWAY_WIDTH, base + HALLWAY_LIFT),
   };
+}
+
+/** Heights closer than this are the same, meters: a base summed from floor heights can be off by float rounding. */
+const SAME_HEIGHT = 1e-6;
+
+/** The outlines of the volumes standing at a floor's `base`, meters above the ground: those that start at or below it
+ *  and end above it. A podium and a tower each count only on the floors they have (7b). */
+export const slabOutlines = (volumes: readonly Volume[], base: number): (readonly number[])[] =>
+  volumes.filter((v) => v.base <= base + SAME_HEIGHT && base < v.top - SAME_HEIGHT).map((v) => v.outline);
+
+/** Flat slab triangles for plan outlines (flat x, y pairs) at `base` + SLAB_LIFT, facing up, x, y, z per vertex. Rings
+ *  may wind either way and may be concave. */
+export function buildSlab(outlines: readonly (readonly number[])[], base: number): Float32Array {
+  const pos: number[] = [];
+  const height = base + SLAB_LIFT;
+  for (const ring of outlines) {
+    const points: Vector2[] = [];
+    for (let i = 0; i + 1 < ring.length; i += 2) points.push(new Vector2(ring[i], ring[i + 1]));
+    const corner = (k: number | undefined): Vec3 => {
+      const point = points[k ?? 0];
+      return at([point?.x ?? 0, point?.y ?? 0], height);
+    };
+    for (const [a, b, c] of ShapeUtils.triangulateShape(points, [])) {
+      const [p, q, r] = [corner(a), corner(b), corner(c)];
+      // Seen from above (x east, z south) the triangle must wind so this is positive; swap two corners if not.
+      const up = (q[2] - p[2]) * (r[0] - p[0]) - (q[0] - p[0]) * (r[2] - p[2]);
+      for (const v of up < 0 ? [p, r, q] : [p, q, r]) pos.push(v[0], v[1], v[2]);
+    }
+  }
+  return new Float32Array(pos);
 }
 
 /** A building's floor by its number (G = 1), or undefined when that floor isn't traced yet. */

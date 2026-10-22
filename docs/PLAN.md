@@ -194,7 +194,8 @@ interiors are added one building at a time:
      room labels, route ribbon, outdoor meshes and UI use unclipped materials. The route ribbon is drawn for the
      current floor only.
   3. **Enter transition:** animate the plane from the roof down to `floorY + 1.2` over about 600 ms while the camera
-     tilts in. This is the signature moment of the app.
+     tilts in. This is the signature moment of the app. The same slide plays out to the roof on the way out and from
+     floor to floor on the stairs; indoor steps are seen from 40° (D45).
   4. Wall caps: each wall is a 0.2 m thick box, not a flat panel (D37), so a cut wall reads as solid with no
      darker-backface trick.
   5. Floors below show as flat outlines only (no transparency, which avoids sorting cost and overdraw).
@@ -258,7 +259,7 @@ tutorial.
    - **Stairs / Auto / Elevator** (this route only). Costs are in seconds (D34, which replaces the meter-equivalents
      first written here): stairs 20 s a floor, elevator 3 min wait + 5 s a floor. **Auto** takes the elevator for 3
      or more floors.
-   - **Exit:** main by default, or another exit of the building.
+   - **Exit:** main by default, or another exit of the building. Comes in 8c, next to Change spot (D43).
 6. **Step mode:** the sheet turns into a step carousel (swipe or Next/Back). Each step is an icon, one line of text,
    and a distance. The camera flies to each step and the "you are here" dot moves with it: outdoors from higher up,
    facing the walk; indoors, until the cutaway, the building with the floor band on the step's floor (D44). Indoor and

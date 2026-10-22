@@ -541,7 +541,10 @@ A sideways swipe on the card steps too.
 
 On the map, an outdoor step flies to its spot from about 40° off straight down, about 70 m around it in view, turned
 so the walk from there points up the screen (it looks 15 m ahead, past small jogs). An indoor step frames its
-building with the floor band on that step's floor. The "you are here" dot moves to each step (D44).
+building from the same 40°, cut open on that step's floor (7a); until its floor file is in, or on an untraced floor,
+the floor band shows instead. The cut slides in 600 ms with the flight's ease-out: down from the roof going in, up to
+the roof coming out, and from floor to floor on stairs (D45). Reduced motion cuts. The "you are here" dot moves to
+each step (D44).
 
 ### Arrived (S9)
 
