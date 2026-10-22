@@ -44,6 +44,11 @@ typography:
     lineHeight: 1.15
     letterSpacing: "-0.01em"
     fontFeature: "\"tnum\" 1"
+  step:
+    fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif"
+    fontSize: "22px"
+    fontWeight: 650
+    lineHeight: 1.25
   headline:
     fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif"
     fontSize: "18px"
@@ -330,6 +335,7 @@ comes from weight and size, not from a second family.
 ### Hierarchy
 
 - **Display** (750, 28px, 1.15, -0.01em): the room code or building short name at the top of a card, like ST311.
+- **Step** (650, 22px, 1.25): the step card's one line (S6), read at a glance while walking.
 - **Headline** (650, 18px): sheet step headings, "Where are you?" and "Your route".
 - **Title** (600, 18px): the room or building name under the code; the info sheet's app name.
 - **Search input** (500, 18px): the full-screen search field; placeholder drops to 400 in Soft Ink.
@@ -515,6 +521,25 @@ The route's outdoor walk as a flat 5.5m Campus Green ribbon on a 1.1m white edge
 the edge does for the line what the white ring does for the dot, so it reads on the deep-green ground. Where a campus
 building stands in front of it, the line shows through at 45%, so the whole way stays traceable. Indoor legs aren't
 drawn until the cutaway (7a, D43).
+
+### Step card (S6)
+
+The sheet's whole job in the player is the next move. A quiet header row: "Step 3 of 9" in Mid Ink semibold, then ⋯
+and ✕ icon buttons. Under it the step's 24px icon in Campus Green on a 44px Pale Leaf-green wash circle, beside the
+step's line in the **Step** role and its distance in Mid Ink. At the bottom a 52px hairline pill holding a green ‹ sits
+beside the full-width primary **Next** ("I'm here" on the last step), so Next is always under the thumb; Back fades to
+45% on step 1. ⋯ folds two plain 56px rows (Change where I am, All steps) out under the header, with no popover box.
+A sideways swipe on the card steps too.
+
+On the map, an outdoor step flies to its spot from about 40° off straight down, about 70 m around it in view, turned
+so the walk from there points up the screen (it looks 15 m ahead, past small jogs). An indoor step frames its
+building with the floor band on that step's floor. The "you are here" dot moves to each step (D44).
+
+### Arrived (S9)
+
+A 28px green check beside "You're at ST311" in the Display role, then the card's one line with the floor words in
+green, an O5 line in Mid Ink when the building's indoor map is still coming, the primary **Find next room**, and a
+centred secondary **Done**.
 
 ### Motion
 

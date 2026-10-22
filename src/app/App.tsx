@@ -4,7 +4,16 @@ import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRe
 import type { MapInsets, MapTrip } from '@/features/campus-scene';
 import { WhereAreYou } from '@/features/location-picker';
 import { MapDidntDownload, OpenOnceOnline, SavingLine, useOfflineStatus } from '@/features/offline';
-import { RoutePreview, RouteSteps, useRoute, useRouteMode } from '@/features/route-player';
+import {
+  AllSteps,
+  Arrived,
+  nextFrom,
+  RoutePreview,
+  StepPlayer,
+  useRoute,
+  useRouteMode,
+  useStep,
+} from '@/features/route-player';
 import {
   BuildingCard,
   BuildingLine,
@@ -69,17 +78,22 @@ export function App() {
   const [picked, setPicked] = useState<Picked | null>(null);
   const selected = card.isOpen ? picked : null;
   const selectedSlug = selected && (selected.kind === 'room' ? selected.room.building.slug : selected.building.slug);
-  const { open: openCard, close: closeCard } = card;
+  const { open: openCard, close: closeCard, closeThen: closeCardThen } = card;
   // Where the route goes: kept as one object per pick, so the route isn't worked out again on every render.
   const to = useMemo(() => (picked ? toOf(picked) : null), [picked]);
   const trip = useTrip();
   const { roomOpened, mapTap } = trip;
-  // The route, worked out only while the preview or its steps are open; Stairs / Auto / Elevator for this trip.
-  const routing = selected !== null && (trip.preview.isOpen || trip.steps.isOpen);
+  // The route, worked out only while the preview or the screens over it are open; Stairs / Auto / Elevator for this
+  // trip. The player's step, and the map's focus on it, belong to the route.
+  const routing = selected !== null && (trip.preview.isOpen || trip.player.isOpen || trip.arrived.isOpen);
   const [mode, setMode] = useRouteMode(trip.from, to);
   const route = useRoute(routing ? trip.from : null, routing ? to : null, mode);
+  const step = useStep(route);
+  // The player stays open under Arrived, so the map keeps the last step there.
   const mapTrip: MapTrip | null =
-    route?.status === 'ready' ? { here: route.here, route: route.result.ok ? route.result.route : null } : null;
+    route?.status === 'ready'
+      ? { here: route.here, route: step.route, focus: trip.player.isOpen ? step.focus : null }
+      : null;
   const select = useCallback(
     (b: CampusBuilding | null) => {
       if (mapTap(b)) return;
@@ -118,6 +132,22 @@ export function App() {
     setSearchStart('');
     openSearchOverlay();
   }, [openSearchOverlay]);
+  const { endTrip, setFrom } = trip;
+  // S9: Find next room starts the next search where this trip ended; Done goes back to the map. From stays either way.
+  const findNext = useCallback(() => {
+    if (!to) return;
+    const next = nextFrom(to);
+    // Search opens only once the card's entry is gone, so Back from search lands on the map, not a closed card.
+    endTrip(() => {
+      closeCardThen(() => {
+        setFrom(next);
+        openSearch();
+      });
+    });
+  }, [to, endTrip, closeCardThen, setFrom, openSearch]);
+  const done = useCallback(() => {
+    endTrip(closeCard);
+  }, [endTrip, closeCard]);
   const openLink = useCallback(
     (link: DeepLink) => {
       if (link.kind === 'search') {
@@ -166,8 +196,44 @@ export function App() {
       <Suspense fallback={null}>
         <DevSteps onClose={devSteps.close} />
       </Suspense>
-    ) : to && trip.from && route && trip.steps.isOpen ? (
-      <RouteSteps state={route} from={trip.from} to={to} onClose={trip.steps.close} />
+    ) : to && route?.status === 'ready' && step.route && trip.arrived.isOpen ? (
+      <Arrived
+        route={step.route}
+        to={to}
+        names={route.names}
+        line={line}
+        room={
+          selected?.kind === 'room'
+            ? { code: selected.room.code, building: selected.room.building.slug, floor: selected.room.floor }
+            : null
+        }
+        onNext={findNext}
+        onDone={done}
+        onBack={trip.arrived.close}
+      />
+    ) : to && trip.from && route?.status === 'ready' && step.route && trip.allSteps.isOpen ? (
+      <AllSteps
+        route={step.route}
+        from={trip.from}
+        to={to}
+        names={route.names}
+        current={step.index}
+        onPick={(index) => {
+          step.setIndex(index);
+          trip.allSteps.close();
+        }}
+        onClose={trip.allSteps.close}
+      />
+    ) : step.route && trip.player.isOpen ? (
+      <StepPlayer
+        route={step.route}
+        current={step.index}
+        onStep={step.setIndex}
+        onArrive={trip.arrived.open}
+        onChangeFrom={trip.changeFromPlayer}
+        onAllSteps={trip.allSteps.open}
+        onClose={trip.player.close}
+      />
     ) : to && trip.from && route && trip.preview.isOpen ? (
       <RoutePreview
         line={line}
@@ -178,7 +244,9 @@ export function App() {
         onMode={setMode}
         onChangeFrom={trip.changeFrom}
         onChangeTo={openSearch}
-        onStart={trip.start}
+        onStart={() => {
+          trip.start(step.route?.steps.length ?? 0);
+        }}
         onClose={trip.preview.close}
       />
     ) : selected && to && trip.where.isOpen ? (

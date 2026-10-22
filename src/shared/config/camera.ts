@@ -29,3 +29,6 @@ export const TAP_MAX_MOVE = 6;
 export const TAP_MAX_MS = 450;
 /** A selected building is seen from about 58° from straight down (DESIGN.md, Camera). */
 export const SELECT_POLAR = (58 * Math.PI) / 180;
+/** An outdoor step in the player is seen from higher, about 40° from straight down, so the campus's tall buildings
+ *  don't stand between the camera and the spot (D44). */
+export const STEP_POLAR = (40 * Math.PI) / 180;

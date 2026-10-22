@@ -12,6 +12,7 @@ import {
   MIN_DISTANCE,
   SELECT_POLAR,
   SMOOTH_TIME,
+  STEP_POLAR,
 } from '@/shared/config/camera';
 import type { CampusBuilding } from '@/shared/data/campus';
 import { headingDeg } from '../gestures';
@@ -93,12 +94,31 @@ export function tripView(outlines: readonly (readonly number[])[], insets: MapIn
   };
 }
 
-/** Flies to a selected building at the closer, lower angle (DESIGN.md, Camera). It keeps the heading the student has
- *  turned to, unless `azimuth` names one that sees the floor band. */
-export function goToBuilding(c: CameraControls, view: BuildingView, azimuth: number | null, animate: boolean) {
+/** An outdoor step's spot keeps this many meters around it in view: the paths it joins and the buildings beside it. */
+const STEP_RADIUS = 70;
+
+/** An outdoor step in the player (D44): its spot and the paths around it, seen from the higher step angle. */
+export function stepView(at: readonly [number, number], insets: MapInsets): BuildingView {
+  const view = { width: window.innerWidth, height: window.innerHeight, fovDeg: FOV_DEG, polar: STEP_POLAR };
+  const fit = fitDistance(STEP_RADIUS, view, insets);
+  return {
+    target: new Vector3(at[0], 0, -at[1]),
+    distance: Math.min(MAX_DISTANCE, Math.max(MIN_DISTANCE, fit)),
+  };
+}
+
+/** Flies to a selected building at the closer, lower angle (DESIGN.md, Camera), or to a step at `polar`. It keeps the
+ *  heading the student has turned to, unless `azimuth` names one that sees the floor band or faces the walk. */
+export function goToBuilding(
+  c: CameraControls,
+  view: BuildingView,
+  azimuth: number | null,
+  animate: boolean,
+  polar = SELECT_POLAR,
+) {
   void c.setTarget(view.target.x, view.target.y, view.target.z, animate);
-  if (azimuth === null) void c.rotatePolarTo(SELECT_POLAR, animate);
-  else void c.rotateTo(azimuth, SELECT_POLAR, animate);
+  if (azimuth === null) void c.rotatePolarTo(polar, animate);
+  else void c.rotateTo(azimuth, polar, animate);
   void c.dollyTo(view.distance, animate);
 }
 
