@@ -241,14 +241,14 @@ tutorial.
 
 1. **First open:** no intro cards. The map opens with the search pill at the top and the "Search a room" hint in
    the sheet. If the user searches without setting a location, the app asks "Where are you?" at that
-   moment, which is the only time it matters.
+   moment, which is the only time it matters: under a room's card, or from a building card's Directions (D42).
 2. **Ask bar (type or keyboard-mic):** *"nasa B305 ako, papunta G304"* → rule-based parser (D9) → **confirm
    screen**: `From [chip] → To [chip]`, then **Go**. Either chip opens the pickers below to correct it.
 3. **Where are you?** (tap flow, D8)
    - **Pick building** (color tiles or tap the map) → **floor** → it defaults to the main entrance (ground floor) or
      the elevator lobby (other floors).
    - Optional precision chips: `Elevator` · `Stairs (North/South…)` · `Entrance: Main/Side/Back` ·
-     `Near room…` · `Tap on map`.
+     `Near room…` · `Tap on map`. As "Change spot", these come in 8c (D42).
    - **Outside:** pick a **gate** (Gate 1 South … Agno Gate, from OSM), tap the map, or "I just left ___".
    - **Deep link / QR** (optional, D7): opens with `from` already set.
 4. **Where to?** cmdk palette with three sections: **Recents**, **Matches** (rooms, buildings, amenities like "CR",
