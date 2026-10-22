@@ -31,6 +31,35 @@ session needs to know. Search this file; it isn't required reading (the reading 
   point of the walk, so a walk that doubles back past the same spot could face the earlier pass (camera only). The
   route line's blob at Gate 2 (5b geometry) shows at step zoom.
 
+## 2026-10-22: floor-extract helpers from St. Joseph
+
+- `floor-extract walls <floor file> [--gaps y0,y1]`: every wall in plan px with its index, or the gaps along one wall
+  band, for reading door gaps and room dividers (`plan-px.ts`).
+- `floor-extract far <floor file>`: the outline points more than 1.5 m from every wall, back in plan px, to find a
+  missed outer wall before changing corners or turn (`far.ts`; `scripts/compile/indoor.ts` now exports
+  `floorOutline` and `GAP_CHECK` so it fits floors exactly as `compile-data` does).
+- `crop` also writes `crops.png` with all the corners; an `edit` spec's `deleteInside` boxes delete every wall wholly
+  inside them.
+- Tests first: `plan-px.test.ts`, `far.test.ts` and three new cases in `edit.test.ts`. The `floor-extract` skill's
+  steps 3 and 6 use the new commands.
+
+## 2026-10-22: 9c started: St. Joseph's 6 floors traced, cleaned and labelled
+
+- **All 6 St. Joseph floors** are traced from the signs, cleaned up and labelled: 85 rooms with their doors, and
+  `verticals.json` with `south-stairs`, `north-stairs`, `elevator` (G–6F) and `lobby-stairs` (G–2F). The two
+  middle stairwells on 2F–6F are emergency only (owner), so routes never use them. Every room is reached from every
+  gate on each mode. The owner checked all 6 floors in P1 ("all rooms look good"), so they are `checked: true`.
+- 2F–6F are `turn: 180` and G is `turn: 0` (its sign is drawn the other way round). Each floor sits 0.9–1.4 m from
+  the outline at the 90th percentile. G got a one-off 20 px strip on the campus side to get there (PROJECT_FACTS).
+- `sj.csv` gains 102, 115, 117, 313, 411, 412 and 413 as "Room". The owner's calls on where the signs and the
+  directory disagree are in PROJECT_FACTS "Room lists".
+- St. Joseph's south side-entrance pin moved about 7 m north, to the TO CHAPEL passage (owner's call). The walk
+  network is now 512 points and 578 links.
+- `tests/indoor-routing.test.ts` routes every labelled STRC, Velasco and St. Joseph room. Its climb check now allows
+  stairs to change at a floor, since a trip can take the lobby stairs to 2F and then an end stair.
+- Not done: the 6F bridge to William Hall (a block-tier building with no floors) and the 3F bridge to Miguel (not
+  traced yet). ROADMAP 9c is in progress; Yuchengco and St. La Salle are left.
+
 ## 2026-10-22: 5b done: Route preview (S5)
 
 - **Setting From opens the route preview** (user-flows §3.6, D43): the card's one line on top, then **From** and

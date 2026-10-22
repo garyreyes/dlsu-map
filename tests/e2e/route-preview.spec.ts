@@ -73,8 +73,8 @@ test('the chips change either end: To reopens search, From reopens Where are you
 });
 
 test('a building with no indoor map yet says the directions stop at its door (O5)', async ({ page }) => {
-  await fromGate(page, 'SJ302');
-  await expect(preview(page)).toContainText('St. Joseph has no indoor map yet, so directions stop at its door.');
+  await fromGate(page, 'SM303');
+  await expect(preview(page)).toContainText('Miguel has no indoor map yet, so directions stop at its door.');
   await expect(preview(page).getByRole('button', { name: 'Start' })).toBeEnabled();
 });
 

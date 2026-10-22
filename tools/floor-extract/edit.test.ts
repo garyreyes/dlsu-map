@@ -153,6 +153,20 @@ describe('parseEditSpec', () => {
     expect(parseEditSpec({ hallways: [] })).toStrictEqual({ hallways: [] });
   });
 
+  it('deletes every wall lying wholly inside a box, together with walls deleted by index', () => {
+    // In plan px the walls are 0–1000 and 1000–2000 along the top, the bottom, and x = 500 down the middle.
+    // The box holds both top walls; wall 1 is also deleted by index, and counted once.
+    const { file, removed } = applyEdit(floor, { deleteInside: [[-10, -10, 2010, 10]], delete: [1, 3] });
+    expect(file.walls).toStrictEqual([[0, 1, 1, 1]]);
+    expect(removed).toBe(3);
+  });
+
+  it('keeps a wall with one end outside every box', () => {
+    const { file, removed } = applyEdit(floor, { deleteInside: [[400, -10, 1600, 10]] });
+    expect(file.walls).toHaveLength(4);
+    expect(removed).toBe(0);
+  });
+
   it('reads a spec with every part', () => {
     const spec = { delete: [2, 0], add: [[0, 0, 10, 0]], hallways: [[0, 5, 10, 5]] };
     expect(parseEditSpec(spec)).toStrictEqual(spec);
@@ -172,6 +186,8 @@ describe('parseEditSpec', () => {
     ['an odd number of values', { add: [[0, 0, 10]] }, /x, y pairs/],
     ['a single point', { add: [[0, 0]] }, /at least 2 points/],
     ['nothing to do', {}, /nothing to change/],
+    ['a box drawn backwards', { deleteInside: [[100, 0, 50, 10]] }, /deleteInside\.0/],
+    ['a box with three values', { deleteInside: [[0, 0, 10]] }, /deleteInside\.0/],
     ['only empty lists', { delete: [], add: [] }, /nothing to change/],
     ['a room with no door', { rooms: [{ codes: ['ST201'], label: [0, 0], doors: [] }] }, /rooms\.0\.doors/],
     ['a room with no code', { rooms: [{ codes: [], label: [0, 0], doors: [[0, 0]] }] }, /rooms\.0\.codes/],
