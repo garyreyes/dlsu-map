@@ -8,6 +8,23 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-22: 9c started: St. Joseph's 6 floors traced, cleaned and labelled
+
+- **All 6 St. Joseph floors** are traced from the signs, cleaned up and labelled: 85 rooms with their doors, and
+  `verticals.json` with `south-stairs`, `north-stairs`, `elevator` (G–6F), `lobby-stairs` (G–2F) and
+  `south-middle-stairs` and `north-middle-stairs` (2F–6F). Every room is reached from every gate on each mode. The
+  floors are `checked: false` until the owner looks in P1.
+- 2F–6F are `turn: 180` and G is `turn: 0` (its sign is drawn the other way round). Each floor sits 0.9–1.4 m from
+  the outline at the 90th percentile. G got a one-off 20 px strip on the campus side to get there (PROJECT_FACTS).
+- `sj.csv` gains 102, 115, 117, 313, 411, 412 and 413 as "Room". The owner's calls on where the signs and the
+  directory disagree are in PROJECT_FACTS "Room lists".
+- St. Joseph's south side-entrance pin moved about 7 m north, to the TO CHAPEL passage (owner's call). The walk
+  network is now 512 points and 578 links.
+- `tests/indoor-routing.test.ts` routes every labelled STRC, Velasco and St. Joseph room. Its climb check now allows
+  stairs to change at a floor, since G to 3F by stairs takes the lobby stairs and then a middle stair.
+- Not done: the 6F bridge to William Hall (a block-tier building with no floors) and the 3F bridge to Miguel (not
+  traced yet). ROADMAP 9c is in progress; Yuchengco and St. La Salle are left.
+
 ## 2026-10-22: 9b Velasco labelled
 
 - **All 5 Velasco floors are labelled** (8a's way, D39): 73 rooms with their doors, and `verticals.json` with

@@ -177,6 +177,26 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - **Velasco's G Mezz rooms (VL151, VL153) aren't placed** (owner, 2026-10-22): no sign draws the mezzanine. The
   compiler's whole-floor check skips a room with its own `floor_label`, so a route to one stops at Velasco's door
   with `noIndoorMap` (O5). Place them once someone finds the mezzanine's stairs.
+- **St. Joseph corners as read** (photo pixels, tl tr br bl): G 575,1242 3170,1271 3170,1590 575,1594 (the long
+  top wall extended; both top ends step in); 2F 612,1042 3406,1099 3400,1449 612,1386; 3F 410,1079 3311,1127
+  3311,1473 410,1428 (from the 6b spike); 4F 344,1100 3449,1179 3430,1547 344,1477; 5F 729,1149 3044,1190 3030,1465
+  731,1453; 6F 578,1231 3284,1230 3284,1554 578,1554. On 2F–6F the bottom corners extend the main block's bottom
+  line. No tuning needed. 4F's "corrugated roof" hatching above the corridor reads as about 200 walls: delete
+  everything in that band outside the two stair boxes. 2F's 206A sits in a wing below the main block that OSM's
+  outline doesn't have, so it is placed at the foot of the 206B passage, on the floor's edge. (2026-10-22)
+- **St. Joseph's turns** (2026-10-22): 2F–6F are `turn: 180` (90th percentile 0.9–1.4 m, against about 3 m at 0),
+  so the sign's left end is south. G's sign is drawn the other way round, so G is `turn: 0` and its right end is
+  south. The room numbers agree: 101, 201, 301… are all at the south end.
+- **St. Joseph G got a 20 px strip on the campus side** after cleanup: plan height 352 → 372, every y scaled by
+  352/372, so the walls sit 0.8 m further from the outline's west edge. OSM's outline has the upper floors' stair
+  towers 2.3 m out on that side, and G's sign has no towers. 90th percentile 1.8 → 1.3 m. Re-tracing G means
+  redoing this. (2026-10-22)
+- **St. Joseph's stairs and elevator** (owner, 2026-10-22): `south-stairs` and the `elevator` (the sign's left end
+  on 2F–6F, G's right end), `north-stairs` (the other end), `lobby-stairs` (G–2F, from the lobby) and
+  `south-middle-stairs` and `north-middle-stairs` (2F–6F; 2F labels them DECK; the G sign doesn't show them). All
+  read off the signs. Stairs can change at 2F: G to 3F by stairs takes the lobby stairs, then a middle stair.
+- **St. Joseph's south side-entrance pin moved** about 7 m north, to the TO CHAPEL passage between 104 and 101
+  where the G sign draws the exit (owner, 2026-10-22). Still `verified: false`.
 - **P1 labels are canvas-texture sprites** with the system font: drei `<Text>` would fetch its default font from a
   CDN (D5), and there is no self-hosted font yet. P1's test route (`src/dev/floor-preview/test-route.ts`) is the
   cheapest by D34's seconds, stairs or elevator alike; 8b's router replaces it. (2026-10-21)
@@ -227,6 +247,16 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
     between 412 and 411, and **408** the small one behind 411. **413 and 414** are placed apart, as drawn.
   - Check 407 and 408 on site first: by number they'd sit between 409 and the main stairs, but that block is drawn
     like the restroom block on the floors below.
+- **St. Joseph's signs against its directory** (owner's "best reading", 2026-10-22; none checked at the doors yet):
+  - Sign-only rooms **102, 115, 117, 313, 411, 412, 413** are in `sj.csv` as "Room". 102 was once read as skipped by
+    the directory's J-101/103; the G sign draws it.
+  - G: the sign's **"F04"**, bottom row by the TO CHAPEL exit, is **105** (Safety Office). **101 and 103** are placed
+    apart, at opposite corners as drawn, though the directory gives them one office. **114/118B** (NSTP) goes in the
+    sign's 118.
+  - 5F: **510** spans the sign's 510A and 510B. **513** is the far end of the sign's 512, past its second door.
+  - 6F: **613** spans the sign's 613A–613D. **602A/B, 608A/B and 611A/B** each share the one room the sign draws.
+  - Directory pairs the signs draw apart (202/203, 208/209, 210/211, 302–306, 303/307, 308/309, 311/312, 503/505/508,
+    603/604, 605/607) are placed apart, as on STRC.
 - `tsconfig.node.json` maps `@/*` so scripts can typecheck src files that use the alias. Type imports only: Node
   doesn't resolve `@/`, so a value import through it would crash `compile-data` (CI's build step catches
   it). (2026-10-20)

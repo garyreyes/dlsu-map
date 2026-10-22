@@ -109,7 +109,7 @@ owner checks it in the floor preview and marks it `checked: true`.
 |---|---|---|---|---|
 | 9a | Andrew (20 floors) | B | 6d | not started |
 | 9b | Gokongwei, Velasco, St. Miguel | B | 6d | in progress |
-| 9c | Yuchengco, St. Joseph, St. La Salle | B | 6d | not started |
+| 9c | Yuchengco, St. Joseph, St. La Salle | B | 6d | in progress |
 | 9d | Razon, Mutien-Marie | B | 6d | not started |
 
 ## Phase 10: Offline polish → private beta ▸

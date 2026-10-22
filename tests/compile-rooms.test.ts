@@ -73,7 +73,8 @@ describe('Velasco, St. Joseph and St. Miguel (D33: a dash on these signs is a ra
   it.each([
     // Velasco: the directory's 72, plus 201C, 403A and 403B from the signs.
     ['velasco', 75, [14, 13, 16, 19, 13]],
-    ['sj', 78, [15, 13, 11, 9, 12, 18]],
+    // St. Joseph: the directory's 78, plus 102, 115, 117, 313, 411, 412 and 413 from the signs.
+    ['sj', 85, [18, 13, 12, 12, 12, 18]],
     ['miguel', 69, [24, 18, 15, 12]],
   ])('%s has %i rooms, floor by floor as the directory lists them', (building, total, perFloor) => {
     const list = all.filter((r) => r.building === building);
@@ -130,11 +131,11 @@ describe('Velasco, St. Joseph and St. Miguel (D33: a dash on these signs is a ra
     });
   });
 
-  it.each(['VL201', 'SJ102', 'SJ301', 'SM301', 'SM302'])('has no %s (the directory skips it)', (code) => {
+  it.each(['VL201', 'SJ301', 'SM301', 'SM302'])('has no %s (the directory skips it)', (code) => {
     expect(room(code)).toBeUndefined();
   });
 
-  it.each(['VL201C', 'VL403A', 'VL403B'])(
+  it.each(['VL201C', 'VL403A', 'VL403B', 'SJ102', 'SJ115', 'SJ117', 'SJ313', 'SJ411', 'SJ412', 'SJ413'])(
     'has %s, on its sign but not in the directory, as an unnamed Room',
     (code) => {
       expect(room(code)?.name).toBe('Room');
