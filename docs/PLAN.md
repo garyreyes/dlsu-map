@@ -206,8 +206,10 @@ interiors are added one building at a time:
   only runs while a route is active.
 - **Avatar:** a CC0 low-poly figure (Kenney/Quaternius) or a 3D pin. Keep it under 2k triangles. Quantize it with
   gltf-transform; three.js reads that natively with no decoder.
-- **Quality tiers:** `PerformanceMonitor` drops DPR 2 → 1.5 → 1 and hides the surrounding city blocks on the lowest
-  tier.
+- **Quality tiers (10c):** our own frame monitor (drei's `PerformanceMonitor` misreads on-demand frames) drops DPR
+  2 → 1.5 → 1 and hides the surrounding city blocks on the lowest tier.
+- **Size budget (D49):** three.js loads in its own chunk after the first screen; `npm run build` fails past 200 kB
+  gzipped for the first load or 300 kB for any other chunk.
 
 ---
 
@@ -260,7 +262,8 @@ tutorial.
    - **Stairs / Auto / Elevator** (this route only). Costs are in seconds (D34, which replaces the meter-equivalents
      first written here): stairs 20 s a floor, elevator 3 min wait + 5 s a floor. **Auto** takes the elevator for 3
      or more floors.
-   - **Exit:** main by default, or another exit of the building. Comes in 8c, next to Change spot (D43).
+   - **Exit:** main by default, or another exit of the building. Comes in 8c, next to Change spot (D43); the router
+     takes it as an optional last argument (D48).
 6. **Step mode:** the sheet turns into a step carousel (swipe or Next/Back). Each step is an icon, one line of text,
    and a distance. The camera flies to each step and the "you are here" dot moves with it: outdoors from higher up,
    facing the walk; indoors, until the cutaway, the building with the floor band on the step's floor (D44). Indoor and

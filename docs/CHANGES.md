@@ -8,6 +8,11 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-22: D48 and D49 agreed
+
+- Gary and Charles agreed D48 (the 8c-2 contract) and D49 (the size budget). Marked agreed in `docs/DECISIONS.md`,
+  added to `SUMMARY.md` and `docs/PLAN.md`. D49 now lists what to do, in order, when the app outgrows the budget.
+
 ## 2026-10-22: 10c performance and accessibility
 
 - **Quality tiers:** our own monitor (`campus-scene/quality.ts`, `QualityMonitor`) judges 30 back-to-back frames
