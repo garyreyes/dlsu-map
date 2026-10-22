@@ -1,6 +1,7 @@
 // The route meeting point between the lanes (docs/SPLIT.md): Lane B's router (4b, `src/features/routing/`) returns a
 // RouteResult, and Lane A's route preview, steps list and player (5b–5d) show it. 4c added `steps`; 8b adds indoor
-// legs and steps, both as new fields or new kinds, never by changing these (D41). Costs: `src/shared/config/routing.ts`.
+// legs and steps, both as new fields or new kinds, never by changing these (D41); 8c-2 adds From's spot and the door
+// choice the same way. Costs: `src/shared/config/routing.ts`.
 import type { Campus } from './campus.ts';
 import type { Indoor } from './indoor.ts';
 import type { Rooms } from './rooms.ts';
@@ -13,10 +14,20 @@ export type From =
   /** "I'm outside": a gate id from `campus.json`, e.g. `'gate-2'`. */
   | { readonly kind: 'gate'; readonly gate: string }
   /** The tap flow: building, then floor (G = 1). G starts at the main entrance; other floors at the elevator lobby
-   *  (PRD UC2). */
-  | { readonly kind: 'building'; readonly building: string; readonly floor: number }
+   *  (PRD UC2), unless S4's Change spot sets `spot` (D42, 8c-2). */
+  | { readonly kind: 'building'; readonly building: string; readonly floor: number; readonly spot?: Spot }
   /** A room code typed into From (D23). Canonical, e.g. `'AG1104'`. */
   | { readonly kind: 'room'; readonly code: string };
+
+/** Change spot (D42, 8c-2): where on From's floor the student stands, instead of the default. S4 offers only spots
+ *  the data has, so one the router can't find is a bug upstream and gives `unknown-place`. */
+export type Spot =
+  /** At one of the building's doors, on G only. By its index in `campus.json`'s `entrances`. Needs no building file:
+   *  the walk starts at that door. */
+  | { readonly kind: 'entrance'; readonly entrance: number }
+  /** At a stairs or an elevator on From's floor, by its id in the building file (`east-stairs`). Without the file,
+   *  the trip is routed as before 8b and the building is named in `Route.noIndoorMap`. */
+  | { readonly kind: 'vertical'; readonly id: string };
 
 /** Where the student is going: a room, or a building's ground floor. */
 export type To =
@@ -24,6 +35,16 @@ export type To =
 
 /** Route options in S5. Auto takes the elevator for 3 floors or more (PRD UC3). */
 export type FloorMode = 'stairs' | 'elevator' | 'auto';
+
+/** Route options' door choice (D43, 8c-2), by index in `campus.json`'s `entrances`. Left out, the router picks: the
+ *  main entrance from G, else the quickest door (D34). A door that isn't the right building's gives `unknown-place`.
+ *  Only a trip that walks outdoors uses them. */
+export interface Doors {
+  /** Leave From's building by this door. Ignored when From's spot is an entrance: the student is at that door. */
+  readonly exit?: number;
+  /** Enter To's building by this door. In the contract now; no picker yet. */
+  readonly entrance?: number;
+}
 
 /** One end of a walk: a gate, or a building's door from `campus.json`'s entrances. */
 export type WalkEnd =
@@ -34,6 +55,8 @@ export type WalkEnd =
       readonly door: 'main' | 'side' | 'back';
       /** Which one, when a building has more than one of a kind: `to SJ Walk`. */
       readonly name?: string;
+      /** Its index in `campus.json`'s `entrances`, so Route options can show which door the route took (8c-2). */
+      readonly entrance?: number;
       /** False until checked on site: its step ends in "(approximate)" (O6). */
       readonly verified: boolean;
       readonly at: XY;
@@ -165,6 +188,7 @@ export type RouteResult =
 export type IndoorFiles = ReadonlyMap<string, Indoor>;
 
 /** The router: built once from the loaded data, then called on every Start or route-option change. Pure. `indoor`
- *  can differ call to call; the router keeps what it builds from each file for as long as that file object lives. */
-export type Router = (from: From, to: To, mode: FloorMode, indoor?: IndoorFiles) => RouteResult;
+ *  can differ call to call; the router keeps what it builds from each file for as long as that file object lives.
+ *  `doors` came in 8c-2, last so that every earlier call still means the same. */
+export type Router = (from: From, to: To, mode: FloorMode, indoor?: IndoorFiles, doors?: Doors) => RouteResult;
 export type CreateRouter = (campus: Campus, rooms: Rooms) => Router;

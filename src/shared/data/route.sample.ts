@@ -1,11 +1,32 @@
 // Hand-written samples in the agreed shape, so Lane A can build 5b–5d before the real router (4b) and directions (4c)
 // land, and 8c before indoor routing (8b) does. The doors are real (`campus.json`, 2026-10-20); the walk is a short
-// stand-in line, not the real path. Times follow D34, steps D35 and D41.
-import type { Route, RouteResult, Step } from './route';
+// stand-in line, not the real path. Times follow D34, steps D35 and D41. 8c-2 added the trip choices at the end.
+import type { Doors, From, Route, RouteResult, Step, To } from './route';
 
-const andrewMain = { kind: 'door', building: 'andrew', door: 'main', verified: false, at: [-93.8, 250.2] } as const;
-const strcMain = { kind: 'door', building: 'strc', door: 'main', verified: false, at: [-85.6, 196] } as const;
-const velascoMain = { kind: 'door', building: 'velasco', door: 'main', verified: false, at: [6.1, 77.7] } as const;
+const andrewMain = {
+  kind: 'door',
+  building: 'andrew',
+  door: 'main',
+  entrance: 1,
+  verified: false,
+  at: [-93.8, 250.2],
+} as const;
+const strcMain = {
+  kind: 'door',
+  building: 'strc',
+  door: 'main',
+  entrance: 16,
+  verified: false,
+  at: [-85.6, 196],
+} as const;
+const velascoMain = {
+  kind: 'door',
+  building: 'velasco',
+  door: 'main',
+  entrance: 4,
+  verified: false,
+  at: [6.1, 77.7],
+} as const;
 const bend = [-100, 205] as const;
 
 /** AG1104 → ST311, Auto: elevator down 10 floors (3 min wait + 5 s a floor), walk, stairs up 2 (20 s a floor). Both
@@ -221,3 +242,35 @@ export const sampleResults = {
   'unknown-place': { ok: false, reason: 'unknown-place' },
   'no-route': { ok: false, reason: 'no-route' },
 } as const satisfies Record<string, RouteResult>;
+
+/** Change spot and the exit choice (8c-2, D42, D43): router inputs with real ids from `campus.json` and
+ *  `buildings/velasco.json` (2026-10-22). Velasco has two main entrances, 4 and 5, neither named yet. */
+export const sampleTripChoices = {
+  /** Velasco 3F, standing at the west stairs instead of the elevator lobby: the indoor leg starts there. */
+  westStairs: {
+    from: { kind: 'building', building: 'velasco', floor: 3, spot: { kind: 'vertical', id: 'west-stairs' } },
+    to: { kind: 'room', code: 'ST311' },
+  },
+  /** Velasco G at entrance 5: no indoor leg, the walk starts at that door. */
+  atDoor: {
+    from: { kind: 'building', building: 'velasco', floor: 1, spot: { kind: 'entrance', entrance: 5 } },
+    to: { kind: 'room', code: 'ST311' },
+  },
+  /** Leaving Velasco 3F by entrance 5, not the quickest door: the walk's `from.entrance` is 5. */
+  exit: {
+    from: { kind: 'building', building: 'velasco', floor: 3 },
+    to: { kind: 'building', building: 'strc' },
+    doors: { exit: 5 },
+  },
+  /** Entrance 16 is STRC's, not Velasco's: `unknown-place`. */
+  wrongExit: {
+    from: { kind: 'building', building: 'velasco', floor: 3 },
+    to: { kind: 'building', building: 'strc' },
+    doors: { exit: 16 },
+  },
+  /** No stairs with that id on Velasco 3F: `unknown-place`. */
+  unknownSpot: {
+    from: { kind: 'building', building: 'velasco', floor: 3, spot: { kind: 'vertical', id: 'north-stairs' } },
+    to: { kind: 'room', code: 'ST311' },
+  },
+} as const satisfies Record<string, { from: From; to: To; doors?: Doors }>;
