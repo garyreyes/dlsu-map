@@ -1,12 +1,16 @@
 // The app shell (ARCHITECTURE §6): lays out the map and its floating chrome, and owns the little state that ties them
 // together. No parsing, routing or fetching here.
-import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { MapInsets } from '@/features/campus-scene';
+import { WhereAreYou } from '@/features/location-picker';
 import { MapDidntDownload, OpenOnceOnline, SavingLine, useOfflineStatus } from '@/features/offline';
+import { RouteSteps } from '@/features/route-player';
 import {
   BuildingCard,
+  BuildingLine,
   HomeRecent,
   RoomCard,
+  RoomLine,
   SearchPill,
   SearchScreen,
   useRecent,
@@ -16,6 +20,7 @@ import {
   type RoomHit,
 } from '@/features/search';
 import type { CampusBuilding } from '@/shared/data/campus';
+import type { To } from '@/shared/data/route';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import { LOADING_MAP, MapMessage } from '@/shared/ui/MapMessage';
 import { NotOfficialNote } from '@/shared/ui/NotOfficialNote';
@@ -23,6 +28,7 @@ import { BottomSheet, SidePanel } from '@/shared/ui/Sheet';
 import { useIsWide } from '@/shared/ui/useMediaQuery';
 import { useBackToClose } from './useBackToClose';
 import { useDeepLink } from './useDeepLink';
+import { useTrip } from './useTrip';
 
 // The 3D map is its own chunk, so the search pill and sheet work before three.js has loaded (user-flows §3.2).
 const CampusMap = lazy(() => import('@/features/campus-scene').then((m) => ({ default: m.CampusMap })));
@@ -45,6 +51,11 @@ type Picked =
 const toPicked = (hit: Hit): Picked =>
   hit.kind === 'room' ? { kind: 'room', room: hit } : { kind: 'building', building: { ...hit.building, tier: 'full' } };
 
+const toOf = (picked: Picked): To =>
+  picked.kind === 'room'
+    ? { kind: 'room', code: picked.room.code }
+    : { kind: 'building', building: picked.building.slug };
+
 export function App() {
   const wide = useIsWide();
   const search = useBackToClose();
@@ -59,8 +70,13 @@ export function App() {
   const selected = card.isOpen ? picked : null;
   const selectedSlug = selected && (selected.kind === 'room' ? selected.room.building.slug : selected.building.slug);
   const { open: openCard, close: closeCard } = card;
+  // Where the route goes: kept as one object per pick, so the route isn't worked out again on every render.
+  const to = useMemo(() => (picked ? toOf(picked) : null), [picked]);
+  const trip = useTrip();
+  const { roomOpened, mapTap } = trip;
   const select = useCallback(
     (b: CampusBuilding | null) => {
+      if (mapTap(b)) return;
       if (!b) {
         closeCard();
         return;
@@ -68,7 +84,7 @@ export function App() {
       setPicked({ kind: 'building', building: b });
       openCard();
     },
-    [openCard, closeCard],
+    [mapTap, openCard, closeCard],
   );
   const searchData = useSearchData();
   const recent = useRecent();
@@ -84,9 +100,10 @@ export function App() {
         addRecent(hit);
         setPicked(next);
         openCard();
+        if (next.kind === 'room') roomOpened();
       });
     },
-    [addRecent, closeSearchThen, openCard],
+    [addRecent, closeSearchThen, openCard, roomOpened],
   );
   // What S2 opens with: empty from the pill, the link's text from a deep link it can't open as a card (D40).
   const [searchStart, setSearchStart] = useState('');
@@ -102,10 +119,12 @@ export function App() {
         openSearchOverlay();
         return;
       }
-      setPicked(toPicked(link.hit));
+      const next = toPicked(link.hit);
+      setPicked(next);
       openCard();
+      if (next.kind === 'room') roomOpened();
     },
-    [openSearchOverlay, openCard],
+    [openSearchOverlay, openCard, roomOpened],
   );
   useDeepLink(searchData, openLink);
   // The dev link's list is an overlay too, opened once on load, so Back closes it like S8 will in the player.
@@ -134,10 +153,23 @@ export function App() {
       <Suspense fallback={null}>
         <DevSteps onClose={devSteps.close} />
       </Suspense>
+    ) : selected && to && trip.from && trip.steps.isOpen ? (
+      <RouteSteps from={trip.from} to={to} onChangeFrom={trip.changeFrom} onClose={trip.steps.close} />
+    ) : selected && to && trip.where.isOpen ? (
+      <WhereAreYou
+        line={
+          selected.kind === 'room' ? <RoomLine room={selected.room} /> : <BuildingLine building={selected.building} />
+        }
+        search={searchData}
+        to={to}
+        mapPick={trip.mapPick}
+        onFrom={trip.chooseFrom}
+        onClose={trip.where.close}
+      />
     ) : selected?.kind === 'room' ? (
-      <RoomCard key={selected.room.code} room={selected.room} onClose={closeCard} />
+      <RoomCard key={selected.room.code} room={selected.room} onDirections={trip.directions} onClose={closeCard} />
     ) : selected ? (
-      <BuildingCard building={selected.building} onClose={closeCard} />
+      <BuildingCard building={selected.building} onDirections={trip.directions} onClose={closeCard} />
     ) : (
       <>
         <HomeRecent data={searchData} recent={recent.entries} onPick={pick} onOpenSearch={openSearch} />

@@ -1,21 +1,25 @@
 import { useEffect, useState } from 'react';
 import { createRouter } from '@/features/routing';
 import { loadCampus, loadRooms, type LoadFailure } from '@/shared/data/load';
-import type { RouteResult } from '@/shared/data/route';
-import type { DevTrip } from '../dev-link';
+import type { From, RouteResult, To } from '@/shared/data/route';
 import { placeNames, type PlaceNames } from '../steps-list';
 
-export type DevRouteState =
+export type RouteState =
   | { status: 'loading' }
   | { status: 'failed'; reason: LoadFailure }
   | { status: 'ready'; result: RouteResult; names: PlaceNames };
 
-/** Dev only (5c): loads campus.json and rooms.json, then routes the link's trip once, on Auto. */
-export function useDevRoute(trip: DevTrip): DevRouteState {
-  const [state, setState] = useState<DevRouteState>({ status: 'loading' });
-  const { from, to } = trip;
+const LOADING: RouteState = { status: 'loading' };
+
+/** Loads campus.json and rooms.json (shared loads, so usually already there), then routes From → To once, on Auto. */
+export function useRoute(from: From, to: To): RouteState {
+  // Each answer remembers the trip it was for, so a new From or To reads as loading until its own answer arrives.
+  const [answer, setAnswer] = useState<{ from: From; to: To; state: RouteState } | null>(null);
   useEffect(() => {
     let live = true;
+    const setState = (state: RouteState) => {
+      setAnswer({ from, to, state });
+    };
     void Promise.all([loadCampus(), loadRooms()])
       .then(([campus, rooms]) => {
         if (!live) return;
@@ -34,5 +38,5 @@ export function useDevRoute(trip: DevTrip): DevRouteState {
       live = false;
     };
   }, [from, to]);
-  return state;
+  return answer?.from === from && answer.to === to ? answer.state : LOADING;
 }

@@ -1,0 +1,280 @@
+import { Search, Trees, X } from 'lucide-react';
+import { useEffect, useMemo, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { HitList, NoteLine, searchResults, type Hit, type SearchData, type SearchView } from '@/features/search';
+import type { From, To } from '@/shared/data/route';
+import { IconButton } from '@/shared/ui/IconButton';
+import { atFloor, atGate, chooseEnter, chooseHit, nextTo, type Choice } from '../choose';
+import type { PickerPlaces } from '../places';
+import { BuildingRows, FloorStep, OutsideStep } from './Steps';
+import { usePickerPlaces } from './usePickerPlaces';
+
+type Step = { kind: 'start' } | { kind: 'floors'; slug: string } | { kind: 'outside' };
+
+interface Props {
+  /** The card cut to one line, shown above so the destination stays on screen (user-flows §3.4). */
+  line: ReactNode;
+  search: SearchData;
+  to: To;
+  /** A building tapped on the map while this is open: a new object for every tap, so the same building twice counts. */
+  mapPick: { slug: string } | null;
+  onFrom: (from: From) => void;
+  onClose: () => void;
+}
+
+/**
+ * S4 Where are you? (user-flows §3.5, D23, D41): the code box on top, the buildings under it, I'm outside last. A
+ * building goes on to its floors; From is set by a room, a floor, a gate or next to a building. No autofocus: a
+ * student who only wanted the floor closes it without the keyboard in the way.
+ */
+export function WhereAreYou({ line, search, to, mapPick, onFrom, onClose }: Props) {
+  const places = usePickerPlaces();
+  const [step, setStep] = useState<Step>({ kind: 'start' });
+  const [query, setQuery] = useState('');
+  const [same, setSame] = useState<string | null>(null);
+  // A map tap picks that building, as its row would (adjusting state to a prop, without an effect).
+  const [seenPick, setSeenPick] = useState(mapPick);
+  if (mapPick !== seenPick) {
+    setSeenPick(mapPick);
+    if (mapPick) setStep({ kind: 'floors', slug: mapPick.slug });
+  }
+
+  useEffect(() => {
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if (e.key === 'Escape' && !e.defaultPrevented) onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [onClose]);
+
+  const apply = (choice: Choice) => {
+    if (choice.kind === 'from') onFrom(choice.from);
+    else if (choice.kind === 'same') setSame(choice.code);
+    else setStep({ kind: 'floors', slug: choice.building });
+  };
+  const toStart = () => {
+    setStep({ kind: 'start' });
+  };
+
+  return (
+    <section aria-label="Where are you?" className="pb-2">
+      <div className="flex items-start gap-1">
+        {line}
+        <IconButton label="Close Where are you" onClick={onClose}>
+          <X className="size-6" strokeWidth={2} />
+        </IconButton>
+      </div>
+      <h2 className="mt-2 text-lg font-[650] text-ink">Where are you?</h2>
+      {places.status === 'loading' && <p className="py-3 text-ink-2">Loading the buildings…</p>}
+      {places.status === 'failed' && (
+        <p className="py-3 text-ink-2">The map couldn&rsquo;t load. Check your connection, then reload.</p>
+      )}
+      {places.status === 'ready' && (
+        <Body
+          places={places.places}
+          step={step}
+          search={search}
+          query={query}
+          same={same}
+          to={to}
+          onQuery={(q) => {
+            setQuery(q);
+            setSame(null);
+          }}
+          onChoice={apply}
+          onStep={setStep}
+          onFrom={onFrom}
+          onBack={toStart}
+        />
+      )}
+    </section>
+  );
+}
+
+interface BodyProps {
+  places: PickerPlaces;
+  step: Step;
+  search: SearchData;
+  query: string;
+  same: string | null;
+  to: To;
+  onQuery: (query: string) => void;
+  onChoice: (choice: Choice) => void;
+  onStep: (step: Step) => void;
+  onFrom: (from: From) => void;
+  onBack: () => void;
+}
+
+const scroll = (children: ReactNode) => (
+  <div className="-mx-2 mt-1 max-h-[50dvh] overflow-y-auto px-2 md:max-h-none">{children}</div>
+);
+
+/** The step on screen. Phones: the choices scroll inside the sheet, which sizes to its content, like All steps. */
+function Body({ places, step, onStep, onFrom, onBack, ...start }: BodyProps) {
+  if (step.kind === 'floors') {
+    const building = places.buildings.find((b) => b.slug === step.slug);
+    if (building) {
+      return scroll(
+        <FloorStep
+          building={building}
+          onFloor={(floor) => {
+            onFrom(atFloor(building.slug, floor));
+          }}
+          onBack={onBack}
+        />,
+      );
+    }
+  }
+  if (step.kind === 'outside') {
+    return scroll(
+      <OutsideStep
+        gates={places.gates}
+        buildings={places.buildings}
+        onGate={(id) => {
+          onFrom(atGate(id));
+        }}
+        onNextTo={(slug) => {
+          onFrom(nextTo(slug));
+        }}
+        onBack={onBack}
+      />,
+    );
+  }
+  return <StartStep places={places} onStep={onStep} {...start} />;
+}
+
+type StartProps = Pick<BodyProps, 'places' | 'search' | 'query' | 'same' | 'to' | 'onQuery' | 'onChoice' | 'onStep'>;
+
+/** The code box, then what was typed matches, or the buildings and I'm outside when nothing is typed. */
+function StartStep({ places, search, query, same, to, onQuery, onChoice, onStep }: StartProps) {
+  const view = useMemo(
+    () => (search.status === 'ready' && query.trim() !== '' ? searchResults(query, search.index) : null),
+    [search, query],
+  );
+  const typed = query.trim() !== '';
+  return (
+    <>
+      <CodeBox query={query} onQuery={onQuery} onEnter={() => chooseEnter(view, to)} onChoice={onChoice} />
+      {same && (
+        <p role="status" className="py-3 font-semibold text-ink tabular-nums">
+          You&rsquo;re already at {same}.
+        </p>
+      )}
+      {scroll(
+        view ? (
+          <Results view={view} to={to} onChoice={onChoice} />
+        ) : (
+          <>
+            {typed && search.status === 'loading' && <p className="py-3 text-ink-2">Loading rooms…</p>}
+            {typed && search.status === 'failed' && (
+              <p className="py-3 text-ink-2">The rooms couldn&rsquo;t load. Pick a building instead.</p>
+            )}
+            <BuildingRows
+              heading="Or pick a building"
+              buildings={places.buildings}
+              onPick={(slug) => {
+                onStep({ kind: 'floors', slug });
+              }}
+            />
+            <OutsideRow
+              onClick={() => {
+                onStep({ kind: 'outside' });
+              }}
+            />
+          </>
+        ),
+      )}
+    </>
+  );
+}
+
+interface CodeBoxProps {
+  query: string;
+  onQuery: (query: string) => void;
+  /** What Enter picks, if anything. */
+  onEnter: () => Choice | null;
+  onChoice: (choice: Choice) => void;
+}
+
+/** The same code box as To (D23), as a Pale Leaf field (DESIGN.md, Inputs). Enter takes only an exact match (D38). */
+function CodeBox({ query, onQuery, onEnter, onChoice }: CodeBoxProps) {
+  const onKey = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== 'Enter' || e.nativeEvent.isComposing) return;
+    e.preventDefault();
+    if (e.repeat) return;
+    const choice = onEnter();
+    if (choice) onChoice(choice);
+    else e.currentTarget.blur(); // hides the phone keyboard so the whole list shows
+  };
+  return (
+    <div className="mt-2 flex h-13 items-center gap-2 rounded-row bg-surface-2 pr-1 pl-3 has-[input:focus-visible]:shadow-[inset_0_0_0_2px_var(--color-accent)]">
+      <Search className="size-6 flex-none text-ink-3" strokeWidth={2} aria-hidden />
+      <input
+        value={query}
+        onChange={(e) => {
+          onQuery(e.target.value);
+        }}
+        onKeyDown={onKey}
+        type="text"
+        placeholder="I’m in room… like AG1104"
+        aria-label="The room you’re in"
+        autoComplete="off"
+        autoCapitalize="characters"
+        spellCheck={false}
+        enterKeyHint="go"
+        className="h-12 min-w-0 flex-1 bg-transparent text-base text-ink caret-accent outline-none placeholder:text-ink-3"
+      />
+      {query !== '' && (
+        <IconButton
+          label="Clear"
+          onClick={() => {
+            onQuery('');
+          }}
+        >
+          <X className="size-6" strokeWidth={2} />
+        </IconButton>
+      )}
+    </div>
+  );
+}
+
+const HEADINGS = { 'did-you-mean': 'Did you mean', buildings: 'Or pick a building' } as const;
+
+interface ResultsProps {
+  view: SearchView;
+  to: To;
+  onChoice: (choice: Choice) => void;
+}
+
+/** What S2 would show for the code, as rows to pick from (D38): rooms set From, buildings go on to their floors. */
+function Results({ view, to, onChoice }: ResultsProps) {
+  const pick = (hit: Hit) => {
+    onChoice(chooseHit(hit, to));
+  };
+  return (
+    <>
+      {view.note && <NoteLine note={view.note} />}
+      {view.hits.length > 0 && (
+        <HitList heading={view.heading ? HEADINGS[view.heading] : undefined} hits={view.hits} onPick={pick} />
+      )}
+    </>
+  );
+}
+
+/** The last row: I'm outside, with what it leads to under it. */
+function OutsideRow({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="-mx-2 flex min-h-14 w-[calc(100%+1rem)] cursor-pointer items-center gap-3.5 rounded-row px-2 py-1.5 text-left hover:bg-surface-2 focus-visible:-outline-offset-2"
+    >
+      <Trees className="size-6 flex-none text-ink-3" strokeWidth={2} aria-hidden />
+      <span className="min-w-0 flex-1">
+        <span className="block font-semibold text-ink">I&rsquo;m outside</span>
+        <span className="block text-ink-2">At a gate, or next to a building</span>
+      </span>
+    </button>
+  );
+}
