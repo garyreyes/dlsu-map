@@ -384,6 +384,10 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   The campus Canvas sets it through `gl={{ localClippingEnabled: true }}` (`CampusMap.tsx`). Only the cut building's
   materials carry the plane (`BuildingCutaway.tsx`); the stump is cut by geometry instead (`stumpBlocks`). (7a,
   2026-10-22)
+- **The cut's slide is driven off `performance.now()`, not R3F's clock delta** (`useCutSlide.ts`): with
+  `frameloop="demand"`, the first frame after idle can carry a huge delta. To screenshot a frame mid-slide, Playwright's
+  `page.clock.install()` before `goto`, then `pauseAt` and `runFor(ms)`; plain timed screenshots miss it, since the
+  ease-out is about 80% done by 150 ms. (7b, 2026-10-22)
 - **e2e specs that step through camera flights run with `reducedMotion: 'reduce'`:** CI draws the 3D in software, and
   each 650 ms flight made a walk through every step brush the 30 s test limit. (5d, 2026-10-22)
 

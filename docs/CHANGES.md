@@ -8,6 +8,32 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-22: 7b done: The cut slides in, out and between floors
+
+- **The cut slides** (PLAN §5, D45 proposed): stepping into a building, the cut comes down from the roof to the
+  floor in 600 ms with the camera flight's ease-out; stepping out, it goes back up to the roof and the building then
+  rejoins the campus; on the stairs it moves from floor to floor; into a second building, the first rejoins at once
+  and the second slides in. Reduced motion cuts. Logic in `indoor-view/slide.ts`, played by `useCutSlide` in the
+  canvas.
+- **Every drawn floor has a slab** under it, so G no longer shows the campus ground, and going up a floor the next
+  slab covers the one below as the cut rises.
+- **No band flash between buildings:** `loadIndoor` keeps one shared load per building (a failure isn't kept), the
+  map preloads every building on the route when the trip starts, and a loaded file is ready on the first render.
+- **Indoor steps at 40°** (`STEP_POLAR`, D45), and their heading no longer depends on whether the cut exists yet: the
+  building's own walls (hits inside or within 0.5 m of its outlines) never count as hiding its band.
+- **Test first:** `cutMove` (each of the five moves reached), `slideOf`, `slideHeight`, `retarget`; `slabOutlines`,
+  `buildSlab`; shared floor loads, `peekIndoor`, `preloadIndoor`; `sees` with an ignore, `insideOutlines`.
+- **Built by three parallel builders** against the contract (`indoor-view/transition.ts`), integrated and reviewed by
+  the main session. Checked locally: lint, typecheck, unit tests, build, e2e 68/68, design detector, and phone
+  screenshots of the way in, the stairs and the way out. **Fixed from the review:** a fast Next-Next up the stairs
+  turned the floor the plane was still passing into stump; a podium or tower whose base was off by float rounding lost
+  its slab.
+- **Known limits:** on the way out, the floor band and its chip follow the step at once while the cut is still
+  sliding up (600 ms). In a building with only its lower floors traced, the floors above aren't drawn, so most of the
+  slide passes through empty space (all three traced buildings are complete today). A footpath crossing a building's
+  outline draws over its G slab. An untraced building on the route is asked for again on each new route (a 404 isn't
+  kept).
+
 ## 2026-10-22: 7a done: Cutaway and floor rail
 
 - **An indoor step opens the building up** (PLAN §5, user-flows S7): on a step-player step inside a building whose

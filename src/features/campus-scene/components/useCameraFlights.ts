@@ -8,22 +8,33 @@ import { facingAzimuth } from '../gestures';
 import { buildingView, goToBuilding, stepView, tripView, type BuildingView, type MapInsets } from './CameraRig';
 import type { MapHere } from './Labels';
 import type { MapFocus } from './useTripMarks';
-import { cameraAt, sees, toScene } from './visibility';
+import { cameraAt, insideOutlines, sees, toScene } from './visibility';
 
 /**
  * The heading nearest the student's own whose view of `view` sees the most of the band (DESIGN.md, Camera), or null
  * to keep the heading when there's no band.
  */
-function bandHeading(c: CameraControls, view: BuildingView, band: readonly BandSample[], mass: Mesh | null) {
+function bandHeading(
+  c: CameraControls,
+  view: BuildingView,
+  band: readonly BandSample[],
+  mass: Mesh | null,
+  polar = SELECT_POLAR,
+  ignore?: (hit: Vector3) => boolean,
+) {
   if (band.length === 0 || !mass) return null;
   const points = band.map((p) => toScene(p));
   const from = new Vector3();
   const seen = (azimuth: number) => {
-    cameraAt(view.target, azimuth, SELECT_POLAR, view.distance, from);
-    return points.filter((p) => sees(mass, from, p)).length;
+    cameraAt(view.target, azimuth, polar, view.distance, from);
+    return points.filter((p) => sees(mass, from, p, ignore)).length;
   };
   return bestHeading(headingCandidates(c.azimuthAngle), seen, points.length);
 }
+
+/** A hit this near the focus building's outline is its own wall (which sits on the outline, so inside-or-not is down
+ *  to rounding), in meters. */
+const WALL_MARGIN = 0.5;
 
 interface Flights {
   controlsRef: RefObject<CameraControls | null>;
@@ -94,6 +105,10 @@ export function useCameraFlights(f: Flights) {
     }
     if (!focusBuilding) return;
     const view = buildingView(focusBuilding, latest.current.insets);
-    goToBuilding(c, view, bandHeading(c, view, samples, massRef.current), !reduced);
+    // The building's own walls never hide its band, in the merged mesh or cut out of it (D45).
+    const outlines = focusBuilding.volumes.map((v) => v.outline);
+    const ignore = (hit: Vector3) => insideOutlines(hit, outlines, WALL_MARGIN);
+    const heading = bandHeading(c, view, samples, massRef.current, STEP_POLAR, ignore);
+    goToBuilding(c, view, heading, !reduced, STEP_POLAR);
   }, [controlsRef, massRef, focus, focusBuilding, samples, controlsReady, reduced]);
 }

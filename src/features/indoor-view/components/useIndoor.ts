@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import type { Indoor } from '@/shared/data/indoor';
-import { loadIndoor, type LoadFailure } from '@/shared/data/load';
+import { loadIndoor, peekIndoor, type LoadFailure } from '@/shared/data/load';
 
 export type IndoorState =
   { status: 'loading' } | { status: 'ready'; indoor: Indoor } | { status: 'failed'; reason: LoadFailure };
 
 type Settled = Exclude<IndoorState, { status: 'loading' }>;
 
-/** Loads one building's floor file. Switching buildings reads as loading until the new file has arrived. No slug
- *  loads nothing and stays loading. */
+/** Loads one building's floor file. A file that's already loaded (or preloaded) is ready on the same render; else
+ *  switching buildings reads as loading until the new file has arrived. No slug loads nothing and stays loading. */
 export function useIndoor(slug: string | null): IndoorState {
   const [settled, setSettled] = useState<{ slug: string; state: Settled }>();
   useEffect(() => {
@@ -25,5 +25,8 @@ export function useIndoor(slug: string | null): IndoorState {
       live = false;
     };
   }, [slug]);
-  return slug !== null && settled?.slug === slug ? settled.state : { status: 'loading' };
+  if (slug === null) return { status: 'loading' };
+  const loaded = peekIndoor(slug);
+  if (loaded) return { status: 'ready', indoor: loaded };
+  return settled?.slug === slug ? settled.state : { status: 'loading' };
 }

@@ -200,6 +200,63 @@ describe('one shared load (3c)', () => {
     expect(urls).toStrictEqual(['/data/campus.json', '/data/campus.json']);
   });
 
+  // 7b: stepping between buildings must not flash a loading frame, so floor files are shared, peeked and preloaded.
+  describe('shared floor files', () => {
+    it('fetches a building once for two calls and gives both the same data', async () => {
+      const { impl, urls } = fakeFetch(() => json(indoorSample));
+      vi.stubGlobal('fetch', impl);
+      const { loadIndoor: load } = await freshLoader();
+      const [a, b] = await Promise.all([load('strc'), load('strc')]);
+      expect(urls).toStrictEqual(['/data/buildings/strc.json']);
+      expect(a).toEqual({ ok: true, data: indoorSample });
+      expect(b).toBe(a);
+    });
+
+    it('tries again after a failed load', async () => {
+      const { impl, urls } = fakeFetch(() => new Response('gone', { status: 404 }));
+      vi.stubGlobal('fetch', impl);
+      const { loadIndoor: load } = await freshLoader();
+      expect(reasonOf(await load('strc'))).toBe('http');
+      expect(reasonOf(await load('strc'))).toBe('http');
+      expect(urls).toHaveLength(2);
+    });
+
+    it('peeks undefined before the load settles, the data after, and undefined after a failure', async () => {
+      const { impl } = fakeFetch(() => json(indoorSample));
+      vi.stubGlobal('fetch', impl);
+      const { loadIndoor: load, peekIndoor: peek } = await freshLoader();
+      const pending = load('strc');
+      expect(peek('strc')).toBeUndefined();
+      await pending;
+      expect(peek('strc')).toEqual(indoorSample);
+
+      vi.resetModules();
+      vi.stubGlobal('fetch', fakeFetch(() => new Response('gone', { status: 404 })).impl);
+      const failing = await freshLoader();
+      await failing.loadIndoor('strc');
+      expect(failing.peekIndoor('strc')).toBeUndefined();
+    });
+
+    it('preloads each slug once, and a later load reuses it', async () => {
+      const { impl, urls } = fakeFetch(() => json(indoorSample));
+      vi.stubGlobal('fetch', impl);
+      const { loadIndoor: load, preloadIndoor: preload } = await freshLoader();
+      preload(['strc', 'strc', 'velasco']);
+      await load('strc');
+      expect(urls).toHaveLength(2);
+    });
+
+    it('never fetches for an invalid slug', async () => {
+      const { impl, urls } = fakeFetch(() => json(indoorSample));
+      vi.stubGlobal('fetch', impl);
+      const { loadIndoor: load, preloadIndoor: preload, peekIndoor: peek } = await freshLoader();
+      expect(reasonOf(await load('../x'))).toBe('invalid');
+      preload(['STRC']);
+      expect(peek('STRC')).toBeUndefined();
+      expect(urls).toStrictEqual([]);
+    });
+  });
+
   it('a fetch passed in always gets its own fresh load', async () => {
     const shared = fakeFetch(() => json(roomsSample));
     vi.stubGlobal('fetch', shared.impl);
