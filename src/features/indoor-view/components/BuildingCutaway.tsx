@@ -6,8 +6,11 @@ import { useEffect, useMemo } from 'react';
 import { BufferAttribute, BufferGeometry, DoubleSide, type Plane } from 'three';
 import type { Volume } from '@/shared/data/campus';
 import type { Indoor } from '@/shared/data/indoor';
-import type { MapPalette } from '@/shared/config/palette';
+import { cutTones, type MapPalette } from '@/shared/config/palette';
 import { buildFloor, buildSlab, floorsFrom, slabOutlines } from '../floor-geometry';
+
+/** Draw order of the cut: after the city blocks (CITY_ORDER in campus-scene is 5). */
+const CUT_ORDER = 10;
 
 /** Taps pass through the cut floors to whatever is behind them. */
 const noHit = () => null;
@@ -69,17 +72,26 @@ export function BuildingCutaway({ indoor, floor, volumes, plane, palette }: Prop
     },
     [geometry],
   );
+  const tones = useMemo(() => cutTones(palette), [palette]);
+  // `transparent` (at full opacity) only moves these into the pass after the opaque ones, and renderOrder puts them
+  // after the see-through city blocks (renderOrder 5), so no block's film washes over the cut.
   return (
     <>
-      <mesh geometry={geometry.slabs} raycast={noHit}>
-        <meshLambertMaterial color={palette.building} clippingPlanes={[plane]} />
+      <mesh geometry={geometry.slabs} renderOrder={CUT_ORDER} raycast={noHit}>
+        <meshLambertMaterial color={tones.slab} transparent clippingPlanes={[plane]} />
       </mesh>
-      <mesh geometry={geometry.walls} raycast={noHit}>
+      <mesh geometry={geometry.walls} renderOrder={CUT_ORDER} raycast={noHit}>
         {/* Both sides: the cut takes off each wall box's top, so from above its far face is what reads as thickness. */}
-        <meshLambertMaterial color={palette.building} clippingPlanes={[plane]} side={DoubleSide} />
+        <meshLambertMaterial color={tones.wall} transparent clippingPlanes={[plane]} side={DoubleSide} />
       </mesh>
-      <mesh geometry={geometry.hallways} renderOrder={1} raycast={noHit}>
-        <meshBasicMaterial color={palette.path} polygonOffset polygonOffsetFactor={-1} clippingPlanes={[plane]} />
+      <mesh geometry={geometry.hallways} renderOrder={CUT_ORDER + 1} raycast={noHit}>
+        <meshBasicMaterial
+          color={tones.hall}
+          transparent
+          polygonOffset
+          polygonOffsetFactor={-1}
+          clippingPlanes={[plane]}
+        />
       </mesh>
     </>
   );

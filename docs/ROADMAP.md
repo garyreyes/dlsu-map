@@ -89,7 +89,7 @@ with a full-app polish.
 |---|---|---|---|---|
 | 7a | Cutaway: split the entered building out of the merged mesh, clipping slice, floor rail | A | 6c | done |
 | 7b | Automatic outdoor ↔ indoor switch at entrances; enter animation (a cut under reduced motion) | A | 7a | done |
-| 7▸ | Impeccable critique + polish (Phase 7); extend DESIGN.md with the indoor materials | A | 7a–7b | not started |
+| 7▸ | Impeccable critique + polish (Phase 7); extend DESIGN.md with the indoor materials | A | 7a–7b | done |
 
 ## Phase 8: Indoor routing ▸
 
@@ -97,7 +97,7 @@ with a full-app polish.
 |---|---|---|---|---|
 | 8a | Hallways, doors, stairs and elevators (`servesFloors`); build checks: door within 3 m of a hallway, valid floors, every room reachable 🧪. Bridges moved to 9b/9c (D39) | B | 6d | done |
 | 8b | Join indoor and outdoor at entrances; Stairs / Elevator / Auto across floors; indoor direction text 🧪 | B | 4c, 8a | done |
-| 8c | Indoor steps (S7) in the player; Change spot in S4 (D42); which exit in Route options (D43); "indoor map coming" (O5); "(approximate)" (O6) | A | 5d, 7b, 8b | not started |
+| 8c | Indoor steps (S7) in the player; Change spot in S4 (D42); which exit in Route options (D43); "indoor map coming" (O5); "(approximate)" (O6); from 7▸: the indoor line and goal-room mark on the cut floor (D46), "Indoor map still saving" text steps (user-flows §3.7) | A | 5d, 7b, 8b | not started |
 | 8▸ | Impeccable critique + polish (Phase 8) | A | 8a–8c | not started |
 
 ## Phase 9: Data rollout (alongside Phases 6–8, with the `floor-extract` skill)

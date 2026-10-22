@@ -33,6 +33,8 @@ export type RailRow =
       readonly traced: boolean;
       /** The step's floor. Exactly one row has it. */
       readonly current: boolean;
+      /** The floor the route's stay in this building ends on, when it isn't the current one (7▸). At most one row. */
+      readonly goal?: boolean;
     }
   /** Floors left out between two rows of a tall building. */
   | { readonly kind: 'gap' };
@@ -41,6 +43,8 @@ export type RailRow =
 export interface CutawayStep {
   readonly building: string;
   readonly floor: number;
+  /** The floor the route's stay in this building ends on, for the rail (7▸). */
+  readonly goal?: number | undefined;
   readonly levels: number;
   readonly floorLabels?: Readonly<Record<string, string>> | undefined;
   /** The building's volumes from campus.json: the roof the slide starts from is their highest `top`, and a floor's

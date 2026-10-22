@@ -3,7 +3,7 @@ import { useEffect, useLayoutEffect, useMemo, type RefObject } from 'react';
 import { BufferAttribute, BufferGeometry, Color, MeshLambertMaterial, type Mesh } from 'three';
 import type { Cutaway } from '@/features/indoor-view';
 import type { Campus } from '@/shared/data/campus';
-import { CITY_OPACITY, SELECTED_TINT, type MapPalette } from '@/shared/config/palette';
+import { CITY_OPACITY, cutTones, type MapPalette } from '@/shared/config/palette';
 import { ribbonPositions } from '@/shared/three/ribbons';
 import { buildMassing, campusGroups, selectionGroups, stumpBlocks, type Massing } from '../massing';
 import { useTapPick } from './useTapPick';
@@ -112,7 +112,7 @@ export function CampusMasses({ campus, palette, selected, onTap, massRef, cutawa
     [geometry],
   );
   const materials = useMemo(() => {
-    const tint = new Color(palette.building).lerp(new Color(SELECTED_TINT.color), SELECTED_TINT.mix);
+    const tint = cutTones(palette).slab;
     return [
       new MeshLambertMaterial({ vertexColors: true, color: palette.building }),
       new MeshLambertMaterial({ vertexColors: true, color: tint }),
@@ -136,6 +136,7 @@ export function CampusMasses({ campus, palette, selected, onTap, massRef, cutawa
 
   useTapPick(massRef, owners, onTap);
   const bridgeGeometry = useCampusGeometry(bridges, campus);
+  const tones = useMemo(() => cutTones(palette), [palette]);
   const stumpGeometry = useStumpGeometry(campus, cutSlug, cutaway?.base);
   return (
     <>
@@ -145,7 +146,7 @@ export function CampusMasses({ campus, palette, selected, onTap, massRef, cutawa
       </mesh>
       {stumpGeometry && (
         <mesh geometry={stumpGeometry} raycast={noHit}>
-          <meshLambertMaterial vertexColors color={palette.building} />
+          <meshLambertMaterial vertexColors color={tones.slab} />
         </mesh>
       )}
     </>

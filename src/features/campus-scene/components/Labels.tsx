@@ -141,6 +141,8 @@ interface ProjectorProps {
   /** The "you are here" dot's scene point (herePoint); placed before everything else, the chip included. */
   here: Vector3 | null;
   hereRef: RefObject<HTMLElement | null>;
+  /** The building cut open (7▸): its plate stays off the plan. */
+  cutSlug?: string | null;
 }
 
 /** The dot's box around its projected point, placed before everything else; null when it's behind the camera. */
@@ -153,7 +155,7 @@ function hereBox(projected: Vector3, size: { width: number; height: number }): L
 
 /** Each frame the canvas draws: projects every anchor to the screen, then shows the labels that fit (labels.ts). */
 export function LabelProjector(props: ProjectorProps) {
-  const { buildings, elementsRef, insets, selected, band, chipRef, massRef, here, hereRef } = props;
+  const { buildings, elementsRef, insets, selected, band, chipRef, massRef, here, hereRef, cutSlug = null } = props;
   const anchors = useMemo(() => buildings.map(anchorFor), [buildings]);
   const controls = useThree((s) => s.controls) as CameraControls | null;
   // Plate sizes never change (fixed text, system font), so each is measured once; the chip once per floor label.
@@ -222,7 +224,7 @@ export function LabelProjector(props: ProjectorProps) {
     for (const a of anchors) {
       const el = elementsRef.current.get(a.id);
       const chosen = a.id === selected;
-      if (!el || (a.minor && !chosen && distance > MINOR_LABEL_DISTANCE)) continue;
+      if (!el || a.id === cutSlug || (a.minor && !chosen && distance > MINOR_LABEL_DISTANCE)) continue;
       scratch.copy(a.point).project(camera);
       if (scratch.z > 1) continue; // behind the camera
       let s = sizes.current.get(a.id);

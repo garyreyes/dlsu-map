@@ -33,8 +33,10 @@ export function slideOf(prev: CutawayView | null, next: CutawayView | null, at?:
   return { move, shown: next, from: start(next.roof), to: cutOf(next) };
 }
 
-/** Exponential ease-out of progress 0..1, rescaled so it is exactly 0 at the start and exactly 1 at the end. */
-const easeOut = (p: number) => (p <= 0 ? 0 : p >= 1 ? 1 : (1 - 2 ** (-10 * p)) / (1 - 2 ** -10));
+/** Cubic ease-out of progress 0..1: exactly 0 at the start and exactly 1 at the end. Over SLIDE_MS (600 ms) it is
+ *  half done at about 124 ms and about 88% done at 300 ms, so the slide reads as the whole 600 ms (the exponential
+ *  one it replaced was 97% done at 300 ms and looked like 80 ms). */
+const easeOut = (p: number) => (p <= 0 ? 0 : p >= 1 ? 1 : 1 - (1 - p) ** 3);
 
 /** The plane's height `elapsedMs` into a slide: exactly `from` at 0 and exactly `to` from SLIDE_MS on. */
 export function slideHeight(slide: CutSlide, elapsedMs: number): number {

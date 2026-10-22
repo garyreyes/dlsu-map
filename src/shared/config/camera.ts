@@ -32,3 +32,10 @@ export const SELECT_POLAR = (58 * Math.PI) / 180;
 /** An outdoor step in the player is seen from higher, about 40° from straight down, so the campus's tall buildings
  *  don't stand between the camera and the spot (D44). */
 export const STEP_POLAR = (40 * Math.PI) / 180;
+/** An indoor step (7▸) keeps this many meters of its floor around the spot in view: the hallway ahead and the rooms
+ *  beside it, large enough to read on a phone. */
+export const INDOOR_STEP_RADIUS = 22;
+/** The camera may dolly in this close on an indoor step, instead of MIN_DISTANCE, so the student can look at a room. */
+export const INDOOR_MIN_DISTANCE = 35;
+/** An indoor step looks at the point this far above its floor's slab, meters: about the cut, below eye level. */
+export const INDOOR_TARGET_HEIGHT = 1;

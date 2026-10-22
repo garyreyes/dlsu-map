@@ -13,6 +13,7 @@ export function useCutaway(step: CutawayStep | null): CutawayView | null {
   const indoor = state.status === 'ready' ? state.indoor : null;
   const floor = step?.floor;
   const levels = step?.levels;
+  const goal = step?.goal;
   const labels = step?.floorLabels;
   const volumes = step?.volumes;
   return useMemo(() => {
@@ -21,6 +22,6 @@ export function useCutaway(step: CutawayStep | null): CutawayView | null {
     if (!cutaway) return null;
     const traced = indoor.floors.map((f) => f.floor);
     const roof = Math.max(...volumes.map((v) => v.top));
-    return { cutaway, indoor, rail: railRows(levels, labels, traced, floor), levels, roof, volumes };
-  }, [indoor, floor, levels, labels, volumes]);
+    return { cutaway, indoor, rail: railRows(levels, labels, traced, floor, goal), levels, roof, volumes };
+  }, [indoor, floor, goal, levels, labels, volumes]);
 }

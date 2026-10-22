@@ -5,9 +5,18 @@ import { SELECT_POLAR, STEP_POLAR } from '@/shared/config/camera';
 import type { CampusBuilding } from '@/shared/data/campus';
 import { bestHeading, headingCandidates, type BandSample } from '../floor-band';
 import { facingAzimuth } from '../gestures';
-import { buildingView, goToBuilding, stepView, tripView, type BuildingView, type MapInsets } from './CameraRig';
+import {
+  buildingView,
+  goToBuilding,
+  indoorStepView,
+  limitDolly,
+  stepView,
+  tripView,
+  type BuildingView,
+  type MapInsets,
+} from './CameraRig';
 import type { MapHere } from './Labels';
-import type { MapFocus } from './useTripMarks';
+import { floorHeight, type MapFocus } from './useTripMarks';
 import { cameraAt, insideOutlines, sees, toScene } from './visibility';
 
 /**
@@ -62,8 +71,9 @@ interface Flights {
  * building. A new trip (a new `here` object) frames all of it instead: the walk, the From building or gate and the To
  * building; when the trip leaves the map (Back to the card), the building's view comes back. A route option redraws
  * the line without flying, so the lines are read through a ref, and so are the insets: the sheet growing must not fly
- * again, and nor must any later pan. In the player each step flies to its spot, facing the walk, or to its building
- * with the band on its floor (D44); leaving the player frames the trip again.
+ * again, and nor must any later pan. In the player each step flies to its spot, facing the walk (D44). An indoor step
+ * flies close to its spot on the cut floor, facing the way along the hallway, and lets the camera dolly closer (7▸);
+ * one without a spot flies to its building with the band on its floor. Leaving the player frames the trip again.
  */
 export function useCameraFlights(f: Flights) {
   const { controlsRef, controlsReady, massRef, reduced, building, samples, here, fromBuilding, focus, focusBuilding } =
@@ -94,21 +104,47 @@ export function useCameraFlights(f: Flights) {
     goToBuilding(c, view, bandHeading(c, view, samples, massRef.current), !reduced);
   }, [controlsRef, massRef, here, fromBuilding, building, samples, controlsReady, reduced, focused]);
 
+  // The closer dolly limit goes on before the step's flight, which is held to it, and off again on any other view.
+  const indoorSpot = focus?.kind === 'floor' && focus.at !== undefined;
+  useEffect(() => {
+    const c = controlsRef.current;
+    if (c && controlsReady) limitDolly(c, indoorSpot);
+  }, [controlsRef, controlsReady, indoorSpot]);
+
   useEffect(() => {
     const c = controlsRef.current;
     if (!focus || !c || !controlsReady) return;
-    if (focus.kind === 'ground') {
-      const view = stepView(focus.at, latest.current.insets);
-      const azimuth = focus.toward && facingAzimuth(focus.at, focus.toward, c.azimuthAngle);
-      goToBuilding(c, view, azimuth, !reduced, STEP_POLAR);
-      return;
-    }
-    if (!focusBuilding) return;
-    const view = buildingView(focusBuilding, latest.current.insets);
-    // The building's own walls never hide its band, in the merged mesh or cut out of it (D45).
-    const outlines = focusBuilding.volumes.map((v) => v.outline);
-    const ignore = (hit: Vector3) => insideOutlines(hit, outlines, WALL_MARGIN);
-    const heading = bandHeading(c, view, samples, massRef.current, STEP_POLAR, ignore);
-    goToBuilding(c, view, heading, !reduced, STEP_POLAR);
+    flyToStep(c, focus, focusBuilding, samples, massRef.current, latest.current.insets, !reduced);
   }, [controlsRef, massRef, focus, focusBuilding, samples, controlsReady, reduced]);
+}
+
+/** The player's flight to a step (D44, D46): outdoors to its spot facing the walk; indoors to its spot on the cut floor
+ *  facing the walk, or without a spot to its building with the band on its floor. */
+function flyToStep(
+  c: CameraControls,
+  focus: MapFocus,
+  building: CampusBuilding | undefined,
+  samples: readonly BandSample[],
+  mass: Mesh | null,
+  insets: MapInsets,
+  animate: boolean,
+) {
+  if (focus.kind === 'ground') {
+    const azimuth = focus.toward && facingAzimuth(focus.at, focus.toward, c.azimuthAngle);
+    goToBuilding(c, stepView(focus.at, insets), azimuth, animate, STEP_POLAR);
+    return;
+  }
+  if (!building) return;
+  const height = focus.at ? floorHeight(building, focus.floor) : null;
+  if (focus.at && height !== null) {
+    // No band heading: the band isn't drawn while the cut is up. Keep the student's heading when nothing is ahead.
+    const azimuth = focus.toward ? facingAzimuth(focus.at, focus.toward, c.azimuthAngle) : null;
+    goToBuilding(c, indoorStepView(focus.at, height, insets), azimuth, animate, STEP_POLAR);
+    return;
+  }
+  const view = buildingView(building, insets);
+  // The building's own walls never hide its band, in the merged mesh or cut out of it (D45).
+  const outlines = building.volumes.map((v) => v.outline);
+  const ignore = (hit: Vector3) => insideOutlines(hit, outlines, WALL_MARGIN);
+  goToBuilding(c, view, bandHeading(c, view, samples, mass, STEP_POLAR, ignore), animate, STEP_POLAR);
 }

@@ -8,12 +8,15 @@ interface Props {
   levels: number;
 }
 
-/** The step's floor in a Campus Green chip like the floor band's, the others in ink, floors not traced yet muted.
+/** The step's floor in a filled Campus Green chip like the floor band's, the goal floor in an outlined chip (the ring
+ *  carries it, not colour alone), other traced floors as plain ink text, floors not traced yet muted.
  *  Not interactive; read aloud as one image. */
 export function FloorRail({ rows, levels }: Props) {
   const current = rows.find((r) => r.kind === 'floor' && r.current);
-  const description =
+  const goal = rows.find((r) => r.kind === 'floor' && r.goal);
+  const here =
     current?.kind === 'floor' ? `Floor ${current.label}, ${String(current.floor)} of ${String(levels)}` : 'Floors';
+  const description = goal?.kind === 'floor' ? `${here}. Going to ${goal.label}` : here;
   return (
     <div
       role="img"
@@ -30,7 +33,13 @@ export function FloorRail({ rows, levels }: Props) {
             key={row.floor}
             aria-hidden="true"
             className={`grid h-8 min-w-10 place-items-center rounded-full px-1 text-base leading-6 ${
-              row.current ? 'bg-accent font-bold text-white' : row.traced ? 'text-ink' : 'text-ink-3'
+              row.current
+                ? 'bg-accent font-bold text-white'
+                : row.goal
+                  ? 'font-bold text-accent ring-2 ring-inset ring-accent'
+                  : row.traced
+                    ? 'text-ink'
+                    : 'text-ink-3'
             }`}
           >
             {row.label}

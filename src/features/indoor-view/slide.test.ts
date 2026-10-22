@@ -111,16 +111,20 @@ describe('slideHeight', () => {
     expect(slideHeight(slide, SLIDE_MS * 3)).toBe(8);
   });
 
-  it('eases out: past halfway after a third of the time, and never overshoots', () => {
-    const third = slideHeight(slide, SLIDE_MS / 3);
-    expect(third).toBeLessThan((13.6 + 8) / 2);
-    expect(third).toBeGreaterThan(8);
-    expect(slideHeight(slide, SLIDE_MS / 2)).toBeCloseTo(8 + ((13.6 - 8) * (2 ** -5 - 2 ** -10)) / (1 - 2 ** -10), 10);
+  it('eases out cubically: height = to + (from - to) * (1 - p)^3 with p = t / SLIDE_MS', () => {
+    const at = (ms: number) => slideHeight(slide, ms);
+    const cubic = (p: number) => 8 + (13.6 - 8) * (1 - p) ** 3;
+    expect(at(0)).toBe(13.6);
+    expect(at(150)).toBeCloseTo(cubic(0.25), 10);
+    expect(at(300)).toBeCloseTo(cubic(0.5), 10);
+    expect(at(300)).toBeCloseTo(8.7, 10);
+    expect(at(600)).toBe(8);
+    expect(at(900)).toBe(8);
   });
 
   it('rises on an exit', () => {
     const up: CutSlide = { move: 'exit', shown: view('strc', 3), from: 8, to: 13.6 };
-    expect(slideHeight(up, SLIDE_MS / 2)).toBeCloseTo(13.6 - ((13.6 - 8) * (2 ** -5 - 2 ** -10)) / (1 - 2 ** -10), 10);
+    expect(slideHeight(up, 300)).toBeCloseTo(13.6 - (13.6 - 8) * 0.125, 10);
   });
 });
 

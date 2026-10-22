@@ -69,6 +69,29 @@ describe('railRows', () => {
     expect(show(railRows(3, undefined, [1, 2, 3], 0))).toEqual(['3F', '2F', '1F*']);
   });
 
+  it('marks the goal floor, and only it, when it differs from the current floor', () => {
+    const rows = railRows(4, { '1': 'G' }, [1, 2, 3, 4], 1, 3);
+    const goals = rows.flatMap((r) => (r.kind === 'floor' && r.goal ? [r.label] : []));
+    expect(goals).toEqual(['3F']);
+    expect(rows.filter((r) => r.kind === 'floor' && r.goal === true)).toHaveLength(1);
+  });
+
+  it('sets no goal flag when the goal is the current floor or undefined', () => {
+    for (const goal of [2, undefined]) {
+      const rows = railRows(4, undefined, [1, 2, 3, 4], 2, goal);
+      expect(rows.some((r) => r.kind === 'floor' && r.goal === true)).toBe(false);
+    }
+  });
+
+  it('keeps the goal floor in the window of a tall building', () => {
+    const rows = railRows(20, { '1': 'G' }, all(20), 3, 15);
+    expect(show(rows)).toEqual(['20F', '⋮', '15F', '⋮', '5F', '4F', '3F*', '2F', 'G']);
+    expect(rows.filter((r) => r.kind === 'floor' && r.goal === true).map((r) => r.kind === 'floor' && r.floor)).toEqual(
+      [15],
+    );
+    expect(rows.length).toBeLessThanOrEqual(RAIL_ROWS);
+  });
+
   it('keeps every invariant for every building height and floor', () => {
     for (const levels of [1, 2, 4, 9, 10, 11, 12, 20]) {
       for (let current = 1; current <= levels; current++) {
