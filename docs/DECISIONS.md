@@ -1032,7 +1032,7 @@ a building's rooms are numbered so that the nearest room misleads.
 
 ---
 
-## D42. Where are you (S4) opens under the room card only, and Change spot waits for indoor steps (2026-10-21, proposed)
+## D42. Where are you (S4) opens under the room card only, and Change spot waits for indoor steps (2026-10-21, agreed)
 
 **Problem.** Building 5a (S4) raised three things the docs left open: user-flows §3.1 sends a building card to S4
 when From is empty, but a building card also opens when a student just taps the map to look around, and inside S4 a

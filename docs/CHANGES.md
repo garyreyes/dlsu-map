@@ -8,6 +8,12 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-22: D42 agreed
+
+- The team agreed D42 (Where are you opens by itself only under a room card, Change spot waits for 8c, the steps list
+  stands in for S5 until 5b). Marked agreed in DECISIONS; SUMMARY row added. PLAN §6.2's first-open flow and
+  precision chips now point at it.
+
 ## 2026-10-22: 5a done: Where are you (S4)
 
 - **S4 opens by itself under a room card when From is empty** (D23, D42), with the card cut to one line above it
