@@ -8,6 +8,29 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-22: 5d done: Step player (S6) and Arrived (S9)
+
+- **Start now plays the route** (user-flows §3.7): a step card with "Step 3 of 9", the step's icon and line, its
+  distance, and Back beside a wide **Next** (**I'm here** on the last step). A sideways swipe or ← → steps too, but
+  only a tap on I'm here says you've arrived. ✕ or Back returns to the preview and Start resumes the same step; a new
+  From, To or route option starts at step 1. ⋯ folds out **Change where I am** (S4, then the preview to confirm) and
+  **All steps** (S8: tap a step to jump to it). A route with no steps goes straight to Arrived.
+- **Arrived (S9)** (user-flows §3.8): "✓ You're at ST311", the card's one line, "VL313 is on 3F · indoor map coming"
+  when the building has no indoor map yet (O5), **Find next room** (search with From set to the room just reached,
+  or a building's ground floor) and **Done** (back to the map; From stays). Back returns to the last step.
+- **The map follows each step (D44, proposed):** outdoors the camera flies to the step's spot from a higher angle
+  (40°, `STEP_POLAR`, so tall buildings don't hide it), turned to face the walk 15 m ahead; indoors, until the cutaway
+  (7a), it frames the building with the floor band moved to that step's floor. The "you are here" dot moves with the
+  step. Leaving the player frames the whole trip again.
+- **Test first:** `player.ts` (`stepCard`, `stepFocus` with both focus kinds reached, `nextFrom`, `arrivedHeading`,
+  `indoorMapComing`) and `facingAzimuth` in `gestures.ts`. New e2e `step-player.spec.ts` (5 tests, 3× clean).
+- **Design:** a **Step** type role (650, 22px) for the step's line, and Step card and Arrived entries in `DESIGN.md`.
+- **Fixed from the review:** a stray swipe or → on the last step opened Arrived; Back on step 1 dropped keyboard
+  focus (now `aria-disabled`).
+- **Known limits:** on the route line the green dot reads mostly as its white ring. `towardOf` takes the nearest
+  point of the walk, so a walk that doubles back past the same spot could face the earlier pass (camera only). The
+  route line's blob at Gate 2 (5b geometry) shows at step zoom.
+
 ## 2026-10-22: floor-extract helpers from St. Joseph
 
 - `floor-extract walls <floor file> [--gaps y0,y1]`: every wall in plan px with its index, or the gaps along one wall

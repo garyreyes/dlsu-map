@@ -167,8 +167,9 @@ flowchart TD
   `ST311`. Tapping From reopens S4; tapping To reopens S2 (D43).
 - Middle: about 4 min · 230 m walk · via elevator. The whole trip is framed on the map: the walk as a green line, the
   "you are here" dot on From, the band on To's floor. Only the outdoor walk is drawn until the cutaway (7a, D43).
-- **Start**: one large button, the only primary action. Until the step player (5d) it opens the all-steps list (S8),
-  and Back returns here (D43).
+- **Start**: one large button, the only primary action. It opens the step player (S6), and Back or ✕ returns here.
+  Start again resumes at the same step. A route with no steps (From is already on the room's floor) goes straight to
+  Arrived (S9).
 - **Route options ▾** (collapsed, and left out when the route changes no floor): Stairs / Elevator / Auto for this
   route (Auto takes the elevator for 3+ floors). Changing one re-routes at once; a new trip starts on Auto. Which exit
   to use comes in 8c, with Change spot (D43).
@@ -184,12 +185,14 @@ flowchart TD
 
 ### 3.7 S6 and S7 Steps
 
-- **Step card:** icon, one line ("Take the east stairs to 3F"), distance, then **Next** and Back. Swiping also works.
-  The camera moves to each step. Views switch between outdoor and indoor by themselves at entrance and exit steps.
+- **Step card:** "Step 3 of 9", icon, one line ("Take the east stairs to 3F"), distance, then Back beside a wide
+  **Next**; on the last step Next reads **I'm here** and opens S9. Swiping sideways and ← → also work. The camera
+  moves to each step and the "you are here" dot moves with it; outdoors the camera faces the way you walk (D44).
+  Views switch between outdoor and indoor by themselves at entrance and exit steps.
 - **S7 indoors:** the building is cut away above the current floor. The floor rail sits on the thumb side and
   follows the route's floor.
-- **X** ends the route at once, with no "Are you sure?". It goes back to S3 with the room still selected, so Start
-  resumes. Nothing is lost.
+- **X** ends the route at once, with no "Are you sure?". It goes back to the route preview (S5) with the room still
+  selected, so Start resumes at the same step. Nothing is lost.
 - **⋯ menu** on the step card, out of the way until needed:
   - **Change where I am:** for a student who took a wrong turn (no GPS). It opens S4, then re-routes to the same
     room.

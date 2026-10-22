@@ -5,7 +5,7 @@ import { expect, test, type Page } from '@playwright/test';
 
 const where = (page: Page) => page.getByRole('region', { name: 'Where are you?' });
 const preview = (page: Page) => page.getByRole('region', { name: 'Your route' });
-const steps = (page: Page) => page.getByRole('region', { name: 'All steps' });
+const player = (page: Page) => page.getByRole('region', { name: 'Steps' });
 const card = (page: Page, name: string) => page.getByRole('region', { name });
 const summary = (page: Page) => preview(page).getByText(/^About \d+ min/);
 const modes = (page: Page) => preview(page).getByRole('group', { name: 'Stairs or elevator' });
@@ -24,13 +24,13 @@ async function pickInSearch(page: Page, code: string) {
   await page.getByRole('dialog', { name: 'Search' }).getByRole('button').filter({ hasText: code }).click();
 }
 
-test('a route into STRC goes inside: Start lists the walk to ST311’s door', async ({ page }) => {
+test('a route into STRC goes inside: Start plays the walk to ST311’s door', async ({ page }) => {
   await fromGate(page, 'ST311');
   await expect(preview(page)).toContainText('ST311 · STRC · 3rd floor (3F)');
   await expect(summary(page)).toHaveText(/^About \d+ min · \d+ m walk · via stairs$/);
   await expect(preview(page)).not.toContainText('no indoor map');
   await preview(page).getByRole('button', { name: 'Start' }).click();
-  await expect(steps(page)).toContainText(/ST311 is (on your (left|right)|ahead)/);
+  await expect(player(page).getByText(/^Step 1 of \d+$/)).toBeVisible();
   await page.goBack();
   await expect(summary(page)).toBeVisible();
   await page.goBack();

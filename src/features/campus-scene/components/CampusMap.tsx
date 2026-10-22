@@ -10,25 +10,19 @@ import type { Route } from '@/shared/data/route';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import { LOADING_MAP, MapMessage } from '@/shared/ui/MapMessage';
 import { useReducedMotion } from '@/shared/ui/useMediaQuery';
-import { bandSamples, floorBand } from '../floor-band';
 import { headingDeg } from '../gestures';
 import { framing, homeAzimuth, mainCampusCentre } from '../home-view';
 import { CameraRig, goHome, type HomeView, type MapInsets } from './CameraRig';
-import { herePoint, LabelLayer, LabelProjector, type LabelElements, type MapHere } from './Labels';
+import { LabelLayer, LabelProjector, type LabelElements, type MapHere } from './Labels';
 import { MapButtons } from './MapButtons';
 import { MapCredit } from './MapCredit';
 import { MapFailed } from './MapFailed';
 import { MapScene } from './MapScene';
 import { useCameraFlights } from './useCameraFlights';
 import { useCampus } from './useCampus';
+import { useTripMarks, type MapFloor, type MapFocus } from './useTripMarks';
 
-/** A selected room's floor: drawn as the band, labelled on the chip. */
-export interface MapFloor {
-  /** G = 1. */
-  floor: number;
-  /** As the building's signs print it: "3F", "G". */
-  label: string;
-}
+export type { MapFloor, MapFocus };
 
 /** A trip on the map (5b): the "you are here" dot and the route's line. */
 export interface MapTrip {
@@ -37,6 +31,8 @@ export interface MapTrip {
   here: MapHere | null;
   /** The route, once there is one. Only its outdoor walk is drawn until the cutaway (7a, D43). */
   route: Route | null;
+  /** The step the player is on (5d, D44): the dot and the camera follow it. Null on the preview. */
+  focus: MapFocus | null;
 }
 
 interface Props {
@@ -119,19 +115,19 @@ function CampusView(props: Props & { campus: Campus }) {
     [bySlug, onSelect],
   );
   const building = selected === null ? undefined : bySlug.get(selected);
-  const floorNumber = floor?.floor ?? null;
-  const band = useMemo(
-    () => (building && floorNumber !== null ? floorBand(building, floorNumber) : null),
-    [building, floorNumber],
-  );
-  const samples = useMemo(() => (band ? bandSamples(band) : []), [band]);
 
-  // The trip on the map: the walk's line and the "you are here" dot.
+  // The trip on the map: the walk's line, the "you are here" dot, and in the player the step it's on.
   const here = trip?.here ?? null;
+  const focus = trip?.focus ?? null;
   const route = trip?.route ?? null;
   const lines = useMemo(() => walkLines(route), [route]);
-  const fromBuilding = here?.kind === 'floor' ? bySlug.get(here.building) : undefined;
-  const hereAt = useMemo(() => (here ? herePoint(here, fromBuilding) : null), [here, fromBuilding]);
+  const { band, samples, chip, hereAt, fromBuilding, focusBuilding } = useTripMarks(
+    bySlug,
+    building,
+    floor,
+    here,
+    focus,
+  );
   useCameraFlights({
     controlsRef,
     controlsReady,
@@ -143,6 +139,8 @@ function CampusView(props: Props & { campus: Campus }) {
     here,
     fromBuilding,
     lines,
+    focus,
+    focusBuilding,
   });
 
   const recenter = () => {
@@ -167,7 +165,7 @@ function CampusView(props: Props & { campus: Campus }) {
           buildings={campus.buildings}
           elementsRef={elementsRef}
           selected={selected}
-          chip={band ? (floor?.label ?? null) : null}
+          chip={chip}
           chipRef={chipRef}
           here={hereAt !== null}
           hereRef={hereRef}
