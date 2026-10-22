@@ -12,7 +12,8 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 - **All 5 Velasco floors are labelled** (8a's way, D39): 73 rooms with their doors, and `verticals.json` with
   `east-stairs`, `main-stairs`, `west-stairs` and `elevator`, each read off the signs as serving G–5F. Routes now go
-  inside Velasco as they do in STRC (8b). The floors are back to `checked: false` until the owner looks again in P1.
+  inside Velasco as they do in STRC (8b). The owner checked all 5 labelled floors in P1 ("all looks about correct"),
+  so they stay `checked: true`.
 - The signs and the directory disagree in places; the owner's calls are in PROJECT_FACTS "Room lists". `velasco.csv`
   gains 201C, 403A and 403B as "Room".
 - **G Mezz rooms aren't placed:** no sign draws the mezzanine, so VL151 and VL153 stop at Velasco's door. The compiler

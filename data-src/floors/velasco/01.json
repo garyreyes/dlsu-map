@@ -2,7 +2,7 @@
   "building": "velasco",
   "floor": 1,
   "extractedFrom": "velasco_01F.jpg",
-  "checked": false,
+  "checked": true,
   "plan": {
     "width": 2809,
     "height": 835
