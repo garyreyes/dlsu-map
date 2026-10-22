@@ -427,6 +427,18 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
     flag lets it survive the reload that signal returning triggers. (2026-10-20)
 - **`navigator.onLine` only says "no signal" reliably.** `true` can mean Wi-Fi with no internet (a login page). So
   "Try again" calls `canReachSite()` (`shared/data/reach.ts`) before reloading. (2026-10-20)
+- **vite-plugin-pwa's prompt-mode `updateSW(true)` doesn't reload by itself.** It only posts SKIP_WAITING; the reload
+  happens on workbox-window's `controlling` event and only when `isUpdate`, which is fixed at register time. A tab
+  open during the very first save had no controller then, so its Reload did nothing. `useUpdate` posts SKIP_WAITING
+  to `registration.waiting` itself and reloads on `controllerchange`. (10a, 2026-10-23)
+- **Reload in one tab reloads every other tab** that saw the waiting worker (the plugin's own `controlling`
+  listener), even one mid-route. Accepted: phones rarely have two tabs of the app open. (10a, 2026-10-23)
+- **Reload on Arrived writes `?to=<room code or building name>` into the URL first.** `useDeepLink` removes the link
+  after reading it, so a plain reload would land on an empty map. From is lost on purpose (it is never stored, PRD
+  §6). (10a, 2026-10-23)
+- **App icons are rendered, not drawn by hand.** `npm run icons` renders `public/icons/icon.svg` to the four PNGs
+  with Playwright's Chromium; the PNGs are committed so the build needs no browser. Change the SVG, rerun, commit
+  both. (10a, 2026-10-23)
 
 ## Zod and the CSP
 

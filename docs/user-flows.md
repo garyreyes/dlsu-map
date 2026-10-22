@@ -33,11 +33,12 @@
 | # | System state | Shows as |
 |---|---|---|
 | O1 | First open with no signal | Full screen: "Open this once with internet to save the map". Only when the app opened with no signal and nothing downloaded. No button; it reloads by itself when signal returns |
-| O2 | Saving for offline | Thin line under the search bar: "Saving for offline…", then "✓ Ready offline" for 3 s. The percentage ("…40%") waits for 10a. If it can't finish, the line stays: "Saving paused…" (signal dropped after opening; retried when it returns), "Not saved for offline…" (failed with signal), "This browser can't save the map…" (private modes) |
+| O2 | Saving for offline | Thin line under the search bar: "Saving for offline…", then "✓ Ready offline" for 3 s. No percentage (D50). If it can't finish, the line stays: "Saving paused…" (signal dropped after opening; retried when it returns), "Not saved for offline…" (failed with signal), "This browser can't save the map…" (private modes) |
 | O3 | Offline copy lost (iPhone cleared storage) | ⓘ shows "Not saved offline. Open with internet to save again" |
 | O4 | Map update ready | Toast: "Map updated. Reload?" Never shown mid-route |
 | O5 | Interior not traced yet (beta) | Route ends at the entrance. S5 says so before Start (D43); S9 says "ST311 is on 3F · indoor map coming" |
 | O6 | Unverified entrance, stair or elevator | The step text ends with "(approximate)" |
+| O7 | iPhone or iPad, not added to the Home Screen | After "✓ Ready offline" has gone, the same line says "Add to Home Screen: tap Share ⎙, then Add to Home Screen" with a Close ×. Shows on each open until closed (10a) |
 
 | # | Dev-only | Where |
 |---|---|---|
@@ -233,7 +234,8 @@ flowchart TD
     S1 -.->|new data version found| O4[O4 Map updated. Reload?]
 ```
 
-- **O4 never interrupts a route.** It waits until S9 or S1. Tapping Reload keeps the current destination.
+- **O4 never interrupts a route.** It waits until S9 or S1 (not with search open over them) and sits above the sheet.
+  Tapping Reload keeps the current destination: on S9 the app reloads as a `?to=` link to it.
 - **Text-only mode (S11)** is the same flows with lists in place of 3D. S8 is the same component, so it gets used
   and tested every day, not only when 3D fails.
 - **Data that fails to load or validate** (a corrupted saved copy): "The map couldn't load. Reload." Reloading

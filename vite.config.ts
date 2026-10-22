@@ -14,8 +14,23 @@ export default defineConfig({
       registerType: 'prompt',
       // src/features/offline registers it through virtual:pwa-register, so no script is added to index.html.
       injectRegister: false,
-      // The web app manifest and icons come in 10a.
-      manifest: false,
+      // The web app manifest: the name, icon and standalone window the phone uses once the app is installed (10a).
+      // The icons are rendered from public/icons/icon.svg by `npm run icons` and committed. White is the DESIGN.md surface.
+      manifest: {
+        name: 'DLSU 3D Campus Navigator',
+        short_name: 'DLSU Map',
+        description: 'A free, offline 3D map of De La Salle University (Manila) that routes you to any room.',
+        start_url: './',
+        scope: './',
+        display: 'standalone',
+        theme_color: '#ffffff',
+        background_color: '#ffffff',
+        icons: [
+          { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'icons/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
+      },
       workbox: {
         // Workbox's default saves only js/wasm/css/html, silently leaving out the map data, fonts and models.
         globPatterns: ['**/*.{js,css,html,json,woff2,glb,svg,png,webp}'],

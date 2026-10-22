@@ -1234,3 +1234,19 @@ blocks a feature that needs the bytes, or testers on slow phones find the first 
    compiler, which runs at build time.
 4. **Only then raise the budget,** as a new D-number that says what the bytes buy. The PWA saves everything after
    the first visit, so the budget is really about that first visit on mobile data.
+
+## D50. No download percentage while saving for offline (2026-10-22, proposed)
+
+**Decision.** (Owner's answer, 2026-10-22.) O2 keeps "Saving for offline…" with no number. We keep the service
+worker vite-plugin-pwa generates (Workbox `generateSW`) instead of writing our own to report progress.
+
+**Why.** Workbox's generated worker reports no progress (PROJECT_FACTS, Offline). A real percentage needs
+`injectManifest`: our own worker with its own install loop, which means rewriting and proving again the precache,
+`clientsClaim` and update logic that the whole offline promise rests on. The first save is about 2–3 MB, a few
+seconds on campus Wi-Fi, and the app is usable while it runs (user-flows §4), so a number adds little.
+
+**Alternatives.** Our own service worker with a byte-weighted percentage (about one extra session, more risk).
+Counting files as they land in Workbox's precache cache from the page (cheap, but it jumps unevenly because the
+three.js chunk is most of the bytes, and it depends on Workbox's internal cache name).
+**Revisit if** testers say the first save feels stuck, or the precache grows past about 10 MB (ARCHITECTURE §3.5
+allows 15 MB).
