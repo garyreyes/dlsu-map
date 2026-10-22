@@ -8,6 +8,16 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-22: 8c-2 contract draft (D48, proposed)
+
+- **`src/shared/data/route.ts`:** `From`'s `building` kind takes an optional `spot` (an entrance on G, or a stairs or
+  elevator by its building-file id); the router takes an optional fifth argument `doors` (`exit`, `entrance`, by
+  `campus.json` entrance index); a walk's door carries its `entrance` index. All optional, so nothing else changed.
+- **`route.sample.ts`:** the sample doors carry their real entrance index; `sampleTripChoices` lists router inputs
+  with real Velasco ids, including the two that must give `unknown-place`.
+- Data gap for Lane B: Velasco's two main entrances (4, 5) have no `name`, so an exit picker can't tell them apart.
+- Next: Charles agrees the shape, then the router change (Lane B) and the two pickers (Lane A).
+
 ## 2026-10-22: 8c-1 indoor line, goal-room mark, "Indoor map still saving"
 
 - **8c split in two** (D47, proposed): planning found the player, O5 and O6-for-doors already in. 8c-1 is Lane A
