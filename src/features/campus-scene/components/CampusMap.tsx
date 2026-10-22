@@ -6,6 +6,7 @@ import { MapDidntDownload } from '@/features/offline';
 import { FAR, FOV_DEG, NEAR, SELECT_POLAR } from '@/shared/config/camera';
 import { MAP_PALETTE } from '@/shared/config/palette';
 import type { Campus, CampusBuilding } from '@/shared/data/campus';
+import type { Route } from '@/shared/data/route';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import { LOADING_MAP, MapMessage } from '@/shared/ui/MapMessage';
 import { useReducedMotion } from '@/shared/ui/useMediaQuery';
@@ -17,11 +18,12 @@ import {
   CameraRig,
   goHome,
   goToBuilding,
+  tripView,
   type BuildingView,
   type HomeView,
   type MapInsets,
 } from './CameraRig';
-import { LabelLayer, LabelProjector, type LabelElements } from './Labels';
+import { herePoint, LabelLayer, LabelProjector, type LabelElements, type MapHere } from './Labels';
 import { MapButtons } from './MapButtons';
 import { MapCredit } from './MapCredit';
 import { MapFailed } from './MapFailed';
@@ -37,6 +39,15 @@ export interface MapFloor {
   label: string;
 }
 
+/** A trip on the map (5b): the "you are here" dot and the route's line. */
+export interface MapTrip {
+  /** Where the student is. The same object for every route of one trip, so a new one frames the trip again, while a
+   *  new route for the same trip (a route option) only redraws the line. */
+  here: MapHere | null;
+  /** The route, once there is one. Only its outdoor walk is drawn until the cutaway (7a, D43). */
+  route: Route | null;
+}
+
 interface Props {
   /** What the chrome covers, so the camera frames the rest. */
   insets: MapInsets;
@@ -47,6 +58,8 @@ interface Props {
   selected: string | null;
   /** The selected room's floor, when the selection is a room. */
   floor: MapFloor | null;
+  /** The trip, while the route preview or its steps are open. */
+  trip: MapTrip | null;
   /** A tap chose a campus building, or tapped away from one (null). */
   onSelect: (building: CampusBuilding | null) => void;
 }
@@ -59,7 +72,7 @@ function homeFor(campus: Campus): HomeView {
 }
 
 /** The full-screen 3D campus with its labels, buttons and credit. Nothing of the campus shows until all of it can. */
-export function CampusMap({ insets, sheetHeight, wide, selected, floor, onSelect }: Props) {
+export function CampusMap({ insets, sheetHeight, wide, selected, floor, trip, onSelect }: Props) {
   const campusState = useCampus();
   if (campusState.status === 'failed') return <MapDidntDownload />;
   if (campusState.status === 'loading')
@@ -77,6 +90,7 @@ export function CampusMap({ insets, sheetHeight, wide, selected, floor, onSelect
       wide={wide}
       selected={selected}
       floor={floor}
+      trip={trip}
       onSelect={onSelect}
     />
   );
@@ -99,10 +113,16 @@ function bandHeading(c: CameraControls, view: BuildingView, band: readonly BandS
 
 type Status = 'loading' | 'ready' | 'failed';
 
-function CampusView({ campus, insets, sheetHeight, wide, selected, floor, onSelect }: Props & { campus: Campus }) {
+/** The route's outdoor walk as flat x, y lists, for the line and the trip's framing. */
+const walkLines = (route: Route | null) =>
+  (route?.legs ?? []).flatMap((l) => (l.kind === 'walk' ? [l.path.flat()] : []));
+
+function CampusView(props: Props & { campus: Campus }) {
+  const { campus, insets, sheetHeight, wide, selected, floor, trip, onSelect } = props;
   const controlsRef = useRef<CameraControls | null>(null);
   const massRef = useRef<Mesh>(null);
   const chipRef = useRef<HTMLElement>(null);
+  const hereRef = useRef<HTMLElement>(null);
   const [controlsReady, setControlsReady] = useState(false);
   const onControlsAttach = useCallback((attached: boolean) => {
     setControlsReady(attached);
@@ -144,6 +164,30 @@ function CampusView({ campus, insets, sheetHeight, wide, selected, floor, onSele
     goToBuilding(c, view, bandHeading(c, view, samples, massRef.current), !reduced);
   }, [building, samples, controlsReady, reduced]);
 
+  // A new trip frames all of it: the walk, the From building or gate and the To building, from a heading that sees the
+  // band (DESIGN.md, "You are here" dot). A route option redraws the line without flying again, so the lines are read
+  // through a ref.
+  const here = trip?.here ?? null;
+  const route = trip?.route ?? null;
+  const lines = useMemo(() => walkLines(route), [route]);
+  const linesRef = useRef(lines);
+  useEffect(() => {
+    linesRef.current = lines;
+  });
+  const fromBuilding = here?.kind === 'floor' ? bySlug.get(here.building) : undefined;
+  const hereAt = useMemo(() => (here ? herePoint(here, fromBuilding) : null), [here, fromBuilding]);
+  useEffect(() => {
+    const c = controlsRef.current;
+    if (!here || !c || !controlsReady) return;
+    const outlines = [
+      ...linesRef.current,
+      ...[fromBuilding, building].flatMap((b) => b?.volumes.map((v) => v.outline) ?? []),
+      ...(here.kind === 'ground' ? [here.at] : []),
+    ];
+    const view = tripView(outlines, insetsRef.current);
+    goToBuilding(c, view, bandHeading(c, view, samples, massRef.current), !reduced);
+  }, [here, fromBuilding, building, samples, controlsReady, reduced]);
+
   const recenter = () => {
     if (controlsRef.current) goHome(controlsRef.current, home, insets, !reduced);
   };
@@ -168,6 +212,8 @@ function CampusView({ campus, insets, sheetHeight, wide, selected, floor, onSele
           selected={selected}
           chip={band ? (floor?.label ?? null) : null}
           chipRef={chipRef}
+          here={hereAt !== null}
+          hereRef={hereRef}
         />
       )}
       <div className="fixed inset-0 touch-none" role="application" aria-label="3D map of the DLSU Manila campus">
@@ -188,6 +234,7 @@ function CampusView({ campus, insets, sheetHeight, wide, selected, floor, onSele
               homeAzimuth={home.azimuth}
               selected={selected}
               band={band}
+              route={lines}
               onTap={tap}
               massRef={massRef}
             />
@@ -200,6 +247,8 @@ function CampusView({ campus, insets, sheetHeight, wide, selected, floor, onSele
               band={samples}
               chipRef={chipRef}
               massRef={massRef}
+              here={hereAt}
+              hereRef={hereRef}
             />
           </Canvas>
         </ErrorBoundary>

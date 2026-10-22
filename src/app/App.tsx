@@ -1,10 +1,10 @@
 // The app shell (ARCHITECTURE §6): lays out the map and its floating chrome, and owns the little state that ties them
 // together. No parsing, routing or fetching here.
 import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import type { MapInsets } from '@/features/campus-scene';
+import type { MapInsets, MapTrip } from '@/features/campus-scene';
 import { WhereAreYou } from '@/features/location-picker';
 import { MapDidntDownload, OpenOnceOnline, SavingLine, useOfflineStatus } from '@/features/offline';
-import { RouteSteps } from '@/features/route-player';
+import { RoutePreview, RouteSteps, useRoute, useRouteMode } from '@/features/route-player';
 import {
   BuildingCard,
   BuildingLine,
@@ -74,6 +74,12 @@ export function App() {
   const to = useMemo(() => (picked ? toOf(picked) : null), [picked]);
   const trip = useTrip();
   const { roomOpened, mapTap } = trip;
+  // The route, worked out only while the preview or its steps are open; Stairs / Auto / Elevator for this trip.
+  const routing = selected !== null && (trip.preview.isOpen || trip.steps.isOpen);
+  const [mode, setMode] = useRouteMode(trip.from, to);
+  const route = useRoute(routing ? trip.from : null, routing ? to : null, mode);
+  const mapTrip: MapTrip | null =
+    route?.status === 'ready' ? { here: route.here, route: route.result.ok ? route.result.route : null } : null;
   const select = useCallback(
     (b: CampusBuilding | null) => {
       if (mapTap(b)) return;
@@ -148,18 +154,36 @@ export function App() {
   const insets: MapInsets = wide
     ? { top: 16, bottom: 0, left: PANEL_EDGE }
     : { top: pillBottom + 8, bottom: sheetHeight, left: 0 };
+  // The card cut to one line, above Where are you and the route preview.
+  const line =
+    selected?.kind === 'room' ? (
+      <RoomLine room={selected.room} />
+    ) : selected ? (
+      <BuildingLine building={selected.building} />
+    ) : null;
   const sheet =
     DevSteps && devSteps.isOpen ? (
       <Suspense fallback={null}>
         <DevSteps onClose={devSteps.close} />
       </Suspense>
-    ) : selected && to && trip.from && trip.steps.isOpen ? (
-      <RouteSteps from={trip.from} to={to} onChangeFrom={trip.changeFrom} onClose={trip.steps.close} />
+    ) : to && trip.from && route && trip.steps.isOpen ? (
+      <RouteSteps state={route} from={trip.from} to={to} onClose={trip.steps.close} />
+    ) : to && trip.from && route && trip.preview.isOpen ? (
+      <RoutePreview
+        line={line}
+        state={route}
+        from={trip.from}
+        to={to}
+        mode={mode}
+        onMode={setMode}
+        onChangeFrom={trip.changeFrom}
+        onChangeTo={openSearch}
+        onStart={trip.start}
+        onClose={trip.preview.close}
+      />
     ) : selected && to && trip.where.isOpen ? (
       <WhereAreYou
-        line={
-          selected.kind === 'room' ? <RoomLine room={selected.room} /> : <BuildingLine building={selected.building} />
-        }
+        line={line}
         search={searchData}
         to={to}
         mapPick={trip.mapPick}
@@ -201,6 +225,7 @@ export function App() {
             wide={wide}
             selected={selectedSlug}
             floor={selected?.kind === 'room' ? { floor: selected.room.floor, label: selected.room.floorLabel } : null}
+            trip={mapTrip}
             onSelect={select}
           />
         </Suspense>

@@ -431,7 +431,8 @@ It is the screen's primary action at home.
 
 - **Shape:** full pill (26px radius on 52px).
 - **Primary:** Campus Green fill, white 17px bold label, full width, 8px above. One per sheet: Directions on a card,
-  Start on the route preview. Pressed state darkens to 94% brightness.
+  Start on the route preview. Pressed state darkens to 94% brightness. While what it acts on is still loading it
+  stays in place, faded to 45%, so nothing moves when it's ready.
 - **Secondary:** 48px pill, 1px hairline, green 16px semibold text, no fill ("Pick another building", "Back").
 - **Icon button:** 48px circle, Mid Ink icon, Pale Leaf on hover (share, close, back, clear, info).
 - **Map button:** 48px white circle with Float shadow, Deep Ink icon (recenter: "Show the whole campus"). Buttons
@@ -444,7 +445,8 @@ It is the screen's primary action at home.
 
 - **Style:** 48px pill, 1px hairline, 16px semibold Deep Ink text, no fill.
 - **State:** selected (`aria-pressed`) fills Campus Green with white text. Used for floor choices in a grid
-  (60px minimum columns) and for the From and To ends of a route, where a small Mid Ink "From"/"To" leads.
+  (60px minimum columns) and for the From and To ends of a route, where a regular-weight Mid Ink "From"/"To" leads
+  (16px like the rest, D30) and an arrow sits between the two. They wrap when the names run long.
 
 ### Cards / Containers
 
@@ -502,9 +504,17 @@ green tint and the camera flies to a heading that shows the band.
 
 ### "You are here" dot
 
-An 18px Campus Green dot with a 3px white ring and the Float shadow, placed at the chosen floor's height on the
-chosen building (or its centre when outside). On route preview the camera frames both the dot and the destination's
-band.
+An 18px Campus Green dot with a 3px white ring and the Float shadow, placed at the chosen floor's height in the
+middle of the chosen building, or on the ground at the gate. It is placed before the floor chip, and building labels
+give way to it. On the route preview the camera frames the whole trip (the walk, the From building or gate, and the
+To building) from a heading that sees the band; a route option redraws the line without moving the camera.
+
+### Route line
+
+The route's outdoor walk as a flat 5.5m Campus Green ribbon on a 1.1m white edge each side, just above the paths:
+the edge does for the line what the white ring does for the dot, so it reads on the deep-green ground. Where a campus
+building stands in front of it, the line shows through at 45%, so the whole way stays traceable. Indoor legs aren't
+drawn until the cutaway (7a, D43).
 
 ### Motion
 
