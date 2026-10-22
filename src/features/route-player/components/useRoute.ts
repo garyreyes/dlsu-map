@@ -17,6 +17,9 @@ export type RouteState =
       /** Where the student is, for the map. The same object for every mode of one trip, so a new one means a new
        *  trip. Null when From's room or gate isn't in the data. */
       here: Here | null;
+      /** Buildings whose file failed only because the phone is offline: the app is still saving it (O5, S9). The same
+       *  array for every mode of one trip. */
+      stillSaving: readonly string[];
     };
 
 const LOADING: RouteState = { status: 'loading' };
@@ -27,6 +30,8 @@ interface Loaded {
   files: IndoorFiles;
   names: PlaceNames;
   here: Here | null;
+  /** Slugs whose file failed with reason 'offline'. */
+  stillSaving: readonly string[];
 }
 
 // The router is built once for the shared campus and rooms, not again for every trip (campus.json and rooms.json are
@@ -46,11 +51,16 @@ async function loadTrip(from: From, to: To): Promise<LoadResult<Loaded>> {
   const slugs = tripBuildings(from, to, rooms.data);
   const results = await Promise.all(slugs.map((slug) => loadIndoor(slug)));
   const files = new Map(slugs.flatMap((slug, i) => (results[i]?.ok ? [[slug, results[i].data] as const] : [])));
+  const stillSaving = slugs.filter((_, i) => {
+    const r = results[i];
+    return r !== undefined && !r.ok && r.reason === 'offline';
+  });
   return {
     ok: true,
     data: {
       router: routerFor(campus.data, rooms.data),
       files,
+      stillSaving,
       names: placeNames(campus.data),
       here: hereOf(from, rooms.data, campus.data),
     },
@@ -72,9 +82,9 @@ export function useRoute(from: From | null, to: To | null, mode: FloorMode): Rou
   useEffect(() => {
     if (from === null || to === null) return;
     // Reopened for the same trip (Back from S5, then Directions): what loaded still holds, `here` included, so the
-    // camera frames it once rather than twice. A failure loads again.
+    // camera frames it once rather than twice. A failure loads again, and so does a building file still saving.
     const last = answerRef.current;
-    if (last?.from === from && last.to === to && last.result.ok) return;
+    if (last?.from === from && last.to === to && last.result.ok && last.result.data.stillSaving.length === 0) return;
     let live = true;
     void loadTrip(from, to)
       .then((result) => {
@@ -94,9 +104,9 @@ export function useRoute(from: From | null, to: To | null, mode: FloorMode): Rou
     if (from === null || to === null) return null;
     if (current === null) return LOADING;
     if (!current.ok) return { status: 'failed', reason: current.reason };
-    const { router, files, names, here } = current.data;
+    const { router, files, names, here, stillSaving } = current.data;
     try {
-      return { status: 'ready', result: router(from, to, mode, files), names, here };
+      return { status: 'ready', result: router(from, to, mode, files), names, here, stillSaving };
     } catch {
       return { status: 'failed', reason: 'invalid' };
     }

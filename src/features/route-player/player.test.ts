@@ -300,4 +300,31 @@ describe('indoorMapComing', () => {
     const fromOnly: Route = { ...sampleIndoorRoute, noIndoorMap: ['andrew'] };
     expect(indoorMapComing(fromOnly, { code: 'ST311', building: 'strc', floor: 3 }, names)).toBeNull();
   });
+
+  it('says the map is still saving when the building file only failed offline', () => {
+    expect(indoorMapComing(sampleNoIndoorMap, vl313, names, ['velasco'])).toBe(
+      'VL313 is on 3F · indoor map still saving',
+    );
+  });
+
+  it('keeps "coming" for a building that is not still saving', () => {
+    expect(indoorMapComing(sampleNoIndoorMap, vl313, names, ['andrew'])).toBe('VL313 is on 3F · indoor map coming');
+  });
+});
+
+describe('stepCard while a building’s map is still saving', () => {
+  it('adds the note to its enter and floors steps, after the other parts', () => {
+    expect(stepCard(sampleNoIndoorMap, 1, ['velasco'])?.subtitle).toBe('approximate · Indoor map still saving');
+    expect(stepCard(sampleNoIndoorMap, 2, ['velasco'])?.subtitle).toBe('Indoor map still saving');
+  });
+
+  it('adds it to the start step that leaves that building', () => {
+    expect(stepCard(sampleRoute, 1, ['andrew'])?.subtitle).toBe('45 m · approximate · Indoor map still saving');
+  });
+
+  it('leaves other steps alone', () => {
+    expect(stepCard(sampleNoIndoorMap, 0, ['velasco'])?.subtitle).toBe('65 m');
+    expect(stepCard(sampleRoute, 2, ['andrew'])?.subtitle).toBe('15 m');
+    expect(stepCard(sampleNoIndoorMap, 2)?.subtitle).toBeUndefined();
+  });
 });

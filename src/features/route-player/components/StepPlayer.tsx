@@ -9,6 +9,8 @@ import { useSwipe } from './useSwipe';
 
 interface Props {
   route: Route;
+  /** Buildings whose indoor map is still saving (offline), so their steps say so (O5). */
+  stillSaving?: readonly string[];
   /** The step on the card, in `route.steps`. */
   current: number;
   onStep: (index: number) => void;
@@ -26,10 +28,19 @@ interface Props {
  * does the same. ✕ ends the route at once, with no "Are you sure?"; ⋯ folds out the two ways off the route. Closes
  * with Escape too; the parent wires Back.
  */
-export function StepPlayer({ route, current, onStep, onArrive, onChangeFrom, onAllSteps, onClose }: Props) {
+export function StepPlayer({
+  route,
+  stillSaving,
+  current,
+  onStep,
+  onArrive,
+  onChangeFrom,
+  onAllSteps,
+  onClose,
+}: Props) {
   const [menu, setMenu] = useState(false);
   const menuId = useId();
-  const card = stepCard(route, current);
+  const card = stepCard(route, current, stillSaving);
   const last = card?.last ?? true;
   const next = () => {
     if (!last) onStep(current + 1);

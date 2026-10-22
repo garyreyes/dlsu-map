@@ -7,7 +7,9 @@ import { BufferAttribute, BufferGeometry, DoubleSide, type Plane } from 'three';
 import type { Volume } from '@/shared/data/campus';
 import type { Indoor } from '@/shared/data/indoor';
 import { cutTones, type MapPalette } from '@/shared/config/palette';
-import { buildFloor, buildSlab, floorsFrom, slabOutlines } from '../floor-geometry';
+import type { CutMarks } from '../cutaway';
+import { CutRoute } from './CutRoute';
+import { buildFloor, buildSlab, floorOf, floorsFrom, slabOutlines } from '../floor-geometry';
 
 /** Draw order of the cut: after the city blocks (CITY_ORDER in campus-scene is 5). */
 const CUT_ORDER = 10;
@@ -46,11 +48,13 @@ interface Props {
   /** The cut plane, moved by `useCutSlide`. Every material here is clipped by it. */
   plane: Plane;
   palette: MapPalette;
+  /** The route's line and goal room on the cut floor (8c). Omitted: nothing is drawn for the route. */
+  marks?: CutMarks;
 }
 
 /** The traced floors from `floor` up in the campus frame, sliced at the cut: walls in the building colour, a slab
  *  under each floor so the ground doesn't show through its rooms, hallways as flat lines in the path colour. */
-export function BuildingCutaway({ indoor, floor, volumes, plane, palette }: Props) {
+export function BuildingCutaway({ indoor, floor, volumes, plane, palette, marks }: Props) {
   const geometry = useMemo(() => {
     const floors = floorsFrom(indoor, floor);
     const built = floors.map(buildFloor);
@@ -93,6 +97,7 @@ export function BuildingCutaway({ indoor, floor, volumes, plane, palette }: Prop
           clippingPlanes={[plane]}
         />
       </mesh>
+      {marks && <CutRoute marks={marks} indoor={indoor} base={floorOf(indoor, floor)?.base ?? 0} plane={plane} />}
     </>
   );
 }

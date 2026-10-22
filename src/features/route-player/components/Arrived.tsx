@@ -9,6 +9,8 @@ interface Props {
   route: Route;
   to: To;
   names: PlaceNames;
+  /** Buildings whose indoor map is still saving (offline), for O5. */
+  stillSaving?: readonly string[];
   /** The card cut to one line ("ST311 · STRC · 3rd floor (3F)"), under the heading. */
   line: ReactNode;
   /** The room's building and floor, for O5. Null for a building. */
@@ -22,7 +24,7 @@ interface Props {
 }
 
 /** S9 Arrived (user-flows §3.8): where the student is, then the next room is one tap away. */
-export function Arrived({ route, to, names, line, room, onNext, onDone, onBack }: Props) {
+export function Arrived({ route, to, names, stillSaving, line, room, onNext, onDone, onBack }: Props) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && !e.defaultPrevented) onBack();
@@ -33,7 +35,7 @@ export function Arrived({ route, to, names, line, room, onNext, onDone, onBack }
     };
   }, [onBack]);
 
-  const coming = room && indoorMapComing(route, room, names);
+  const coming = room && indoorMapComing(route, room, names, stillSaving);
   return (
     <section aria-label="Arrived" className="pb-2">
       <div className="flex items-center gap-2.5 pt-1">

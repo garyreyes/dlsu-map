@@ -48,7 +48,11 @@ export function placeNames(campus: {
 const APPROXIMATE = ' (approximate)';
 
 /** The steps under their places. Consecutive steps in the same place share one group. */
-export function stepGroups(route: Route, names: Pick<PlaceNames, 'short'>): StepGroup[] {
+export function stepGroups(
+  route: Route,
+  names: Pick<PlaceNames, 'short'>,
+  stillSaving: readonly string[] = [],
+): StepGroup[] {
   const groups: { key: string; meters: number; rows: StepRow[] }[] = [];
   route.steps.forEach((step, index) => {
     const leg = route.legs[step.leg];
@@ -59,7 +63,7 @@ export function stepGroups(route: Route, names: Pick<PlaceNames, 'short'>): Step
     if (group !== last) groups.push(group);
     // A walk leg adds its meters once, at its first step.
     if (route.steps[index - 1]?.leg !== step.leg) group.meters += meters;
-    group.rows.push(rowOf(step, index, route));
+    group.rows.push(rowOf(step, index, route, stillSaving));
   });
   return groups.map(({ key, meters, rows }) => ({
     label: key === 'outside' ? `Outside · ${String(meters)} m` : `In ${names.short(key)}`,
@@ -67,13 +71,26 @@ export function stepGroups(route: Route, names: Pick<PlaceNames, 'short'>): Step
   }));
 }
 
-/** One step as the list shows it, and the step card too (S6). */
-export function rowOf(step: Step, index: number, route: Route): StepRow {
+export const STILL_SAVING_NOTE = 'Indoor map still saving';
+
+/** True for a step in or at a building whose indoor map is still saving: entering it, climbing in it, or leaving it. */
+function isStillSaving(step: Step, route: Route, stillSaving: readonly string[]): boolean {
+  if (stillSaving.length === 0) return false;
+  if (step.kind === 'enter' || step.kind === 'floors') return stillSaving.includes(step.building);
+  const leg = route.legs[step.leg];
+  if (step.kind !== 'start' || leg?.kind !== 'walk' || leg.from.kind !== 'door') return false;
+  return stillSaving.includes(leg.from.building);
+}
+
+/** One step as the list shows it, and the step card too (S6). `stillSaving` are the buildings whose indoor map file
+ *  couldn't load only because the phone is offline (O5). */
+export function rowOf(step: Step, index: number, route: Route, stillSaving: readonly string[] = []): StepRow {
   const approximate = 'approximate' in step && step.approximate === true;
   const title = approximate && step.text.endsWith(APPROXIMATE) ? step.text.slice(0, -APPROXIMATE.length) : step.text;
   const parts = [
     ...('meters' in step && step.meters !== undefined && step.meters > 0 ? [`${String(step.meters)} m`] : []),
     ...(approximate ? ['approximate'] : []),
+    ...(isStillSaving(step, route, stillSaving) ? [STILL_SAVING_NOTE] : []),
   ];
   const row = { index, icon: iconOf(step, route), title };
   return parts.length === 0 ? row : { ...row, subtitle: parts.join(' · ') };

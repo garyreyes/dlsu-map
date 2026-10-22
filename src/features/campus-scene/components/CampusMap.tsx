@@ -229,6 +229,7 @@ function CampusView(props: Props & { campus: Campus }) {
               band={band}
               route={lines}
               cut={cut}
+              fullRoute={route}
               reduced={reduced}
               onTap={tap}
               massRef={massRef}

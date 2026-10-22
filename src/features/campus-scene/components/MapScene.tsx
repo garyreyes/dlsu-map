@@ -2,8 +2,9 @@ import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef, type RefObject } from 'react';
 import { Color, type Fog, type Mesh } from 'three';
 import type { CameraControls } from '@react-three/drei';
-import { BuildingCutaway, useCutSlide, type CutawayView } from '@/features/indoor-view';
+import { BuildingCutaway, cutMarks, useCutSlide, type CutawayView } from '@/features/indoor-view';
 import type { Campus } from '@/shared/data/campus';
+import type { Route } from '@/shared/data/route';
 import { HAZE_FAR, HAZE_NEAR, SKY_LIGHT, SUN_LIGHT, type MapPalette } from '@/shared/config/palette';
 import type { FloorBand } from '../floor-band';
 import { FloorBandMesh } from './FloorBand';
@@ -29,6 +30,9 @@ interface Props {
   /** The building the player's step is inside (7a): cut open on its floor in place of the band. The cut slides in,
    *  out and between floors (7b, D45). */
   cut: CutawayView | null;
+  /** The whole route, for the line and goal room on the cut floor (8c). Marked against the cut being shown, which
+   *  trails `cut` during a slide. */
+  fullRoute: Route | null;
   reduced: boolean;
   onTap: (slug: string | null) => void;
   massRef: RefObject<Mesh | null>;
@@ -39,8 +43,10 @@ interface Props {
  * fades the distance and fills the sky, the light rig, and the campus, city and paths on top.
  */
 export function MapScene(props: Props) {
-  const { controlsRef, campus, palette, homeAzimuth, selected, band, route, cut, reduced, onTap, massRef } = props;
+  const { controlsRef, campus, palette, homeAzimuth, selected, band, route, cut, fullRoute, reduced, onTap, massRef } =
+    props;
   const shown = useCutSlide(cut, reduced);
+  const marks = useMemo(() => (shown ? cutMarks(fullRoute, shown.cutaway) : undefined), [fullRoute, shown]);
   const fog = useRef<Fog>(null);
   const skyGround = useMemo(
     () => new Color(SKY_LIGHT.color).lerp(new Color(palette.ground), SKY_LIGHT.groundTint),
@@ -88,6 +94,7 @@ export function MapScene(props: Props) {
           volumes={shown.view.volumes}
           plane={shown.plane}
           palette={palette}
+          marks={marks}
         />
       ) : (
         band && <FloorBandMesh band={band} />
