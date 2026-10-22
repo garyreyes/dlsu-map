@@ -10,7 +10,7 @@ import {
   sampleRoute,
   sampleTurnSteps,
 } from '@/shared/data/route.sample';
-import { emptyRouteLine, placeNames, stepGroups, totalsLine, tripLine } from './steps-list';
+import { emptyRouteLine, placeNames, rowOf, stepGroups, totalsLine, tripLine } from './steps-list';
 
 const names = placeNames({
   buildings: [
@@ -234,3 +234,22 @@ function walkOnly(steps: readonly Step[]): Route {
     seconds: 77,
   };
 }
+
+describe('still-saving rows', () => {
+  it('marks the steps of a building whose map is still saving, in the list too', () => {
+    const rows = stepGroups(sampleRoute, names, ['andrew']).flatMap((g) => g.rows);
+    expect(rows.map((r) => r.subtitle)).toEqual([
+      'Indoor map still saving',
+      '45 m · approximate · Indoor map still saving',
+      '15 m',
+      'approximate',
+      undefined,
+    ]);
+  });
+
+  it('is what rowOf says for one step', () => {
+    const step = sampleRoute.steps[4];
+    expect(rowOf(step, 4, sampleRoute, ['strc']).subtitle).toBe('Indoor map still saving');
+    expect(rowOf(step, 4, sampleRoute).subtitle).toBeUndefined();
+  });
+});

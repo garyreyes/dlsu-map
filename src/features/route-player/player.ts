@@ -40,10 +40,10 @@ export type StepFocus =
 /** A step index inside the route: 0 to its last step, and 0 for a route with no steps. */
 export const clampStep = (route: Route, index: number): number => Math.max(0, Math.min(index, route.steps.length - 1));
 
-export function stepCard(route: Route, index: number): StepCard | null {
+export function stepCard(route: Route, index: number, stillSaving: readonly string[] = []): StepCard | null {
   const step = route.steps[index];
   if (step === undefined) return null;
-  const { icon, title, subtitle } = rowOf(step, index, route);
+  const { icon, title, subtitle } = rowOf(step, index, route, stillSaving);
   const total = route.steps.length;
   return {
     counter: `Step ${String(index + 1)} of ${String(total)}`,
@@ -125,12 +125,15 @@ export const nextFrom = (to: To): From =>
 export const arrivedHeading = (route: Route, to: To, names: Pick<PlaceNames, 'short'>): string =>
   route.steps.length === 0 ? emptyRouteLine(to, names) : `You’re at ${toName(to, names)}`;
 
-/** "VL313 is on 3F · indoor map coming" when the room's building has no indoor map yet (O5), else null. */
+/** "VL313 is on 3F · indoor map coming" when the room's building has no indoor map yet (O5), else null. "· indoor map
+ *  still saving" when its file only failed because the phone is offline. */
 export function indoorMapComing(
   route: Route,
   room: { readonly code: string; readonly building: string; readonly floor: number },
   names: Pick<PlaceNames, 'floor'>,
+  stillSaving: readonly string[] = [],
 ): string | null {
   if (!(route.noIndoorMap ?? []).includes(room.building)) return null;
-  return `${room.code} is on ${names.floor(room.building, room.floor)} · indoor map coming`;
+  const note = stillSaving.includes(room.building) ? 'still saving' : 'coming';
+  return `${room.code} is on ${names.floor(room.building, room.floor)} · indoor map ${note}`;
 }

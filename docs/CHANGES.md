@@ -8,6 +8,18 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-22: 8c-1 indoor line, goal-room mark, "Indoor map still saving"
+
+- **8c split in two** (D47, proposed): planning found the player, O5 and O6-for-doors already in. 8c-1 is Lane A
+  only; 8c-2 (Change spot, exit choice) needs a router change in Lane B's folder and waits for a contract PR.
+- **Indoor line and goal mark** (D46's one Campus Green): `cutMarks(route, cutaway)` picks the indoor legs and the
+  goal room on the cut floor; `CutRoute` draws a 1.1 m green ribbon on a 2.4 m white casing (wider than the 1 m
+  hallways, so it reads on their deep green) and a hollow green ring at the goal room's label, so it can't be taken
+  for the "you are here" dot. Marks follow the *shown* cut, not the target, during the floor slide.
+- **"Indoor map still saving":** a building file that fails with `offline` (not `http`) is still saving, not missing.
+  S5, the step card and S9 say so; a trip with one reloads when reopened, so the route fills in once it's saved.
+- Known, left for 8▸: the line pops in at the end of an upward slide, and vanishes at once when a route ends.
+
 ## 2026-10-22: D46 agreed
 
 - Gary agreed D46 (the indoor cut is a plan). Marked agreed in `docs/DECISIONS.md`, added to `SUMMARY.md` and

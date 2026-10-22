@@ -201,6 +201,7 @@ export function App() {
         route={step.route}
         to={to}
         names={route.names}
+        stillSaving={route.stillSaving}
         line={line}
         room={
           selected?.kind === 'room'
@@ -217,6 +218,7 @@ export function App() {
         from={trip.from}
         to={to}
         names={route.names}
+        stillSaving={route.stillSaving}
         current={step.index}
         onPick={(index) => {
           step.setIndex(index);
@@ -227,6 +229,7 @@ export function App() {
     ) : step.route && trip.player.isOpen ? (
       <StepPlayer
         route={step.route}
+        stillSaving={route?.status === 'ready' ? route.stillSaving : undefined}
         current={step.index}
         onStep={step.setIndex}
         onArrive={trip.arrived.open}

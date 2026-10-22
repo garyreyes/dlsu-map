@@ -3,6 +3,7 @@
 // rail) and the app shell. Types and constants only; the functions live beside the code that uses them.
 import type { Volume } from '@/shared/data/campus';
 import type { Indoor } from '@/shared/data/indoor';
+import type { XY } from '@/shared/data/route';
 
 /** The building the player's step is inside and the floor its cut sits on. Null outdoors, and on a floor that
  *  isn't traced yet, where the map keeps the floor band instead (D44). */
@@ -50,6 +51,15 @@ export interface CutawayStep {
   /** The building's volumes from campus.json: the roof the slide starts from is their highest `top`, and a floor's
    *  slab is the outline of every volume standing at that floor's `base` (7b). */
   readonly volumes: readonly Volume[];
+}
+
+/** What the cut floor draws for the route (8c, D46): its walk on this floor and the room it ends at, both in Campus
+ *  Green, the one green the Indoor Cut Rule allows. Built by `cutMarks(route, cutaway)` in `marks.ts`. */
+export interface CutMarks {
+  /** The path of every indoor leg on the cut floor of the cut building, in route order. Empty when none walks here. */
+  readonly lines: readonly (readonly XY[])[];
+  /** The goal room's code, when the route's `arrive` step is on the cut floor of the cut building. */
+  readonly goalRoom?: string;
 }
 
 /** An indoor step the map can cut: built by `useCutaway` once the floor file is in. */

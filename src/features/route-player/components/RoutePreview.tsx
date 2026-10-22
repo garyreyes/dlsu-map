@@ -144,11 +144,13 @@ function Body({ state, from, to, mode, onMode, onStart }: BodyProps) {
   return (
     <>
       <p className="mt-3 text-ink tabular-nums">{summaryLine(route)}</p>
-      {[...noElevatorLines(route, state.names), ...noIndoorMapLines(route, state.names)].map((note) => (
-        <p key={note} className="mt-1 text-ink-2">
-          {note}
-        </p>
-      ))}
+      {[...noElevatorLines(route, state.names), ...noIndoorMapLines(route, state.names, state.stillSaving)].map(
+        (note) => (
+          <p key={note} className="mt-1 text-ink-2">
+            {note}
+          </p>
+        ),
+      )}
       <PrimaryButton onClick={onStart}>Start</PrimaryButton>
       {hasFloors(route) && <RouteOptions mode={mode} onMode={onMode} />}
     </>

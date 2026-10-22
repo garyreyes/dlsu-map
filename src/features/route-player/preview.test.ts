@@ -141,4 +141,56 @@ describe('notOkLine', () => {
   it('says a place is missing from the data', () => {
     expect(notOkLine('unknown-place', from, to, names)).toBe('A place on this route isn’t in the map data.');
   });
+
+  describe('while the file is still saving', () => {
+    it('says the directions stop at the To building’s door for now', () => {
+      expect(noIndoorMapLines(sampleNoIndoorMap, names, ['velasco'])).toEqual([
+        'Velasco’s indoor map is still saving, so directions stop at its door for now.',
+      ]);
+    });
+
+    it('says the directions start at the From building’s door for now', () => {
+      const route = routeOf([floors('andrew', 'elevator'), walk], ['andrew']);
+      expect(noIndoorMapLines(route, names, ['andrew'])).toEqual([
+        'Andrew’s indoor map is still saving, so directions start at its door for now.',
+      ]);
+    });
+
+    it('says door to door when both are still saving', () => {
+      const route = routeOf(
+        [floors('andrew', 'elevator'), walk, floors('gokongwei', 'stairs')],
+        ['andrew', 'gokongwei'],
+      );
+      expect(noIndoorMapLines(route, names, ['andrew', 'gokongwei'])).toEqual([
+        'Andrew and Gokongwei’s indoor maps are still saving, so directions go from door to door for now.',
+      ]);
+    });
+
+    it('says only the floor is given for now inside one building', () => {
+      expect(noIndoorMapLines(routeOf([floors('andrew', 'stairs')], ['andrew']), names, ['andrew'])).toEqual([
+        'Andrew’s indoor map is still saving, so directions only give the floor for now.',
+      ]);
+    });
+
+    it('says each building its own way when only one is still saving', () => {
+      const toGokongwei: Leg = {
+        ...sampleGateRoute.legs[0],
+        to: { kind: 'door', building: 'gokongwei', door: 'main', verified: true, at: [0, 0] } as const,
+      };
+      const route = routeOf(
+        [floors('andrew', 'elevator'), toGokongwei, floors('gokongwei', 'stairs')],
+        ['andrew', 'gokongwei'],
+      );
+      expect(noIndoorMapLines(route, names, ['gokongwei'])).toEqual([
+        'Andrew has no indoor map yet, so directions start at its door.',
+        'Gokongwei’s indoor map is still saving, so directions stop at its door for now.',
+      ]);
+    });
+
+    it('ignores a still-saving building that is not on the route', () => {
+      expect(noIndoorMapLines(sampleNoIndoorMap, names, ['andrew'])).toEqual([
+        'Velasco has no indoor map yet, so directions stop at its door.',
+      ]);
+    });
+  });
 });

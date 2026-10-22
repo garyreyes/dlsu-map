@@ -27,6 +27,7 @@ export function RouteSteps({ state, from, to, onClose }: Props) {
       from={from}
       to={to}
       names={state.names}
+      stillSaving={state.stillSaving}
       current={current}
       onPick={setCurrent}
       onClose={onClose}

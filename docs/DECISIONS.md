@@ -1153,3 +1153,22 @@ saving"). **Revisit if** testers still can't read the plan at 22 m, or tap the r
 DLSU's real floor plans arrive or the post-build indoor restyle starts. **This is the interim look** (owner,
 2026-10-22): today's floors are traced from evacuation maps only, and the final indoor view is meant to be a
 Sims-like bird's-eye dollhouse, designed once the app is built and iterated from there.
+
+## D47. 8c splits in two: the indoor drawing first, Change spot and the exit choice after a router change (2026-10-22, proposed)
+
+**Problem.** Planning 8c found most of it already built: the player plays indoor steps (7b, 7▸), "indoor map coming"
+(O5) is on S5 and S9, and unchecked doors say "(approximate)" (O6). What's left falls in two kinds. The indoor line,
+the goal-room mark and "Indoor map still saving" are Lane A only. Change spot (D42) and the exit choice (D43) need a
+`spot` on `From` and an exit option the router doesn't take yet, in `src/features/routing/`, which is Lane B's.
+
+**Decision.** (Owner's answer, 2026-10-22.)
+
+1. **8c-1, now:** the indoor line and goal-room mark on the cut floor (D46), and "Indoor map still saving" for a
+   building file that failed only because the phone is offline (a missing file still means "indoor map coming").
+2. **8c-2, next:** a small contract PR in `src/shared/data/route.ts` that both lanes look at, then the router change
+   and the two pickers, once Charles agrees the shape.
+3. **O6 for stairs and elevators waits:** the floor files have no checked flag for them, only `checked` per floor.
+
+**Alternatives.** One PR with the router change done in Lane A (bigger, and in Charles's folder). Building the pickers
+against a sample while Charles does the router (8c stays open until his part lands). **Revisit if** Charles would
+rather Lane A write the router change.

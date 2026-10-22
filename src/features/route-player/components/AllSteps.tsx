@@ -11,6 +11,8 @@ interface Props {
   from: From;
   to: To;
   names: PlaceNames;
+  /** Buildings whose indoor map is still saving (offline), so their steps say so (O5). */
+  stillSaving?: readonly string[];
   /** The step the player is on, in `route.steps`. */
   current: number;
   onPick: (index: number) => void;
@@ -24,7 +26,7 @@ interface Props {
  * step grouped by place. Tapping a step makes it the current one. Closes with ✕ or Escape; the parent wires Back.
  * No three.js here, so it works when 3D doesn't.
  */
-export function AllSteps({ route, from, to, names, current, onPick, onChangeFrom, onClose }: Props) {
+export function AllSteps({ route, from, to, names, stillSaving, current, onPick, onChangeFrom, onClose }: Props) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       // An overlay on top (search, in 5d) that handles Escape prevents its default, so only the top one closes.
@@ -36,7 +38,7 @@ export function AllSteps({ route, from, to, names, current, onPick, onChangeFrom
     };
   }, [onClose]);
 
-  const groups = stepGroups(route, names);
+  const groups = stepGroups(route, names, stillSaving);
   return (
     <section aria-label="All steps" className="pb-2">
       <div className="flex items-start gap-2">

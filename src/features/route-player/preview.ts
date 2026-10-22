@@ -21,18 +21,35 @@ export function noElevatorLines(route: Route, names: Pick<PlaceNames, 'short'>):
 /**
  * Where the directions stop short because a building has no indoor map yet (O5, D43). Inside one building they give
  * only the floor. Otherwise the walk's last door tells the To building, which stops them at its door, from the From
- * building, which starts them there.
+ * building, which starts them there. A building in `stillSaving` (its file failed only because the phone is offline)
+ * says so instead, and "for now".
  */
-export function noIndoorMapLines(route: Route, names: Pick<PlaceNames, 'short'>): string[] {
+export function noIndoorMapLines(
+  route: Route,
+  names: Pick<PlaceNames, 'short'>,
+  stillSaving: readonly string[] = [],
+): string[] {
   const missing = route.noIndoorMap ?? [];
+  const saving = missing.filter((b) => stillSaving.includes(b));
   const [first, second] = missing.map((b) => names.short(b));
   if (first === undefined) return [];
-  if (second !== undefined)
-    return [`${first} and ${second} have no indoor maps yet, so directions go from door to door.`];
+  if (second !== undefined) {
+    if (saving.length === 0)
+      return [`${first} and ${second} have no indoor maps yet, so directions go from door to door.`];
+    if (saving.length === missing.length)
+      return [`${first} and ${second}’s indoor maps are still saving, so directions go from door to door for now.`];
+    return missing.map((b) => oneBuildingLine(route, b, names.short(b), saving.includes(b)));
+  }
+  return [oneBuildingLine(route, missing[0] ?? '', first, saving.length > 0)];
+}
+
+function oneBuildingLine(route: Route, building: string, name: string, saving: boolean): string {
   const walk = route.legs.find((l) => l.kind === 'walk');
-  if (walk === undefined) return [`${first} has no indoor map yet, so directions only give the floor.`];
-  const atTo = walk.to.kind === 'door' && walk.to.building === missing[0];
-  return [`${first} has no indoor map yet, so directions ${atTo ? 'stop' : 'start'} at its door.`];
+  const what = saving ? `${name}’s indoor map is still saving` : `${name} has no indoor map yet`;
+  const now = saving ? ' for now' : '';
+  if (walk === undefined) return `${what}, so directions only give the floor${now}.`;
+  const atTo = walk.to.kind === 'door' && walk.to.building === building;
+  return `${what}, so directions ${atTo ? 'stop' : 'start'} at its door${now}.`;
 }
 
 /** Why there's no route, in the preview's words. */
