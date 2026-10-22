@@ -9,6 +9,11 @@ const field = (page: Page) => page.getByRole('textbox', { name: 'Room code or bu
 const row = (page: Page, text: string) =>
   searchDialog(page).getByRole('list').getByRole('button').filter({ hasText: text });
 const card = (page: Page, name: string) => page.getByRole('region', { name });
+const where = (page: Page) => page.getByRole('region', { name: 'Where are you?' });
+/** From is empty in a fresh page, so Where are you opens over a room's card (D23, D42); close it to see the card. */
+async function closeWhere(page: Page) {
+  await where(page).getByRole('button', { name: 'Close Where are you' }).click();
+}
 
 async function typeInSearch(page: Page, text: string) {
   await pill(page).click();
@@ -25,6 +30,8 @@ test('tapping a room opens its card: code, name, building and floor', async ({ p
   await expect(row(page, 'ST311')).toContainText('Also written C311');
   await row(page, 'ST311').click();
   await expect(searchDialog(page)).toHaveCount(0);
+  await expect(where(page)).toContainText('ST311 · STRC · 3rd floor (3F)');
+  await closeWhere(page);
   await expect(card(page, 'ST311').getByRole('heading', { name: 'ST311' })).toBeVisible();
   await expect(card(page, 'ST311')).toContainText('Surface Physics Lab');
   await expect(card(page, 'ST311')).toContainText('STRC · 3rd floor (3F)');
@@ -35,6 +42,8 @@ test("Back closes the card from search and doesn't bring search back", async ({ 
   const url = page.url();
   await typeInSearch(page, 'ST311');
   await row(page, 'ST311').click();
+  await expect(where(page)).toBeVisible();
+  await page.goBack(); // Where are you first, then the card
   await expect(card(page, 'ST311')).toBeVisible();
   await page.goBack();
   await expect(card(page, 'ST311')).toHaveCount(0);
@@ -47,7 +56,7 @@ test('Go opens an exact match', async ({ page }) => {
   // Go before the room list has loaded opens nothing (S2 says "Loading rooms…"), so wait for the result first.
   await expect(row(page, 'ST311')).toBeVisible();
   await field(page).press('Enter');
-  await expect(card(page, 'ST311')).toBeVisible();
+  await expect(where(page)).toContainText('ST311 · STRC');
 });
 
 test('Go never accepts a suggestion (D25, D38)', async ({ page }) => {
@@ -75,6 +84,7 @@ test('Recent: home and search list what was picked, newest first, after a reload
   await expect(page.getByText('Type a room, like')).toBeVisible(); // first open: the hint
   await typeInSearch(page, 'ST311');
   await row(page, 'ST311').click();
+  await closeWhere(page);
   await card(page, 'ST311').getByRole('button', { name: 'Close' }).click();
   await typeInSearch(page, 'Velasco');
   await row(page, 'Velasco').click();
@@ -83,6 +93,7 @@ test('Recent: home and search list what was picked, newest first, after a reload
   const recent = page.getByRole('region', { name: 'Recent' });
   await expect(recent.getByRole('button')).toHaveText([/^Velasco/, /^ST311/]);
   await recent.getByRole('button', { name: /ST311/ }).click();
+  await closeWhere(page);
   await expect(card(page, 'ST311')).toBeVisible();
 
   await card(page, 'ST311').getByRole('button', { name: 'Close' }).click();
@@ -95,8 +106,10 @@ test('a double tap on a result opens the card once, and Back still closes it', a
   const url = page.url();
   await typeInSearch(page, 'ST311');
   await row(page, 'ST311').dblclick();
-  await expect(card(page, 'ST311')).toBeVisible();
+  await expect(where(page)).toBeVisible();
   await expect(searchDialog(page)).toHaveCount(0);
+  await page.goBack(); // Where are you first, then the card
+  await expect(card(page, 'ST311')).toBeVisible();
   await page.goBack();
   await expect(card(page, 'ST311')).toHaveCount(0);
   await expect(searchDialog(page)).toHaveCount(0);

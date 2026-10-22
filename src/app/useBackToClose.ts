@@ -1,15 +1,23 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 
 const MARK = 'dlsu-overlay';
+const DEPTH = 'dlsu-depth';
 
+const state = () => window.history.state as Record<string, unknown> | null;
 /** The overlay whose history entry is current, if any. */
-const currentEntry = () => (window.history.state as Record<string, unknown> | null)?.[MARK];
+const currentEntry = () => state()?.[MARK];
+/** How many overlay entries deep history is now: 0 on the page's own entry. */
+const currentDepth = () => {
+  const depth = state()?.[DEPTH];
+  return typeof depth === 'number' ? depth : 0;
+};
 
 /**
  * An overlay the phone's back button closes (user-flows §1): opening it adds a history entry, so Back pops that
  * entry instead of leaving the app. Closing it from the UI pops the same entry, so history never piles up. Each
  * overlay marks its entry with its own id, so with two open (search over a building card) Back closes only the top
- * one: the one whose entry was just left.
+ * one: the one whose entry was just left. Entries carry their depth too, so an overlay opened while another's Back is
+ * still being handled (search closing, then a card and Where are you opening, 5a) isn't taken for the one that closed.
  */
 export function useBackToClose() {
   const id = useId();
@@ -17,14 +25,16 @@ export function useBackToClose() {
   // Guards against a double tap or a held Escape: a second open would push a second entry, and a second close would
   // pop the page before ours and leave the app.
   const openRef = useRef(false);
+  // How deep our entry sits, counted from the page's own entry.
+  const depthRef = useRef(0);
   const closingRef = useRef(false);
   // What closeThen runs once our entry has really been popped.
   const thenRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const onPop = () => {
-      // Back to our own entry means an overlay above this one closed; this one stays.
-      if (!openRef.current || currentEntry() === id) return;
+      // Still at or above our entry means an overlay over this one closed, or one opened; this one stays.
+      if (!openRef.current || currentDepth() >= depthRef.current) return;
       openRef.current = false;
       closingRef.current = false;
       setOpen(false);
@@ -41,7 +51,8 @@ export function useBackToClose() {
   const open = useCallback(() => {
     if (openRef.current) return;
     openRef.current = true;
-    window.history.pushState({ [MARK]: id }, '');
+    depthRef.current = currentDepth() + 1;
+    window.history.pushState({ [MARK]: id, [DEPTH]: depthRef.current }, '');
     setOpen(true);
   }, [id]);
 

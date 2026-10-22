@@ -56,7 +56,7 @@ flowchart TD
     S2 -->|tap a room| S3[S3 Room card]
     S2 -->|tap a building| S3b[S3 Building card]
     S3 --> FromSet{From already set?}
-    S3b --> FromSet
+    S3b -->|Directions| FromSet
     FromSet -->|no| S4[S4 Where are you?]
     FromSet -->|yes| S5[S5 Route preview]
     S4 -->|room typed, or building + floor, or gate| S5
@@ -153,8 +153,11 @@ flowchart TD
   as tapping it in the list.
 - **Floors** are listed with each building's own labels (`G`, `2F`, …). This depends on ARCHITECTURE §9 open
   item 1.
-- **Spot is not asked.** G defaults to the main entrance, other floors to the elevator lobby (PRD UC2). A small
-  "Change spot" link sits under the result for anyone who wants it.
+- **Spot is not asked.** G defaults to the main entrance, other floors to the elevator lobby (PRD UC2). The floor
+  step says so under the chips. A small "Change spot" link comes in 8c, where a chosen spot shows (D42).
+- **Opens by itself only under a room card** (D42). A building card's Directions opens it. While it's open, the
+  room card shrinks to one line above it, and tapping a building on the map picks it here.
+- **Until 5b,** setting From opens the all-steps list (S8) in place of S5, with a "Change where I am" button (D42).
 - **Error cases:** a From code that isn't in the list gets the same Did you mean as To. **From = To** shows "You're
   already at ST311" and S9.
 

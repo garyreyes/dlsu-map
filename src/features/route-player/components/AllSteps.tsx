@@ -1,6 +1,7 @@
 import { X } from 'lucide-react';
 import { useEffect } from 'react';
 import type { From, Route, To } from '@/shared/data/route';
+import { SecondaryButton } from '@/shared/ui/Button';
 import { IconButton } from '@/shared/ui/IconButton';
 import { emptyRouteLine, stepGroups, totalsLine, tripLine, type PlaceNames } from '../steps-list';
 import { StepIcon } from './StepIcon';
@@ -13,6 +14,8 @@ interface Props {
   /** The step the player is on, in `route.steps`. */
   current: number;
   onPick: (index: number) => void;
+  /** "Change where I am": reopens Where are you (S4). Shown only when given. */
+  onChangeFrom?: (() => void) | undefined;
   onClose: () => void;
 }
 
@@ -21,7 +24,7 @@ interface Props {
  * step grouped by place. Tapping a step makes it the current one. Closes with ✕ or Escape; the parent wires Back.
  * No three.js here, so it works when 3D doesn't.
  */
-export function AllSteps({ route, from, to, names, current, onPick, onClose }: Props) {
+export function AllSteps({ route, from, to, names, current, onPick, onChangeFrom, onClose }: Props) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       // An overlay on top (search, in 5d) that handles Escape prevents its default, so only the top one closes.
@@ -46,6 +49,11 @@ export function AllSteps({ route, from, to, names, current, onPick, onClose }: P
           <X className="size-6" strokeWidth={2} />
         </IconButton>
       </div>
+      {onChangeFrom && (
+        <div className="mt-2">
+          <SecondaryButton onClick={onChangeFrom}>Change where I am</SecondaryButton>
+        </div>
+      )}
       {groups.length === 0 ? (
         <p className="mt-4 text-ink-2">{emptyRouteLine(to, names)}</p>
       ) : (

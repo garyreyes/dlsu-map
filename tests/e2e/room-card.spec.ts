@@ -8,9 +8,16 @@ const card = (page: Page, name: string) => page.getByRole('region', { name });
 const searchDialog = (page: Page) => page.getByRole('dialog', { name: 'Search' });
 const field = (page: Page) => page.getByRole('textbox', { name: 'Room code or building' });
 const chip = (page: Page) => page.locator('[data-floor-chip]');
+const where = (page: Page) => page.getByRole('region', { name: 'Where are you?' });
+/** From is empty in a fresh page, so Where are you opens over the room card (D23, D42); close it to see the card. */
+async function closeWhere(page: Page) {
+  await where(page).getByRole('button', { name: 'Close Where are you' }).click();
+}
 
 test('a link to a room opens its card, and the address bar is cleaned', async ({ page }) => {
   await page.goto('/?to=ST311');
+  await expect(where(page)).toContainText('ST311 · STRC · 3rd floor (3F)');
+  await closeWhere(page);
   await expect(card(page, 'ST311').getByRole('heading', { name: 'ST311' })).toBeVisible();
   await expect(card(page, 'ST311')).toContainText('Surface Physics Lab');
   await expect(card(page, 'ST311')).toContainText('STRC · 3rd floor (3F)');
@@ -22,17 +29,22 @@ test('the floor band gets its chip on the map, and the chip goes when the card c
   await page.goto('/?to=ST311');
   await expect(chip(page)).toHaveText('3F');
   await expect(chip(page)).toBeVisible();
+  await closeWhere(page);
   await card(page, 'ST311').getByRole('button', { name: 'Close' }).click();
   await expect(chip(page)).toHaveCount(0);
 });
 
 test('a link typed with the alias says "Also written"', async ({ page }) => {
   await page.goto('/?to=C311');
+  await closeWhere(page);
   await expect(card(page, 'ST311')).toContainText('Also written C311');
 });
 
 test("Back closes a card a link opened, and the app doesn't go back to the link", async ({ page }) => {
   await page.goto('/?to=ST311');
+  await expect(where(page)).toBeVisible();
+  await page.goBack(); // Where are you first, then the card
+  await expect(where(page)).toHaveCount(0);
   await expect(card(page, 'ST311')).toBeVisible();
   await page.goBack();
   await expect(card(page, 'ST311')).toHaveCount(0);
@@ -65,6 +77,7 @@ test('Share opens the share sheet with only the destination', async ({ page }) =
     });
   });
   await page.goto('/?to=ST311');
+  await closeWhere(page);
   await card(page, 'ST311').getByRole('button', { name: 'Share' }).click();
   const calls = await page.evaluate(() => (window as unknown as { shareCalls: ShareData[] }).shareCalls);
   const origin = new URL(page.url()).origin;
@@ -78,6 +91,7 @@ test('Closing the share sheet without sharing says nothing', async ({ page }) =>
     });
   });
   await page.goto('/?to=ST311');
+  await closeWhere(page);
   await card(page, 'ST311').getByRole('button', { name: 'Share' }).click();
   await expect(card(page, 'ST311').getByText('Link copied')).toHaveCount(0);
   await expect(card(page, 'ST311').getByText('Couldn’t copy')).toHaveCount(0);
@@ -90,6 +104,7 @@ test('with no share sheet, Share copies the link and says so for a moment', asyn
     delete (Navigator.prototype as { share?: unknown }).share;
   });
   await page.goto('/?to=ST311');
+  await closeWhere(page);
   await card(page, 'ST311').getByRole('button', { name: 'Share' }).click();
   await expect(card(page, 'ST311').getByText('Link copied')).toBeVisible();
   const copied = await page.evaluate(() => navigator.clipboard.readText());
