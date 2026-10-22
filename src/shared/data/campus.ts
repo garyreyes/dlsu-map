@@ -83,7 +83,8 @@ export const entranceSchema = z.strictObject({
   point: pointIndex,
   /** False until checked on site (11a). Directions to it end in "(approximate)" (O6). */
   verified: z.boolean(),
-  /** Where it opens to, when a building has more than one of a kind: `to SJ Walk`. */
+  /** Where it faces, when a building has more than one of a kind: `facing SJ Walk` (D48). It reads after "the main
+   *  entrance" on the way in and out, so never "to" or "from". */
   name: z.string().min(1).optional(),
 });
 

@@ -1,11 +1,12 @@
 // 4b: the router behind docs/SPLIT.md's Routes meeting point. Built once from the loaded data, then called on every
 // Start or route-option change. Pure: no React, no fetch. Costs and the door rule: D34. 8b (D41): with a building's
-// file, the route goes inside, and the door is the one that's cheapest for the whole trip, inside and out.
+// file, the route goes inside, and the door is the one that's cheapest for the whole trip, inside and out. 8c-2 (D48):
+// From's spot and the door choice narrow where the trip starts and which doors it may use.
 import { AUTO_ELEVATOR_FLOORS } from '@/shared/config/routing';
 import type { Campus, CampusBuilding, Entrance } from '@/shared/data/campus';
 import type { Room } from '@/shared/data/rooms';
 import type { FloorMode, From, IndoorFiles, Leg, RouteResult, Router, Step, To, WalkEnd } from '@/shared/data/route';
-import { createDirections, type Directions } from './directions.ts';
+import { createDirections, doorWords, type Directions } from './directions.ts';
 import { floorsLeg } from './floors.ts';
 import { indoorModel, type Climb, type IndoorModel, type IndoorPath } from './indoor-graph.ts';
 import { indoorChunk, type Chunk } from './indoor-route.ts';
@@ -31,15 +32,17 @@ interface Opening {
   readonly entrance?: number;
 }
 /** A trip end, found in the data: its building and floor (a gate has no building) and its openings. */
-interface Spot {
+interface Place {
   readonly building?: string;
   readonly floor: number;
   readonly openings: readonly Opening[];
 }
 interface Places {
-  /** null when the gate, building, room or floor isn't in the data. */
-  from(from: From): Spot | null;
-  to(to: To): Spot | null;
+  /** null when the gate, building, room, floor or a door spot isn't in the data. */
+  from(from: From): Place | null;
+  to(to: To): Place | null;
+  /** campus.json's entrance `index`, if it is one of the building's doors. */
+  door(building: string, index: number): Opening | undefined;
   /** Assumed for a building without a file (PROJECT_FACTS "Routing"): every full building has an elevator. */
   hasElevator(building: string): boolean;
 }
@@ -65,8 +68,8 @@ interface Trip {
   readonly to: To;
   readonly mode: FloorMode;
   readonly files: IndoorFiles;
-  readonly a: Spot;
-  readonly b: Spot & { readonly building: string };
+  readonly a: Place;
+  readonly b: Place & { readonly building: string };
 }
 
 interface Context {
@@ -82,14 +85,38 @@ export function createRouter(campus: RouterCampus, rooms: RouterRooms): Router {
     places: placesOf(campus, rooms, g),
     directions: createDirections(campus.walk, g, campus.buildings),
   };
-  return (from, to, mode, files = new Map()) => {
+  return (from, to, mode, files = new Map(), doors = {}) => {
     const a = ctx.places.from(from);
     const b = ctx.places.to(to);
-    if (a === null || b === null || b.building === undefined) return { ok: false, reason: 'unknown-place' };
+    if (a === null || b === null || b.building === undefined || !spotFound(from, files)) return unknownPlace;
     if (from.kind === 'room' && to.kind === 'room' && from.code === to.code) return { ok: false, reason: 'same-room' };
     const trip: Trip = { from, to, mode, files, a, b: { ...b, building: b.building } };
-    return a.building === b.building ? within(ctx, trip) : between(ctx, trip);
+    if (a.building === b.building) return within(ctx, trip);
+    // D48: the door choice is for a trip that walks outside. A gate or a door spot is already where the walk starts.
+    const atDoor = from.kind === 'gate' || (from.kind === 'building' && from.spot?.kind === 'entrance');
+    const out = through(ctx.places, a, atDoor ? undefined : doors.exit);
+    const into = through(ctx.places, b, doors.entrance);
+    if (out === null || into === null) return unknownPlace;
+    return between(ctx, { ...trip, a: out, b: { ...into, building: b.building } });
   };
+}
+
+const unknownPlace = { ok: false, reason: 'unknown-place' } as const;
+
+/** A stairs or elevator spot must stop on From's floor, when the building file is there to say (D48). */
+function spotFound(from: From, files: IndoorFiles): boolean {
+  if (from.kind !== 'building' || from.spot?.kind !== 'vertical') return true;
+  const { id } = from.spot;
+  const file = files.get(from.building);
+  const vertical = file?.verticals.find((v) => v.id === id);
+  return file === undefined || (vertical?.stops.some((s) => s.floor === from.floor) ?? false);
+}
+
+/** The place with only the chosen door open (D48), or null when the door isn't its building's. */
+function through(places: Places, place: Place, index: number | undefined): Place | null {
+  if (index === undefined) return place;
+  const door = place.building === undefined ? undefined : places.door(place.building, index);
+  return door === undefined ? null : { ...place, openings: [door] };
 }
 
 /** Stairs or elevator for a climb between two floors (D34), and whether the elevator was asked for in vain. */
@@ -166,11 +193,11 @@ interface Exits {
 }
 
 /** The ways between an end inside a building and each of the building's doors: `out` from the end, `in` to it. */
-function exits(trip: Trip, end: End, spot: Spot, way: 'out' | 'in'): Exits {
+function exits(trip: Trip, end: End, place: Place, way: 'out' | 'in'): Exits {
   const none = { inside: null, paths: [], costs: [], noElevator: false };
   if (!isInside(end)) return { ...none, missing: end === 'missing' };
   const { climb, noElevator } = climbOf(trip.mode, end.floor, 1, end.model.hasElevator);
-  const paths = spot.openings.map((o) => {
+  const paths = place.openings.map((o) => {
     const door = o.entrance === undefined ? undefined : end.model.entrance(o.entrance);
     if (door === undefined) return null;
     return way === 'out' ? end.model.search(end.points, [door], climb) : end.model.search([door], end.points, climb);
@@ -202,25 +229,33 @@ function chunkOf(
 
 const isInside = (end: End): end is Inside => end !== null && end !== 'missing';
 
-/** The From end inside its building. A G tap needs one only for a room in the same building (`same`). */
+/** The From end inside its building. A G tap needs one only for a room in the same building (`same`), or when its
+ *  spot is a stairs or elevator (D48). */
 function insideFrom(trip: Trip, same: boolean): End {
   const { from, files, a } = trip;
   if (from.kind === 'gate' || a.building === undefined) return null;
   const file = files.get(a.building);
   if (from.kind === 'room') return file === undefined ? 'missing' : roomEnd(indoorModel(file), from.code, a.floor);
-  if (a.floor === 1 && !(same && trip.to.kind === 'room')) return null;
+  const vertical = from.spot?.kind === 'vertical' ? from.spot.id : undefined;
+  if (a.floor === 1 && vertical === undefined && !(same && trip.to.kind === 'room')) return null;
   if (file === undefined) return 'missing';
   const model = indoorModel(file);
-  if (a.floor === 1) {
-    const points = a.openings.flatMap((o) => (o.entrance === undefined ? [] : [model.entrance(o.entrance) ?? -1]));
-    const joined = points.filter((p) => p >= 0);
-    return joined.length === 0 ? 'missing' : { model, floor: 1, points: joined, name: 'the main entrance' };
-  }
-  // PRD UC2: an upper floor starts at its elevator lobby; without an elevator there, at the first stairs listed.
-  const stops = model.file.verticals.flatMap((v) => v.stops.filter((s) => s.floor === a.floor).map((s) => ({ v, s })));
-  const stop = stops.find((x) => x.v.kind === 'elevator') ?? stops[0];
+  if (vertical !== undefined || a.floor !== 1) return stopEnd(model, a.floor, vertical);
+  const points = a.openings.flatMap((o) => (o.entrance === undefined ? [] : [model.entrance(o.entrance) ?? -1]));
+  const joined = points.filter((p) => p >= 0);
+  const only = a.openings.length === 1 ? a.openings[0]?.end : undefined;
+  const name = only?.kind === 'door' ? doorWords(only) : 'the main entrance';
+  return joined.length === 0 ? 'missing' : { model, floor: 1, points: joined, name };
+}
+
+/** Starting at the stairs or elevator `id` on the floor. Without one, PRD UC2: the elevator lobby, or without an
+ *  elevator there, the first stairs listed. */
+function stopEnd(model: IndoorModel, floor: number, id: string | undefined): End {
+  const stops = model.file.verticals.flatMap((v) => v.stops.filter((s) => s.floor === floor).map((s) => ({ v, s })));
+  const stop =
+    id === undefined ? (stops.find((x) => x.v.kind === 'elevator') ?? stops[0]) : stops.find((x) => x.v.id === id);
   if (stop === undefined) return 'missing';
-  return { model, floor: a.floor, points: [stop.s.point], name: `the ${stop.v.id.split('-').join(' ')}` };
+  return { model, floor, points: [stop.s.point], name: `the ${stop.v.id.split('-').join(' ')}` };
 }
 
 /** The To end inside its building: a room's doors. A building as To needs none. */
@@ -236,35 +271,49 @@ function roomEnd(model: IndoorModel, code: string, floor: number): End {
   return room === undefined ? 'missing' : { model, floor, points: room.doors, room: code, name: code };
 }
 
+/** A building's door as a place the walk can start or end, by its index in campus.json's `entrances`. */
+const doorOpening = (g: WalkGraph, e: Entrance, entrance: number): Opening => ({
+  point: e.point,
+  entrance,
+  end: {
+    kind: 'door',
+    building: e.building,
+    door: e.kind,
+    ...(e.name === undefined ? {} : { name: e.name }),
+    entrance,
+    verified: e.verified,
+    at: g.at(e.point),
+  },
+});
+
 function placesOf(campus: RouterCampus, rooms: RouterRooms, g: WalkGraph): Places {
   const buildings = new Map(campus.buildings.map((b) => [b.slug, b]));
   const roomByCode = new Map(rooms.rooms.map((r) => [r.code, r]));
-  const door = (e: Entrance, entrance: number): Opening => ({
-    point: e.point,
-    entrance,
-    end: {
-      kind: 'door',
-      building: e.building,
-      door: e.kind,
-      ...(e.name === undefined ? {} : { name: e.name }),
-      verified: e.verified,
-      at: g.at(e.point),
-    },
-  });
+  const door = (slug: string, index: number): Opening | undefined => {
+    const e = campus.entrances[index];
+    return e?.building === slug ? doorOpening(g, e, index) : undefined;
+  };
   /** Leaving from G starts at the main entrance(s), the PRD's spot default; otherwise any door will do (D34). */
-  const inBuilding = (slug: string, floor: number, leaving: boolean): Spot | null => {
+  const inBuilding = (slug: string, floor: number, leaving: boolean): Place | null => {
     const b = buildings.get(slug);
     if (b === undefined || !Number.isInteger(floor) || floor < 1 || floor > b.levels) return null;
-    const all = campus.entrances.flatMap((e, i) => (e.building === slug ? [door(e, i)] : []));
+    const all = campus.entrances.flatMap((e, i) => (e.building === slug ? [doorOpening(g, e, i)] : []));
     const mains = all.filter((o) => o.end.kind === 'door' && o.end.door === 'main');
     const usable = leaving && floor === 1 && mains.length > 0 ? mains : all;
     return { building: slug, floor, openings: usable };
   };
-  const inRoom = (code: string, leaving: boolean): Spot | null => {
+  /** A tap with Change spot's choice (D48): a door spot is that door, on G only; a stairs or elevator, any door. */
+  const tapped = ({ building, floor, spot }: Extract<From, { kind: 'building' }>): Place | null => {
+    if (spot?.kind !== 'entrance') return inBuilding(building, floor, spot === undefined);
+    const place = inBuilding(building, floor, false);
+    const opening = door(building, spot.entrance);
+    return place === null || floor !== 1 || opening === undefined ? null : { ...place, openings: [opening] };
+  };
+  const inRoom = (code: string, leaving: boolean): Place | null => {
     const room = roomByCode.get(code);
     return room === undefined ? null : inBuilding(room.building, room.floor, leaving);
   };
-  const atGate = (id: string): Spot | null => {
+  const atGate = (id: string): Place | null => {
     const gate = campus.gates.find((x) => x.id === id);
     if (gate === undefined) return null;
     const end = { kind: 'gate', gate: gate.id, name: gate.name, at: g.at(gate.point) } as const;
@@ -273,9 +322,10 @@ function placesOf(campus: RouterCampus, rooms: RouterRooms, g: WalkGraph): Place
   return {
     from: (from) => {
       if (from.kind === 'gate') return atGate(from.gate);
-      return from.kind === 'room' ? inRoom(from.code, true) : inBuilding(from.building, from.floor, true);
+      return from.kind === 'room' ? inRoom(from.code, true) : tapped(from);
     },
     to: (to) => (to.kind === 'room' ? inRoom(to.code, false) : inBuilding(to.building, 1, false)),
+    door,
     hasElevator: (slug) => buildings.get(slug)?.tier === 'full',
   };
 }
@@ -291,7 +341,7 @@ interface Outdoors {
 }
 
 /** The outdoor leg between two spots, or null if nothing joins them (or one has no doors). */
-function walkLeg(g: WalkGraph, a: Spot, b: Spot, ends: EndCosts): Outdoors | null {
+function walkLeg(g: WalkGraph, a: Place, b: Place, ends: EndCosts): Outdoors | null {
   const walk = cheapestWalk(
     g,
     a.openings.map((o) => o.point),

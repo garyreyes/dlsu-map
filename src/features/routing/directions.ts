@@ -102,7 +102,7 @@ function walkSteps(ctx: Context, short: (slug: string) => string, trip: Trip): S
 }
 
 const at = (xy: readonly XY[], i: number): XY => xy[i] ?? [Number.NaN, Number.NaN];
-const doorWords = (d: Door): string => `the ${d.door} entrance${d.name === undefined ? '' : ` ${d.name}`}`;
+export const doorWords = (d: Door): string => `the ${d.door} entrance${d.name === undefined ? '' : ` ${d.name}`}`;
 const approximately = (text: string, verified: boolean): string => (verified ? text : `${text} (approximate)`);
 
 function startMark(from: WalkEnd, leg: number, short: (slug: string) => string): Mark {

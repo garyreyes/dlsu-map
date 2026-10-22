@@ -155,6 +155,18 @@ describe('attach', () => {
     expect(notes).toContain('entrances: no main entrance yet for connon (block tier)');
   });
 
+  it('fails two doors of one kind in a building unless each has its own name (D48)', () => {
+    const error = 'strc: its 2 main entrances each need a different name in data-src/campus/entrances.json';
+    const second = (name?: string) => entrance('strc', [19.6, 15], name === undefined ? {} : { name });
+    const named = (name?: string) => (name === undefined ? strcMain : { ...strcMain, name });
+    expect(attach(input({ entrances: [strcMain, miguelMain, second()] })).errors).toStrictEqual([error]);
+    expect(attach(input({ entrances: [named('facing Taft'), miguelMain, second()] })).errors).toStrictEqual([error]);
+    const same = [named('facing Taft'), miguelMain, second('facing Taft')];
+    expect(attach(input({ entrances: same })).errors).toStrictEqual([error]);
+    const both = [named('facing Taft'), miguelMain, second('facing Agno')];
+    expect(attach(input({ entrances: both })).errors).toStrictEqual([]);
+  });
+
   it('names a side entrance and keeps verified as given', () => {
     const side = entrance('strc', [19.6, 15], { kind: 'side', verified: true, name: 'to Agno' });
     const { entrances } = attach(input({ entrances: [strcMain, miguelMain, side] }));

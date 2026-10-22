@@ -1,7 +1,7 @@
 // Hand-written samples in the agreed shape, so Lane A can build 5b–5d before the real router (4b) and directions (4c)
 // land, and 8c before indoor routing (8b) does. The doors are real (`campus.json`, 2026-10-20); the walk is a short
 // stand-in line, not the real path. Times follow D34, steps D35 and D41. 8c-2 added the trip choices at the end.
-import type { Doors, From, Route, RouteResult, Step, To } from './route';
+import type { Doors, From, Route, RouteResult, Step, To } from './route.ts';
 
 const andrewMain = {
   kind: 'door',
