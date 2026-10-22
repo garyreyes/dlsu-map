@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "npm run compile-data && vite",
-    "build": "npm run compile-data && vite build",
+    "build": "npm run compile-data && vite build && node scripts/check-size.mjs",
     "preview": "vite preview",
     "lint": "eslint . && prettier --check . && markdownlint-cli2 \"**/*.md\"",
     "typecheck": "node node_modules/@typescript/native/bin/tsc -b",

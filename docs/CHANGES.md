@@ -8,6 +8,22 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-22: 10c performance and accessibility
+
+- **Quality tiers:** our own monitor (`campus-scene/quality.ts`, `QualityMonitor`) judges 30 back-to-back frames
+  and steps the pixel ratio 2 → 1.5 → 1 below 45 fps, back up above 58 fps, at most 4 times a session; the lowest
+  tier hides the city around the campus. drei's `PerformanceMonitor` wasn't usable: with `frameloop="demand"` it
+  reads the map sitting still as low fps. A frame over 100 ms is idle time and empties the window.
+- **Contrast:** `shared/config/contrast.ts` (WCAG 2.x) and `contrast-pairs.test.ts`, which reads the live tokens
+  from `src/styles.css` and the DESIGN.md frontmatter. Every text pair passes AA in both themes, including the 92%
+  credit plate over the worst map colour; no token changed. Every tap target checked is 48px or more.
+- **Bundle (D49, proposed):** three.js in its own chunk, a `vendor` chunk for what the first screen and the map
+  share, `chunkSizeWarningLimit` 1000. `scripts/check-size.mjs` ends `npm run build` and fails past 200 kB gzipped
+  for the first load or 300 kB for any other chunk. First load is 179 kB, three 249 kB.
+- **Reduced motion** was already complete (flights, the cut slide, the sheet, both CSS transitions); `home.spec.ts`
+  now checks the credit jumps under `reduce` and slides otherwise.
+- Not yet seen on a real phone: check the tier drop on the PR preview with a cheap Android.
+
 ## 2026-10-22: 8c-2 contract draft (D48, proposed)
 
 - **`src/shared/data/route.ts`:** `From`'s `building` kind takes an optional `spot` (an entrance on G, or a stairs or

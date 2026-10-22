@@ -34,6 +34,8 @@ interface Props {
    *  trails `cut` during a slide. */
   fullRoute: Route | null;
   reduced: boolean;
+  /** Whether the see-through city around the campus draws; the lowest quality tier drops it (10c). */
+  city: boolean;
   onTap: (slug: string | null) => void;
   massRef: RefObject<Mesh | null>;
 }
@@ -43,8 +45,21 @@ interface Props {
  * fades the distance and fills the sky, the light rig, and the campus, city and paths on top.
  */
 export function MapScene(props: Props) {
-  const { controlsRef, campus, palette, homeAzimuth, selected, band, route, cut, fullRoute, reduced, onTap, massRef } =
-    props;
+  const {
+    controlsRef,
+    campus,
+    palette,
+    homeAzimuth,
+    selected,
+    band,
+    route,
+    cut,
+    fullRoute,
+    reduced,
+    city,
+    onTap,
+    massRef,
+  } = props;
   const shown = useCutSlide(cut, reduced);
   const marks = useMemo(() => (shown ? cutMarks(fullRoute, shown.cutaway) : undefined), [fullRoute, shown]);
   const fog = useRef<Fog>(null);
@@ -99,7 +114,7 @@ export function MapScene(props: Props) {
       ) : (
         band && <FloorBandMesh band={band} />
       )}
-      <CityMasses campus={campus} palette={palette} />
+      {city && <CityMasses campus={campus} palette={palette} />}
     </>
   );
 }

@@ -32,6 +32,33 @@ export default defineConfig({
       devOptions: { enabled: false },
     }),
   ],
+  build: {
+    // The three chunk is ~950 kB and can't be split smaller, so 1000 is the smallest round limit it fits under (D49).
+    // Anything else past 1000 still warns; scripts/check-size.mjs holds the real budgets and fails CI.
+    chunkSizeWarningLimit: 1000,
+    rolldownOptions: {
+      output: {
+        // three.js and its React bindings get their own chunk, apart from the app's map code, so they are cached
+        // and fetched separately and only after the first screen (D49). Nothing in the first load imports them.
+        codeSplitting: {
+          groups: [
+            // What both the first screen and the 3D map import (React, zustand, and react-use-measure for the sheet) goes
+            // in its own chunk. Left to the rule below, rolldown puts it in the three chunk, which would then be
+            // downloaded on the first load.
+            {
+              name: 'vendor',
+              test: /node_modules[\\/](?:react|react-dom|scheduler|zustand|react-use-measure|use-sync-external-store|@babel[\\/]runtime)[\\/]/,
+              priority: 2,
+            },
+            {
+              name: 'three',
+              test: /node_modules[\\/](?:three|@react-three|camera-controls|its-fine|suspend-react)[\\/]/,
+            },
+          ],
+        },
+      },
+    },
+  },
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },

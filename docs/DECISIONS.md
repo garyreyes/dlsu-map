@@ -1196,3 +1196,30 @@ read, so the shape is agreed before the router (Lane B) or the pickers (Lane A) 
 Naming doors by kind and name instead of index (Velasco has two unnamed main entrances, so names don't tell them
 apart). Putting the exit on `From` (it's a route option in S5, not where the student is). **Revisit if** the entrance
 index stops being stable between `campus.json` and the building files, which come from the same build.
+
+## D49. A size budget for the JavaScript, checked on every build (2026-10-22, proposed)
+
+**Problem.** Vite warns when a chunk is over 500 kB before compression. Two chunks were over it: the first-load
+chunk at 569 kB (179 kB gzipped) and the lazy 3D chunk at 995 kB (266 kB gzipped). The first-load growth since 1d is
+real code (React, zod, motion for the sheet, routing), not an accident. three.js alone is about 950 kB, so its chunk
+can't get under 500 kB. A warning that always shows gets ignored, and then it can't catch real growth either.
+
+**Decision.** (Owner's answer, 2026-10-22.)
+
+1. **Budget what the phone downloads, gzipped:** the first load (the entry script and every chunk `index.html`
+   preloads) at most **200 kB**; every other chunk at most **300 kB**.
+2. **`scripts/check-size.mjs` enforces it** at the end of `npm run build`, so the `gates` job fails on a PR that
+   goes over. No new dependency.
+3. **three.js gets its own chunk** (with `@react-three/*` and camera-controls), and a `vendor` chunk holds what the
+   first screen and the map share (React, zustand). Without it rolldown puts React in the three chunk and three.js
+   lands in the first load. Vite's `chunkSizeWarningLimit` is 1000 kB, the smallest round number the three chunk
+   fits under.
+4. **Nothing else goes lazy for now.** Where are you would save 2.9 kB for a blank sheet after Directions, and the
+   route screens share an `index.ts` with hooks the shell needs, for about 5 kB. Neither is worth it today.
+
+At the time of writing: first load 179 kB gzipped (index 109, vendor 70), three 249 kB, the map's own code 15 kB.
+
+**Alternatives.** Leaving the warning on every build (it gets ignored). Raising the limit with no budget (growth goes
+unnoticed). `size-limit` or Lighthouse CI (a new dependency outside ARCHITECTURE §2 for what a short script does).
+**Revisit if** the first load nears 200 kB (about 21 kB of room today: split the route screens first), a budget
+blocks a feature that needs the bytes, or testers on slow phones find the first load slow even within budget.

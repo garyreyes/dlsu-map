@@ -14,12 +14,14 @@ import { LOADING_MAP, MapMessage } from '@/shared/ui/MapMessage';
 import { useReducedMotion } from '@/shared/ui/useMediaQuery';
 import { headingDeg } from '../gestures';
 import { framing, homeAzimuth, mainCampusCentre } from '../home-view';
+import { showsCity, TIER_DPR, type QualityTier } from '../quality';
 import { CameraRig, goHome, type HomeView, type MapInsets } from './CameraRig';
 import { LabelLayer, LabelProjector, type LabelElements, type MapHere } from './Labels';
 import { MapButtons } from './MapButtons';
 import { MapCredit } from './MapCredit';
 import { MapFailed } from './MapFailed';
 import { MapScene } from './MapScene';
+import { QualityMonitor } from './QualityMonitor';
 import { useCameraFlights } from './useCameraFlights';
 import { useCampus } from './useCampus';
 import { useTripMarks, type MapFloor, type MapFocus } from './useTripMarks';
@@ -127,6 +129,8 @@ function CampusView(props: Props & { campus: Campus }) {
   }, []);
   const elementsRef = useRef<LabelElements>(new Map());
   const [status, setStatus] = useState<Status>('loading');
+  // A slow phone steps down a tier: fewer pixels, and on the lowest the city goes (quality.ts, 10c).
+  const [tier, setTier] = useState<QualityTier>('high');
   const reduced = useReducedMotion();
   const home = useMemo(() => homeFor(campus), [campus]);
   const failed = useCallback(() => {
@@ -214,12 +218,13 @@ function CampusView(props: Props & { campus: Campus }) {
             flat
             gl={{ localClippingEnabled: true }}
             frameloop="demand"
-            dpr={[1, 2]}
+            dpr={[1, TIER_DPR[tier]]}
             camera={{ fov: FOV_DEG, near: NEAR, far: FAR }}
             onCreated={() => {
               setStatus('ready');
             }}
           >
+            <QualityMonitor tier={tier} onTier={setTier} />
             <MapScene
               controlsRef={controlsRef}
               campus={campus}
@@ -231,6 +236,7 @@ function CampusView(props: Props & { campus: Campus }) {
               cut={cut}
               fullRoute={route}
               reduced={reduced}
+              city={showsCity(tier)}
               onTap={tap}
               massRef={massRef}
             />
