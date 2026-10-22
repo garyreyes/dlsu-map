@@ -15,6 +15,17 @@ export function angleDelta(from: number, to: number): number {
   return d - TURN * Math.ceil((d - Math.PI) / TURN);
 }
 
+/**
+ * camera-controls' azimuth that puts the camera behind a walk from `at` toward `toward` (data x, y), so the walk points
+ * up the screen (D44). Chosen the short way round from `current`; `current` itself when the two points are the same.
+ */
+export function facingAzimuth(at: readonly [number, number], toward: readonly [number, number], current: number) {
+  const [dx, dy] = [toward[0] - at[0], toward[1] - at[1]];
+  if (dx === 0 && dy === 0) return current;
+  // The camera's offset is the walk reversed; in the scene z is -y, and the azimuth runs from +z toward +x.
+  return current + angleDelta(current, Math.atan2(-dx, dy));
+}
+
 /** The angle of the line from `a` to `b` on screen. A two-finger twist is the change in this angle. */
 export function lineAngle(a: Point, b: Point): number {
   return Math.atan2(b.y - a.y, b.x - a.x);

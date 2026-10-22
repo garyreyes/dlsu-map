@@ -3,6 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   angleDelta,
+  facingAzimuth,
   createTapTracker,
   createTwoFingerTracker,
   headingDeg,
@@ -235,5 +236,25 @@ describe('createTapTracker', () => {
 
   it('ignores a lift it never saw go down', () => {
     expect(createTapTracker().up(7, p(0, 0), 10)).toBeNull();
+  });
+});
+
+describe('facingAzimuth', () => {
+  // Data x is east, y is north. Azimuth 0 puts the camera south of its target, looking north; π/2 puts it east.
+  it('puts the camera behind the walk, so the walk points up the screen (D44)', () => {
+    close(facingAzimuth([0, 0], [0, 10], 0), 0);
+    close(facingAzimuth([0, 0], [10, 0], 0), -Math.PI / 2);
+    close(facingAzimuth([0, 0], [-10, 0], 0), Math.PI / 2);
+    close(facingAzimuth([5, 5], [5, -5], 0), Math.PI);
+    close(facingAzimuth([0, 0], [10, 10], 0), -Math.PI / 4);
+  });
+
+  it('turns the short way from where the camera is now', () => {
+    close(facingAzimuth([0, 0], [0, 10], 2 * Math.PI - 0.1), 2 * Math.PI);
+    close(facingAzimuth([0, 0], [-10, 0], -Math.PI), -1.5 * Math.PI);
+  });
+
+  it('keeps the camera’s heading when there is no way to face', () => {
+    expect(facingAzimuth([3, 4], [3, 4], 1.25)).toBe(1.25);
   });
 });

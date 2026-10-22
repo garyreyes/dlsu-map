@@ -67,7 +67,8 @@ export function stepGroups(route: Route, names: Pick<PlaceNames, 'short'>): Step
   }));
 }
 
-function rowOf(step: Step, index: number, route: Route): StepRow {
+/** One step as the list shows it, and the step card too (S6). */
+export function rowOf(step: Step, index: number, route: Route): StepRow {
   const approximate = 'approximate' in step && step.approximate === true;
   const title = approximate && step.text.endsWith(APPROXIMATE) ? step.text.slice(0, -APPROXIMATE.length) : step.text;
   const parts = [
