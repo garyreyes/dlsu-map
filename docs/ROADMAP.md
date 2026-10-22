@@ -119,7 +119,7 @@ owner checks it in the floor preview and marks it `checked: true`.
 |---|---|---|---|---|
 | 10a | Offline hardening: update prompt (O4, never mid-route), `storage.persist`, cleared-storage state (O3), iOS hint; left over from 1d: web app manifest + icons, O2's percentage (needs our own service worker), "Ready offline" in a second tab open during a first save; airplane-mode and week-unused tests on iPhone and Android | A | 1d, 5d | not started |
 | 10b | ⓘ sheet (S10): Report a problem via the pre-filled Google Form (D24; the team creates the form), credits, beta label, version | A | 1c | not started |
-| 10c | Performance + accessibility: quality tiers, reduced motion, WCAG AA over the map | A | 8c | not started |
+| 10c | Performance + accessibility: quality tiers, reduced motion, WCAG AA over the map; size budget (D49) | A | 8c | done |
 | 10d | Private beta: unlisted link, `noindex` checked, testers invited | A | 10a–10c, 9a–9d | not started |
 | 10▸ | Impeccable critique + polish (Phase 10) | A | 10a–10c | not started |
 
