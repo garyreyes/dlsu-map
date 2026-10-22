@@ -5,5 +5,5 @@ export { FloorRail } from './components/FloorRail';
 export { useCutaway, type CutawayStep, type CutawayView } from './components/useCutaway';
 export { useCutSlide } from './components/useCutSlide';
 export { useIndoor, type IndoorState } from './components/useIndoor';
-export { CUT_ABOVE_FLOOR, RAIL_ROWS, type Cutaway, type RailRow } from './cutaway';
+export { CUT_ABOVE_FLOOR, RAIL_ROWS, type Cutaway, type CutMarks, type RailRow } from './cutaway';
 export { SLIDE_MS, type CutMove, type CutSlide, type ShownCut } from './transition';
