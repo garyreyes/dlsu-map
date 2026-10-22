@@ -36,7 +36,7 @@
 | O2 | Saving for offline | Thin line under the search bar: "Saving for offline…", then "✓ Ready offline" for 3 s. The percentage ("…40%") waits for 10a. If it can't finish, the line stays: "Saving paused…" (signal dropped after opening; retried when it returns), "Not saved for offline…" (failed with signal), "This browser can't save the map…" (private modes) |
 | O3 | Offline copy lost (iPhone cleared storage) | ⓘ shows "Not saved offline. Open with internet to save again" |
 | O4 | Map update ready | Toast: "Map updated. Reload?" Never shown mid-route |
-| O5 | Interior not traced yet (beta) | Route ends at the entrance; S9 says "ST311 is on 3F · indoor map coming" |
+| O5 | Interior not traced yet (beta) | Route ends at the entrance. S5 says so before Start (D43); S9 says "ST311 is on 3F · indoor map coming" |
 | O6 | Unverified entrance, stair or elevator | The step text ends with "(approximate)" |
 
 | # | Dev-only | Where |
@@ -157,21 +157,30 @@ flowchart TD
   step says so under the chips. A small "Change spot" link comes in 8c, where a chosen spot shows (D42).
 - **Opens by itself only under a room card** (D42). A building card's Directions opens it. While it's open, the
   room card shrinks to one line above it, and tapping a building on the map picks it here.
-- **Until 5b,** setting From opens the all-steps list (S8) in place of S5, with a "Change where I am" button (D42).
+- Setting From opens the route preview (S5), whose From chip comes back here (5b, D43).
 - **Error cases:** a From code that isn't in the list gets the same Did you mean as To. **From = To** shows "You're
   already at ST311" and S9.
 
 ### 3.6 S5 Route preview (the confirm screen)
 
-- Top: two chips, **From** `AG1104` → **To** `ST311`. Tapping either reopens S4 or S2 to change it.
-- Middle: about 4 min · 230 m · via elevator. The whole route is framed on the map.
-- **Start**: one large button, the only primary action.
-- **Route options ▾** (collapsed): Stairs / Elevator / Auto for this route (Auto takes the elevator for 3+ floors),
-  and which exit to use. Changing one re-routes at once.
-- **Error cases:**
-  - Elevator chosen but the building has none: "No elevator in Andrew Hall. Using stairs."
-  - No route found (the compiler should prevent this): "We can't find a way from AG1104 to ST311 yet." plus
-    Report a problem. Never a guessed route.
+- Top: the card's one line, as in S4 ("ST311 · STRC · 3rd floor (3F)"), then two chips, **From** `AG1104` → **To**
+  `ST311`. Tapping From reopens S4; tapping To reopens S2 (D43).
+- Middle: about 4 min · 230 m walk · via elevator. The whole trip is framed on the map: the walk as a green line, the
+  "you are here" dot on From, the band on To's floor. Only the outdoor walk is drawn until the cutaway (7a, D43).
+- **Start**: one large button, the only primary action. Until the step player (5d) it opens the all-steps list (S8),
+  and Back returns here (D43).
+- **Route options ▾** (collapsed, and left out when the route changes no floor): Stairs / Elevator / Auto for this
+  route (Auto takes the elevator for 3+ floors). Changing one re-routes at once; a new trip starts on Auto. Which exit
+  to use comes in 8c, with Change spot (D43).
+- **With From already set,** a room card opens this at once (§3.1), and a building card's Directions does too.
+- **Error and limit cases:**
+  - Elevator chosen but the building has none: "No elevator in Andrew. Using stairs."
+  - A building with no indoor map yet (O5, D43): "St. Joseph has no indoor map yet, so directions stop at its door."
+    It says "start" for the From building, "from door to door" for both, and "only give the floor" inside one.
+  - No route found (the compiler should prevent this): "We can't find a way from AG1104 to ST311 yet." Report a
+    problem joins it in 10b. Never a guessed route.
+  - Loading: the chips show at once, then "Finding the route…" over a faded Start.
+  - The map data failed to load: "The map couldn't load." and Reload.
 
 ### 3.7 S6 and S7 Steps
 

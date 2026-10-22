@@ -104,7 +104,8 @@ export function tripLine(from: From, to: To, names: PlaceNames): string {
   return `${fromName(from, names)} → ${toName(to, names)}`;
 }
 
-function fromName(from: From, names: PlaceNames): string {
+/** How From reads: "AG1104", "Gate 2 (North)", "Andrew 5F". */
+export function fromName(from: From, names: PlaceNames): string {
   switch (from.kind) {
     case 'gate':
       return names.gate(from.gate);
@@ -115,7 +116,8 @@ function fromName(from: From, names: PlaceNames): string {
   }
 }
 
-const toName = (to: To, names: Pick<PlaceNames, 'short'>): string =>
+/** How To reads: "ST311", "STRC". */
+export const toName = (to: To, names: Pick<PlaceNames, 'short'>): string =>
   to.kind === 'room' ? to.code : names.short(to.building);
 
 /** What the list says when the route has no steps: From is already on the room's floor, or in the building. */

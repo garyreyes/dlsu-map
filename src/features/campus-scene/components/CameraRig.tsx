@@ -76,6 +76,23 @@ export function buildingView(b: Pick<CampusBuilding, 'volumes'>, insets: MapInse
   };
 }
 
+/** A trip's view is never tighter than this radius, in meters, so a short one still shows where it is. */
+const TRIP_MIN_RADIUS = 45;
+/** Air around the trip, as a multiple of what it spans. */
+const TRIP_MARGIN = 1.15;
+
+/** A whole trip (5b): the walk, the From building and the To building, fitted to the screen the chrome leaves, at the
+ *  closer angle, so goToBuilding can fly there. `outlines` are flat x, y lists: the lines and the buildings' outlines. */
+export function tripView(outlines: readonly (readonly number[])[], insets: MapInsets): BuildingView {
+  const { centre, radius } = framing(outlines);
+  const view = { width: window.innerWidth, height: window.innerHeight, fovDeg: FOV_DEG, polar: SELECT_POLAR };
+  const fit = fitDistance(Math.max(TRIP_MIN_RADIUS, radius * TRIP_MARGIN), view, insets);
+  return {
+    target: new Vector3(centre[0], 0, -centre[1]),
+    distance: Math.min(MAX_DISTANCE, Math.max(MIN_DISTANCE, fit)),
+  };
+}
+
 /** Flies to a selected building at the closer, lower angle (DESIGN.md, Camera). It keeps the heading the student has
  *  turned to, unless `azimuth` names one that sees the floor band. */
 export function goToBuilding(c: CameraControls, view: BuildingView, azimuth: number | null, animate: boolean) {

@@ -7,14 +7,16 @@ interface ButtonProps {
 
 /**
  * The sheet's one primary action (DESIGN.md, Buttons): a full-width Campus Green pill, 52px, white 17px bold label.
- * Pressed darkens to 94%. One per sheet: Directions on a card, Start on the route preview.
+ * Pressed darkens to 94%. One per sheet: Directions on a card, Start on the route preview. `disabled` while what it
+ * acts on is still loading: it stays in place, faded, so nothing moves when it's ready.
  */
-export function PrimaryButton({ children, onClick }: ButtonProps) {
+export function PrimaryButton({ children, onClick, disabled = false }: ButtonProps & { disabled?: boolean }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="mt-2 h-13 w-full cursor-pointer rounded-pill bg-accent text-[17px] font-bold text-on-accent active:brightness-94"
+      disabled={disabled}
+      className="mt-2 h-13 w-full cursor-pointer rounded-pill bg-accent text-[17px] font-bold text-on-accent active:brightness-94 disabled:cursor-default disabled:opacity-45 disabled:active:brightness-100"
     >
       {children}
     </button>

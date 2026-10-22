@@ -7,6 +7,7 @@ import { HAZE_FAR, HAZE_NEAR, SKY_LIGHT, SUN_LIGHT, type MapPalette } from '@/sh
 import type { FloorBand } from '../floor-band';
 import { FloorBandMesh } from './FloorBand';
 import { CampusMasses, CityMasses, PathLines } from './Masses';
+import { RouteLine } from './RouteLine';
 
 const GROUND_SIZE = 20000;
 /** The prototype's light values are for three.js's old lighting (before r155), where the same intensity lit π
@@ -22,6 +23,8 @@ interface Props {
   selected: string | null;
   /** The selected room's floor band, if a room is selected. */
   band: FloorBand | null;
+  /** The route's outdoor walk as flat x, y lists; empty when there's no route on the map. */
+  route: readonly (readonly number[])[];
   onTap: (slug: string | null) => void;
   massRef: RefObject<Mesh | null>;
 }
@@ -30,7 +33,8 @@ interface Props {
  * The world under the chrome (DESIGN.md, Map depth): an unlit flat ground in the palette colour, a green haze that
  * fades the distance and fills the sky, the light rig, and the campus, city and paths on top.
  */
-export function MapScene({ controlsRef, campus, palette, homeAzimuth, selected, band, onTap, massRef }: Props) {
+export function MapScene(props: Props) {
+  const { controlsRef, campus, palette, homeAzimuth, selected, band, route, onTap, massRef } = props;
   const fog = useRef<Fog>(null);
   const skyGround = useMemo(
     () => new Color(SKY_LIGHT.color).lerp(new Color(palette.ground), SKY_LIGHT.groundTint),
@@ -62,6 +66,7 @@ export function MapScene({ controlsRef, campus, palette, homeAzimuth, selected, 
         <meshBasicMaterial color={palette.ground} />
       </mesh>
       <PathLines campus={campus} palette={palette} />
+      {route.length > 0 && <RouteLine lines={route} />}
       <CampusMasses campus={campus} palette={palette} selected={selected} onTap={onTap} massRef={massRef} />
       {band && <FloorBandMesh band={band} />}
       <CityMasses campus={campus} palette={palette} />

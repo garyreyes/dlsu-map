@@ -1054,3 +1054,31 @@ to hand off to.
 Building Change spot now (a contract change in Lane B's router, for a choice the steps list can't show yet).
 Returning to the card with From shown until 5b (nothing to test on a phone), or merging 5a and 5b (one huge PR).
 **Revisit if** students mostly pick buildings, not rooms, as destinations.
+
+## D43. Route preview (S5): Start opens all steps until 5d, exit choice in 8c, line outdoors (2026-10-22, proposed)
+
+**Problem.** Building 5b (S5) raised four things the docs left open: Start needs somewhere to go before the step
+player (5d) exists; user-flows §3.6 puts "which exit to use" in Route options, but the router's contract takes only
+Stairs / Auto / Elevator (D41); the 3D map has no cutaway until 7a, so a route's indoor legs would float inside
+solid blocks; and only STRC and Velasco have indoor maps, so most routes stop at a door and the time leaves out the
+walk inside, with nothing on S5 saying so (O5 put it on S9).
+
+**Decision.** (Owner's answers, 2026-10-22.)
+
+1. **Until 5d, Start opens the all-steps list (S8).** Back returns to S5. 5d swaps it for the player and nothing
+   else changes. "Change where I am" leaves S8 for now: S5's From chip does it, and 5d's ⋯ menu brings it back.
+2. **The exit choice moves to 8c**, next to Change spot (D42): both choose a door or spot, and both need a field the
+   router doesn't take yet. Route options in 5b are Stairs / Auto / Elevator only, and hidden when the route
+   changes no floor.
+3. **The line on the map draws only the outdoor walk** until the cutaway (7a). Inside a building, the "you are here"
+   dot (From's floor) and the floor band (To's floor) carry it.
+4. **S5 says when a building has no indoor map yet:** "St. Joseph has no indoor map yet, so directions stop at its
+   door." (or start there, for From; door to door, for both; only the floor, for a trip inside one building).
+5. The room line stays on top of S5 as it does on S4, so the building and floor stay on screen.
+
+**Alternatives.** Leaving Start out until 5d (the preview then has no primary action). Asking Lane B for an exit
+option now (5b would wait on a contract change). Drawing indoor legs through the walls (lines floating at floor
+heights inside solid blocks read badly). Saying "indoor map coming" only on S9 (the student finds out at the door,
+and the time looks shorter than the trip). Dropping the room line and putting the floor on the To chip (more map,
+but the sheet jumps between S4 and S5). **Revisit if** testers miss the exit choice, or the indoor-map line reads
+as noise once most buildings have their maps.
