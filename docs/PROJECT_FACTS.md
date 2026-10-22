@@ -380,6 +380,12 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - **The camera frames a trip once per `MapTrip.here` object:** `useRoute` keeps the same object for every mode of one
   trip, so a route option redraws the line without a flight. A new trip, or reopening the preview, gets a new one.
   (5b, 2026-10-22)
+- **Clipping needs `localClippingEnabled`:** a material's `clippingPlanes` do nothing unless the renderer has it on.
+  The campus Canvas sets it through `gl={{ localClippingEnabled: true }}` (`CampusMap.tsx`). Only the cut building's
+  materials carry the plane (`BuildingCutaway.tsx`); the stump is cut by geometry instead (`stumpBlocks`). (7a,
+  2026-10-22)
+- **e2e specs that step through camera flights run with `reducedMotion: 'reduce'`:** CI draws the 3D in software, and
+  each 650 ms flight made a walk through every step brush the 30 s test limit. (5d, 2026-10-22)
 
 ## Offline (1d)
 

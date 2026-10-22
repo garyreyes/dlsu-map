@@ -87,7 +87,7 @@ with a full-app polish.
 
 | ID | Sub-phase | Lane | Depends on | Status |
 |---|---|---|---|---|
-| 7a | Cutaway: split the entered building out of the merged mesh, clipping slice, floor rail | A | 6c | not started |
+| 7a | Cutaway: split the entered building out of the merged mesh, clipping slice, floor rail | A | 6c | done |
 | 7b | Automatic outdoor ↔ indoor switch at entrances; enter animation (a cut under reduced motion) | A | 7a | not started |
 | 7▸ | Impeccable critique + polish (Phase 7); extend DESIGN.md with the indoor materials | A | 7a–7b | not started |
 

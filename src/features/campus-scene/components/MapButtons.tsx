@@ -1,4 +1,5 @@
 import { LocateFixed } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { MapButton } from '@/shared/ui/MapButton';
 import { showCompass } from '../gestures';
 import { useHeading } from './headingStore';
@@ -8,16 +9,19 @@ interface Props {
   onRecenter: () => void;
   /** Distance from the bottom of the screen: just above the sheet on phones. */
   bottom: number | string;
+  /** Stacked on top of the buttons: the floor rail on an indoor step (7a). */
+  above?: ReactNode;
 }
 
 /** Compass (only while the map is turned) above recenter, at the right gutter (DESIGN.md, Map button, Compass). */
-export function MapButtons({ onCompass, onRecenter, bottom }: Props) {
+export function MapButtons({ onCompass, onRecenter, bottom, above }: Props) {
   const heading = useHeading((s) => s.deg);
   return (
     <div
       className="fixed right-(--gutter-r) z-3 flex flex-col gap-3 transition-[bottom] duration-260 ease-snap motion-reduce:transition-none"
       style={{ bottom }}
     >
+      {above}
       {showCompass(heading) && (
         <MapButton label="Turn the map back to its usual direction" onClick={onCompass}>
           {/* The needle's green tip points where "up" usually is: the map turned by `heading`, so it did too. */}

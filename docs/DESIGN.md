@@ -508,6 +508,14 @@ The found room's floor drawn as a solid Campus Green band one storey tall, set 0
 "G") attaches to the right-most stretch of the band the camera can actually see. The building itself takes a 22%
 green tint and the camera flies to a heading that shows the band.
 
+### Floor rail (S7)
+
+On a step inside a building, the building is cut open on the step's floor and the band stands down. A narrow white
+pill with the Float shadow sits on top of the map buttons' column and lists the floors top to bottom in 16px: the
+step's floor in the floor chip's look (Campus Green, white bold), other traced floors in Deep Ink, floors not traced
+yet in Soft Ink. Over 9 rows, it shows a window around the step's floor with the top floor, G and ⋮ for the gaps.
+Display only: no tap targets, and the highlight moves with Next and Back without animating.
+
 ### "You are here" dot
 
 An 18px Campus Green dot with a 3px white ring and the Float shadow, placed at the chosen floor's height in the

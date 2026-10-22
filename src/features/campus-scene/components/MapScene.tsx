@@ -2,6 +2,7 @@ import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef, type RefObject } from 'react';
 import { Color, type Fog, type Mesh } from 'three';
 import type { CameraControls } from '@react-three/drei';
+import { BuildingCutaway, type CutawayView } from '@/features/indoor-view';
 import type { Campus } from '@/shared/data/campus';
 import { HAZE_FAR, HAZE_NEAR, SKY_LIGHT, SUN_LIGHT, type MapPalette } from '@/shared/config/palette';
 import type { FloorBand } from '../floor-band';
@@ -25,6 +26,8 @@ interface Props {
   band: FloorBand | null;
   /** The route's outdoor walk as flat x, y lists; empty when there's no route on the map. */
   route: readonly (readonly number[])[];
+  /** The building the player's step is inside (7a): cut open on its floor in place of the band. */
+  cut: CutawayView | null;
   onTap: (slug: string | null) => void;
   massRef: RefObject<Mesh | null>;
 }
@@ -34,7 +37,7 @@ interface Props {
  * fades the distance and fills the sky, the light rig, and the campus, city and paths on top.
  */
 export function MapScene(props: Props) {
-  const { controlsRef, campus, palette, homeAzimuth, selected, band, route, onTap, massRef } = props;
+  const { controlsRef, campus, palette, homeAzimuth, selected, band, route, cut, onTap, massRef } = props;
   const fog = useRef<Fog>(null);
   const skyGround = useMemo(
     () => new Color(SKY_LIGHT.color).lerp(new Color(palette.ground), SKY_LIGHT.groundTint),
@@ -67,8 +70,19 @@ export function MapScene(props: Props) {
       </mesh>
       <PathLines campus={campus} palette={palette} />
       {route.length > 0 && <RouteLine lines={route} />}
-      <CampusMasses campus={campus} palette={palette} selected={selected} onTap={onTap} massRef={massRef} />
-      {band && <FloorBandMesh band={band} />}
+      <CampusMasses
+        campus={campus}
+        palette={palette}
+        selected={selected}
+        onTap={onTap}
+        massRef={massRef}
+        cutaway={cut?.cutaway ?? null}
+      />
+      {cut ? (
+        <BuildingCutaway indoor={cut.indoor} floor={cut.cutaway.floor} palette={palette} />
+      ) : (
+        band && <FloorBandMesh band={band} />
+      )}
       <CityMasses campus={campus} palette={palette} />
     </>
   );

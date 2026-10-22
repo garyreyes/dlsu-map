@@ -2,7 +2,17 @@
 // renders inside out or vanishes from above. A wrong triangle → building table opens the wrong card on a tap. So
 // each case pins exact values.
 import { describe, expect, it } from 'vitest';
-import { buildMassing, FOOT_HEIGHT, FOOT_SHADE, ownerOf, selectionGroups, type Massing, type Owner } from './massing';
+import {
+  buildMassing,
+  campusGroups,
+  FOOT_HEIGHT,
+  FOOT_SHADE,
+  ownerOf,
+  selectionGroups,
+  stumpBlocks,
+  type Massing,
+  type Owner,
+} from './massing';
 
 /** A 10 m square around (0, 0) in data coordinates (x east, y north), anticlockwise. */
 const SQUARE_CCW = [-5, -5, 5, -5, 5, 5, -5, 5];
@@ -217,5 +227,51 @@ describe('selectionGroups', () => {
 
   it('draws everything plainly for a slug with no triangles', () => {
     expect(selectionGroups(owners, 'velasco', total)).toStrictEqual([{ start: 0, count: 168, materialIndex: 0 }]);
+  });
+});
+
+// The cutaway swaps one building's full volume for a stump up to the cut floor's slab. A wrong cut leaves a gap or a
+// tower poking through the floor; a wrong group list makes a tap on one building select another.
+describe('stumpBlocks', () => {
+  const podium = { outline: SQUARE_CCW, base: 0, top: 12 };
+  const tower = { outline: SQUARE_CCW, base: 12, top: 60 };
+
+  it('keeps only the podium, cut to the slab, when the slab is inside it', () => {
+    expect(stumpBlocks([podium, tower], 8)).toStrictEqual([{ outline: SQUARE_CCW, base: 0, top: 8 }]);
+  });
+
+  it('cuts the tower at the slab when the slab is above the podium', () => {
+    expect(stumpBlocks([podium, tower], 20)).toStrictEqual([
+      { outline: SQUARE_CCW, base: 0, top: 12 },
+      { outline: SQUARE_CCW, base: 12, top: 20 },
+    ]);
+  });
+
+  it('is empty at slab 0', () => {
+    expect(stumpBlocks([podium, tower], 0)).toStrictEqual([]);
+  });
+
+  it('drops a block whose cut height is under 1 cm', () => {
+    expect(stumpBlocks([podium], 0.005)).toStrictEqual([]);
+  });
+});
+
+describe('campusGroups', () => {
+  const block = { outline: SQUARE_CCW, base: 0, top: 12 };
+  const buildings = ['first', 'mid', 'last'].map((slug) => ({ slug, volumes: [block] }));
+
+  it('leaves out the cut building and keeps the tap table pointing at the right slugs', () => {
+    const m = buildMassing(campusGroups(buildings, 'mid'));
+    expect(m.owners.map((o) => o.id)).toStrictEqual(['first', 'last']);
+    // first owns triangles 0–17, so the building that came after mid starts at 18.
+    expect(ownerOf(m.owners, 18)).toBe('last');
+    expect(ownerOf(m.owners, 35)).toBe('last');
+    expect(ownerOf(m.owners, 36)).toBeUndefined();
+  });
+
+  it('keeps every building when nothing is cut', () => {
+    const m = buildMassing(campusGroups(buildings, null));
+    expect(m.owners.map((o) => o.id)).toStrictEqual(['first', 'mid', 'last']);
+    expect(ownerOf(m.owners, 18)).toBe('mid');
   });
 });

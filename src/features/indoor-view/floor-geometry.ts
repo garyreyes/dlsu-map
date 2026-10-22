@@ -5,6 +5,7 @@
 // south, so north is -z (as in campus-scene's massing.ts). Tests: floor-geometry.test.ts.
 import type { Indoor, IndoorFloor } from '@/shared/data/indoor';
 import { ribbonPositions } from '@/shared/three/ribbons';
+import { CUT_ABOVE_FLOOR, type Cutaway } from './cutaway';
 
 /** Wall thickness in meters. Centred on the traced line, so an outer wall stands 0.1 m outside the outline. */
 export const WALL_THICKNESS = 0.2;
@@ -93,3 +94,20 @@ export function buildFloor({ base, height, walls, hallways }: IndoorFloor): Floo
 /** A building's floor by its number (G = 1), or undefined when that floor isn't traced yet. */
 export const floorOf = (indoor: Indoor, floor: number): IndoorFloor | undefined =>
   indoor.floors.find((f) => f.floor === floor);
+
+/** Where the cut sits for a floor: its base + CUT_ABOVE_FLOOR, or undefined when that floor isn't traced yet. */
+export function cutHeight(indoor: Indoor, floor: number): number | undefined {
+  const found = floorOf(indoor, floor);
+  return found && found.base + CUT_ABOVE_FLOOR;
+}
+
+/** The traced floors numbered `floor` or higher, lowest first. The cut slices them all under one plane. */
+export const floorsFrom = (indoor: Indoor, floor: number): IndoorFloor[] =>
+  indoor.floors.filter((f) => f.floor >= floor).sort((a, b) => a.floor - b.floor);
+
+/** What the map is told on a step inside the building (7a), or null when that floor isn't traced yet (the map keeps
+ *  the floor band, D44). */
+export function cutawayAt(indoor: Indoor, floor: number): Cutaway | null {
+  const found = floorOf(indoor, floor);
+  return found ? { building: indoor.building, floor, base: found.base } : null;
+}

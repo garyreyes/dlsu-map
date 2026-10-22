@@ -7,10 +7,12 @@ export type IndoorState =
 
 type Settled = Exclude<IndoorState, { status: 'loading' }>;
 
-/** Loads one building's floor file. Switching buildings reads as loading until the new file has arrived. */
-export function useIndoor(slug: string): IndoorState {
+/** Loads one building's floor file. Switching buildings reads as loading until the new file has arrived. No slug
+ *  loads nothing and stays loading. */
+export function useIndoor(slug: string | null): IndoorState {
   const [settled, setSettled] = useState<{ slug: string; state: Settled }>();
   useEffect(() => {
+    if (slug === null) return;
     let live = true;
     void loadIndoor(slug).then((result) => {
       if (!live) return;
@@ -23,5 +25,5 @@ export function useIndoor(slug: string): IndoorState {
       live = false;
     };
   }, [slug]);
-  return settled?.slug === slug ? settled.state : { status: 'loading' };
+  return slug !== null && settled?.slug === slug ? settled.state : { status: 'loading' };
 }
