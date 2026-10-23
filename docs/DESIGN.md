@@ -414,8 +414,9 @@ weight, not shadowed cards.
 per-building colours. Two named exceptions: the selected building's 22% tint toward the accent, and the Indoor Cut.
 
 **The Indoor Cut Rule.** A building cut open on a step is a floor plan, so it may separate its parts by tone: its
-walls are a darker tone of its own tinted colour and its hallways a deeper green (D46). From 8c it may carry one
-Campus Green mark for the goal room and the indoor line. Nothing outside the cut changes, and no new hue arrives.
+walls are a darker tone of its own tinted colour and its hallways a darker neutral (D46; neutral since 8▸, so
+green means only "yours"). It carries Campus Green for the indoor line and the goal room's label pin.
+Nothing outside the cut changes, and no new hue arrives.
 
 ## Shapes
 
@@ -535,8 +536,11 @@ their wall-foot darkening. Values for the green palette (all derived in `cutTone
   cut). Lambert, opaque.
 - **Walls:** the slab's colour at 80%, about #97a89a, 0.2 m thick boxes on the traced lines, both sides drawn. No
   wall-foot darkening and no cut-face colour.
-- **Hallways:** `path` leaned 65% toward Campus Green, 1 m wide, unlit, just above the slab: 3.1:1 against it.
-- **Rooms:** the space between walls; no fills, labels or door marks in v1.
+- **Hallways:** the building colour at 0.2 in linear RGB (`CUT_HALL_SHADE`), a mid-grey neutral with no green,
+  about #75736e: 3.4:1 against the slab. 1 m wide, unlit, just above the slab. Green hallways ran together with
+  the indoor line and the goal mark (8▸ critique, D53).
+- **Rooms:** the space between walls; no fills or door marks in v1. The goal room gets a label pin at its door, a
+  Campus Green plate with its code, like a selected building label. The data has no room outlines yet, so no fill.
 - **Order:** the cut draws after the see-through off-campus blocks, so none wash over it; the building's name label
   hides while it is cut. The route line and the dot are never clipped.
 
@@ -552,8 +556,9 @@ To building) from a heading that sees the band; a route option redraws the line 
 
 The route's outdoor walk as a flat 5.5m Campus Green ribbon on a 1.1m white edge each side, just above the paths:
 the edge does for the line what the white ring does for the dot, so it reads on the deep-green ground. Where a campus
-building stands in front of it, the line shows through at 45%, so the whole way stays traceable. Indoor legs aren't
-drawn yet: they come with the goal-room mark in 8c, on the cut floor (D43, D46).
+building stands in front of it, the line shows through at 45%, so the whole way stays traceable. While a building is
+cut open, the outdoor ribbon fades to 45%, so it doesn't swamp the entrance. Indoor legs are drawn on the cut floor
+(8c-1, D46): a 1.6 m Campus Green line on a 2.9 m white casing.
 
 ### Step card (S6)
 

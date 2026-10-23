@@ -11,6 +11,7 @@ interface Props {
 
 const SNAP = { ease: [0.16, 1, 0.3, 1] as const, duration: 0.26 };
 const noop = () => undefined;
+const SCROLLER = { overflowX: 'hidden' } as const;
 
 /**
  * The phone bottom sheet (DESIGN.md, Sheet snaps). Always open and never dismissed: it is the screen's navigation.
@@ -53,9 +54,15 @@ export function BottomSheet({ label, children, onVisibleHeight }: Props) {
         {/* The 24px handle zone. A plain spacer for now: Sheet.Header with no children draws the library's own grab
             bar, and with dragging off (until 3d) that would promise a drag that does nothing. */}
         <div className="h-6" aria-hidden />
+        {/* The side gutters sit on the scroller, not around it, so rows that bleed 8px into the gutter for their
+            press fill stay inside its box. A scroller narrower than its rows scrolled sideways under a thumb and
+            clipped the sheet's left edge (8▸). Sideways overflow is hidden as well, for any row that still overflows. The
+            library sets the scroller's touch-action itself, so it isn't set here. */}
         <Sheet.Content
           unstyled
-          className="px-(--gutter-r) pb-[calc(env(safe-area-inset-bottom,0px)+16px)] pl-(--gutter-l)"
+          className="pb-[calc(env(safe-area-inset-bottom,0px)+16px)]"
+          scrollClassName="px-(--gutter-r) pl-(--gutter-l)"
+          scrollStyle={SCROLLER}
         >
           {children}
         </Sheet.Content>
