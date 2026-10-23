@@ -1322,7 +1322,7 @@ read and more work). Keeping the jump.
 
 ---
 
-## D53. One-letter shortcuts for Andrew, Yuchengco, St. Miguel and St. Joseph (2026-10-23, proposed)
+## D53. One-letter shortcuts for Andrew, Yuchengco, St. Miguel and St. Joseph (2026-10-23, agreed)
 
 **Problem.** After D51 (`V` for Velasco), the owner checked what else students type. They also write Andrew rooms as
 `A1104`, Yuchengco's as `Y305`, St. Miguel's as `M203` and St. Joseph's as `J204`. Only `J` did anything (a "Did you
@@ -1341,3 +1341,5 @@ Tests: `tests/search.test.ts` (each shortcut on the real rooms) and the prefix t
 seen failing first.
 
 **Alternatives.** Suggest prefixes for all four (one more tap each). Leaving them out.
+
+**Agreed** by Gary and Charles (2026-10-23).

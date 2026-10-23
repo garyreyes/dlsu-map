@@ -8,7 +8,7 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
-## 2026-10-23: `A`, `Y`, `M` and `J` find their buildings' rooms (D53, proposed)
+## 2026-10-23: `A`, `Y`, `M` and `J` find their buildings' rooms (D53, agreed)
 
 - **One-letter shortcuts open the room**, as `V` does: `A1104` → AG1104 (Andrew), `Y305` → EY305 (Yuchengco), `M204` →
   SM204 (St. Miguel), `J204` → SJ204 (St. Joseph, was a "Did you mean", D25). Andrew and Yuchengco say their rooms
