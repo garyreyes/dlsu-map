@@ -5,6 +5,6 @@ export { SavingLine } from './components/SavingLine';
 export { InstallHint } from './components/InstallHint';
 export { UpdateToast } from './components/UpdateToast';
 export { useInstallHint } from './components/useInstallHint';
-export { useOfflineStatus, useSavedOffline, useUpdate } from './components/useOfflineStatus';
+export { useInfoOffline, useOfflineStatus, useSavedOffline, useUpdate } from './components/useOfflineStatus';
 export { usePersistStorage } from './components/usePersistStorage';
-export { shouldOfferUpdate, type UpdateScreen } from './status';
+export { shouldOfferUpdate, type InfoOffline, type UpdateScreen } from './status';
