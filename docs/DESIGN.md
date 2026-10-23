@@ -586,7 +586,8 @@ centred secondary **Done**.
 - **Cut slide:** 600ms, cubic ease-out (`1 - (1 - p)³`: half done at about 125ms), so the plane is seen passing the
   floors; an interrupted slide carries on from where the plane is.
 - **Dot glide:** on Next and Back the "you are here" dot glides along the route's line to the step's spot, 600ms with
-  the cut slide's ease-out, when both spots are on one level; across levels it jumps (D52).
+  the cut slide's ease-out: outside, through doors and around G as one level, and up or down at the stairs between
+  floors of one building, alongside the cut's slide. It jumps into another building's upper floor (D52).
 - **Gestures (phone):** one finger pans, pinch zooms, a two-finger twist turns the map with the fingers (as in Google
   Maps), and two fingers dragged up or down tilt it.
 - **Toast:** 160ms ease-out fade and 8px rise.

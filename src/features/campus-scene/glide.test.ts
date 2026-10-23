@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { easeOut, glidePath, pointAlong } from './glide';
+import { climbPath, easeOut, glidePath, levelPath, pointAlong } from './glide';
 
 // An L along a walk: 10 m east, then 10 m north.
 const ELL = [
@@ -108,5 +108,85 @@ describe('easeOut', () => {
     expect(easeOut(1)).toBe(1);
     expect(easeOut(-0.5)).toBe(0);
     expect(easeOut(1.5)).toBe(1);
+  });
+});
+
+describe('levelPath', () => {
+  it('follows the line, its height changing evenly by length (a door on the ground to a spot on G)', () => {
+    // 8 m east then 6 m north: the corner is 8/14 of the way, so its height is 8 of 14.
+    expect(levelPath([2, 0, 0], [10, 6, 14], [ELL])).toStrictEqual([
+      [2, 0, 0],
+      [10, 0, 8],
+      [10, 6, 14],
+    ]);
+  });
+
+  it('keeps the height on one floor, and is just the spot when the dot stays put', () => {
+    expect(levelPath([1, 0, 7], [8, 0, 7], [ELL])).toStrictEqual([
+      [1, 0, 7],
+      [8, 0, 7],
+    ]);
+    expect(levelPath([3, 0, 7], [3, 0, 7], [ELL])).toStrictEqual([[3, 0, 7]]);
+  });
+});
+
+describe('climbPath', () => {
+  // The new floor's hallway from the stairs (0, 0) to a room at (10, 5), 7 m up.
+  const HALL = [
+    [0, 0],
+    [10, 0],
+    [10, 5],
+  ] as const;
+
+  it('on Next rises at the stairs, then walks the new floor’s line', () => {
+    expect(climbPath([0, 0, 0], [10, 5, 7], [], [HALL])).toStrictEqual([
+      [0, 0, 0],
+      [0, 0, 7],
+      [10, 0, 7],
+      [10, 5, 7],
+    ]);
+  });
+
+  it('on Back walks the old floor’s line to the stairs, then drops', () => {
+    expect(climbPath([10, 5, 7], [0, 0, 0], [HALL], [])).toStrictEqual([
+      [10, 5, 7],
+      [10, 0, 7],
+      [0, 0, 7],
+      [0, 0, 0],
+    ]);
+  });
+
+  it('finds the new floor’s line from stairs traced up to 8 m away on the floor below', () => {
+    // Each floor's stairs were traced on their own: St. Joseph's sit up to 6.6 m apart from floor to floor.
+    expect(climbPath([-5, 0, 0], [10, 5, 7], [], [HALL])).toStrictEqual([
+      [-5, 0, 0],
+      [-5, 0, 7],
+      [10, 0, 7],
+      [10, 5, 7],
+    ]);
+    expect(climbPath([10, 5, 7], [-5, 0, 0], [HALL], [])).toStrictEqual([
+      [10, 5, 7],
+      [10, 0, 7],
+      [-5, 0, 7],
+      [-5, 0, 0],
+    ]);
+    expect(climbPath([-9, 0, 0], [10, 5, 7], [], [HALL])).toStrictEqual([
+      [-9, 0, 0],
+      [-9, 0, 7],
+      [10, 5, 7],
+    ]);
+  });
+
+  it('rises, then goes straight, when neither floor has a line through both spots', () => {
+    expect(climbPath([0, 0, 0], [3, 4, 7], [], [])).toStrictEqual([
+      [0, 0, 0],
+      [0, 0, 7],
+      [3, 4, 7],
+    ]);
+  });
+
+  it('is measured with its climb, so pointAlong rises before it walks', () => {
+    // 7 m up, then 10 m and 5 m along: 22 m in all, so halfway (11 m) is 4 m along the hallway.
+    expect(pointAlong(climbPath([0, 0, 0], [10, 5, 7], [], [HALL]), 0.5)).toStrictEqual([4, 0, 7]);
   });
 });

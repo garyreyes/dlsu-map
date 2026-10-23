@@ -11,10 +11,12 @@ session needs to know. Search this file; it isn't required reading (the reading 
 ## 2026-10-23: The dot glides on Next and Back (D52, proposed)
 
 - **The "you are here" dot glides** along the route's line to each step's spot, 600 ms with the cut slide's ease-out,
-  instead of jumping there. Only on one level (outdoors, or the same floor); across levels it jumps and the cut slides.
-  Reduced motion: it jumps. The camera's flights are unchanged.
-- **Test first:** `src/features/campus-scene/glide.ts` (the path along the line, a point along it, the ease); 13 of
-  its 14 tests in `glide.test.ts` were seen failing before the file existed (the 14th came from review).
+  instead of jumping there. Outside, in and out through doors and around G it is one level; between floors of one
+  building it rises or drops at the stairs, then walks the hallway, as the cut slides. Into another building's upper
+  floor, and under reduced motion, it jumps. The camera's flights are unchanged.
+- **Test first:** `src/features/campus-scene/glide.ts` (the path along the line, heights, climbs, a point along it,
+  the ease); every one of its 21 tests in `glide.test.ts` was seen failing before its code existed, except one
+  edge-case test added in review. Checked on the real data: of 182 climbs, none goes straight for more than 5.1 m.
 
 ## 2026-10-23: `V` finds Velasco rooms (D51, agreed)
 
