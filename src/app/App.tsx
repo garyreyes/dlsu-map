@@ -24,6 +24,7 @@ import {
   RoutePreview,
   StepPlayer,
   useRoute,
+  useRouteDoors,
   useRouteMode,
   useStep,
 } from '@/features/route-player';
@@ -103,7 +104,8 @@ export function App() {
   // trip. The player's step, and the map's focus on it, belong to the route.
   const routing = selected !== null && (trip.preview.isOpen || trip.player.isOpen || trip.arrived.isOpen);
   const [mode, setMode] = useRouteMode(trip.from, to);
-  const route = useRoute(routing ? trip.from : null, routing ? to : null, mode);
+  const [doors, setExit] = useRouteDoors(trip.from, to);
+  const route = useRoute(routing ? trip.from : null, routing ? to : null, mode, doors);
   const step = useStep(route);
   // The player stays open under Arrived, so the map keeps the last step there.
   const mapTrip: MapTrip | null =
@@ -281,6 +283,8 @@ export function App() {
         to={to}
         mode={mode}
         onMode={setMode}
+        doors={doors}
+        onExit={setExit}
         onChangeFrom={trip.changeFrom}
         onChangeTo={openSearch}
         onStart={() => {

@@ -8,6 +8,14 @@ export interface FloorChip {
   readonly label: string;
 }
 
+/** One of a building's doors, with its index in campus.json's `entrances`: that is how a spot names it (D48). */
+export interface PickerDoor {
+  readonly entrance: number;
+  readonly kind: 'main' | 'side' | 'back';
+  /** Where it faces, when the building has more than one of a kind. */
+  readonly name?: string;
+}
+
 export interface PickerBuilding {
   readonly slug: string;
   readonly name: string;
@@ -16,6 +24,8 @@ export interface PickerBuilding {
   readonly prefix: string;
   /** Bottom first. */
   readonly floors: readonly FloorChip[];
+  /** In campus.json's order. */
+  readonly doors: readonly PickerDoor[];
 }
 
 export interface PickerGate {
@@ -51,7 +61,12 @@ export function gateChip(name: string): string {
 export function pickerPlaces(campus: {
   readonly buildings: readonly BuildingInput[];
   readonly gates: readonly Pick<Campus['gates'][number], 'id' | 'name'>[];
+  readonly entrances: readonly Pick<Campus['entrances'][number], 'building' | 'kind' | 'name'>[];
 }): PickerPlaces {
+  const doorsOf = (slug: string): PickerDoor[] =>
+    campus.entrances.flatMap((e, entrance) =>
+      e.building === slug ? [{ entrance, kind: e.kind, ...(e.name === undefined ? {} : { name: e.name }) }] : [],
+    );
   return {
     buildings: campus.buildings
       .filter((b) => b.tier === 'full')
@@ -61,6 +76,7 @@ export function pickerPlaces(campus: {
         short: b.short,
         prefix: b.prefixes[0] ?? '',
         floors: floorChips(b),
+        doors: doorsOf(b.slug),
       })),
     gates: campus.gates.map((g) => ({ id: g.id, name: g.name, chip: gateChip(g.name) })),
   };

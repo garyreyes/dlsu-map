@@ -6,6 +6,7 @@ export { RoutePreview } from './components/RoutePreview';
 export { RouteSteps } from './components/RouteSteps';
 export { StepPlayer } from './components/StepPlayer';
 export { useRoute, type RouteState } from './components/useRoute';
+export { useRouteDoors } from './components/useRouteDoors';
 export { useRouteMode } from './components/useRouteMode';
 export { useStep } from './components/useStep';
 export { nextFrom, type StepFocus } from './player';

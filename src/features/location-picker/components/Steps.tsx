@@ -1,6 +1,7 @@
 import { HitList, type Hit } from '@/features/search';
 import { Chip, SecondaryButton } from '@/shared/ui/Button';
 import type { PickerBuilding, PickerGate } from '../places';
+import type { SpotChoice } from '../spots';
 
 /** The 16px Mid Ink label a group of choices sits under (DESIGN.md, Lists and rows). */
 export const GroupLabel = ({ text }: { text: string }) => (
@@ -30,15 +31,20 @@ export function BuildingRows({ heading, buildings, onPick }: BuildingRowsProps) 
 
 interface FloorStepProps {
   building: PickerBuilding;
+  /** Whether the building has a real choice of spot; if not, Change spot isn't shown. */
+  offersSpot: boolean;
+  /** Change spot is on: a floor tap asks where on it. */
+  choosing: boolean;
+  onChoosing: (choosing: boolean) => void;
   onFloor: (floor: number) => void;
   onBack: () => void;
 }
 
 /**
- * The floor step: the building's floors as chips, with the labels on its signs. Spot isn't asked (PRD UC2); the
- * line under the chips says where each floor starts, and Change spot comes in 8c (D42).
+ * The floor step: the building's floors as chips, with the labels on its signs. A tap sets From at once, at the
+ * usual spot (PRD UC2). Change spot, in the line under the chips, makes the tap ask where on the floor (D42).
  */
-export function FloorStep({ building, onFloor, onBack }: FloorStepProps) {
+export function FloorStep({ building, offersSpot, choosing, onChoosing, onFloor, onBack }: FloorStepProps) {
   const ground = building.floors[0]?.label ?? 'G';
   return (
     <div role="group" aria-label={`${building.name}: which floor?`}>
@@ -55,9 +61,78 @@ export function FloorStep({ building, onFloor, onBack }: FloorStepProps) {
           </Chip>
         ))}
       </div>
-      <p className="mt-3 text-ink-2">{ground} starts at the main entrance; other floors at the elevator lobby.</p>
+      <p className="mt-3 text-ink-2">
+        {choosing
+          ? 'Pick a floor, then where on it.'
+          : `${ground} starts at the main entrance; other floors at the elevator lobby.`}
+        {offersSpot && (
+          <>
+            {' '}
+            <button
+              type="button"
+              aria-pressed={choosing}
+              onClick={() => {
+                onChoosing(!choosing);
+              }}
+              className="-my-2.5 inline-block min-h-11 cursor-pointer rounded-row px-1 py-2.5 font-semibold text-accent"
+            >
+              {choosing ? 'Use the usual spot' : 'Change spot'}
+            </button>
+          </>
+        )}
+      </p>
       <div className="mt-3">
         <SecondaryButton onClick={onBack}>Pick another building</SecondaryButton>
+      </div>
+    </div>
+  );
+}
+
+interface SpotStepProps {
+  building: PickerBuilding;
+  /** The floor chip's label, e.g. `G` or `3F`. */
+  floorLabel: string;
+  /** Null while the building file loads on an upper floor. */
+  choices: readonly SpotChoice[] | null;
+  onSpot: (choice: SpotChoice) => void;
+  /** No spot to choose after all (the file didn't load): start at the usual one. */
+  onUsual: () => void;
+  onBack: () => void;
+}
+
+const capital = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+
+/** Change spot's second step: where on the floor, as chips like the gates. */
+export function SpotStep({ building, floorLabel, choices, onSpot, onUsual, onBack }: SpotStepProps) {
+  const title = `${building.short} ${floorLabel}: where on the floor?`;
+  return (
+    <div role="group" aria-label={title}>
+      <GroupLabel text={title} />
+      {choices === null && <p className="py-3 text-ink-2">Loading the floor…</p>}
+      {choices !== null && choices.length < 2 && (
+        <>
+          <p className="pb-3 text-ink-2">
+            {building.short}&rsquo;s indoor map isn&rsquo;t saved yet, so {floorLabel} starts at the elevator lobby.
+          </p>
+          <Chip onClick={onUsual}>Elevator lobby</Chip>
+        </>
+      )}
+      {choices !== null && choices.length >= 2 && (
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-2">
+          {choices.map((c) => (
+            <Chip
+              key={c.label}
+              onClick={() => {
+                onSpot(c);
+              }}
+            >
+              {capital(c.label)}
+            </Chip>
+          ))}
+        </div>
+      )}
+      <div className="mt-3">
+        <SecondaryButton onClick={onBack}>Pick another floor</SecondaryButton>
       </div>
     </div>
   );

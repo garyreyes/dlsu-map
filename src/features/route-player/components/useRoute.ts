@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createRouter } from '@/features/routing';
-import type { Campus } from '@/shared/data/campus';
+import type { Campus, Entrance } from '@/shared/data/campus';
 import { loadCampus, loadIndoor, loadRooms, type LoadFailure, type LoadResult } from '@/shared/data/load';
-import type { FloorMode, From, IndoorFiles, RouteResult, Router, To } from '@/shared/data/route';
+import type { Doors, FloorMode, From, IndoorFiles, RouteResult, Router, To } from '@/shared/data/route';
 import type { Rooms } from '@/shared/data/rooms';
 import { placeNames, type PlaceNames } from '../steps-list';
 import { hereOf, tripBuildings, type Here } from '../trip-places';
@@ -20,6 +20,8 @@ export type RouteState =
       /** Buildings whose file failed only because the phone is offline: the app is still saving it (O5, S9). The same
        *  array for every mode of one trip. */
       stillSaving: readonly string[];
+      /** Every door on campus, so Route options can list the exit choices (8c-2). */
+      entrances: readonly Entrance[];
     };
 
 const LOADING: RouteState = { status: 'loading' };
@@ -32,6 +34,7 @@ interface Loaded {
   here: Here | null;
   /** Slugs whose file failed with reason 'offline'. */
   stillSaving: readonly string[];
+  entrances: readonly Entrance[];
 }
 
 // The router is built once for the shared campus and rooms, not again for every trip (campus.json and rooms.json are
@@ -61,6 +64,7 @@ async function loadTrip(from: From, to: To): Promise<LoadResult<Loaded>> {
       router: routerFor(campus.data, rooms.data),
       files,
       stillSaving,
+      entrances: campus.data.entrances,
       names: placeNames(campus.data),
       here: hereOf(from, rooms.data, campus.data),
     },
@@ -68,11 +72,11 @@ async function loadTrip(from: From, to: To): Promise<LoadResult<Loaded>> {
 }
 
 /**
- * Routes From → To on `mode`, or null while there's no trip. The files load once per trip; a new mode routes again
- * from them at once (S5's Route options), with no new fetch. `from` and `to` must keep their identity between
+ * Routes From → To on `mode`, or null while there's no trip. The files load once per trip; a new mode or door routes
+ * again from them at once (S5's Route options), with no new fetch. `from` and `to` must keep their identity between
  * renders, or it loads again.
  */
-export function useRoute(from: From | null, to: To | null, mode: FloorMode): RouteState | null {
+export function useRoute(from: From | null, to: To | null, mode: FloorMode, doors?: Doors): RouteState | null {
   // Each answer remembers the trip it was for, so a new From or To reads as loading until its own answer arrives.
   const [answer, setAnswer] = useState<{ from: From; to: To; result: LoadResult<Loaded> } | null>(null);
   const answerRef = useRef(answer);
@@ -104,11 +108,11 @@ export function useRoute(from: From | null, to: To | null, mode: FloorMode): Rou
     if (from === null || to === null) return null;
     if (current === null) return LOADING;
     if (!current.ok) return { status: 'failed', reason: current.reason };
-    const { router, files, names, here, stillSaving } = current.data;
+    const { router, files, names, here, stillSaving, entrances } = current.data;
     try {
-      return { status: 'ready', result: router(from, to, mode, files), names, here, stillSaving };
+      return { status: 'ready', result: router(from, to, mode, files, doors), names, here, stillSaving, entrances };
     } catch {
       return { status: 'failed', reason: 'invalid' };
     }
-  }, [from, to, mode, current]);
+  }, [from, to, mode, doors, current]);
 }

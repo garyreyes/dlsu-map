@@ -2,7 +2,7 @@
 // (PRD §7): only a room the student picked or typed exactly, never a suggestion or a guessed floor.
 // Tests: choose.test.ts.
 import type { Hit, SearchView } from '@/features/search';
-import type { From, To } from '@/shared/data/route';
+import type { From, Spot, To } from '@/shared/data/route';
 
 export type Choice =
   /** From is set. */
@@ -14,6 +14,14 @@ export type Choice =
 
 /** G is floor 1 and starts at the main entrance; other floors at the elevator lobby (PRD UC2). */
 export const atFloor = (building: string, floor: number): From => ({ kind: 'building', building, floor });
+
+/** Change spot (D42): a floor and where on it, a door on G or a stairs or elevator. */
+export const atSpot = (building: string, floor: number, spot: Spot): From => ({
+  kind: 'building',
+  building,
+  floor,
+  spot,
+});
 
 export const atGate = (gate: string): From => ({ kind: 'gate', gate });
 

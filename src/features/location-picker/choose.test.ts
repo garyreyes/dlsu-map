@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildSearchIndex, searchResults } from '@/features/search';
-import { atFloor, atGate, chooseEnter, chooseHit, nextTo } from './choose';
+import { atFloor, atGate, atSpot, chooseEnter, chooseHit, nextTo } from './choose';
 
 // Search's own index and results, so the code box is tested against exactly what S2 shows (D38). A fixed slice of
 // the data: STRC and Velasco with rooms (Velasco's signs print VH, D25), Andrew with none yet.
@@ -114,5 +114,22 @@ describe("chooseEnter: the keyboard's Enter, which takes only an exact room or b
 
   it('nothing before the rooms have loaded', () => {
     expect(chooseEnter(null, null)).toBeNull();
+  });
+});
+
+describe('atSpot', () => {
+  it('is a building floor with the spot', () => {
+    expect(atSpot('velasco', 3, { kind: 'vertical', id: 'east-stairs' })).toEqual({
+      kind: 'building',
+      building: 'velasco',
+      floor: 3,
+      spot: { kind: 'vertical', id: 'east-stairs' },
+    });
+    expect(atSpot('velasco', 1, { kind: 'entrance', entrance: 5 })).toEqual({
+      kind: 'building',
+      building: 'velasco',
+      floor: 1,
+      spot: { kind: 'entrance', entrance: 5 },
+    });
   });
 });
