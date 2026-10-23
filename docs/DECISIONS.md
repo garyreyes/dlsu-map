@@ -1322,7 +1322,7 @@ read and more work). Keeping the jump.
 
 ---
 
-## D53. The cut floor keeps green for "yours": neutral hallways, a label pin for the goal (2026-10-23, proposed)
+## D53. The cut floor keeps green for "yours": neutral hallways, a label pin for the goal (2026-10-23, agreed)
 
 **Problem.** The 8▸ critique (`.impeccable/critique/2026-10-23T04-20-22Z__src-features-location-picker.md`) found the
 indoor step hard to read. Green did three jobs on the cut floor: the hallways, the 1.1 m indoor line, and a hollow
@@ -1345,6 +1345,8 @@ outdoor ribbon swamped the entrance. Offline, with the indoor map still saving, 
 
 **Alternatives.** Tinting the room (needs outlines, see 2). Keeping the ring and recolouring it (still a circle next
 to a circle). Green hallways with a thicker line (the line still disappears into them).
+
+**Agreed** by Gary and Charles (2026-10-23).
 
 ---
 
