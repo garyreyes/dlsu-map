@@ -67,7 +67,7 @@ test('a building with no room list yet goes on to its floors, never to a guessed
     where(page)
       .getByRole('group', { name: /which floor/ })
       .getByRole('button'),
-  ).toHaveCount(21); // + back
+  ).toHaveCount(22); // + Change spot + back
 });
 
 test('a building tapped on the map picks it here, and the card stays the destination', async ({ page }) => {
