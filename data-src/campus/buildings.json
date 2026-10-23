@@ -24,7 +24,7 @@
     "short": "Velasco",
     "aliases": ["Velasco", "Urbano J. Velasco Hall"],
     "tier": "full",
-    "prefixes": ["VL", "VE"],
+    "prefixes": ["VL", "VE", "V"],
     "suggestPrefixes": ["VH"],
     "floorLabels": { "1": "G" }
   },

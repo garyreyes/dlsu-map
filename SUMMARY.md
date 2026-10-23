@@ -112,7 +112,8 @@ code (it loads three.js from a CDN, which the real app must not do).
 ## Key decisions (short version)
 
 Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24 were agreed by the team on
-2026-10-19, D25–D27 and D33 on 2026-10-20, D28–D32 and D34–D37 on 2026-10-21, D38–D49 on 2026-10-22, D50 on 2026-10-23.
+2026-10-19, D25–D27 and D33 on 2026-10-20, D28–D32 and D34–D37 on 2026-10-21, D38–D49 on 2026-10-22, D50 and D51
+on 2026-10-23.
 
 | # | Decision | Why |
 |---|---|---|
@@ -166,6 +167,7 @@ Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24
 | D48 | **Change spot and the exit choice in the router:** a `spot` on From, a `doors` choice last; a pick the data can't place is `unknown-place`; doors named `facing …` | Additive, so every earlier call means the same; a bad pick shows instead of routing from somewhere else |
 | D49 | **A size budget, checked on every build:** first load at most 200 kB gzipped, every other chunk 300 kB; three.js in its own chunk | A warning that always shows gets ignored; the budget fails the PR that causes the growth |
 | D50 | **No download percentage while saving for offline:** "Saving for offline…" with no number; we keep the service worker vite-plugin-pwa generates | A real number needs our own service worker, which means re-proving the offline and update logic; the first save takes a few seconds |
+| D51 | **`V` is an accepted Velasco prefix**, like `VE`: `V205` opens VL205, "also written V205" | Students say it that way, and no other building uses `V`, so it isn't a guess |
 
 ### Things we chose *not* to do
 

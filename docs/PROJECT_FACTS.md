@@ -204,11 +204,13 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   352/372, so the walls sit 0.8 m further from the outline's west edge. OSM's outline has the upper floors' stair
   towers 2.3 m out on that side, and G's sign has no towers. 90th percentile 1.8 → 1.3 m. Re-tracing G means
   redoing this. (2026-10-22)
-- **St. Joseph's stairs and elevator** (owner, 2026-10-22): `south-stairs` and the `elevator` (the sign's left end
-  on 2F–6F, G's right end), `north-stairs` (the other end) and `lobby-stairs` (G–2F, from the lobby). All read off
-  the signs. The two middle stairwells on 2F–6F (2F labels them DECK) are **emergency only** (owner, 2026-10-22), so
-  they aren't verticals: above 2F only the end stairs and the elevator are used. Their short hallway stubs stay as
-  dead ends. Stairs can change at 2F: the lobby stairs, then an end stair.
+- **St. Joseph's stairs, and no elevator** (owner, 2026-10-22; corrected 2026-10-23): `south-stairs` (the sign's
+  left end on 2F–6F, G's right end), `north-stairs` (the other end) and `lobby-stairs` (G–2F, from the lobby). The
+  small X box in the corner beside `south-stairs`, drawn like an elevator, **is stairs, not an elevator** (owner,
+  2026-10-23), so St. Joseph has no elevator: Elevator mode climbs by stairs and says "No elevator in St. Joseph".
+  The two middle stairwells on 2F–6F (2F labels them DECK) are **emergency only** (owner, 2026-10-22), so they
+  aren't verticals: above 2F only the end stairs are used. Their short hallway stubs stay as dead ends. Stairs can
+  change at 2F: the lobby stairs, then an end stair.
 - **St. Joseph's south side-entrance pin moved** about 7 m north, to the TO CHAPEL passage between 104 and 101
   where the G sign draws the exit (owner, 2026-10-22). Still `verified: false`.
 - **P1 labels are canvas-texture sprites** with the system font: drei `<Text>` would fetch its default font from a

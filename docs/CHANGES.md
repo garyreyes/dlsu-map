@@ -26,6 +26,24 @@ session needs to know. Search this file; it isn't required reading (the reading 
 - **Not done:** room outlines don't exist in the floor data, so the goal room can't be tinted (the owner's first
   choice). The dimmed ribbon mostly mutes its white edge; the green barely changes, being close to the ground.
 
+## 2026-10-23: `V` finds Velasco rooms (D51, agreed)
+
+- **`V205` opens VL205**, "also written V205", the same as `VE205`; `V2` lists the `VL2…` rooms while typing. Only
+  data changed: `V` added to Velasco's `prefixes` in `data-src/campus/buildings.json`. `VH` still only suggests.
+- **Tests first:** `tests/search.test.ts` (new) runs search on the real rooms and prefixes; 5 of its 6 tests and the
+  prefix-table test in `tests/compile-data.test.ts` were seen failing before the change.
+
+## 2026-10-23: St. Joseph has no elevator
+
+- **The corner box traced as St. Joseph's elevator is stairs** (owner, on site). The `elevator` is gone from
+  `data-src/floors/sj/verticals.json` and from all 6 floor files; nothing else in them changed. Elevator mode now
+  climbs St. Joseph by stairs with "No elevator in St. Joseph. Using stairs.", and an upper-floor From starts at
+  `south-stairs`, the same end the elevator was at.
+- **Tests:** `tests/indoor-routing.test.ts` now expects an elevator in STRC and Velasco only, and stairs plus
+  `noElevator` for St. Joseph in Elevator mode; seen failing on the old data first.
+- **Not done here (Lane A):** S4 still says "other floors at the elevator lobby" for every building, St. Joseph
+  included.
+
 ## 2026-10-23: 10b ⓘ sheet (S10)
 
 - **ⓘ in the search pill**, after the Beta tag, opens the info sheet in place of what the sheet showed. Back or ✕

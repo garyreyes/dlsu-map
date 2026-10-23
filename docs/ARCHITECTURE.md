@@ -74,10 +74,10 @@ Building 1---* Opening(kind=main|side|back) ---> Walkway network ---> Gate
   result type is in `src/shared/data/room-code.ts`.
 - **Strict** (PRD §7): a code not in the room table is rejected with "Did you mean…": rooms one typo away in the
   same building (D38).
-- **Prefixes** (owner's list, 2026-10-19): `SM` St. Miguel · `EY` Yuchengco · `VL` (alias `VE`) Velasco · `ER` Razon ·
-  `SJ` St. Joseph · `G` Gokongwei · `LS` St. La Salle · `AG` Andrew · `ST` (alias `C`, as printed on its lobby
-  directory) STRC · `MM` Mutien-Marie. The canonical form is the first prefix (`C311` is stored and shown as
-  `ST311`).
+- **Prefixes** (owner's list, 2026-10-19): `SM` St. Miguel · `EY` Yuchengco · `VL` (aliases `VE`, `V`, D51)
+  Velasco · `ER` Razon · `SJ` St. Joseph · `G` Gokongwei · `LS` St. La Salle · `AG` Andrew · `ST` (alias `C`, as
+  printed on its lobby directory) STRC · `MM` Mutien-Marie. The canonical form is the first prefix (`C311` is stored
+  and shown as `ST311`).
 - **Suggest prefixes** (D25): `VH` (printed on Velasco's directory) and `J` (St. Joseph's) are never accepted.
   `VH501` gives "Did you mean VL501 (Velasco)?".
 - **Connon and Henry Sy have no room codes** (no classes there) and are block tier for now (D20).

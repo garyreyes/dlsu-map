@@ -1,10 +1,10 @@
 // What S2 shows for what was typed (3c): one note, one optional heading, the rows, and the one row the keyboard's Go
 // key may open. Pure: no React, no fetch. Rules: user-flows §3.3, PRD §7 (strict), D18, D25, D38.
 // Tests: search-results.test.ts.
-import { findPrefix, normalize, parseRoomCode } from './parse-room-code';
-import { words, type Hit, type RoomHit, type SearchBuilding, type SearchIndex } from './search-index';
+import { findPrefix, normalize, parseRoomCode } from './parse-room-code.ts';
+import { words, type Hit, type RoomHit, type SearchBuilding, type SearchIndex } from './search-index.ts';
 
-export type { BuildingHit, Hit, RoomHit, SearchBuilding } from './search-index';
+export type { BuildingHit, Hit, RoomHit, SearchBuilding } from './search-index.ts';
 
 /** A building named in a note: the full name, for "St. Joseph Hall's rooms aren't in the app yet." */
 interface NoteBuilding {

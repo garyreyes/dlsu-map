@@ -1267,6 +1267,26 @@ allows 15 MB).
 
 ---
 
+## D51. `V` is an accepted alias for Velasco, like `VE` (2026-10-23, agreed)
+
+**Problem.** Students say and type Velasco rooms as `V205`. Our prefixes are `VL` (alias `VE`), so `V205` gave "No
+building uses V" and the room couldn't be found, even though `VL205` is in the app.
+
+**Decision.** (Owner's call, 2026-10-23.) `V` joins Velasco's accepted prefixes: `["VL", "VE", "V"]` in
+`data-src/campus/buildings.json`. `V205` opens VL205 with "also written V205", exactly as `VE205` does, and `V2`
+lists the same rooms as `VL2`. The canonical code stays `VL205`, so deep links and shared codes don't change. `VH`
+stays a suggest prefix (D25). Tests: `tests/search.test.ts` and the prefix table in `tests/compile-data.test.ts`.
+
+**Why an alias, not a suggestion like `VH`.** `V` belongs to no other building, so `V205` can only mean one room: it
+isn't a guess. `C` for STRC works the same way.
+
+**Alternatives.** A suggest prefix (`V205` → "Did you mean VL205?", one more tap). Leaving it out (students who type
+`V` find nothing).
+
+**Agreed** by Gary and Charles (2026-10-23).
+
+---
+
 ## D52. The cut floor keeps green for "yours": neutral hallways, a label pin for the goal (2026-10-23, proposed)
 
 **Problem.** The 8▸ critique (`.impeccable/critique/2026-10-23T04-20-22Z__src-features-location-picker.md`) found the
