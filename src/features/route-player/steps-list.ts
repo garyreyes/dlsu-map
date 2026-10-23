@@ -1,7 +1,8 @@
 // The all-steps list (S8), which is also the text-only mode (S11): a route's steps grouped by place, each with its
 // icon and two lines. Pure: no React, no fetch.
-import type { Campus, CampusBuilding } from '@/shared/data/campus';
+import type { Campus, CampusBuilding, Entrance } from '@/shared/data/campus';
 import type { From, Route, Step, To, Turn } from '@/shared/data/route';
+import { doorWords, verticalWords } from '@/shared/data/spot-words';
 
 /** Which icon a step gets. Turns use their own names; floors steps say which way they go. */
 export type StepIconKey =
@@ -28,6 +29,8 @@ export interface PlaceNames {
   short(building: string): string;
   floor(building: string, floor: number): string;
   gate(id: string): string;
+  /** A door by its index in `campus.json`'s entrances: `main entrance facing Agno`. */
+  door(entrance: number): string;
 }
 
 type NamedBuilding = Pick<CampusBuilding, 'slug' | 'short'> & Partial<Pick<CampusBuilding, 'floorLabels'>>;
@@ -35,6 +38,7 @@ type NamedBuilding = Pick<CampusBuilding, 'slug' | 'short'> & Partial<Pick<Campu
 export function placeNames(campus: {
   readonly buildings: readonly NamedBuilding[];
   readonly gates: readonly Pick<Campus['gates'][number], 'id' | 'name'>[];
+  readonly entrances?: readonly Pick<Entrance, 'kind' | 'name'>[];
 }): PlaceNames {
   const buildings = new Map(campus.buildings.map((b) => [b.slug, b]));
   const gates = new Map(campus.gates.map((g) => [g.id, g.name]));
@@ -42,6 +46,10 @@ export function placeNames(campus: {
     short: (slug) => buildings.get(slug)?.short ?? slug,
     floor: (slug, floor) => buildings.get(slug)?.floorLabels?.[String(floor)] ?? `${String(floor)}F`,
     gate: (id) => gates.get(id) ?? id,
+    door: (entrance) => {
+      const e = campus.entrances?.[entrance];
+      return e === undefined ? 'entrance' : doorWords(e);
+    },
   };
 }
 
@@ -122,13 +130,17 @@ export function tripLine(from: From, to: To, names: PlaceNames): string {
   return `${fromName(from, names)} → ${toName(to, names)}`;
 }
 
-/** How From reads: "AG1104", "Gate 2 (North)", "Andrew 5F". */
+/** How From reads: "AG1104", "Gate 2 (North)", "Andrew 5F", "Andrew 5F · east stairs". */
 export function fromName(from: From, names: PlaceNames): string {
   switch (from.kind) {
     case 'gate':
       return names.gate(from.gate);
-    case 'building':
-      return `${names.short(from.building)} ${names.floor(from.building, from.floor)}`;
+    case 'building': {
+      const floor = `${names.short(from.building)} ${names.floor(from.building, from.floor)}`;
+      const { spot } = from;
+      if (spot === undefined) return floor;
+      return `${floor} · ${spot.kind === 'entrance' ? names.door(spot.entrance) : verticalWords(spot.id)}`;
+    }
     case 'room':
       return from.code;
   }

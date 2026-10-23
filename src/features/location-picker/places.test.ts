@@ -58,6 +58,12 @@ describe('pickerPlaces', () => {
       { id: 'gate-1', name: 'Gate 1 (South)' },
       { id: 'agno', name: 'Agno Gate' },
     ],
+    entrances: [
+      { building: 'andrew', kind: 'main' as const },
+      { building: 'velasco', kind: 'main' as const, name: 'facing CADS' },
+      { building: 'connon', kind: 'main' as const },
+      { building: 'velasco', kind: 'side' as const },
+    ],
   });
 
   it("lists only the full buildings, in campus.json's order, each with its canonical prefix", () => {
@@ -77,5 +83,13 @@ describe('pickerPlaces', () => {
       { id: 'gate-1', name: 'Gate 1 (South)', chip: 'Gate 1' },
       { id: 'agno', name: 'Agno Gate', chip: 'Agno' },
     ]);
+  });
+
+  it("gives each building its doors, by their index in campus.json's entrances", () => {
+    expect(places.buildings[0]?.doors).toEqual([
+      { entrance: 1, kind: 'main', name: 'facing CADS' },
+      { entrance: 3, kind: 'side' },
+    ]);
+    expect(places.buildings[1]?.doors).toEqual([{ entrance: 0, kind: 'main' }]);
   });
 });

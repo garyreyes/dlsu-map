@@ -1,19 +1,13 @@
-import { ArrowRight, ChevronDown, X } from 'lucide-react';
-import { useEffect, useId, useState, type ReactNode } from 'react';
-import type { FloorMode, From, Route, To } from '@/shared/data/route';
+import { ArrowRight, X } from 'lucide-react';
+import { useEffect, type ReactNode } from 'react';
+import type { Doors, FloorMode, From, To } from '@/shared/data/route';
 import { Chip, PrimaryButton, SecondaryButton } from '@/shared/ui/Button';
 import { IconButton } from '@/shared/ui/IconButton';
-import { Segmented } from '@/shared/ui/Segmented';
 import { noElevatorLines, noIndoorMapLines, notOkLine, summaryLine } from '../preview';
 import { fromName, toName, type PlaceNames } from '../steps-list';
+import { RouteOptions } from './RouteOptions';
 import { usePlaceNames } from './usePlaceNames';
 import type { RouteState } from './useRoute';
-
-const MODES = [
-  { value: 'stairs', label: 'Stairs' },
-  { value: 'auto', label: 'Auto' },
-  { value: 'elevator', label: 'Elevator' },
-] as const;
 
 interface Props {
   /** The card cut to one line, shown above so the destination's building and floor stay on screen (D43). */
@@ -23,6 +17,9 @@ interface Props {
   to: To;
   mode: FloorMode;
   onMode: (mode: FloorMode) => void;
+  /** The exit door chosen in Route options; undefined is Quickest. */
+  doors: Doors | undefined;
+  onExit: (exit: number | undefined) => void;
   /** The From chip: reopens Where are you (S4). */
   onChangeFrom: () => void;
   /** The To chip: reopens search (S2). */
@@ -43,6 +40,8 @@ export function RoutePreview({
   to,
   mode,
   onMode,
+  doors,
+  onExit,
   onChangeFrom,
   onChangeTo,
   onStart,
@@ -70,7 +69,16 @@ export function RoutePreview({
       </div>
       <h2 className="mt-2 text-lg font-[650] text-ink">Your route</h2>
       {names && <Ends from={from} to={to} names={names} onChangeFrom={onChangeFrom} onChangeTo={onChangeTo} />}
-      <Body state={state} from={from} to={to} mode={mode} onMode={onMode} onStart={onStart} />
+      <Body
+        state={state}
+        from={from}
+        to={to}
+        mode={mode}
+        onMode={onMode}
+        doors={doors}
+        onExit={onExit}
+        onStart={onStart}
+      />
     </section>
   );
 }
@@ -107,11 +115,13 @@ interface BodyProps {
   to: To;
   mode: FloorMode;
   onMode: (mode: FloorMode) => void;
+  doors: Doors | undefined;
+  onExit: (exit: number | undefined) => void;
   onStart: () => void;
 }
 
 /** Everything under the chips, by how far the route has got. Loading keeps Start in place, so nothing jumps. */
-function Body({ state, from, to, mode, onMode, onStart }: BodyProps) {
+function Body({ state, from, to, mode, onMode, doors, onExit, onStart }: BodyProps) {
   if (state.status === 'loading') {
     return (
       <>
@@ -138,8 +148,25 @@ function Body({ state, from, to, mode, onMode, onStart }: BodyProps) {
       </div>
     );
   }
-  if (!state.result.ok)
-    return <p className="mt-3 text-ink-2">{notOkLine(state.result.reason, from, to, state.names)}</p>;
+  if (!state.result.ok) {
+    // A door the student chose that can't be routed shouldn't leave them stuck: Route options is gone with the route.
+    return (
+      <div className="mt-3">
+        <p className="text-ink-2">{notOkLine(state.result.reason, from, to, state.names)}</p>
+        {doors?.exit !== undefined && (
+          <div className="mt-2">
+            <SecondaryButton
+              onClick={() => {
+                onExit(undefined);
+              }}
+            >
+              Use the quickest door
+            </SecondaryButton>
+          </div>
+        )}
+      </div>
+    );
+  }
   const { route } = state.result;
   return (
     <>
@@ -152,36 +179,16 @@ function Body({ state, from, to, mode, onMode, onStart }: BodyProps) {
         ),
       )}
       <PrimaryButton onClick={onStart}>Start</PrimaryButton>
-      {hasFloors(route) && <RouteOptions mode={mode} onMode={onMode} />}
+      <RouteOptions
+        route={route}
+        from={from}
+        names={state.names}
+        entrances={state.entrances}
+        mode={mode}
+        onMode={onMode}
+        doors={doors}
+        onExit={onExit}
+      />
     </>
-  );
-}
-
-/** Stairs or elevator only matters when the route changes floor. */
-const hasFloors = (route: Route) => route.legs.some((l) => l.kind === 'floors');
-
-/** Route options (user-flows §3.6), folded away until wanted. A choice re-routes at once. */
-function RouteOptions({ mode, onMode }: { mode: FloorMode; onMode: (mode: FloorMode) => void }) {
-  const [open, setOpen] = useState(false);
-  const panel = useId();
-  return (
-    <div className="mt-2">
-      <button
-        type="button"
-        aria-expanded={open}
-        aria-controls={panel}
-        onClick={() => {
-          setOpen((o) => !o);
-        }}
-        className="-mx-2 flex h-12 cursor-pointer items-center gap-1 rounded-row px-2 font-semibold text-ink-2 hover:bg-surface-2"
-      >
-        Route options
-        <ChevronDown className={`size-5 ${open ? 'rotate-180' : ''}`} strokeWidth={2} aria-hidden />
-      </button>
-      <div id={panel} hidden={!open} className="pt-1">
-        <Segmented label="Stairs or elevator" options={MODES} value={mode} onChange={onMode} />
-        <p className="mt-2 text-ink-2">Auto takes the elevator for 3 or more floors.</p>
-      </div>
-    </div>
   );
 }

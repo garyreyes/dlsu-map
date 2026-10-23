@@ -39,16 +39,19 @@ export function SecondaryButton({ children, onClick }: ButtonProps) {
 interface ChipProps extends ButtonProps {
   /** What a screen reader hears, when the chip shows a short form: "Gate 1 (South)" for "Gate 1". */
   label?: string;
+  /** A choice that stays chosen, like S5's door (8c-2): sets `aria-pressed`, and fills green when true. */
+  pressed?: boolean;
 }
 
 /** A choice in a grid (DESIGN.md, Chips): a 48px pill with a hairline, 16px semibold Deep Ink text, no fill. */
-export function Chip({ children, label, onClick }: ChipProps) {
+export function Chip({ children, label, onClick, pressed }: ChipProps) {
   return (
     <button
       type="button"
       aria-label={label}
+      aria-pressed={pressed}
       onClick={onClick}
-      className="h-12 min-w-15 cursor-pointer rounded-control border border-line px-3 font-semibold text-ink tabular-nums hover:bg-surface-2"
+      className="h-12 min-w-15 cursor-pointer rounded-control border border-line px-3 font-semibold text-ink tabular-nums hover:bg-surface-2 aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-on-accent"
     >
       {children}
     </button>

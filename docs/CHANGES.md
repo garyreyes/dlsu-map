@@ -8,6 +8,22 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-23: 8c-2 pickers: Change spot and Leave by (8c-2 done)
+
+- **Change spot in S4** (D42): a "Change spot" link under the floor chips, shown when the building has a real
+  choice. With it on, a floor tap asks where on the floor: the doors on G, then the stairs and elevators with a stop
+  on that floor in the building file (`spots.ts`, exact-value tests on Velasco, SJ and Miguel). A floor with nothing
+  else to pick says so and starts at the usual spot. The plain floor tap is unchanged.
+- **Leave by in Route options** (D43, D48): "Leave Velasco by" with Quickest and one chip per door, shown when From's
+  building has two or more doors and the route walks out of it (`exits.ts`, 17 tests). "Quickest is the main
+  entrance facing Agno." names the door the route took. The choice is per trip, like Stairs/Auto/Elevator. If a
+  chosen door ever can't be routed, "Use the quickest door" brings it back.
+- **From names its spot:** "Velasco 3F · east stairs". Doors and stairs read the same everywhere through
+  `shared/data/spot-words.ts`; the shared `Chip` gained a `pressed` state.
+- **Not done here:** S4's sheet is 8px wider than the screen, so tapping a row can shift it sideways and clip the
+  left edge (older than this change). A building file that failed offline isn't retried until the building is
+  reopened.
+
 ## 2026-10-23: OSM snapshot 2026-10-23: Velasco to Agno Gate on campus
 
 - **New snapshot** `data-src/campus/osm/snapshot-2026-10-23.geojson` replaces 2026-10-20's. The only changes in the area

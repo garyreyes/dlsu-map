@@ -3,12 +3,18 @@ import { useEffect, useMemo, useState, type KeyboardEvent, type ReactNode } from
 import { HitList, NoteLine, searchResults, type Hit, type SearchData, type SearchView } from '@/features/search';
 import type { From, To } from '@/shared/data/route';
 import { IconButton } from '@/shared/ui/IconButton';
-import { atFloor, atGate, chooseEnter, chooseHit, nextTo, type Choice } from '../choose';
-import type { PickerPlaces } from '../places';
-import { BuildingRows, FloorStep, OutsideStep } from './Steps';
+import { atFloor, atGate, atSpot, chooseEnter, chooseHit, nextTo, type Choice } from '../choose';
+import type { PickerBuilding, PickerPlaces } from '../places';
+import { offersSpot, spotChoices } from '../spots';
+import { BuildingRows, FloorStep, OutsideStep, SpotStep } from './Steps';
+import { useBuildingSpots } from './useBuildingSpots';
 import { usePickerPlaces } from './usePickerPlaces';
 
-type Step = { kind: 'start' } | { kind: 'floors'; slug: string } | { kind: 'outside' };
+type Step =
+  | { kind: 'start' }
+  | { kind: 'floors'; slug: string }
+  | { kind: 'spot'; slug: string; floor: number }
+  | { kind: 'outside' };
 
 interface Props {
   /** The card cut to one line, shown above so the destination stays on screen (user-flows §3.4). */
@@ -112,15 +118,16 @@ const scroll = (children: ReactNode) => (
 
 /** The step on screen. Phones: the choices scroll inside the sheet, which sizes to its content, like All steps. */
 function Body({ places, step, onStep, onFrom, onBack, ...start }: BodyProps) {
-  if (step.kind === 'floors') {
+  if (step.kind === 'floors' || step.kind === 'spot') {
     const building = places.buildings.find((b) => b.slug === step.slug);
     if (building) {
       return scroll(
-        <FloorStep
+        <BuildingSteps
+          key={building.slug}
           building={building}
-          onFloor={(floor) => {
-            onFrom(atFloor(building.slug, floor));
-          }}
+          step={step}
+          onStep={onStep}
+          onFrom={onFrom}
           onBack={onBack}
         />,
       );
@@ -142,6 +149,59 @@ function Body({ places, step, onStep, onFrom, onBack, ...start }: BodyProps) {
     );
   }
   return <StartStep places={places} onStep={onStep} {...start} />;
+}
+
+interface BuildingStepsProps {
+  building: PickerBuilding;
+  step: Extract<Step, { kind: 'floors' | 'spot' }>;
+  onStep: (step: Step) => void;
+  onFrom: (from: From) => void;
+  onBack: () => void;
+}
+
+/** A building's floors, and with Change spot on, where on the chosen floor. The spot choices need its file. */
+function BuildingSteps({ building, step, onStep, onFrom, onBack }: BuildingStepsProps) {
+  const spots = useBuildingSpots(building.slug);
+  const file = spots.status === 'ready' ? spots.file : null;
+  // Lives here, not in FloorStep, so Pick another floor comes back with Change spot still on.
+  const [choosing, setChoosing] = useState(false);
+  // Every floor waits for the file, G too: its stairs join its doors. Null means still loading.
+  const choicesAt = (floor: number) => (spots.status === 'loading' ? null : spotChoices(building.doors, floor, file));
+
+  if (step.kind === 'spot') {
+    const { floor } = step;
+    return (
+      <SpotStep
+        building={building}
+        floor={floor}
+        floorLabel={building.floors.find((f) => f.floor === floor)?.label ?? `${String(floor)}F`}
+        choices={choicesAt(floor)}
+        onSpot={(c) => {
+          onFrom(atSpot(building.slug, floor, c.spot));
+        }}
+        onUsual={() => {
+          onFrom(atFloor(building.slug, floor));
+        }}
+        onBack={() => {
+          onStep({ kind: 'floors', slug: building.slug });
+        }}
+      />
+    );
+  }
+  return (
+    <FloorStep
+      building={building}
+      offersSpot={offersSpot(building.doors, file)}
+      choosing={choosing}
+      onChoosing={setChoosing}
+      onFloor={(floor) => {
+        // With Change spot on, the spot step always opens, and says so when the floor has nothing else to pick.
+        if (choosing) onStep({ kind: 'spot', slug: building.slug, floor });
+        else onFrom(atFloor(building.slug, floor));
+      }}
+      onBack={onBack}
+    />
+  );
 }
 
 type StartProps = Pick<BodyProps, 'places' | 'search' | 'query' | 'same' | 'to' | 'onQuery' | 'onChoice' | 'onStep'>;

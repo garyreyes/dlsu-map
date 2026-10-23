@@ -10,7 +10,7 @@ import {
   sampleRoute,
   sampleTurnSteps,
 } from '@/shared/data/route.sample';
-import { emptyRouteLine, placeNames, rowOf, stepGroups, totalsLine, tripLine } from './steps-list';
+import { emptyRouteLine, fromName, placeNames, rowOf, stepGroups, totalsLine, tripLine } from './steps-list';
 
 const names = placeNames({
   buildings: [
@@ -18,6 +18,10 @@ const names = placeNames({
     { slug: 'strc', short: 'STRC', floorLabels: { '1': 'G' } },
   ],
   gates: [{ id: 'gate-2', name: 'Gate 2 (North)' }],
+  entrances: [
+    { kind: 'main', name: 'facing CADS' },
+    { kind: 'main', name: 'facing Agno' },
+  ],
 });
 
 describe('stepGroups', () => {
@@ -251,5 +255,23 @@ describe('still-saving rows', () => {
     const step = sampleRoute.steps[4];
     expect(rowOf(step, 4, sampleRoute, ['strc']).subtitle).toBe('Indoor map still saving');
     expect(rowOf(step, 4, sampleRoute).subtitle).toBeUndefined();
+  });
+});
+
+describe('fromName with a spot (8c-2)', () => {
+  const base = { kind: 'building', building: 'andrew', floor: 5 } as const;
+
+  it('is the building and floor without a spot', () => {
+    expect(fromName(base, names)).toBe('Andrew 5F');
+  });
+
+  it('adds a stairs or elevator spot', () => {
+    expect(fromName({ ...base, spot: { kind: 'vertical', id: 'east-stairs' } }, names)).toBe('Andrew 5F · east stairs');
+  });
+
+  it('adds an entrance spot', () => {
+    expect(
+      fromName({ kind: 'building', building: 'strc', floor: 1, spot: { kind: 'entrance', entrance: 1 } }, names),
+    ).toBe('STRC G · main entrance facing Agno');
   });
 });
