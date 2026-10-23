@@ -19,6 +19,11 @@ session needs to know. Search this file; it isn't required reading (the reading 
 - Agno Gate Exit is not a gate in the app: students enter by Agno Gate, and gates are only starting points
   (PROJECT_FACTS).
 
+## 2026-10-23: 10a done
+
+- Gary tested 10a on real phones with the #82 preview and it looks good. ROADMAP 10a is `done`.
+- PROJECT_FACTS (Offline): why `update.spec.ts` rewrites `dist/sw.js` and runs as its own Playwright project.
+
 ## 2026-10-23: D50 agreed
 
 - Gary and Charles agreed D50: no download percentage while saving for offline, and we keep the service worker
