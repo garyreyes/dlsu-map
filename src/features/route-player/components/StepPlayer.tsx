@@ -4,6 +4,7 @@ import type { Route } from '@/shared/data/route';
 import { PrimaryButton } from '@/shared/ui/Button';
 import { IconButton } from '@/shared/ui/IconButton';
 import { stepCard } from '../player';
+import type { PlaceNames } from '../steps-list';
 import { StepIcon } from './StepIcon';
 import { useSwipe } from './useSwipe';
 
@@ -11,6 +12,8 @@ interface Props {
   route: Route;
   /** Buildings whose indoor map is still saving (offline), so their steps say so (O5). */
   stillSaving?: readonly string[];
+  /** The buildings' floor labels, for "follow signs to G" on those steps. Without them the floor reads "3F". */
+  names?: Pick<PlaceNames, 'floor'>;
   /** The step on the card, in `route.steps`. */
   current: number;
   onStep: (index: number) => void;
@@ -31,6 +34,7 @@ interface Props {
 export function StepPlayer({
   route,
   stillSaving,
+  names,
   current,
   onStep,
   onArrive,
@@ -40,7 +44,7 @@ export function StepPlayer({
 }: Props) {
   const [menu, setMenu] = useState(false);
   const menuId = useId();
-  const card = stepCard(route, current, stillSaving);
+  const card = stepCard(route, current, stillSaving, names);
   const last = card?.last ?? true;
   const next = () => {
     if (!last) onStep(current + 1);

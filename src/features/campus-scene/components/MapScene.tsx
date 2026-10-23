@@ -93,7 +93,7 @@ export function MapScene(props: Props) {
         <meshBasicMaterial color={palette.ground} />
       </mesh>
       <PathLines campus={campus} palette={palette} />
-      {route.length > 0 && <RouteLine lines={route} />}
+      {route.length > 0 && <RouteLine lines={route} dimmed={!!shown} ground={palette.ground} />}
       <CampusMasses
         campus={campus}
         palette={palette}

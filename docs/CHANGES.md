@@ -8,6 +8,24 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-23: 8▸ critique of S4, S5 and the indoor steps; its three P1s fixed (D52, proposed)
+
+- **Critique:** `/impeccable critique` scored S4, S5 and S7 28/40. The full report and its P2s (spot and exit names
+  not shown on the map, S4's first step crowded) are in `.impeccable/critique/2026-10-23T04-20-22Z__src-features-location-picker.md`.
+- **S4 no longer slides sideways.** The sheet's scroller was 8px narrower than the rows that bleed into the gutter, so a
+  sideways thumb drag clipped every line's first letter. The gutters now sit on the scroller (`shared/ui/Sheet.tsx`),
+  with sideways overflow hidden. New e2e check: no scroll box in S4 is wider inside than out, at any step. It was seen
+  failing on the old sheet.
+- **The cut floor keeps green for "yours" (D52):** hallways are a mid-grey neutral at 3.4:1 against the slab, the
+  indoor line is 1.6 m on a 2.9 m white casing, and the hollow goal ring is now an "ST311" label pin at the room's door
+  (`indoor-view/components/GoalPin.tsx`, a canvas sprite; no font download). The outdoor ribbon fades toward the
+  ground while a building is cut. The door the pin stands at is `doorOf` in `indoor-view/marks.ts`, unit-tested.
+- **Offline indoor steps agree with themselves:** when a building's indoor map is still saving, the band and chip
+  show the goal floor (`campus-scene/trip-band.ts`, test first), the step says "Indoor map still saving · follow
+  signs to 3F", and S5 says "STRC's indoor map is still saving. Steps inside are text only."
+- **Not done:** room outlines don't exist in the floor data, so the goal room can't be tinted (the owner's first
+  choice). The dimmed ribbon mostly mutes its white edge; the green barely changes, being close to the ground.
+
 ## 2026-10-23: 10b ⓘ sheet (S10)
 
 - **ⓘ in the search pill**, after the Beta tag, opens the info sheet in place of what the sheet showed. Back or ✕

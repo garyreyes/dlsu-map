@@ -58,7 +58,7 @@ const APPROXIMATE = ' (approximate)';
 /** The steps under their places. Consecutive steps in the same place share one group. */
 export function stepGroups(
   route: Route,
-  names: Pick<PlaceNames, 'short'>,
+  names: Pick<PlaceNames, 'short'> & Partial<Pick<PlaceNames, 'floor'>>,
   stillSaving: readonly string[] = [],
 ): StepGroup[] {
   const groups: { key: string; meters: number; rows: StepRow[] }[] = [];
@@ -71,7 +71,7 @@ export function stepGroups(
     if (group !== last) groups.push(group);
     // A walk leg adds its meters once, at its first step.
     if (route.steps[index - 1]?.leg !== step.leg) group.meters += meters;
-    group.rows.push(rowOf(step, index, route, stillSaving));
+    group.rows.push(rowOf(step, index, route, stillSaving, names));
   });
   return groups.map(({ key, meters, rows }) => ({
     label: key === 'outside' ? `Outside · ${String(meters)} m` : `In ${names.short(key)}`,
@@ -81,24 +81,81 @@ export function stepGroups(
 
 export const STILL_SAVING_NOTE = 'Indoor map still saving';
 
-/** True for a step in or at a building whose indoor map is still saving: entering it, climbing in it, or leaving it. */
-function isStillSaving(step: Step, route: Route, stillSaving: readonly string[]): boolean {
-  if (stillSaving.length === 0) return false;
-  if (step.kind === 'enter' || step.kind === 'floors') return stillSaving.includes(step.building);
+/** The floor the route's stay in the leg's building ends on: the last floor of the unbroken run of indoor and floors
+ *  legs there. The room's floor on the way in, the exit floor on the way out. 0 when the run is empty. */
+export function goalFloor(route: Route, legIndex: number, building: string): number {
+  let goal = 0;
+  for (const leg of route.legs.slice(legIndex)) {
+    if (leg.kind === 'walk' || leg.building !== building) break;
+    goal = leg.kind === 'floors' ? leg.to : leg.floor;
+  }
+  return goal;
+}
+
+/** The building a still-saving step is in or at, or null when the step isn't one (see `noteFloor`). */
+function savingBuilding(step: Step, route: Route, stillSaving: readonly string[]): string | null {
+  if (stillSaving.length === 0) return null;
   const leg = route.legs[step.leg];
-  if (step.kind !== 'start' || leg?.kind !== 'walk' || leg.from.kind !== 'door') return false;
-  return stillSaving.includes(leg.from.building);
+  const building =
+    step.kind === 'enter' || step.kind === 'floors'
+      ? step.building
+      : step.kind === 'start' && leg?.kind === 'walk' && leg.from.kind === 'door'
+        ? leg.from.building
+        : null;
+  return building !== null && stillSaving.includes(building) ? building : null;
+}
+
+/** The floor a student in a still-saving building heads for: the room's floor on the way in, the floor of the way out
+ *  when leaving. Null when the route doesn't say. */
+function noteFloor(step: Step, route: Route, building: string): number | null {
+  const floor =
+    step.kind === 'enter'
+      ? goalFloor(route, step.leg + 1, building)
+      : step.kind === 'floors'
+        ? goalFloor(route, step.leg, building)
+        : exitFloor(route, step.leg - 1, building);
+  return floor > 0 ? floor : null;
+}
+
+function exitFloor(route: Route, legIndex: number, building: string): number {
+  const leg = route.legs[legIndex];
+  if (leg === undefined || leg.kind === 'walk' || leg.building !== building) return 0;
+  return leg.kind === 'floors' ? leg.to : leg.floor;
+}
+
+/** "Indoor map still saving · follow signs to 3F", for a step in or at a building whose indoor map is still saving:
+ *  entering it, climbing in it, or leaving it. Null for any other step. The floor is the goal's, because the map can't
+ *  show it. */
+function stillSavingNote(
+  step: Step,
+  route: Route,
+  stillSaving: readonly string[],
+  names: Partial<Pick<PlaceNames, 'floor'>>,
+): string | null {
+  const building = savingBuilding(step, route, stillSaving);
+  if (building === null) return null;
+  const floor = noteFloor(step, route, building);
+  if (floor === null) return STILL_SAVING_NOTE;
+  const label = names.floor?.(building, floor) ?? `${String(floor)}F`;
+  return `${STILL_SAVING_NOTE} · follow signs to ${label}`;
 }
 
 /** One step as the list shows it, and the step card too (S6). `stillSaving` are the buildings whose indoor map file
- *  couldn't load only because the phone is offline (O5). */
-export function rowOf(step: Step, index: number, route: Route, stillSaving: readonly string[] = []): StepRow {
+ *  couldn't load only because the phone is offline (O5); `names` gives their floors' labels. */
+export function rowOf(
+  step: Step,
+  index: number,
+  route: Route,
+  stillSaving: readonly string[] = [],
+  names: Partial<Pick<PlaceNames, 'floor'>> = {},
+): StepRow {
   const approximate = 'approximate' in step && step.approximate === true;
   const title = approximate && step.text.endsWith(APPROXIMATE) ? step.text.slice(0, -APPROXIMATE.length) : step.text;
+  const saving = stillSavingNote(step, route, stillSaving, names);
   const parts = [
     ...('meters' in step && step.meters !== undefined && step.meters > 0 ? [`${String(step.meters)} m`] : []),
     ...(approximate ? ['approximate'] : []),
-    ...(isStillSaving(step, route, stillSaving) ? [STILL_SAVING_NOTE] : []),
+    ...(saving === null ? [] : [saving]),
   ];
   const row = { index, icon: iconOf(step, route), title };
   return parts.length === 0 ? row : { ...row, subtitle: parts.join(' · ') };

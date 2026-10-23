@@ -314,12 +314,16 @@ describe('indoorMapComing', () => {
 
 describe('stepCard while a building’s map is still saving', () => {
   it('adds the note to its enter and floors steps, after the other parts', () => {
-    expect(stepCard(sampleNoIndoorMap, 1, ['velasco'])?.subtitle).toBe('approximate · Indoor map still saving');
-    expect(stepCard(sampleNoIndoorMap, 2, ['velasco'])?.subtitle).toBe('Indoor map still saving');
+    expect(stepCard(sampleNoIndoorMap, 1, ['velasco'])?.subtitle).toBe(
+      'approximate · Indoor map still saving · follow signs to 3F',
+    );
+    expect(stepCard(sampleNoIndoorMap, 2, ['velasco'])?.subtitle).toBe('Indoor map still saving · follow signs to 3F');
   });
 
   it('adds it to the start step that leaves that building', () => {
-    expect(stepCard(sampleRoute, 1, ['andrew'])?.subtitle).toBe('45 m · approximate · Indoor map still saving');
+    expect(stepCard(sampleRoute, 1, ['andrew'])?.subtitle).toBe(
+      '45 m · approximate · Indoor map still saving · follow signs to 1F',
+    );
   });
 
   it('leaves other steps alone', () => {

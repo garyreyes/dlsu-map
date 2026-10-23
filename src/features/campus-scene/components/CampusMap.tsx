@@ -37,6 +37,8 @@ export interface MapTrip {
   route: Route | null;
   /** The step the player is on (5d, D44): the dot and the camera follow it. Null on the preview. */
   focus: MapFocus | null;
+  /** Buildings whose indoor map file failed only because the phone is offline (O5). */
+  stillSaving?: readonly string[];
 }
 
 interface Props {
@@ -155,19 +157,23 @@ function CampusView(props: Props & { campus: Campus }) {
   useEffect(() => {
     if (route) preloadIndoor(route.legs.flatMap((l) => ('building' in l ? [l.building] : [])));
   }, [route]);
-  const { band, samples, chip, hereAt, fromBuilding, focusBuilding } = useTripMarks(
+  const focusBuilding = focus?.kind === 'floor' ? bySlug.get(focus.building) : undefined;
+  // The cut building shows the step's floor in its place, and the rail says which one it is, so the band's chip
+  // stands down.
+  const cut = useCutaway(cutStep(focus, focusBuilding));
+  // The camera comes in close to a step's spot only once its floor is cut open: while the floor file loads, or if it
+  // fails, the step frames the whole building with the band, on the floor the student is heading for (O5).
+  const cutOn = cut !== null;
+  const saving = focus?.kind === 'floor' && (trip?.stillSaving ?? []).includes(focus.building);
+  const { band, samples, chip, hereAt, fromBuilding } = useTripMarks(
     bySlug,
     building,
     floor,
     here,
     focus,
+    cutOn,
+    saving,
   );
-  // The cut building shows the step's floor in its place, and the rail says which one it is, so the band's chip
-  // stands down.
-  const cut = useCutaway(cutStep(focus, focusBuilding));
-  // The camera comes in close to a step's spot only once its floor is cut open: while the floor file loads, or if it
-  // fails, the step frames the whole building with the band, as on an untraced floor.
-  const cutOn = cut !== null;
   const flightFocus = useMemo(() => (cutOn ? focus : withoutSpot(focus)), [focus, cutOn]);
   useCameraFlights({
     controlsRef,

@@ -22,7 +22,7 @@ export function noElevatorLines(route: Route, names: Pick<PlaceNames, 'short'>):
  * Where the directions stop short because a building has no indoor map yet (O5, D43). Inside one building they give
  * only the floor. Otherwise the walk's last door tells the To building, which stops them at its door, from the From
  * building, which starts them there. A building in `stillSaving` (its file failed only because the phone is offline)
- * says so instead, and "for now".
+ * says so instead, and that its steps are text only: they do go inside, so "door to door" would contradict them.
  */
 export function noIndoorMapLines(
   route: Route,
@@ -37,19 +37,19 @@ export function noIndoorMapLines(
     if (saving.length === 0)
       return [`${first} and ${second} have no indoor maps yet, so directions go from door to door.`];
     if (saving.length === missing.length)
-      return [`${first} and ${second}’s indoor maps are still saving, so directions go from door to door for now.`];
+      return [`${first} and ${second}’s indoor maps are still saving. Steps inside are text only.`];
     return missing.map((b) => oneBuildingLine(route, b, names.short(b), saving.includes(b)));
   }
   return [oneBuildingLine(route, missing[0] ?? '', first, saving.length > 0)];
 }
 
 function oneBuildingLine(route: Route, building: string, name: string, saving: boolean): string {
+  if (saving) return `${name}’s indoor map is still saving. Steps inside are text only.`;
+  const what = `${name} has no indoor map yet`;
   const walk = route.legs.find((l) => l.kind === 'walk');
-  const what = saving ? `${name}’s indoor map is still saving` : `${name} has no indoor map yet`;
-  const now = saving ? ' for now' : '';
-  if (walk === undefined) return `${what}, so directions only give the floor${now}.`;
+  if (walk === undefined) return `${what}, so directions only give the floor.`;
   const atTo = walk.to.kind === 'door' && walk.to.building === building;
-  return `${what}, so directions ${atTo ? 'stop' : 'start'} at its door${now}.`;
+  return `${what}, so directions ${atTo ? 'stop' : 'start'} at its door.`;
 }
 
 /** Why there's no route, in the preview's words. */
