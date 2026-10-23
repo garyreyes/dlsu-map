@@ -93,7 +93,7 @@ easier to write directions like "turn left at…". Revisit if hallways get compl
 | Swipeable bottom sheet with snap points | react-modal-sheet | Gesture code |
 | Drawing polygons/lines over a photo | Terra Draw on MapLibre + MapLibre `image` source (4 corners). The reference layer underneath is our own OSM snapshot GeoJSON, so no map tile server is needed | Click-to-draw canvas editor |
 | Line splitting / snapping | Turf `lineSplit`, `nearestPointOnLine` | Geometry math |
-| Offline caching + update prompt | vite-plugin-pwa `registerType:'prompt'` + `useRegisterSW` | Hand-written service worker |
+| Offline caching + update prompt | vite-plugin-pwa `registerType:'prompt'` + `useRegisterSW`; no download percentage (D50) | Hand-written service worker |
 | Avatar, trees, benches | **Kenney** or **Quaternius** low-poly packs (CC0), shrunk with gltf-transform (`prune`, `dedup`, `quantize`). No meshopt/Draco: they need a WebAssembly decoder and a looser CSP, and models this small don't need them | Modeling in Blender |
 | Real building footprints | OpenStreetMap buildings around DLSU (ODbL, see section 9) | Guessing from the stylized map |
 

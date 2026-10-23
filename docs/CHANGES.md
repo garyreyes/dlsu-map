@@ -8,6 +8,11 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-23: D50 agreed
+
+- Gary and Charles agreed D50: no download percentage while saving for offline, and we keep the service worker
+  vite-plugin-pwa generates. Marked agreed in `docs/DECISIONS.md`, added to `SUMMARY.md` and `docs/PLAN.md`.
+
 ## 2026-10-23: 10a offline hardening (code; real-phone tests still open)
 
 - **O4 update prompt** (`features/offline`): "Map updated." with a Reload button when a newer version is waiting.

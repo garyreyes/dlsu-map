@@ -1247,7 +1247,7 @@ blocks a feature that needs the bytes, or testers on slow phones find the first 
 4. **Only then raise the budget,** as a new D-number that says what the bytes buy. The PWA saves everything after
    the first visit, so the budget is really about that first visit on mobile data.
 
-## D50. No download percentage while saving for offline (2026-10-22, proposed)
+## D50. No download percentage while saving for offline (2026-10-22, agreed)
 
 **Decision.** (Owner's answer, 2026-10-22.) O2 keeps "Saving for offline…" with no number. We keep the service
 worker vite-plugin-pwa generates (Workbox `generateSW`) instead of writing our own to report progress.
@@ -1262,3 +1262,5 @@ Counting files as they land in Workbox's precache cache from the page (cheap, bu
 three.js chunk is most of the bytes, and it depends on Workbox's internal cache name).
 **Revisit if** testers say the first save feels stuck, or the precache grows past about 10 MB (ARCHITECTURE §3.5
 allows 15 MB).
+
+**Agreed** by Gary and Charles (2026-10-23).
