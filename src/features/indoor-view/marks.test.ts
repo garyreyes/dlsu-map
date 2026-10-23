@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Leg, Route, Step, XY } from '@/shared/data/route';
 import type { Cutaway } from './cutaway';
-import { cutMarks } from './marks';
+import { cutMarks, doorOf } from './marks';
 
 const cut: Cutaway = { building: 'andrew', floor: 3, base: 8 };
 
@@ -80,5 +80,24 @@ describe('cutMarks', () => {
   it('has no goalRoom when the arrive step points at a leg that is not indoor', () => {
     const route = routeOf([indoor('andrew', 3, [[0, 0]])], [arrive(5)]);
     expect('goalRoom' in cutMarks(route, cut)).toBe(false);
+  });
+});
+
+describe('doorOf', () => {
+  // Points 0, 1, 2 at (0,0), (10,0), (20,0).
+  const indoor = { graph: { points: [0, 0, 10, 0, 20, 0] } };
+  const label: [number, number] = [7, 8];
+
+  it('is the door nearest the end of the walk', () => {
+    expect(doorOf(indoor, { doors: [0, 1, 2], label }, [19, 1])).toEqual([20, 0]);
+    expect(doorOf(indoor, { doors: [0, 1, 2], label }, [1, 1])).toEqual([0, 0]);
+  });
+
+  it('is the first door when there is no walk', () => {
+    expect(doorOf(indoor, { doors: [1, 2], label }, undefined)).toEqual([10, 0]);
+  });
+
+  it('is the label point when the room has no doors', () => {
+    expect(doorOf(indoor, { doors: [], label }, [1, 1])).toEqual([7, 8]);
   });
 });

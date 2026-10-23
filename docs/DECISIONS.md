@@ -653,7 +653,7 @@ and one tap accepts it. The route never starts from a guess (PRD §7, strict). T
 **Alternatives.** Full aliases like `C`→`ST` (silent; the owner chose a visible suggestion instead); ignoring them
 ("No building uses VH", which is wrong, since the sign says it).
 
-**Changed by D53** (2026-10-23): `J` is now an accepted alias for St. Joseph. `VH` stays a suggest prefix.
+**Changed by D54** (2026-10-23): `J` is now an accepted alias for St. Joseph. `VH` stays a suggest prefix.
 
 ---
 
@@ -1322,7 +1322,33 @@ read and more work). Keeping the jump.
 
 ---
 
-## D53. One-letter shortcuts for Andrew, Yuchengco, St. Miguel and St. Joseph (2026-10-23, agreed)
+## D53. The cut floor keeps green for "yours": neutral hallways, a label pin for the goal (2026-10-23, proposed)
+
+**Problem.** The 8▸ critique (`.impeccable/critique/2026-10-23T04-20-22Z__src-features-location-picker.md`) found the
+indoor step hard to read. Green did three jobs on the cut floor: the hallways, the 1.1 m indoor line, and a hollow
+goal ring that sat beside the same-green "you are here" dot, so the goal read as a second dot. On G floors the 5.5 m
+outdoor ribbon swamped the entrance. Offline, with the indoor map still saving, the floor chip showed the step's floor
+(G) while the step said 3F.
+
+**Decision.** (Owner's answers, 2026-10-23, 8▸.)
+
+1. **Hallways are a darker neutral** of the building colour, not green, so Campus Green on the cut means only the
+   route and the goal. This narrows D46's Indoor Cut exception.
+2. **The goal room gets a label pin** at its door: a Campus Green plate with its code ("ST311"), like a selected
+   building label. The owner first picked tinting the room itself, but the floor data has no room outlines, so the
+   pin stands in. Revisit if room outlines are ever added to the floor files.
+3. **The indoor line is 1.6 m on a 2.9 m white casing**, and the outdoor ribbon fades toward the ground while a
+   building is cut open.
+4. **When a building's indoor map is still saving or failed**, the band and chip show the goal floor, and the step
+   says "Indoor map still saving · follow signs to 3F". S5 says "STRC's indoor map is still saving. Steps inside are
+   text only." instead of promising to stop at the door.
+
+**Alternatives.** Tinting the room (needs outlines, see 2). Keeping the ring and recolouring it (still a circle next
+to a circle). Green hallways with a thicker line (the line still disappears into them).
+
+---
+
+## D54. One-letter shortcuts for Andrew, Yuchengco, St. Miguel and St. Joseph (2026-10-23, agreed)
 
 **Problem.** After D51 (`V` for Velasco), the owner checked what else students type. They also write Andrew rooms as
 `A1104`, Yuchengco's as `Y305`, St. Miguel's as `M203` and St. Joseph's as `J204`. Only `J` did anything (a "Did you

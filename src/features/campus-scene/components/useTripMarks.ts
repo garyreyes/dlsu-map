@@ -3,6 +3,7 @@ import { Vector3 } from 'three';
 import { INDOOR_TARGET_HEIGHT } from '@/shared/config/camera';
 import type { CampusBuilding } from '@/shared/data/campus';
 import { bandSamples, floorBand } from '../floor-band';
+import { bandFloorOf, floorLabelOf } from '../trip-band';
 import { herePoint, type MapHere } from './Labels';
 
 /** A selected room's floor: drawn as the band, labelled on the chip. */
@@ -49,13 +50,12 @@ function spotPoint(focus: MapFocus | null, building: CampusBuilding | undefined)
   return base === null ? null : new Vector3(focus.at[0], base + INDOOR_TARGET_HEIGHT, -focus.at[1]);
 }
 
-const labelOf = (b: CampusBuilding | undefined, floor: number) =>
-  b?.floorLabels?.[String(floor)] ?? `${String(floor)}F`;
-
 /**
  * The band, its chip and the "you are here" dot. On the preview the band is the room's floor and the dot is From.
  * In the player the dot follows the step, and an indoor step moves the band to its own building and floor (D44). On a
- * labelled floor the dot sits at the step's spot instead of the middle of the floor (7▸).
+ * labelled floor the dot sits at the step's spot instead of the middle of the floor (7▸). Where the step's floor isn't
+ * cut open and `saving` (the step's building has its file failed offline) the band and chip show the goal floor
+ * instead (O5).
  */
 export function useTripMarks(
   bySlug: ReadonlyMap<string, CampusBuilding>,
@@ -63,17 +63,23 @@ export function useTripMarks(
   floor: MapFloor | null,
   here: MapHere | null,
   focus: MapFocus | null,
+  cutOn: boolean,
+  saving: boolean,
 ) {
   const onFloor = focus?.kind === 'floor' ? focus : null;
   const focusBuilding = onFloor ? bySlug.get(onFloor.building) : undefined;
   const bandBuilding = onFloor ? focusBuilding : building;
-  const bandFloor = onFloor ? onFloor.floor : (floor?.floor ?? null);
+  const bandFloor = onFloor ? bandFloorOf(onFloor, cutOn, saving) : (floor?.floor ?? null);
   const band = useMemo(
     () => (bandBuilding && bandFloor !== null ? floorBand(bandBuilding, bandFloor) : null),
     [bandBuilding, bandFloor],
   );
   const samples = useMemo(() => (band ? bandSamples(band) : []), [band]);
-  const chip = !band ? null : onFloor ? labelOf(focusBuilding, onFloor.floor) : (floor?.label ?? null);
+  const chip = !band
+    ? null
+    : onFloor
+      ? floorLabelOf(focusBuilding, bandFloorOf(onFloor, cutOn, saving))
+      : (floor?.label ?? null);
 
   const dot = useMemo((): MapHere | null => {
     if (!focus) return here;

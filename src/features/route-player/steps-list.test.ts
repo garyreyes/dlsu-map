@@ -243,8 +243,8 @@ describe('still-saving rows', () => {
   it('marks the steps of a building whose map is still saving, in the list too', () => {
     const rows = stepGroups(sampleRoute, names, ['andrew']).flatMap((g) => g.rows);
     expect(rows.map((r) => r.subtitle)).toEqual([
-      'Indoor map still saving',
-      '45 m · approximate · Indoor map still saving',
+      'Indoor map still saving · follow signs to 1F',
+      '45 m · approximate · Indoor map still saving · follow signs to 1F',
       '15 m',
       'approximate',
       undefined,
@@ -253,8 +253,28 @@ describe('still-saving rows', () => {
 
   it('is what rowOf says for one step', () => {
     const step = sampleRoute.steps[4];
-    expect(rowOf(step, 4, sampleRoute, ['strc']).subtitle).toBe('Indoor map still saving');
+    expect(rowOf(step, 4, sampleRoute, ['strc'], names).subtitle).toBe('Indoor map still saving · follow signs to 3F');
     expect(rowOf(step, 4, sampleRoute).subtitle).toBeUndefined();
+  });
+
+  it('uses the building’s floor label for the floor the walk out of it starts from', () => {
+    const down = { kind: 'floors', building: 'strc', from: 3, to: 1, by: 'stairs', seconds: 40 } as const;
+    const from = { kind: 'door', building: 'strc', door: 'main', verified: true, at: [0, 0] } as const;
+    const walk = { ...sampleRoute.legs[1], from };
+    const start = { kind: 'start', leg: 1, at: [0, 0], meters: 45, text: 'Leave STRC by the main entrance' } as const;
+    const route: Route = { legs: [down, walk], steps: [start], meters: 45, seconds: 80 };
+    expect(rowOf(start, 0, route, ['strc'], names).subtitle).toBe('45 m · Indoor map still saving · follow signs to G');
+  });
+
+  it('names the goal floor with the building’s own label, and the room’s floor on the way in', () => {
+    const rows = stepGroups(sampleIndoorRoute, names, ['strc']).flatMap((g) => g.rows);
+    expect(rows.map((r) => r.subtitle)).toEqual([
+      '220 m',
+      '10 m · approximate · Indoor map still saving · follow signs to 3F',
+      '10 m · Indoor map still saving · follow signs to 3F',
+      '15 m',
+      undefined,
+    ]);
   });
 });
 

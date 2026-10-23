@@ -94,6 +94,28 @@ test('a building, then a floor with its own label, sets From', async ({ page }) 
   await expectTrip(page, 'Velasco 3F', 'ST311');
 });
 
+/** Every scroll box in the sheet that is wider inside than out: rows that bleed into the gutter must not make one. */
+async function sidewaysScrollers(page: Page) {
+  return where(page).evaluate((el) => {
+    const sheet = el.closest('.react-modal-sheet-content-scroller') ?? el;
+    return [sheet, ...sheet.querySelectorAll('*')].filter(
+      (e) => getComputedStyle(e).overflowX !== 'visible' && e.scrollWidth > e.clientWidth + 0.5,
+    ).length;
+  });
+}
+
+test('the sheet never scrolls sideways, at any step (8▸)', async ({ page }) => {
+  await openST311(page);
+  expect(await sidewaysScrollers(page)).toBe(0);
+  await row(page, 'Velasco').click();
+  await expect(where(page).getByRole('group', { name: 'Velasco Hall: which floor?' })).toBeVisible();
+  expect(await sidewaysScrollers(page)).toBe(0);
+  await where(page).getByRole('button', { name: 'Pick another building' }).click();
+  await row(page, 'I’m outside').click();
+  await expect(where(page).getByRole('button', { name: 'Gate 2 (North)' })).toBeVisible();
+  expect(await sidewaysScrollers(page)).toBe(0);
+});
+
 test("I'm outside: a gate, or next to a building", async ({ page }) => {
   await openST311(page);
   await row(page, 'I’m outside').click();

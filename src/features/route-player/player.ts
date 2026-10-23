@@ -1,7 +1,7 @@
 // The step player (S6) and Arrived (S9), user-flows §3.7–3.8: which step the card shows, where the camera and the
 // "you are here" dot go for it (D44), and what Arrived says. Pure: no React, no fetch.
 import type { From, Route, To, XY } from '@/shared/data/route';
-import { emptyRouteLine, rowOf, toName, type PlaceNames, type StepIconKey } from './steps-list';
+import { emptyRouteLine, goalFloor, rowOf, toName, type PlaceNames, type StepIconKey } from './steps-list';
 
 /** The step as the card shows it. */
 export interface StepCard {
@@ -40,10 +40,15 @@ export type StepFocus =
 /** A step index inside the route: 0 to its last step, and 0 for a route with no steps. */
 export const clampStep = (route: Route, index: number): number => Math.max(0, Math.min(index, route.steps.length - 1));
 
-export function stepCard(route: Route, index: number, stillSaving: readonly string[] = []): StepCard | null {
+export function stepCard(
+  route: Route,
+  index: number,
+  stillSaving: readonly string[] = [],
+  names: Partial<Pick<PlaceNames, 'floor'>> = {},
+): StepCard | null {
   const step = route.steps[index];
   if (step === undefined) return null;
-  const { icon, title, subtitle } = rowOf(step, index, route, stillSaving);
+  const { icon, title, subtitle } = rowOf(step, index, route, stillSaving, names);
   const total = route.steps.length;
   return {
     counter: `Step ${String(index + 1)} of ${String(total)}`,
@@ -78,17 +83,6 @@ export function stepFocus(route: Route, index: number): StepFocus | null {
     case 'walk':
       return at ? { kind: 'ground', at, toward: towardOf(leg.path, at) } : null;
   }
-}
-
-/** The floor the route's stay in the leg's building ends on: the last floor of the unbroken run of indoor and floors
- *  legs there. The room's floor on the way in, the exit floor on the way out. */
-function goalFloor(route: Route, legIndex: number, building: string): number {
-  let goal = 0;
-  for (const leg of route.legs.slice(legIndex)) {
-    if (leg.kind === 'walk' || leg.building !== building) break;
-    goal = leg.kind === 'floors' ? leg.to : leg.floor;
-  }
-  return goal;
 }
 
 /** How far ahead the camera looks along the walk, in meters, so a short jog (off a curb, round a post) doesn't turn it. */

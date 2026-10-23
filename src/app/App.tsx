@@ -114,7 +114,12 @@ export function App() {
   // The player stays open under Arrived, so the map keeps the last step there.
   const mapTrip: MapTrip | null =
     route?.status === 'ready'
-      ? { here: route.here, route: step.route, focus: trip.player.isOpen ? step.focus : null }
+      ? {
+          here: route.here,
+          route: step.route,
+          focus: trip.player.isOpen ? step.focus : null,
+          stillSaving: route.stillSaving,
+        }
       : null;
   const select = useCallback(
     (b: CampusBuilding | null) => {
@@ -274,6 +279,7 @@ export function App() {
     <StepPlayer
       route={step.route}
       stillSaving={route?.status === 'ready' ? route.stillSaving : undefined}
+      names={route?.status === 'ready' ? route.names : undefined}
       current={step.index}
       onStep={step.setIndex}
       onArrive={trip.arrived.open}

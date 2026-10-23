@@ -40,18 +40,20 @@ export const SUN_LIGHT = { color: '#fff4e6', intensity: 0.46 };
 export const HAZE_NEAR = 0.8;
 export const HAZE_FAR = 1.5;
 
-/** Hallway colour in the cut: `path` leaning this far toward Campus Green, for 3:1 against the cut slab. */
-const CUT_HALL_MIX = 0.65;
+/** Hallway colour in the cut: the building colour at this fraction of its lightness (scaled in linear RGB), with no
+ *  green in it, so the one green on the cut floor is the route (the One Green Rule). On the green palette this gives
+ *  #75736e against the #d9dacf slab: 3.36:1 (WCAG contrast; 0.68 gave only 1.18:1). */
+const CUT_HALL_SHADE = 0.2;
 /** Cut walls are this fraction of the slab's lightness: the one named exception to the Shaped-by-Light Rule. */
 const CUT_WALL_SHADE = 0.8;
 
 /** The cut building's tones, all derived from the map palette (DESIGN.md, the indoor cut): the slab and walls keep the
- *  selected building's lean toward Campus Green, the walls a darker tone of it, hallways a deeper `path`. */
+ *  selected building's lean toward Campus Green, the walls a darker tone of it, hallways a darker neutral of the building colour. */
 export function cutTones(palette: MapPalette) {
   const slab = new Color(palette.building).lerp(new Color(SELECTED_TINT.color), SELECTED_TINT.mix);
   return {
     slab: slab.clone(),
     wall: slab.clone().multiplyScalar(CUT_WALL_SHADE),
-    hall: new Color(palette.path).lerp(new Color(CAMPUS_GREEN), CUT_HALL_MIX),
+    hall: new Color(palette.building).multiplyScalar(CUT_HALL_SHADE),
   };
 }

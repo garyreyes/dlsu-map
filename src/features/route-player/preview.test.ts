@@ -145,14 +145,14 @@ describe('notOkLine', () => {
   describe('while the file is still saving', () => {
     it('says the directions stop at the To building’s door for now', () => {
       expect(noIndoorMapLines(sampleNoIndoorMap, names, ['velasco'])).toEqual([
-        'Velasco’s indoor map is still saving, so directions stop at its door for now.',
+        'Velasco’s indoor map is still saving. Steps inside are text only.',
       ]);
     });
 
     it('says the directions start at the From building’s door for now', () => {
       const route = routeOf([floors('andrew', 'elevator'), walk], ['andrew']);
       expect(noIndoorMapLines(route, names, ['andrew'])).toEqual([
-        'Andrew’s indoor map is still saving, so directions start at its door for now.',
+        'Andrew’s indoor map is still saving. Steps inside are text only.',
       ]);
     });
 
@@ -162,13 +162,13 @@ describe('notOkLine', () => {
         ['andrew', 'gokongwei'],
       );
       expect(noIndoorMapLines(route, names, ['andrew', 'gokongwei'])).toEqual([
-        'Andrew and Gokongwei’s indoor maps are still saving, so directions go from door to door for now.',
+        'Andrew and Gokongwei’s indoor maps are still saving. Steps inside are text only.',
       ]);
     });
 
     it('says only the floor is given for now inside one building', () => {
       expect(noIndoorMapLines(routeOf([floors('andrew', 'stairs')], ['andrew']), names, ['andrew'])).toEqual([
-        'Andrew’s indoor map is still saving, so directions only give the floor for now.',
+        'Andrew’s indoor map is still saving. Steps inside are text only.',
       ]);
     });
 
@@ -183,7 +183,7 @@ describe('notOkLine', () => {
       );
       expect(noIndoorMapLines(route, names, ['gokongwei'])).toEqual([
         'Andrew has no indoor map yet, so directions start at its door.',
-        'Gokongwei’s indoor map is still saving, so directions stop at its door for now.',
+        'Gokongwei’s indoor map is still saving. Steps inside are text only.',
       ]);
     });
 

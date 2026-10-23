@@ -23,7 +23,7 @@ describe('search on the real rooms', () => {
     expect(codes('V2').every((c) => c.startsWith('VL2'))).toBe(true);
   });
 
-  // D53: the one-letter shortcuts students type open the room, like V. MM stays Mutien-Marie.
+  // D54: the one-letter shortcuts students type open the room, like V. MM stays Mutien-Marie.
   it.each([
     ['J204', 'SJ204'],
     ['j-204', 'SJ204'],
