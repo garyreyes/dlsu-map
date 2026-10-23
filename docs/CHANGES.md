@@ -8,6 +8,13 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-23: `V` finds Velasco rooms (D51, proposed)
+
+- **`V205` opens VL205**, "also written V205", the same as `VE205`; `V2` lists the `VL2…` rooms while typing. Only
+  data changed: `V` added to Velasco's `prefixes` in `data-src/campus/buildings.json`. `VH` still only suggests.
+- **Tests first:** `tests/search.test.ts` (new) runs search on the real rooms and prefixes; 5 of its 6 tests and the
+  prefix-table test in `tests/compile-data.test.ts` were seen failing before the change.
+
 ## 2026-10-23: 8c-2 pickers: Change spot and Leave by (8c-2 done)
 
 - **Change spot in S4** (D42): a "Change spot" link under the floor chips, shown when the building has a real
