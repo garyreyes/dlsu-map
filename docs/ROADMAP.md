@@ -99,7 +99,7 @@ with a full-app polish.
 | 8b | Join indoor and outdoor at entrances; Stairs / Elevator / Auto across floors; indoor direction text 🧪 | B | 4c, 8a | done |
 | 8c-1 | Indoor steps (S7): the indoor line and goal-room mark on the cut floor (D46), "Indoor map still saving" text steps (user-flows §3.7). The player, O5 and O6 for doors were already in (D47) | A | 5d, 7b, 8b | done |
 | 8c-2 | Change spot in S4 (D42) and which exit in Route options (D43): contract PR first (#78), then the router (Lane B, done) and the two pickers (D47, D48) | A + B | 8c-1 | done |
-| 8▸ | Impeccable critique + polish (Phase 8): critique done, its three P1s fixed (D53); the P2s wait in `.impeccable/critique/` | A | 8a–8c-2 | in progress |
+| 8▸ | Impeccable critique + polish (Phase 8): critique done, its three P1s fixed (D54); the P2s wait in `.impeccable/critique/` | A | 8a–8c-2 | in progress |
 
 ## Phase 9: Data rollout (alongside Phases 6–8, with the `floor-extract` skill)
 

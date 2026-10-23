@@ -1320,7 +1320,7 @@ read and more work). Keeping the jump.
 
 ---
 
-## D53. The cut floor keeps green for "yours": neutral hallways, a label pin for the goal (2026-10-23, proposed)
+## D54. The cut floor keeps green for "yours": neutral hallways, a label pin for the goal (2026-10-23, proposed)
 
 **Problem.** The 8▸ critique (`.impeccable/critique/2026-10-23T04-20-22Z__src-features-location-picker.md`) found the
 indoor step hard to read. Green did three jobs on the cut floor: the hallways, the 1.1 m indoor line, and a hollow

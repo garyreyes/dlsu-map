@@ -538,7 +538,7 @@ their wall-foot darkening. Values for the green palette (all derived in `cutTone
   wall-foot darkening and no cut-face colour.
 - **Hallways:** the building colour at 0.2 in linear RGB (`CUT_HALL_SHADE`), a mid-grey neutral with no green,
   about #75736e: 3.4:1 against the slab. 1 m wide, unlit, just above the slab. Green hallways ran together with
-  the indoor line and the goal mark (8▸ critique, D53).
+  the indoor line and the goal mark (8▸ critique, D54).
 - **Rooms:** the space between walls; no fills or door marks in v1. The goal room gets a label pin at its door, a
   Campus Green plate with its code, like a selected building label. The data has no room outlines yet, so no fill.
 - **Order:** the cut draws after the see-through off-campus blocks, so none wash over it; the building's name label
