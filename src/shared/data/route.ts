@@ -53,7 +53,7 @@ export type WalkEnd =
       readonly kind: 'door';
       readonly building: string;
       readonly door: 'main' | 'side' | 'back';
-      /** Which one, when a building has more than one of a kind: `to SJ Walk`. */
+      /** Which one, when a building has more than one of a kind: `facing SJ Walk` (D48). */
       readonly name?: string;
       /** Its index in `campus.json`'s `entrances`, so Route options can show which door the route took (8c-2). */
       readonly entrance?: number;

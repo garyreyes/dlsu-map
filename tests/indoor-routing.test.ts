@@ -3,7 +3,8 @@
 // every one of their rooms must be reached from every gate on each of Stairs, Elevator and Auto, with the climb each
 // asks for. Velasco's G Mezz rooms are on no sign, so they stop at the door (O5).
 import { describe, expect, it } from 'vitest';
-import type { FloorMode, Leg, Route, RouteResult, Step } from '../src/shared/data/route.ts';
+import type { FloorMode, Leg, Route, RouteResult, Step, XY } from '../src/shared/data/route.ts';
+import { sampleTripChoices } from '../src/shared/data/route.sample.ts';
 import { createRouter } from '../src/features/routing/router.ts';
 import { campus, indoor, rooms } from './real-data.ts';
 
@@ -127,5 +128,50 @@ describe('indoor routing on the real campus', () => {
       expect(r.noIndoorMap).toStrictEqual(['velasco']);
       expect(r.legs.map((l) => l.kind)).toStrictEqual(['walk']);
     }
+  });
+});
+
+// Change spot and the exit choice (8c-2, D48): the contract's samples, with real ids from campus.json and Velasco's
+// building file.
+describe('trip choices on the real campus', () => {
+  const t = sampleTripChoices;
+  const start = (r: Route): XY | undefined => {
+    const first = r.legs[0];
+    return first?.kind === 'floors' ? first.at : first?.kind === 'indoor' ? first.path[0] : undefined;
+  };
+  const walkOf = (r: Route) => r.legs.find((l) => l.kind === 'walk');
+
+  it('westStairs: Velasco 3F starts at the west stairs’ 3F stop', () => {
+    const file = indoor.get('velasco');
+    const stop = file?.verticals.find((v) => v.id === 'west-stairs')?.stops.find((s) => s.floor === 3)?.point ?? -1;
+    const at = [file?.graph.points[2 * stop], file?.graph.points[2 * stop + 1]];
+    const r = ok(router(t.westStairs.from, t.westStairs.to, 'auto', indoor));
+    expect(start(r)).toStrictEqual(at);
+    expect(start(ok(router({ ...t.westStairs.from, spot: undefined }, t.westStairs.to, 'auto', indoor)))).not.toEqual(
+      at,
+    );
+  });
+
+  it('atDoor: Velasco G at entrance 5 has no Velasco indoor leg and walks from that door', () => {
+    const r = ok(router(t.atDoor.from, t.atDoor.to, 'auto', indoor));
+    expect(r.legs.some((l) => (l.kind === 'indoor' || l.kind === 'floors') && l.building === 'velasco')).toBe(false);
+    expect(walkOf(r)).toMatchObject({ from: { building: 'velasco', entrance: 5 } });
+  });
+
+  it('exit: leaves Velasco 3F by entrance 5', () => {
+    const r = ok(router(t.exit.from, t.exit.to, 'auto', indoor, t.exit.doors));
+    expect(walkOf(r)).toMatchObject({ from: { building: 'velasco', entrance: 5 } });
+  });
+
+  it('wrongExit and unknownSpot are unknown-place', () => {
+    const unknown = { ok: false, reason: 'unknown-place' };
+    expect(router(t.wrongExit.from, t.wrongExit.to, 'auto', indoor, t.wrongExit.doors)).toStrictEqual(unknown);
+    expect(router(t.unknownSpot.from, t.unknownSpot.to, 'auto', indoor)).toStrictEqual(unknown);
+  });
+
+  it('entrance 16, STRC’s only door, gives the same route as no choice', () => {
+    const from = { kind: 'building', building: 'velasco', floor: 3 } as const;
+    const to = { kind: 'room', code: 'ST311' } as const;
+    expect(router(from, to, 'auto', indoor, { entrance: 16 })).toStrictEqual(router(from, to, 'auto', indoor));
   });
 });

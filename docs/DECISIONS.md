@@ -1154,7 +1154,7 @@ DLSU's real floor plans arrive or the post-build indoor restyle starts. **This i
 2026-10-22): today's floors are traced from evacuation maps only, and the final indoor view is meant to be a
 Sims-like bird's-eye dollhouse, designed once the app is built and iterated from there.
 
-## D47. 8c splits in two: the indoor drawing first, Change spot and the exit choice after a router change (2026-10-22, proposed)
+## D47. 8c splits in two: the indoor drawing first, Change spot and the exit choice after a router change (2026-10-22, agreed)
 
 **Problem.** Planning 8c found most of it already built: the player plays indoor steps (7b, 7▸), "indoor map coming"
 (O5) is on S5 and S9, and unchecked doors say "(approximate)" (O6). What's left falls in two kinds. The indoor line,
@@ -1196,6 +1196,18 @@ read, so the shape is agreed before the router (Lane B) or the pickers (Lane A) 
 Naming doors by kind and name instead of index (Velasco has two unnamed main entrances, so names don't tell them
 apart). Putting the exit on `From` (it's a route option in S5, not where the student is). **Revisit if** the entrance
 index stops being stable between `campus.json` and the building files, which come from the same build.
+
+**Agreed** by Charles on #78 and Gary in chat (2026-10-22), with two cases the draft left open, as Charles proposed:
+
+- **A door spot on a trip inside one building** starts the walk inside at that door, in place of the main
+  entrances.
+- **A stairs or elevator spot on G** gets a short walk inside from it to the exit, which a G tap doesn't have
+  otherwise, and may leave by any door, not only the main ones.
+
+And one for the data: **a building with two doors of one kind names each one** (`facing Taft`, `facing Agno`), and
+the build fails until it does. The name reads in both "Enter Velasco by the main entrance facing Agno" and "Leave
+Velasco by…", so it says where the door faces, never "to" or "from". The names are the ones students use (owner,
+2026-10-22).
 
 ## D49. A size budget for the JavaScript, checked on every build (2026-10-22, agreed)
 

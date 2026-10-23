@@ -46,16 +46,24 @@ const route = (...args: Parameters<Router>) => {
 };
 
 const gate = { kind: 'gate', gate: 'g1', name: 'Gate g1', at: [0, 0] } as const;
-const alphaMain = { kind: 'door', building: 'alpha', door: 'main', verified: false, at: [0, 100] } as const;
+const alphaMain = {
+  kind: 'door',
+  building: 'alpha',
+  door: 'main',
+  entrance: 0,
+  verified: false,
+  at: [0, 100],
+} as const;
 const alphaSide = {
   kind: 'door',
   building: 'alpha',
   door: 'side',
   name: 'to the field',
+  entrance: 1,
   verified: false,
   at: [100, 90],
 } as const;
-const betaMain = { kind: 'door', building: 'beta', door: 'main', verified: false, at: [100, 0] } as const;
+const betaMain = { kind: 'door', building: 'beta', door: 'main', entrance: 2, verified: false, at: [100, 0] } as const;
 
 const building = (slug: string, floor = 1): From => ({ kind: 'building', building: slug, floor });
 const room = (code: string): From & To => ({ kind: 'room', code });

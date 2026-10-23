@@ -228,6 +228,22 @@ function missingMains(input: AttachInput, errors: string[], notes: string[]): vo
   if (blocks.length > 0) notes.push(`entrances: no main entrance yet for ${blocks.join(', ')} (block tier)`);
 }
 
+/** Errors for a building with two doors of one kind not told apart by name: the exit picker shows the name (D48). */
+function unnamedDoors(input: AttachInput, errors: string[]): void {
+  const byKind = new Map<string, EntranceInput[]>();
+  for (const e of input.entrances) {
+    const key = `${e.building} ${e.kind}`;
+    byKind.set(key, [...(byKind.get(key) ?? []), e]);
+  }
+  for (const doors of byKind.values()) {
+    const names = new Set(doors.map((e) => e.name));
+    const [first] = doors;
+    if (first === undefined || doors.length < 2 || (names.size === doors.length && !names.has(undefined))) continue;
+    const what = `its ${String(doors.length)} ${first.kind} entrances`;
+    errors.push(`${first.building}: ${what} each need a different name in data-src/campus/entrances.json`);
+  }
+}
+
 /** Every point reachable from `start` over the links. */
 function reachable(g: Grow, start: number): Set<number> {
   const next = new Map<number, number[]>();
@@ -263,6 +279,7 @@ export function attach(input: AttachInput): AttachResult {
   const gates = attachGates(g, input.gates);
   const entrances = attachEntrances(g, input.entrances);
   missingMains(input, g.errors, notes);
+  unnamedDoors(input, g.errors);
 
   const [first] = gates;
   if (!first) g.errors.push('walk: no gates');

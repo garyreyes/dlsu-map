@@ -2,106 +2,15 @@
 // meters ÷ 1.3 m/s, stairs 20 s a floor, elevator 180 s once per ride + 5 s a floor, Auto = elevator for 3 floors or
 // more. Steps follow D35 and D41: turns only at junctions, named by a room door within 5 m; the side on arrival.
 //
-// Outside: gate g1 at 0,0. Alpha's main door M at 0,100 (100 m path north), its side door S at 100,100 (141 m path on
-// the diagonal). Beta's main door at -100,0 (100 m path west); beta has no building file.
-//
-// Alpha inside, every floor the same hallway along y = 110 from x = 0 to 100, west stairs at 0,115 and the elevator
-// at 100,115, each 5 m off the hallway's ends:
-//   G   M and S join the hallway 10 m north of them. AL101's door at 50,115.
-//   2F  AL201's door at 0,105, AL207's at 20,115, AL205's at 50,105.
-//   3F  AL301's door at 50,105.
-//   4F  AL401's door at 60,105.
-//   5F  not traced: AL502 is in the room list only.
+// The campus is drawn in `fixture.ts` (alphaCampus).
 import { describe, expect, it } from 'vitest';
 import type { From, IndoorFiles, Route, RouteResult, To } from '@/shared/data/route';
-import { fixtureCampus, fixtureIndoor, fixtureRooms, type IndoorSpec } from './fixture';
+import { alphaCampus, alphaRooms, alphaSpec, fixtureIndoor } from './fixture';
 import { createRouter } from './router';
 
-const campus = fixtureCampus(
-  [
-    [[0, 0], [0, 100], 'path'],
-    [[0, 0], [100, 100], 'path'],
-    [[0, 0], [-100, 0], 'path'],
-  ],
-  {
-    gates: [{ id: 'g1', at: [0, 0] }],
-    doors: [
-      { building: 'alpha', at: [0, 100] },
-      { building: 'alpha', at: [100, 100], kind: 'side' },
-      { building: 'beta', at: [-100, 0] },
-    ],
-    buildings: [{ slug: 'alpha', floorLabels: { '1': 'G' } }, { slug: 'beta' }],
-  },
-);
-const rooms = fixtureRooms(
-  ['AL101', 'alpha', 1],
-  ['AL201', 'alpha', 2],
-  ['AL205', 'alpha', 2],
-  ['AL207', 'alpha', 2],
-  ['AL301', 'alpha', 3],
-  ['AL401', 'alpha', 4],
-  ['AL502', 'alpha', 5],
-  ['BE101', 'beta', 1],
-);
-
-const floor = (f: number, extra: IndoorSpec['points']): IndoorSpec['points'] => ({
-  [`ws${String(f)}`]: [f, 0, 115],
-  [`h${String(f)}a`]: [f, 0, 110],
-  [`h${String(f)}b`]: [f, 100, 110],
-  [`el${String(f)}`]: [f, 100, 115],
-  ...extra,
-});
-const spec: IndoorSpec = {
-  building: 'alpha',
-  points: {
-    ...floor(1, { M: [1, 0, 100], S: [1, 100, 100], h1m: [1, 50, 110], d101: [1, 50, 115] }),
-    ...floor(2, { h2w: [2, 20, 110], h2m: [2, 50, 110], d201: [2, 0, 105], d207: [2, 20, 115], d205: [2, 50, 105] }),
-    ...floor(3, { h3m: [3, 50, 110], d301: [3, 50, 105] }),
-    ...floor(4, { h4m: [4, 60, 110], d401: [4, 60, 105] }),
-  },
-  links: [
-    ['M', 'h1a', 'entrance'],
-    ['S', 'h1b', 'entrance'],
-    ['h1a', 'h1m', 'hall'],
-    ['h1m', 'h1b', 'hall'],
-    ['h1m', 'd101', 'door'],
-    ['h2a', 'h2w', 'hall'],
-    ['h2w', 'h2m', 'hall'],
-    ['h2m', 'h2b', 'hall'],
-    ['h2a', 'd201', 'door'],
-    ['h2w', 'd207', 'door'],
-    ['h2m', 'd205', 'door'],
-    ['h3a', 'h3m', 'hall'],
-    ['h3m', 'h3b', 'hall'],
-    ['h3m', 'd301', 'door'],
-    ['h4a', 'h4m', 'hall'],
-    ['h4m', 'h4b', 'hall'],
-    ['h4m', 'd401', 'door'],
-    ...[1, 2, 3, 4].flatMap((f): IndoorSpec['links'] => [
-      [`ws${String(f)}`, `h${String(f)}a`, 'hall'],
-      [`h${String(f)}b`, `el${String(f)}`, 'hall'],
-    ]),
-    ['ws1', 'ws2', 'stairs'],
-    ['ws2', 'ws3', 'stairs'],
-    ['ws3', 'ws4', 'stairs'],
-    ['el1', 'el2', 'elevator'],
-    ['el2', 'el3', 'elevator'],
-    ['el3', 'el4', 'elevator'],
-  ],
-  rooms: {
-    AL101: ['d101'],
-    AL201: ['d201'],
-    AL205: ['d205'],
-    AL207: ['d207'],
-    AL301: ['d301'],
-    AL401: ['d401'],
-  },
-  verticals: [
-    { id: 'west-stairs', kind: 'stairs', servesFloors: [1, 2, 3, 4], stops: ['ws1', 'ws2', 'ws3', 'ws4'] },
-    { id: 'elevator', kind: 'elevator', servesFloors: [1, 2, 3, 4], stops: ['el1', 'el2', 'el3', 'el4'] },
-  ],
-  entrances: { 0: 'M', 1: 'S' },
-};
+const campus = alphaCampus;
+const rooms = alphaRooms;
+const spec = alphaSpec;
 const alpha = fixtureIndoor(spec).file;
 /** The same building with an elevator that skips 3F. */
 const skipStop = fixtureIndoor({
@@ -131,9 +40,23 @@ const go = (from: From, to: To, mode: 'auto' | 'stairs' | 'elevator' = 'auto', i
 const walking = (meters: number) => meters / 1.3;
 
 const gate = { kind: 'gate', gate: 'g1', name: 'Gate g1', at: [0, 0] } as const;
-const alphaMain = { kind: 'door', building: 'alpha', door: 'main', verified: false, at: [0, 100] } as const;
-const alphaSide = { kind: 'door', building: 'alpha', door: 'side', verified: false, at: [100, 100] } as const;
-const betaMain = { kind: 'door', building: 'beta', door: 'main', verified: false, at: [-100, 0] } as const;
+const alphaMain = {
+  kind: 'door',
+  building: 'alpha',
+  door: 'main',
+  entrance: 0,
+  verified: false,
+  at: [0, 100],
+} as const;
+const alphaSide = {
+  kind: 'door',
+  building: 'alpha',
+  door: 'side',
+  entrance: 1,
+  verified: false,
+  at: [100, 100],
+} as const;
+const betaMain = { kind: 'door', building: 'beta', door: 'main', entrance: 2, verified: false, at: [-100, 0] } as const;
 const diagonal = Math.hypot(100, 100);
 
 describe('routes that go inside a building with labelled floors', () => {

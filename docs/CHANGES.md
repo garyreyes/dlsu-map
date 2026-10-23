@@ -27,6 +27,27 @@ session needs to know. Search this file; it isn't required reading (the reading 
 - **Still open:** airplane-mode and week-unused tests on a real iPhone and Android; the ⓘ "saved offline" line (O3)
   comes with 10b, which reads `useSavedOffline()`. No CSP or `_headers` change.
 
+## 2026-10-22: 8c-2 router: Change spot and the door choice
+
+- **The router takes From's `spot` and the `doors` choice** (D48, now agreed with D47). A stairs or elevator spot
+  starts the walk inside at that stop, on any floor, G too, where it may leave by any door. A door spot (G only) starts
+  the walk at that door, with no walk inside and no building file needed; for a room in the same building it starts
+  inside at that door. `doors.exit` and `doors.entrance` keep only that door open, and override "main entrances only
+  from G". Doors are ignored from a gate, at a door spot and inside one building. A spot or door the data can't place
+  is `unknown-place`; a stairs spot whose building file isn't loaded routes as before, with the building in
+  `noIndoorMap`.
+- **Every door end of a walk carries its `entrance` index,** so Route options can show the door the route took.
+- **Door names:** the 12 doors that share a kind with another in their building are named `facing …`, with the names
+  students use (owner): Andrew facing Taft / Razon, Gokongwei facing Taft / Agno, Velasco facing CADS (4) / Agno (5),
+  Yuchengco facing CADS / LS, St. Joseph's sides facing Miguel / SJ Walk, La Salle Hall facing CADS / Gate 1. The
+  build now fails when two doors of one kind in a building aren't told apart by name. The name reads after "the main
+  entrance" both ways in, so it says where the door faces.
+- **Test first:** `trip-choices.test.ts` (21 cases on the hand-drawn campus, 18 seen failing first), the five
+  `sampleTripChoices` on the real campus in `tests/indoor-routing.test.ts`, and the name check in `attach.test.ts`.
+  The hand-drawn campus of `indoor-router.test.ts` moved to `fixture.ts` so both files share it. The existing tests'
+  door ends gained their `entrance`; nothing else in them changed.
+- Left for Lane A: the Change spot link in S4 and the exit choice in Route options (8c-2 stays in progress).
+
 ## 2026-10-22: D48 and D49 agreed
 
 - Gary and Charles agreed D48 (the 8c-2 contract) and D49 (the size budget). Marked agreed in `docs/DECISIONS.md`,

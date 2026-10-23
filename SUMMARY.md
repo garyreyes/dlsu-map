@@ -112,7 +112,7 @@ code (it loads three.js from a CDN, which the real app must not do).
 ## Key decisions (short version)
 
 Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24 were agreed by the team on
-2026-10-19, D25–D27 and D33 on 2026-10-20, D28–D32 and D34–D37 on 2026-10-21, D38–D46, D48 and D49 on 2026-10-22.
+2026-10-19, D25–D27 and D33 on 2026-10-20, D28–D32 and D34–D37 on 2026-10-21, D38–D49 on 2026-10-22.
 
 | # | Decision | Why |
 |---|---|---|
@@ -162,7 +162,8 @@ Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24
 | D44 | **The camera and the dot follow each step**: outdoors from higher up, facing the walk; indoors the building with the band on the step's floor until 7a | "Turn left" means left on screen; tall buildings don't hide the spot; no cutaway yet |
 | D45 | **The cut slides** 600 ms in from the roof, out to the roof, and floor to floor; indoor steps seen from 40° | One consistent motion for every change; going inside changes the target, not the tilt; low walls hide less |
 | D46 | **The indoor cut is a plan:** indoor steps fly ~22 m around their spot, darker walls (the Indoor Cut Rule), the rail marks the goal floor, cubic slide | The critique found the cut unreadable on a phone; interim until the real floor plans and the post-build Sims-like restyle |
-| D48 | **The 8c-2 contract:** From can carry a spot (an entrance, or a stair or elevator), and the router takes an optional door choice as its last argument; a spot or door it can't place is `unknown-place` | Change spot and the exit choice need both; an optional last argument breaks no existing call; never a silent fallback |
+| D47 | **8c in two:** the indoor line and goal mark first (8c-1), then Change spot and the exit choice (8c-2) | The second needs a router change in Lane B's folder, agreed as a contract first |
+| D48 | **Change spot and the exit choice in the router:** a `spot` on From, a `doors` choice last; a pick the data can't place is `unknown-place`; doors named `facing …` | Additive, so every earlier call means the same; a bad pick shows instead of routing from somewhere else |
 | D49 | **A size budget, checked on every build:** first load at most 200 kB gzipped, every other chunk 300 kB; three.js in its own chunk | A warning that always shows gets ignored; the budget fails the PR that causes the growth |
 
 ### Things we chose *not* to do

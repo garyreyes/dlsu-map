@@ -252,7 +252,8 @@ tutorial.
    - **Pick building** (color tiles or tap the map) → **floor** → it defaults to the main entrance (ground floor) or
      the elevator lobby (other floors).
    - Optional precision chips: `Elevator` · `Stairs (North/South…)` · `Entrance: Main/Side/Back` ·
-     `Near room…` · `Tap on map`. As "Change spot", these come in 8c (D42).
+     `Near room…` · `Tap on map`. As "Change spot", these come in 8c (D42); the router takes a door, stairs or
+     elevator spot (D48).
    - **Outside:** pick a **gate** (Gate 1 South … Agno Gate, from OSM), tap the map, or "I just left ___".
    - **Deep link / QR** (optional, D7): opens with `from` already set.
 4. **Where to?** cmdk palette with three sections: **Recents**, **Matches** (rooms, buildings, amenities like "CR",
@@ -263,7 +264,8 @@ tutorial.
      first written here): stairs 20 s a floor, elevator 3 min wait + 5 s a floor. **Auto** takes the elevator for 3
      or more floors.
    - **Exit:** main by default, or another exit of the building. Comes in 8c, next to Change spot (D43); the router
-     takes it as an optional last argument (D48).
+     takes it as an optional last argument, and doors with a twin of the same kind are named by where they face,
+     `facing Taft` (D48).
 6. **Step mode:** the sheet turns into a step carousel (swipe or Next/Back). Each step is an icon, one line of text,
    and a distance. The camera flies to each step and the "you are here" dot moves with it: outdoors from higher up,
    facing the walk; indoors, until the cutaway, the building with the floor band on the step's floor (D44). Indoor and
