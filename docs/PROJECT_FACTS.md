@@ -406,8 +406,8 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 ## Offline (1d)
 
 - **Workbox's generated service worker reports no download progress.** vite-plugin-pwa's `onOfflineReady` fires once,
-  when the first copy is complete. A percentage needs `injectManifest` (our own service worker), so O2 has none for
-  now (10a). (2026-10-20)
+  when the first copy is complete. A percentage needs `injectManifest` (our own service worker), so O2 has none
+  (D50). (2026-10-20)
 - **`onOfflineReady` fires only on the first save, never on later opens.** `useOfflineStatus` reads "already saved"
   off the registration: an active worker means the copy is complete, because Workbox precaches before activating.
   (2026-10-20)
@@ -439,6 +439,10 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - **App icons are rendered, not drawn by hand.** `npm run icons` renders `public/icons/icon.svg` to the four PNGs
   with Playwright's Chromium; the PNGs are committed so the build needs no browser. Change the SVG, rerun, commit
   both. (10a, 2026-10-23)
+- **`context.route('**/sw.js')` doesn't see Chromium's service-worker update check,** so a test can't fake a new
+  version through the network. `tests/e2e/update.spec.ts` rewrites `dist/sw.js` on disk instead and restores it
+  after. That would leak a "new version" into specs running beside it, so it is its own Playwright project
+  (`phone-update`, `dependencies: ['phone']`), run after the rest. (10a, 2026-10-23)
 
 ## Zod and the CSP
 
