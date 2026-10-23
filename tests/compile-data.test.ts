@@ -75,14 +75,14 @@ describe('compiling the real campus', () => {
     expect(campus?.paths.filter((p) => p.kind === 'foot').length).toBeGreaterThan(20);
   });
 
-  it('gives the parser the owner’s prefix table (ARCHITECTURE §3.3, D25, D51)', () => {
+  it('gives the parser the owner’s prefix table (ARCHITECTURE §3.3, D25, D51, D53)', () => {
     expect(toPrefixTable(campus?.buildings ?? [])).toStrictEqual([
-      { building: 'andrew', prefixes: ['AG'] },
+      { building: 'andrew', prefixes: ['AG', 'A'] },
       { building: 'gokongwei', prefixes: ['G'] },
       { building: 'velasco', prefixes: ['VL', 'VE', 'V'], suggestPrefixes: ['VH'] },
-      { building: 'miguel', prefixes: ['SM'] },
-      { building: 'yuchengco', prefixes: ['EY'] },
-      { building: 'sj', prefixes: ['SJ'], suggestPrefixes: ['J'] },
+      { building: 'miguel', prefixes: ['SM', 'M'] },
+      { building: 'yuchengco', prefixes: ['EY', 'Y'] },
+      { building: 'sj', prefixes: ['SJ', 'J'] },
       { building: 'ls', prefixes: ['LS'] },
       { building: 'razon', prefixes: ['ER'] },
       { building: 'mutien', prefixes: ['MM'] },

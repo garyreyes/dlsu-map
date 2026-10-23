@@ -6,7 +6,7 @@
     "short": "Andrew",
     "aliases": ["Andrew", "Gonzalez Hall"],
     "tier": "full",
-    "prefixes": ["AG"]
+    "prefixes": ["AG", "A"]
   },
   {
     "slug": "gokongwei",
@@ -35,7 +35,7 @@
     "short": "Miguel",
     "aliases": ["Miguel", "St. Miguel"],
     "tier": "full",
-    "prefixes": ["SM"],
+    "prefixes": ["SM", "M"],
     "floorLabels": { "1": "G" }
   },
   {
@@ -45,7 +45,7 @@
     "short": "Yuchengco",
     "aliases": ["Yuchengco"],
     "tier": "full",
-    "prefixes": ["EY"]
+    "prefixes": ["EY", "Y"]
   },
   {
     "slug": "sj",
@@ -54,8 +54,7 @@
     "short": "St. Joseph",
     "aliases": ["St. Joseph"],
     "tier": "full",
-    "prefixes": ["SJ"],
-    "suggestPrefixes": ["J"],
+    "prefixes": ["SJ", "J"],
     "floorLabels": { "1": "G" }
   },
   {
