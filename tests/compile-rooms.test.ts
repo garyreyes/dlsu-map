@@ -13,7 +13,7 @@ const read = (path: string): string => readFileSync(new URL(`../${path}`, import
 const sources = buildingSourcesSchema.parse(JSON.parse(read('data-src/campus/buildings.json')));
 const { campus } = compileCampus(
   sources,
-  JSON.parse(read('data-src/campus/osm/snapshot-2026-10-20.geojson')) as Snapshot,
+  JSON.parse(read('data-src/campus/osm/snapshot-2026-10-23.geojson')) as Snapshot,
 );
 const buildings = campus?.buildings ?? [];
 const lists = readdirSync(new URL('../data-src/rooms/', import.meta.url))

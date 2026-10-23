@@ -92,6 +92,14 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   the main campus for Fidel A. Reyes St and the buildings across it. Leveriza Gate (`node/821585671`), the unnamed
   gate west of St. Joseph (`node/1385443464`) and the private gate near Yuchengco (`node/7607854120`) stay out.
   Gates 5A, 5B and 4A are also Andrew's and Gokongwei's doors, so a pin sits on each. (2026-10-20)
+- **Agno Gate is the way in, Agno Gate Exit the way out** (Charles, 2026-10-23). Agno Gate Exit
+  (`node/14311322337`, mapped by Charles) is on the same covered walk, about 9 m before Agno Gate. It isn't in
+  `gates.json`: gates are only starting points ("I'm outside"), and students come in by Agno Gate. It belongs in
+  the app once routes can lead off campus. (2026-10-23)
+- **Velasco's covered walk joins the Agno covered walk** by a 15 m uncovered footpath between Velasco and Miguel
+  (`way/1570964367`, mapped by Charles, 2026-10-23). Without it, Velasco → STRC went out by Gate 3 along Taft and back
+  in (253 m); now 162 m through Agno Gate, and `tests/routing.test.ts` holds it there. Its turn reads "Turn right at
+  Velasco": an unnamed path is named after the nearest building (D35). (2026-10-23)
 - **A door with no path on its side fails the build** ("the way to the nearest path goes through yuchengco"). Fix
   it in OSM: map the walkway, joined to an existing path at both ends, then re-fetch the snapshot. Same-day re-fetch
   means deleting that day's snapshot by hand first (the script won't overwrite it). Yuchengco's south-east door

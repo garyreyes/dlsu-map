@@ -11,7 +11,7 @@ import { entranceSourcesSchema, gateSourcesSchema } from '../scripts/compile/cam
 
 const read = (path: string): unknown => JSON.parse(readFileSync(new URL(`../${path}`, import.meta.url), 'utf8'));
 const buildings = buildingSourcesSchema.parse(read('data-src/campus/buildings.json'));
-const snapshot = read('data-src/campus/osm/snapshot-2026-10-20.geojson') as Snapshot;
+const snapshot = read('data-src/campus/osm/snapshot-2026-10-23.geojson') as Snapshot;
 const { campus, errors, notes } = compileCampus(buildings, snapshot);
 const building = (slug: string) => campus?.buildings.find((b) => b.slug === slug);
 
@@ -136,9 +136,9 @@ describe('compiling the real walk network', () => {
 
   // 510 and 576 until Velasco's south main pin moved to its lobby door (9b): its door now joins a path mid-segment.
   // 511 and 577 until St. Joseph's south side pin moved to the TO CHAPEL passage (9c), the same way.
-  it('keeps its size: 512 points, 578 links', () => {
-    expect((c?.walk.points.length ?? 0) / 2).toBe(512);
-    expect(c?.walk.links).toHaveLength(578);
+  it('keeps its size: 515 points, 582 links', () => {
+    expect((c?.walk.points.length ?? 0) / 2).toBe(515);
+    expect(c?.walk.links).toHaveLength(582);
   });
 
   it('walks Taft on its sidewalks and crosses at crosswalks (D32)', () => {

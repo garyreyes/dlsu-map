@@ -16,7 +16,7 @@ const list = (dir: string) => readdirSync(new URL(`../${dir}`, import.meta.url),
 
 const compiled = compileCampus(
   buildingSourcesSchema.parse(json('data-src/campus/buildings.json')),
-  json('data-src/campus/osm/snapshot-2026-10-20.geojson') as Snapshot,
+  json('data-src/campus/osm/snapshot-2026-10-23.geojson') as Snapshot,
   {
     gates: gateSourcesSchema.parse(json('data-src/campus/gates.json')),
     entrances: entranceSourcesSchema.parse(json('data-src/campus/entrances.json')),
