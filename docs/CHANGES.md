@@ -8,7 +8,7 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
-## 2026-10-23: `V` finds Velasco rooms (D51, proposed)
+## 2026-10-23: `V` finds Velasco rooms (D51, agreed)
 
 - **`V205` opens VL205**, "also written V205", the same as `VE205`; `V2` lists the `VL2…` rooms while typing. Only
   data changed: `V` added to Velasco's `prefixes` in `data-src/campus/buildings.json`. `VH` still only suggests.

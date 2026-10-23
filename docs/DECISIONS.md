@@ -1267,7 +1267,7 @@ allows 15 MB).
 
 ---
 
-## D51. `V` is an accepted alias for Velasco, like `VE` (2026-10-23, proposed)
+## D51. `V` is an accepted alias for Velasco, like `VE` (2026-10-23, agreed)
 
 **Problem.** Students say and type Velasco rooms as `V205`. Our prefixes are `VL` (alias `VE`), so `V205` gave "No
 building uses V" and the room couldn't be found, even though `VL205` is in the app.
@@ -1282,3 +1282,5 @@ isn't a guess. `C` for STRC works the same way.
 
 **Alternatives.** A suggest prefix (`V205` → "Did you mean VL205?", one more tap). Leaving it out (students who type
 `V` find nothing).
+
+**Agreed** by Gary and Charles (2026-10-23).
