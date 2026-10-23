@@ -8,6 +8,14 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-23: The dot glides on Next and Back (D52, proposed)
+
+- **The "you are here" dot glides** along the route's line to each step's spot, 600 ms with the cut slide's ease-out,
+  instead of jumping there. Only on one level (outdoors, or the same floor); across levels it jumps and the cut slides.
+  Reduced motion: it jumps. The camera's flights are unchanged.
+- **Test first:** `src/features/campus-scene/glide.ts` (the path along the line, a point along it, the ease); 13 of
+  its 14 tests in `glide.test.ts` were seen failing before the file existed (the 14th came from review).
+
 ## 2026-10-23: `V` finds Velasco rooms (D51, agreed)
 
 - **`V205` opens VL205**, "also written V205", the same as `VE205`; `V2` lists the `VL2…` rooms while typing. Only

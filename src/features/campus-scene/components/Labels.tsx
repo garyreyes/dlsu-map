@@ -141,6 +141,8 @@ interface ProjectorProps {
   /** The "you are here" dot's scene point (herePoint); placed before everything else, the chip included. */
   here: Vector3 | null;
   hereRef: RefObject<HTMLElement | null>;
+  /** Where to draw the dot this frame (useDotGlide): writes it into `out`, true while it is still gliding. */
+  placeDot: (here: Vector3 | null, out: Vector3, now: number) => boolean;
   /** The building cut open (7▸): its plate stays off the plan. */
   cutSlug?: string | null;
 }
@@ -155,13 +157,26 @@ function hereBox(projected: Vector3, size: { width: number; height: number }): L
 
 /** Each frame the canvas draws: projects every anchor to the screen, then shows the labels that fit (labels.ts). */
 export function LabelProjector(props: ProjectorProps) {
-  const { buildings, elementsRef, insets, selected, band, chipRef, massRef, here, hereRef, cutSlug = null } = props;
+  const {
+    buildings,
+    elementsRef,
+    insets,
+    selected,
+    band,
+    chipRef,
+    massRef,
+    here,
+    hereRef,
+    placeDot,
+    cutSlug = null,
+  } = props;
   const anchors = useMemo(() => buildings.map(anchorFor), [buildings]);
   const controls = useThree((s) => s.controls) as CameraControls | null;
   // Plate sizes never change (fixed text, system font), so each is measured once; the chip once per floor label.
   const sizes = useRef(new Map<string, { width: number; height: number }>());
   const scratch = useMemo(() => new Vector3(), []);
   const seen = useMemo(() => new Vector3(), []);
+  const dotAt = useMemo(() => new Vector3(), []);
   const invalidate = useThree((s) => s.invalidate);
   // Frames run on demand, so a dot that comes, moves or goes asks for one to be placed.
   useEffect(() => {
@@ -181,7 +196,9 @@ export function LabelProjector(props: ProjectorProps) {
     const distance = controls?.distance ?? Infinity;
     const boxes: LabelBox[] = [];
     const dot = hereRef.current;
-    const hereAt = dot && here ? hereBox(scratch.copy(here).project(camera), size) : null;
+    // A glide asks for the next frame itself, since frames only run on demand.
+    if (placeDot(here, dotAt, performance.now())) invalidate();
+    const hereAt = dot && here ? hereBox(scratch.copy(dotAt).project(camera), size) : null;
     if (hereAt) boxes.push(hereAt);
     const chip = chipRef.current;
     if (chip && band.length > 0) {
