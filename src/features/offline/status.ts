@@ -75,6 +75,26 @@ export function offlineView(phase: SavePhase, { online, startedOffline, readyNot
   }
 }
 
+/** The ⓘ sheet's offline line (S10, O3). Unlike the line under the pill, it never goes quiet: it always says
+ *  whether the map works here with no signal, and if not, why and what to do. */
+export type InfoOffline = 'ready' | 'saving' | 'saving-paused' | 'checking' | 'not-saved' | 'cannot-save';
+
+export function infoOffline(phase: SavePhase, online: boolean): InfoOffline {
+  switch (phase) {
+    case 'saved':
+    case 'saved-now':
+      return 'ready';
+    case 'saving':
+      return online ? 'saving' : 'saving-paused';
+    case 'checking':
+      return 'checking';
+    case 'not-saved':
+      return 'not-saved';
+    case 'unsupported':
+      return 'cannot-save';
+  }
+}
+
 /** Whether a finished copy is on this phone: what the ⓘ sheet reports (O3, 10b). When iOS clears a web app's
  *  storage it removes the service worker too, so a cleared copy reads as `false` here and saves itself again. */
 export const hasSavedCopy = hasCopy;

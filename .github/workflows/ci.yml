@@ -96,6 +96,9 @@ jobs:
       - name: Build
         if: steps.changes.outputs.code == 'true' && hashFiles('package-lock.json') != ''
         run: npm run build
+        # The ⓘ sheet's version: the PR's own commit, not the merge commit a PR checkout builds (10b).
+        env:
+          APP_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
 
       # 1b: headers, robots.txt and "nothing loads from another site", against wrangler dev serving dist/ the way
       # Cloudflare does. Needs no secrets, so it runs on Dependabot and fork PRs too.
@@ -148,6 +151,9 @@ jobs:
 
       - name: Build
         run: npm run build
+        # The ⓘ sheet's version: the PR's own commit, not the merge commit a PR checkout builds (10b).
+        env:
+          APP_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
 
       # The token is only in this step's environment. Only the PR number reaches the shell, never a title or a branch
       # name, so nothing a PR author types can be run as a command.
