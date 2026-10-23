@@ -24,6 +24,7 @@ import { MapScene } from './MapScene';
 import { QualityMonitor } from './QualityMonitor';
 import { useCameraFlights } from './useCameraFlights';
 import { useCampus } from './useCampus';
+import { useDotGlide } from './useDotGlide';
 import { useTripMarks, type MapFloor, type MapFocus } from './useTripMarks';
 
 export type { MapFloor, MapFocus };
@@ -162,6 +163,7 @@ function CampusView(props: Props & { campus: Campus }) {
     here,
     focus,
   );
+  const placeDot = useDotGlide(route, focus, reduced);
   // The cut building shows the step's floor in its place, and the rail says which one it is, so the band's chip
   // stands down.
   const cut = useCutaway(cutStep(focus, focusBuilding));
@@ -251,6 +253,7 @@ function CampusView(props: Props & { campus: Campus }) {
               massRef={massRef}
               here={hereAt}
               hereRef={hereRef}
+              placeDot={placeDot}
               cutSlug={cut ? (focusBuilding?.slug ?? null) : null}
             />
           </Canvas>
