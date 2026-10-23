@@ -8,7 +8,7 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
-## 2026-10-23: 8▸ critique of S4, S5 and the indoor steps; its three P1s fixed (D53, proposed)
+## 2026-10-23: 8▸ critique of S4, S5 and the indoor steps; its three P1s fixed (D53, agreed)
 
 - **Critique:** `/impeccable critique` scored S4, S5 and S7 28/40. The full report and its P2s (spot and exit names
   not shown on the map, S4's first step crowded) are in `.impeccable/critique/2026-10-23T04-20-22Z__src-features-location-picker.md`.

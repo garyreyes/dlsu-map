@@ -112,7 +112,7 @@ code (it loads three.js from a CDN, which the real app must not do).
 ## Key decisions (short version)
 
 Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24 were agreed by the team on
-2026-10-19, D25–D27 and D33 on 2026-10-20, D28–D32 and D34–D37 on 2026-10-21, D38–D49 on 2026-10-22, D50–D52
+2026-10-19, D25–D27 and D33 on 2026-10-20, D28–D32 and D34–D37 on 2026-10-21, D38–D49 on 2026-10-22, D50–D53
 on 2026-10-23.
 
 | # | Decision | Why |
@@ -169,6 +169,7 @@ on 2026-10-23.
 | D50 | **No download percentage while saving for offline:** "Saving for offline…" with no number; we keep the service worker vite-plugin-pwa generates | A real number needs our own service worker, which means re-proving the offline and update logic; the first save takes a few seconds |
 | D51 | **`V` is an accepted Velasco prefix**, like `VE`: `V205` opens VL205, "also written V205" | Students say it that way, and no other building uses `V`, so it isn't a guess |
 | D52 | **The "you are here" dot glides** along the route on Next and Back: through doors, around G and up the stairs, 600 ms with the cut's slide; it jumps into another building's upper floor | A jumping dot read as a teleport while the camera flew; gliding shows the way just walked |
+| D53 | **The cut floor keeps green for "yours"**: grey hallways (3.4:1), a 1.6 m indoor line, an "ST311" label pin at the goal room's door; offline, the chip shows the goal floor | Green hallways, line and goal ring ran together, and the goal ring read as a second dot |
 
 ### Things we chose *not* to do
 
