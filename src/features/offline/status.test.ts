@@ -2,7 +2,25 @@
 // A wrong answer either hides that the app isn't saved yet (the student walks into a dead zone thinking it's safe)
 // or blocks a working app with a full-screen message. Every phase and every view is reached at least once here.
 import { describe, expect, it } from 'vitest';
-import { nextPhase, offlineView, type SaveEvent, type SavePhase } from './status';
+import { nextPhase, offlineView, shouldOfferUpdate, type SaveEvent, type SavePhase } from './status';
+
+describe('shouldOfferUpdate', () => {
+  // A reload mid-route would throw away the route (O4), so the prompt waits for home or Arrived.
+  it('offers the reload on home and on Arrived once a new version is waiting', () => {
+    expect(shouldOfferUpdate(true, 'home')).toBe(true);
+    expect(shouldOfferUpdate(true, 'arrived')).toBe(true);
+  });
+
+  it('never offers it anywhere else, such as mid-route', () => {
+    expect(shouldOfferUpdate(true, 'other')).toBe(false);
+  });
+
+  it('offers nothing when no new version is waiting', () => {
+    expect(shouldOfferUpdate(false, 'home')).toBe(false);
+    expect(shouldOfferUpdate(false, 'arrived')).toBe(false);
+    expect(shouldOfferUpdate(false, 'other')).toBe(false);
+  });
+});
 
 describe('nextPhase', () => {
   it('starts saving when the first registration finds no copy yet', () => {

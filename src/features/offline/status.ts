@@ -74,3 +74,16 @@ export function offlineView(phase: SavePhase, { online, startedOffline, readyNot
       return phase === 'saving' ? 'saving' : 'not-saved';
   }
 }
+
+/** Whether a finished copy is on this phone: what the ⓘ sheet reports (O3, 10b). When iOS clears a web app's
+ *  storage it removes the service worker too, so a cleared copy reads as `false` here and saves itself again. */
+export const hasSavedCopy = hasCopy;
+
+/** Where the student is, as far as O4 cares: home (S1), Arrived (S9), or anywhere else (a card, search, a route). */
+export type UpdateScreen = 'home' | 'arrived' | 'other';
+
+/** Whether to show "Map updated. Reload?" (O4). Only once a new version is waiting, and only on S1 or S9, so a
+ *  reload never interrupts a route. Moving off those screens hides it until the student is back on one. */
+export function shouldOfferUpdate(updateWaiting: boolean, screen: UpdateScreen): boolean {
+  return updateWaiting && screen !== 'other';
+}

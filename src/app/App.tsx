@@ -3,7 +3,20 @@
 import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { MapInsets, MapTrip } from '@/features/campus-scene';
 import { WhereAreYou } from '@/features/location-picker';
-import { MapDidntDownload, OpenOnceOnline, SavingLine, useOfflineStatus } from '@/features/offline';
+import {
+  InstallHint,
+  MapDidntDownload,
+  OpenOnceOnline,
+  SavingLine,
+  shouldOfferUpdate,
+  UpdateToast,
+  useInstallHint,
+  useOfflineStatus,
+  usePersistStorage,
+  useSavedOffline,
+  useUpdate,
+  type UpdateScreen,
+} from '@/features/offline';
 import {
   AllSteps,
   Arrived,
@@ -59,6 +72,9 @@ type Picked =
 
 const toPicked = (hit: Hit): Picked =>
   hit.kind === 'room' ? { kind: 'room', room: hit } : { kind: 'building', building: { ...hit.building, tier: 'full' } };
+
+/** What a `?to=` link needs to open this pick again: the room code, or the building's full name. */
+const linkText = (picked: Picked): string => (picked.kind === 'room' ? picked.room.code : picked.building.name);
 
 const toOf = (picked: Picked): To =>
   picked.kind === 'room'
@@ -169,6 +185,26 @@ export function App() {
   useEffect(() => {
     if (DEV_LINK) openDevSteps();
   }, [openDevSteps]);
+  // Offline extras (10a): keep the copy, the iPhone hint (after the first save, until closed) once "Ready offline" has gone, and O4's update.
+  const saved = useSavedOffline();
+  usePersistStorage(saved);
+  const installHint = useInstallHint(saved && offline === 'none');
+  const update = useUpdate();
+  const updateScreen: UpdateScreen = search.isOpen
+    ? 'other'
+    : trip.arrived.isOpen
+      ? 'arrived'
+      : card.isOpen || devSteps.isOpen
+        ? 'other'
+        : 'home';
+  // Reloading on Arrived keeps the destination: the reloaded app opens it again as a `?to=` link.
+  const reloadForUpdate = () => {
+    if (trip.arrived.isOpen && picked) {
+      const query = new URLSearchParams({ to: linkText(picked) });
+      window.history.replaceState(null, '', `${window.location.pathname}?${query.toString()}`);
+    }
+    update.reload();
+  };
 
   useLayoutEffect(() => {
     const measure = () => {
@@ -285,7 +321,7 @@ export function App() {
       >
         <SearchPill onOpen={openSearch} />
         {/* Positioned below the header's box, so the map's top inset doesn't move when the line comes and goes. */}
-        <SavingLine view={offline} />
+        <SavingLine view={offline} hint={installHint.show && <InstallHint onDismiss={installHint.dismiss} />} />
       </header>
       {/* If the map's chunk can't download, only the map is lost: the pill and sheet stay usable. */}
       <ErrorBoundary fallback={<MapDidntDownload />}>
@@ -317,6 +353,11 @@ export function App() {
           onClose={search.close}
         />
       )}
+      <UpdateToast
+        show={shouldOfferUpdate(update.waiting, updateScreen)}
+        bottom={wide ? 24 : sheetHeight + 12}
+        onReload={reloadForUpdate}
+      />
     </>
   );
 }

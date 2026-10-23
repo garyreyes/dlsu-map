@@ -1208,3 +1208,57 @@ And one for the data: **a building with two doors of one kind names each one** (
 the build fails until it does. The name reads in both "Enter Velasco by the main entrance facing Agno" and "Leave
 Velasco by…", so it says where the door faces, never "to" or "from". The names are the ones students use (owner,
 2026-10-22).
+
+## D49. A size budget for the JavaScript, checked on every build (2026-10-22, agreed)
+
+**Problem.** Vite warns when a chunk is over 500 kB before compression. Two chunks were over it: the first-load
+chunk at 569 kB (179 kB gzipped) and the lazy 3D chunk at 995 kB (266 kB gzipped). The first-load growth since 1d is
+real code (React, zod, motion for the sheet, routing), not an accident. three.js alone is about 950 kB, so its chunk
+can't get under 500 kB. A warning that always shows gets ignored, and then it can't catch real growth either.
+
+**Decision.** (Owner's answer, 2026-10-22.)
+
+1. **Budget what the phone downloads, gzipped:** the first load (the entry script and every chunk `index.html`
+   preloads) at most **200 kB**; every other chunk at most **300 kB**.
+2. **`scripts/check-size.mjs` enforces it** at the end of `npm run build`, so the `gates` job fails on a PR that
+   goes over. No new dependency.
+3. **three.js gets its own chunk** (with `@react-three/*` and camera-controls), and a `vendor` chunk holds what the
+   first screen and the map share (React, zustand). Without it rolldown puts React in the three chunk and three.js
+   lands in the first load. Vite's `chunkSizeWarningLimit` is 1000 kB, the smallest round number the three chunk
+   fits under.
+4. **Nothing else goes lazy for now.** Where are you would save 2.9 kB for a blank sheet after Directions, and the
+   route screens share an `index.ts` with hooks the shell needs, for about 5 kB. Neither is worth it today.
+
+At the time of writing: first load 179 kB gzipped (index 109, vendor 70), three 249 kB, the map's own code 15 kB.
+
+**Alternatives.** Leaving the warning on every build (it gets ignored). Raising the limit with no budget (growth goes
+unnoticed). `size-limit` or Lighthouse CI (a new dependency outside ARCHITECTURE §2 for what a short script does).
+**Revisit if** the first load nears 200 kB (about 21 kB of room today: split the route screens first), a budget
+blocks a feature that needs the bytes, or testers on slow phones find the first load slow even within budget.
+
+**When it gets too big, in this order** (agreed by Gary and Charles, 2026-10-22):
+
+1. **Load later what the first screen doesn't show.** The route screens first (about 5 kB): give `route-player` a
+   second entry for its components, so the shell's hooks stay in the first load and the screens don't.
+2. **Swap a heavy library for a lighter one that does the same job:** `zod/mini` for zod (same schemas, a fraction
+   of the size), and look at whether the sheet still needs all of `motion`.
+3. **Move work out of the phone's download:** anything computed from the data at startup belongs in the data
+   compiler, which runs at build time.
+4. **Only then raise the budget,** as a new D-number that says what the bytes buy. The PWA saves everything after
+   the first visit, so the budget is really about that first visit on mobile data.
+
+## D50. No download percentage while saving for offline (2026-10-22, proposed)
+
+**Decision.** (Owner's answer, 2026-10-22.) O2 keeps "Saving for offline…" with no number. We keep the service
+worker vite-plugin-pwa generates (Workbox `generateSW`) instead of writing our own to report progress.
+
+**Why.** Workbox's generated worker reports no progress (PROJECT_FACTS, Offline). A real percentage needs
+`injectManifest`: our own worker with its own install loop, which means rewriting and proving again the precache,
+`clientsClaim` and update logic that the whole offline promise rests on. The first save is about 2–3 MB, a few
+seconds on campus Wi-Fi, and the app is usable while it runs (user-flows §4), so a number adds little.
+
+**Alternatives.** Our own service worker with a byte-weighted percentage (about one extra session, more risk).
+Counting files as they land in Workbox's precache cache from the page (cheap, but it jumps unevenly because the
+three.js chunk is most of the bytes, and it depends on Workbox's internal cache name).
+**Revisit if** testers say the first save feels stuck, or the precache grows past about 10 MB (ARCHITECTURE §3.5
+allows 15 MB).

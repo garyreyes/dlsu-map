@@ -81,3 +81,15 @@ test('a double Escape or a double tap on the pill never leaves the app', async (
   expect(await page.evaluate(() => history.state as unknown)).toBeNull();
   await expect(pill(page)).toBeVisible();
 });
+
+// 10c: under reduced motion the controls that ride on the sheet jump instead of sliding (DESIGN.md, Motion).
+for (const motion of ['reduce', 'no-preference'] as const) {
+  test(`the map credit ${motion === 'reduce' ? 'jumps' : 'slides'} with the sheet when motion is ${motion}`, async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: motion });
+    await page.goto('/');
+    const credit = page.getByRole('link', { name: 'OpenStreetMap' }).locator('..');
+    await expect(credit).toHaveCSS('transition-property', motion === 'reduce' ? 'none' : 'bottom');
+  });
+}

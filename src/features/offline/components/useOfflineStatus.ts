@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { registerSW } from 'virtual:pwa-register';
 import { create } from 'zustand';
-import { nextPhase, offlineView, type OfflineView, type SaveEvent, type SavePhase } from '../status';
+import { hasSavedCopy, nextPhase, offlineView, type OfflineView, type SaveEvent, type SavePhase } from '../status';
 
 /** How long "✓ Ready offline" stays after the first save (user-flows O2). */
 const READY_NOTE_MS = 3000;
@@ -51,6 +51,26 @@ const reportRejection = (error: unknown) => {
   report(error instanceof DOMException && error.name === 'SecurityError' ? 'refused' : 'failed');
 };
 
+/** Whether a newer version has downloaded and is waiting (O4), in a store so the worker's callback can set it. */
+const useWaiting = create<{ waiting: boolean }>(() => ({ waiting: false }));
+/** The page's registration, kept for the reload below. Set when registering. */
+let registration: ServiceWorkerRegistration | undefined;
+
+/** The quiet check for a newer version runs at most this often. */
+const UPDATE_CHECK_MS = 60 * 60 * 1000;
+let lastCheck = Date.now();
+
+/** When the student comes back to the app, looks for a newer version, at most once an hour. Offline or failed
+ *  checks are ignored: the next visit tries again. */
+function checkOnReturn(registration: ServiceWorkerRegistration) {
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible' || !navigator.onLine) return;
+    if (Date.now() - lastCheck < UPDATE_CHECK_MS) return;
+    lastCheck = Date.now();
+    registration.update().catch(() => undefined);
+  });
+}
+
 let started = false;
 
 /**
@@ -64,11 +84,48 @@ function startSaving() {
     onOfflineReady: () => {
       report('installed');
     },
-    onRegisteredSW: (_url, registration) => {
-      track(registration);
+    onNeedRefresh: () => {
+      useWaiting.setState({ waiting: true });
+    },
+    onRegisteredSW: (_url, registered) => {
+      registration = registered;
+      track(registered);
+      if (registered) checkOnReturn(registered);
     },
     onRegisterError: reportRejection,
   });
+}
+
+/** Whether a newer version is waiting, and the reload that applies it (O4). */
+export function useUpdate(): { waiting: boolean; reload: () => void } {
+  const waiting = useWaiting((s) => s.waiting);
+  return { waiting, reload: applyUpdate };
+}
+
+/**
+ * Tells the waiting worker to take over and reloads once it has. The helper's own `updateSW(true)` reloads only for a
+ * tab that had a controller when it registered (a first visit kept open has none), so the reload is done here. The
+ * helper's own listener may reload too; two reloads in a row are harmless.
+ */
+function applyUpdate() {
+  const waitingWorker = registration?.waiting;
+  if (!waitingWorker) {
+    window.location.reload();
+    return;
+  }
+  navigator.serviceWorker.addEventListener(
+    'controllerchange',
+    () => {
+      window.location.reload();
+    },
+    { once: true },
+  );
+  waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+}
+
+/** Whether a finished copy is on this phone (the ⓘ sheet's "Works offline" line). */
+export function useSavedOffline(): boolean {
+  return hasSavedCopy(usePhase((s) => s.phase));
 }
 
 /** Tries the first save again, as "Saving paused" promises. Registering again restarts a failed install. */

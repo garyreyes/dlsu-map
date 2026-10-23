@@ -362,8 +362,11 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - **The React Compiler lint rules only recognise refs by name:** a ref passed as a prop must be called `…Ref`, or
   `react-hooks/immutability` flags writes to `.current`. The compiler itself isn't in the build, so stable callbacks
   (like a ref callback that sets the camera up) still need `useCallback`. (2026-10-20)
-- **The 3D map is a lazy chunk** (`React.lazy` in `src/app/App.tsx`): the pill and sheet load in about 385 kB, and
-  three.js follows in about 960 kB (1,068 kB from 2c), so search works before the scene is ready (user-flows §3.2). (2026-10-20)
+- **The 3D map is a lazy chunk** (`React.lazy` in `src/app/App.tsx`), so search works before the scene is ready
+  (user-flows §3.2). Since 10c the build has three main chunks: the first load (`index` + `vendor`, 179 kB gzipped),
+  `three` (three.js, R3F, drei, camera-controls; 249 kB) and `campus-scene` (the map's own code; 15 kB). The
+  `vendor` group in `vite.config.ts` must stay: without it rolldown puts React in the three chunk and three.js
+  lands in the first load. `scripts/check-size.mjs` fails the build past D49's budgets. (2026-10-22)
 - **The scene's coordinates:** campus data is meters with x east and y north; the scene is x east, y up and z = -y,
   so north is -z and the map isn't mirrored. camera-controls' azimuth 0 puts the camera south of its target (+z), π/2
   east. `massing.ts` and `home-view.ts` pin both with tests. (2c, 2026-10-21)
@@ -380,6 +383,11 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - **The camera frames a trip once per `MapTrip.here` object:** `useRoute` keeps the same object for every mode of one
   trip, so a route option redraws the line without a flight. A new trip, or reopening the preview, gets a new one.
   (5b, 2026-10-22)
+- **The Canvas `dpr` must stay an array** (`[1, TIER_DPR[tier]]`): R3F only follows the screen's pixel ratio
+  (browser zoom, another monitor) when `dpr` is an array or unset, and clamps the array to the device itself. A
+  plain number is never watched again. (10c, 2026-10-22)
+- **A frame-rate cap reads as a slow phone:** iPhone Low Power Mode caps the page at 30 fps, so the quality monitor
+  steps down to the lowest tier (no city) even on a fast phone. Accepted: it also saves battery. (10c, 2026-10-22)
 - **Clipping needs `localClippingEnabled`:** a material's `clippingPlanes` do nothing unless the renderer has it on.
   The campus Canvas sets it through `gl={{ localClippingEnabled: true }}` (`CampusMap.tsx`). Only the cut building's
   materials carry the plane (`BuildingCutaway.tsx`); the stump is cut by geometry instead (`stumpBlocks`). (7a,
@@ -419,6 +427,18 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
     flag lets it survive the reload that signal returning triggers. (2026-10-20)
 - **`navigator.onLine` only says "no signal" reliably.** `true` can mean Wi-Fi with no internet (a login page). So
   "Try again" calls `canReachSite()` (`shared/data/reach.ts`) before reloading. (2026-10-20)
+- **vite-plugin-pwa's prompt-mode `updateSW(true)` doesn't reload by itself.** It only posts SKIP_WAITING; the reload
+  happens on workbox-window's `controlling` event and only when `isUpdate`, which is fixed at register time. A tab
+  open during the very first save had no controller then, so its Reload did nothing. `useUpdate` posts SKIP_WAITING
+  to `registration.waiting` itself and reloads on `controllerchange`. (10a, 2026-10-23)
+- **Reload in one tab reloads every other tab** that saw the waiting worker (the plugin's own `controlling`
+  listener), even one mid-route. Accepted: phones rarely have two tabs of the app open. (10a, 2026-10-23)
+- **Reload on Arrived writes `?to=<room code or building name>` into the URL first.** `useDeepLink` removes the link
+  after reading it, so a plain reload would land on an empty map. From is lost on purpose (it is never stored, PRD
+  §6). (10a, 2026-10-23)
+- **App icons are rendered, not drawn by hand.** `npm run icons` renders `public/icons/icon.svg` to the four PNGs
+  with Playwright's Chromium; the PNGs are committed so the build needs no browser. Change the SVG, rerun, commit
+  both. (10a, 2026-10-23)
 
 ## Zod and the CSP
 

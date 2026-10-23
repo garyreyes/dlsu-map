@@ -14,8 +14,23 @@ export default defineConfig({
       registerType: 'prompt',
       // src/features/offline registers it through virtual:pwa-register, so no script is added to index.html.
       injectRegister: false,
-      // The web app manifest and icons come in 10a.
-      manifest: false,
+      // The web app manifest: the name, icon and standalone window the phone uses once the app is installed (10a).
+      // The icons are rendered from public/icons/icon.svg by `npm run icons` and committed. White is the DESIGN.md surface.
+      manifest: {
+        name: 'DLSU 3D Campus Navigator',
+        short_name: 'DLSU Map',
+        description: 'A free, offline 3D map of De La Salle University (Manila) that routes you to any room.',
+        start_url: './',
+        scope: './',
+        display: 'standalone',
+        theme_color: '#ffffff',
+        background_color: '#ffffff',
+        icons: [
+          { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'icons/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
+      },
       workbox: {
         // Workbox's default saves only js/wasm/css/html, silently leaving out the map data, fonts and models.
         globPatterns: ['**/*.{js,css,html,json,woff2,glb,svg,png,webp}'],
@@ -32,6 +47,33 @@ export default defineConfig({
       devOptions: { enabled: false },
     }),
   ],
+  build: {
+    // The three chunk is ~950 kB and can't be split smaller, so 1000 is the smallest round limit it fits under (D49).
+    // Anything else past 1000 still warns; scripts/check-size.mjs holds the real budgets and fails CI.
+    chunkSizeWarningLimit: 1000,
+    rolldownOptions: {
+      output: {
+        // three.js and its React bindings get their own chunk, apart from the app's map code, so they are cached
+        // and fetched separately and only after the first screen (D49). Nothing in the first load imports them.
+        codeSplitting: {
+          groups: [
+            // What both the first screen and the 3D map import (React, zustand, and react-use-measure for the sheet) goes
+            // in its own chunk. Left to the rule below, rolldown puts it in the three chunk, which would then be
+            // downloaded on the first load.
+            {
+              name: 'vendor',
+              test: /node_modules[\\/](?:react|react-dom|scheduler|zustand|react-use-measure|use-sync-external-store|@babel[\\/]runtime)[\\/]/,
+              priority: 2,
+            },
+            {
+              name: 'three',
+              test: /node_modules[\\/](?:three|@react-three|camera-controls|its-fine|suspend-react)[\\/]/,
+            },
+          ],
+        },
+      },
+    },
+  },
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },

@@ -8,6 +8,25 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-23: 10a offline hardening (code; real-phone tests still open)
+
+- **O4 update prompt** (`features/offline`): "Map updated." with a Reload button when a newer version is waiting.
+  Only on S1 or S9, never mid-route or with search open (`shouldOfferUpdate`, 6 tests). On phones it sits above the
+  sheet. Reload on S9 keeps the destination by reloading as a `?to=` link. The app also checks for a new version
+  when it comes back to the foreground, at most once an hour. Our own SKIP_WAITING + `controllerchange` reload,
+  because the plugin's helper didn't reload a tab open during the first save (found in review, PROJECT_FACTS).
+- **`storage.persist()`** is asked once, after the first save.
+- **iPhone/iPad hint (O7):** "Add to Home Screen: tap Share, then Add to Home Screen" in the saving line's spot,
+  after "✓ Ready offline" has gone, until closed. `isIos` counts iPadOS's Mac user agent with touch (11 tests).
+- **Web app manifest and icons:** name, standalone, white theme, 192/512/maskable PNGs and the 180 px
+  `apple-touch-icon`, rendered from `public/icons/icon.svg` by `npm run icons`. All precached.
+- **No download percentage (D50, proposed).** user-flows O2 updated.
+- **e2e:** `install.spec.ts` (second tab during a first save ends "Ready offline", manifest and icons served, the
+  iPhone hint) and `update.spec.ts` (a faked new version shows the toast, a card keeps it away, Reload applies it).
+  `update.spec.ts` rewrites `dist/sw.js`, so it runs as its own Playwright project after the rest.
+- **Still open:** airplane-mode and week-unused tests on a real iPhone and Android; the ⓘ "saved offline" line (O3)
+  comes with 10b, which reads `useSavedOffline()`. No CSP or `_headers` change.
+
 ## 2026-10-22: 8c-2 router: Change spot and the door choice
 
 - **The router takes From's `spot` and the `doors` choice** (D48, now agreed with D47). A stairs or elevator spot
@@ -28,6 +47,27 @@ session needs to know. Search this file; it isn't required reading (the reading 
   The hand-drawn campus of `indoor-router.test.ts` moved to `fixture.ts` so both files share it. The existing tests'
   door ends gained their `entrance`; nothing else in them changed.
 - Left for Lane A: the Change spot link in S4 and the exit choice in Route options (8c-2 stays in progress).
+
+## 2026-10-22: D48 and D49 agreed
+
+- Gary and Charles agreed D48 (the 8c-2 contract) and D49 (the size budget). Marked agreed in `docs/DECISIONS.md`,
+  added to `SUMMARY.md` and `docs/PLAN.md`. D49 now lists what to do, in order, when the app outgrows the budget.
+
+## 2026-10-22: 10c performance and accessibility
+
+- **Quality tiers:** our own monitor (`campus-scene/quality.ts`, `QualityMonitor`) judges 30 back-to-back frames
+  and steps the pixel ratio 2 → 1.5 → 1 below 45 fps, back up above 58 fps, at most 4 times a session; the lowest
+  tier hides the city around the campus. drei's `PerformanceMonitor` wasn't usable: with `frameloop="demand"` it
+  reads the map sitting still as low fps. A frame over 100 ms is idle time and empties the window.
+- **Contrast:** `shared/config/contrast.ts` (WCAG 2.x) and `contrast-pairs.test.ts`, which reads the live tokens
+  from `src/styles.css` and the DESIGN.md frontmatter. Every text pair passes AA in both themes, including the 92%
+  credit plate over the worst map colour; no token changed. Every tap target checked is 48px or more.
+- **Bundle (D49, proposed):** three.js in its own chunk, a `vendor` chunk for what the first screen and the map
+  share, `chunkSizeWarningLimit` 1000. `scripts/check-size.mjs` ends `npm run build` and fails past 200 kB gzipped
+  for the first load or 300 kB for any other chunk. First load is 179 kB, three 249 kB.
+- **Reduced motion** was already complete (flights, the cut slide, the sheet, both CSS transitions); `home.spec.ts`
+  now checks the credit jumps under `reduce` and slides otherwise.
+- Not yet seen on a real phone: check the tier drop on the PR preview with a cheap Android.
 
 ## 2026-10-22: 8c-2 contract draft (D48, proposed)
 

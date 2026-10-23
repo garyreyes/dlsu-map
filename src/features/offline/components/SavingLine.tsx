@@ -31,19 +31,22 @@ const LINES: Partial<Record<OfflineView, { text: string; mark?: ReactNode }>> = 
  * for 3 s; or, when the copy isn't made, a line that stays and says so. On a surface plate so it reads over any map
  * colour. The live region stays mounted, so screen readers hear each change. Taps pass through to the map. On wide
  * screens the side panel sits right under the pill, so the line moves to the pill's right, over the open map.
+ * `hint` (the iPhone install hint) takes the same spot, only when there is no line to show.
  */
-export function SavingLine({ view }: { view: OfflineView }) {
+export function SavingLine({ view, hint }: { view: OfflineView; hint?: ReactNode }) {
   const line = LINES[view];
   return (
     <div
       role="status"
       className="pointer-events-none absolute top-full left-0 mt-2 md:top-1/2 md:left-full md:mt-0 md:ml-3 md:w-80 md:-translate-y-1/2"
     >
-      {line && (
+      {line ? (
         <span className={plate}>
           {line.mark}
           {line.text}
         </span>
+      ) : (
+        hint
       )}
     </div>
   );
