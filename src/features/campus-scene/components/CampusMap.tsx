@@ -24,6 +24,7 @@ import { MapScene } from './MapScene';
 import { QualityMonitor } from './QualityMonitor';
 import { useCameraFlights } from './useCameraFlights';
 import { useCampus } from './useCampus';
+import { useDotGlide } from './useDotGlide';
 import { useTripMarks, type MapFloor, type MapFocus } from './useTripMarks';
 
 export type { MapFloor, MapFocus };
@@ -174,6 +175,7 @@ function CampusView(props: Props & { campus: Campus }) {
     cutOn,
     saving,
   );
+  const placeDot = useDotGlide(route, focus, reduced);
   const flightFocus = useMemo(() => (cutOn ? focus : withoutSpot(focus)), [focus, cutOn]);
   useCameraFlights({
     controlsRef,
@@ -257,6 +259,7 @@ function CampusView(props: Props & { campus: Campus }) {
               massRef={massRef}
               here={hereAt}
               hereRef={hereRef}
+              placeDot={placeDot}
               cutSlug={cut ? (focusBuilding?.slug ?? null) : null}
             />
           </Canvas>

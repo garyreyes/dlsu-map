@@ -8,7 +8,7 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
-## 2026-10-23: 8▸ critique of S4, S5 and the indoor steps; its three P1s fixed (D52, proposed)
+## 2026-10-23: 8▸ critique of S4, S5 and the indoor steps; its three P1s fixed (D53, proposed)
 
 - **Critique:** `/impeccable critique` scored S4, S5 and S7 28/40. The full report and its P2s (spot and exit names
   not shown on the map, S4's first step crowded) are in `.impeccable/critique/2026-10-23T04-20-22Z__src-features-location-picker.md`.
@@ -16,7 +16,7 @@ session needs to know. Search this file; it isn't required reading (the reading 
   sideways thumb drag clipped every line's first letter. The gutters now sit on the scroller (`shared/ui/Sheet.tsx`),
   with sideways overflow hidden. New e2e check: no scroll box in S4 is wider inside than out, at any step. It was seen
   failing on the old sheet.
-- **The cut floor keeps green for "yours" (D52):** hallways are a mid-grey neutral at 3.4:1 against the slab, the
+- **The cut floor keeps green for "yours" (D53):** hallways are a mid-grey neutral at 3.4:1 against the slab, the
   indoor line is 1.6 m on a 2.9 m white casing, and the hollow goal ring is now an "ST311" label pin at the room's door
   (`indoor-view/components/GoalPin.tsx`, a canvas sprite; no font download). The outdoor ribbon fades toward the
   ground while a building is cut. The door the pin stands at is `doorOf` in `indoor-view/marks.ts`, unit-tested.
@@ -25,6 +25,16 @@ session needs to know. Search this file; it isn't required reading (the reading 
   signs to 3F", and S5 says "STRC's indoor map is still saving. Steps inside are text only."
 - **Not done:** room outlines don't exist in the floor data, so the goal room can't be tinted (the owner's first
   choice). The dimmed ribbon mostly mutes its white edge; the green barely changes, being close to the ground.
+
+## 2026-10-23: The dot glides on Next and Back (D52, agreed)
+
+- **The "you are here" dot glides** along the route's line to each step's spot, 600 ms with the cut slide's ease-out,
+  instead of jumping there. Outside, in and out through doors and around G it is one level; between floors of one
+  building it rises or drops at the stairs, then walks the hallway, as the cut slides. Into another building's upper
+  floor, and under reduced motion, it jumps. The camera's flights are unchanged.
+- **Test first:** `src/features/campus-scene/glide.ts` (the path along the line, heights, climbs, a point along it,
+  the ease); every one of its 21 tests in `glide.test.ts` was seen failing before its code existed, except one
+  edge-case test added in review. Checked on the real data: of 182 climbs, none goes straight for more than 5.1 m.
 
 ## 2026-10-23: `V` finds Velasco rooms (D51, agreed)
 

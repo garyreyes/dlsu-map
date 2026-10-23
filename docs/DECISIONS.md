@@ -1287,7 +1287,40 @@ isn't a guess. `C` for STRC works the same way.
 
 ---
 
-## D52. The cut floor keeps green for "yours": neutral hallways, a label pin for the goal (2026-10-23, proposed)
+## D52. The "you are here" dot glides along the route on Next and Back (2026-10-23, agreed)
+
+**Problem.** D44 moves the dot to each step's spot, but says nothing about how. It jumped there, so while the camera
+flew, the dot (what the eye follows) seemed to teleport.
+
+**Decision.** (Owner's call, 2026-10-23; Gary agreed to Charles building it in Lane A's map.)
+
+1. **On one level** the dot glides from the old spot to the new one along the route's line, through its corners,
+   forwards on Next and backwards on Back. **G counts as the ground** (it is at ground height), so walking outside,
+   going in or out through a door and moving around G are one level; each upper labelled floor is its own. Its height
+   changes evenly along the way (the dot sits a metre above a floor). A spot is on a line when it is within 1 m of it;
+   when the two spots aren't on one line it glides straight. A line that passes a spot twice (out and back) is read at
+   its first pass, so the dot may take the short way along it: accepted for v1.
+2. **Between floors of one building it climbs** at the stairs or elevator: on Next it rises there, then walks the new
+   floor's line to the next spot; on Back it walks the old floor's line to the stairs, then drops. Each floor's stairs
+   were traced on their own (St. Joseph's sit up to 6.6 m apart from floor to floor), so the stairs end may be up to
+   8 m off the other floor's line. The climb counts in the path's length, and the cut slides at the same time (D45).
+3. **600 ms, the cut slide's cubic ease-out** (D45), so the dot and the cut move as one. A tap mid-glide starts the next
+   glide from where the dot is drawn.
+4. **It jumps** into another building's upper floor, onto a floor without a spot (unlabelled), on and off the player,
+   and under reduced motion (a glide already under way, at most 600 ms, finishes).
+5. **The camera is unchanged:** it still flies to each step in 650 ms (D44). The step's words show at once; the glide
+   delays nothing.
+
+Pure logic in `src/features/campus-scene/glide.ts` (tests in `glide.test.ts`).
+
+**Alternatives.** The camera following the dot down the path, longer for longer walks (more cinematic, but slower to
+read and more work). Keeping the jump.
+
+**Agreed** by Gary and Charles (2026-10-23).
+
+---
+
+## D53. The cut floor keeps green for "yours": neutral hallways, a label pin for the goal (2026-10-23, proposed)
 
 **Problem.** The 8▸ critique (`.impeccable/critique/2026-10-23T04-20-22Z__src-features-location-picker.md`) found the
 indoor step hard to read. Green did three jobs on the cut floor: the hallways, the 1.1 m indoor line, and a hollow

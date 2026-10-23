@@ -112,7 +112,7 @@ code (it loads three.js from a CDN, which the real app must not do).
 ## Key decisions (short version)
 
 Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24 were agreed by the team on
-2026-10-19, D25–D27 and D33 on 2026-10-20, D28–D32 and D34–D37 on 2026-10-21, D38–D49 on 2026-10-22, D50 and D51
+2026-10-19, D25–D27 and D33 on 2026-10-20, D28–D32 and D34–D37 on 2026-10-21, D38–D49 on 2026-10-22, D50–D52
 on 2026-10-23.
 
 | # | Decision | Why |
@@ -168,6 +168,7 @@ on 2026-10-23.
 | D49 | **A size budget, checked on every build:** first load at most 200 kB gzipped, every other chunk 300 kB; three.js in its own chunk | A warning that always shows gets ignored; the budget fails the PR that causes the growth |
 | D50 | **No download percentage while saving for offline:** "Saving for offline…" with no number; we keep the service worker vite-plugin-pwa generates | A real number needs our own service worker, which means re-proving the offline and update logic; the first save takes a few seconds |
 | D51 | **`V` is an accepted Velasco prefix**, like `VE`: `V205` opens VL205, "also written V205" | Students say it that way, and no other building uses `V`, so it isn't a guess |
+| D52 | **The "you are here" dot glides** along the route on Next and Back: through doors, around G and up the stairs, 600 ms with the cut's slide; it jumps into another building's upper floor | A jumping dot read as a teleport while the camera flew; gliding shows the way just walked |
 
 ### Things we chose *not* to do
 

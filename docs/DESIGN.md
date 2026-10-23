@@ -538,7 +538,7 @@ their wall-foot darkening. Values for the green palette (all derived in `cutTone
   wall-foot darkening and no cut-face colour.
 - **Hallways:** the building colour at 0.2 in linear RGB (`CUT_HALL_SHADE`), a mid-grey neutral with no green,
   about #75736e: 3.4:1 against the slab. 1 m wide, unlit, just above the slab. Green hallways ran together with
-  the indoor line and the goal mark (8▸ critique, D52).
+  the indoor line and the goal mark (8▸ critique, D53).
 - **Rooms:** the space between walls; no fills or door marks in v1. The goal room gets a label pin at its door, a
   Campus Green plate with its code, like a selected building label. The data has no room outlines yet, so no fill.
 - **Order:** the cut draws after the see-through off-campus blocks, so none wash over it; the building's name label
@@ -590,6 +590,9 @@ centred secondary **Done**.
 - **Camera flight:** 650ms, exponential ease-out; recenter flies home. Map controls use 0.12 damping.
 - **Cut slide:** 600ms, cubic ease-out (`1 - (1 - p)³`: half done at about 125ms), so the plane is seen passing the
   floors; an interrupted slide carries on from where the plane is.
+- **Dot glide:** on Next and Back the "you are here" dot glides along the route's line to the step's spot, 600ms with
+  the cut slide's ease-out: outside, through doors and around G as one level, and up or down at the stairs between
+  floors of one building, alongside the cut's slide. It jumps into another building's upper floor (D52).
 - **Gestures (phone):** one finger pans, pinch zooms, a two-finger twist turns the map with the fingers (as in Google
   Maps), and two fingers dragged up or down tilt it.
 - **Toast:** 160ms ease-out fade and 8px rise.
