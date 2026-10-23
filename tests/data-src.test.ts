@@ -7,7 +7,7 @@ import { buildingSourcesSchema } from '../src/shared/data/buildings.ts';
 const read = (path: string): unknown => JSON.parse(readFileSync(new URL(`../${path}`, import.meta.url), 'utf8'));
 const buildings = buildingSourcesSchema.parse(read('data-src/campus/buildings.json'));
 // Pinned on purpose: committing a new snapshot means bumping this line, so a refresh is always a deliberate change.
-const snapshot = read('data-src/campus/osm/snapshot-2026-10-20.geojson') as {
+const snapshot = read('data-src/campus/osm/snapshot-2026-10-23.geojson') as {
   features: { id: string; geometry: { type: string }; properties: { tags: Record<string, string> } }[];
 };
 const features = new Map(snapshot.features.map((f) => [f.id, f]));
