@@ -1,7 +1,8 @@
 // The router going inside (8b, D41) over the real building files, compiled from data-src as the build does. STRC
-// (G–4F), Velasco (G–5F) and St. Joseph (G–6F) are labelled whole, each with stairs and an elevator on every floor, so
-// every one of their rooms must be reached from every gate on each of Stairs, Elevator and Auto, with the climb each
-// asks for. Velasco's G Mezz rooms are on no sign, so they stop at the door (O5).
+// (G–4F), Velasco (G–5F) and St. Joseph (G–6F) are labelled whole, each with stairs on every floor, so every one of
+// their rooms must be reached from every gate on each of Stairs, Elevator and Auto, with the climb each asks for. STRC
+// and Velasco have an elevator; St. Joseph has none (the owner, 2026-10-23), so it climbs by stairs and says so.
+// Velasco's G Mezz rooms are on no sign, so they stop at the door (O5).
 import { describe, expect, it } from 'vitest';
 import type { FloorMode, Leg, Route, RouteResult, Step, XY } from '../src/shared/data/route.ts';
 import { sampleTripChoices } from '../src/shared/data/route.sample.ts';
@@ -21,6 +22,7 @@ const ok = (result: RouteResult): Route => {
 type Floors = Extract<Leg, { kind: 'floors' }>;
 const floorsLegs = (r: Route): Floors[] => r.legs.filter((l): l is Floors => l.kind === 'floors');
 const modes: FloorMode[] = ['auto', 'stairs', 'elevator'];
+const withElevator = new Set(['strc', 'velasco']);
 
 describe('indoor routing on the real campus', () => {
   it('has building files for STRC, Velasco and St. Joseph, every room placed but the G Mezz', () => {
@@ -29,6 +31,11 @@ describe('indoor routing on the real campus', () => {
     expect(indoor.get('strc')?.rooms).toHaveLength(strc.length);
     expect(indoor.get('velasco')?.rooms).toHaveLength(velasco.length);
     expect(mezz.map((r) => r.code)).toStrictEqual(['VL151', 'VL153']);
+  });
+
+  it('has an elevator in STRC and Velasco only: the box at the corner of St. Joseph is stairs', () => {
+    const lifts = [...indoor].filter(([, b]) => b.verticals.some((v) => v.kind === 'elevator')).map(([slug]) => slug);
+    expect(lifts.sort()).toStrictEqual([...withElevator].sort());
   });
 
   it.each(campus.gates.map((g) => [g.id]))('reaches every labelled room from %s on each mode, inside', (gate) => {
@@ -44,7 +51,9 @@ describe('indoor routing on the real campus', () => {
         else {
           // Up to the room's floor by what the mode asks for (Auto: elevator for 3 floors or more). The elevator is one
           // ride; stairs can change at a floor (St. Joseph's lobby stairs stop at 2F), at 20 s a floor all the same.
-          const by = mode === 'stairs' || (mode === 'auto' && room.floor - 1 < 3) ? 'stairs' : 'elevator';
+          const lift = withElevator.has(room.building);
+          const by = !lift || mode === 'stairs' || (mode === 'auto' && room.floor - 1 < 3) ? 'stairs' : 'elevator';
+          expect(climbs.every((c) => c.noElevator === (!lift && mode === 'elevator' ? true : undefined))).toBe(true);
           if (by === 'elevator') {
             expect(climbs).toMatchObject([{ from: 1, to: room.floor, by, seconds: 180 + 5 * (room.floor - 1) }]);
           } else {

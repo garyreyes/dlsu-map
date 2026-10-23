@@ -1034,13 +1034,6 @@
   ],
   "verticals": [
     {
-      "id": "elevator",
-      "point": [
-        0.9934,
-        0.5968
-      ]
-    },
-    {
       "id": "south-stairs",
       "point": [
         0.9807,
