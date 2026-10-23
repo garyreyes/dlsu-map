@@ -1287,7 +1287,7 @@ isn't a guess. `C` for STRC works the same way.
 
 ---
 
-## D52. The "you are here" dot glides along the route on Next and Back (2026-10-23, proposed)
+## D52. The "you are here" dot glides along the route on Next and Back (2026-10-23, agreed)
 
 **Problem.** D44 moves the dot to each step's spot, but says nothing about how. It jumped there, so while the camera
 flew, the dot (what the eye follows) seemed to teleport.
@@ -1315,3 +1315,5 @@ Pure logic in `src/features/campus-scene/glide.ts` (tests in `glide.test.ts`).
 
 **Alternatives.** The camera following the dot down the path, longer for longer walks (more cinematic, but slower to
 read and more work). Keeping the jump.
+
+**Agreed** by Gary and Charles (2026-10-23).

@@ -8,7 +8,7 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
-## 2026-10-23: The dot glides on Next and Back (D52, proposed)
+## 2026-10-23: The dot glides on Next and Back (D52, agreed)
 
 - **The "you are here" dot glides** along the route's line to each step's spot, 600 ms with the cut slide's ease-out,
   instead of jumping there. Outside, in and out through doors and around G it is one level; between floors of one
