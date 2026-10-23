@@ -90,6 +90,8 @@ export function FloorStep({ building, offersSpot, choosing, onChoosing, onFloor,
 
 interface SpotStepProps {
   building: PickerBuilding;
+  /** G is 1: it starts at the main entrance, other floors at the elevator lobby (PRD UC2). */
+  floor: number;
   /** The floor chip's label, e.g. `G` or `3F`. */
   floorLabel: string;
   /** Null while the building file loads on an upper floor. */
@@ -103,7 +105,7 @@ interface SpotStepProps {
 const capital = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
 /** Change spot's second step: where on the floor, as chips like the gates. */
-export function SpotStep({ building, floorLabel, choices, onSpot, onUsual, onBack }: SpotStepProps) {
+export function SpotStep({ building, floor, floorLabel, choices, onSpot, onUsual, onBack }: SpotStepProps) {
   const title = `${building.short} ${floorLabel}: where on the floor?`;
   return (
     <div role="group" aria-label={title}>
@@ -112,9 +114,10 @@ export function SpotStep({ building, floorLabel, choices, onSpot, onUsual, onBac
       {choices !== null && choices.length < 2 && (
         <>
           <p className="pb-3 text-ink-2">
-            {building.short}&rsquo;s indoor map isn&rsquo;t saved yet, so {floorLabel} starts at the elevator lobby.
+            Nothing else to pick on {floorLabel} yet, so it starts at the{' '}
+            {floor === 1 ? 'main entrance' : 'elevator lobby'}.
           </p>
-          <Chip onClick={onUsual}>Elevator lobby</Chip>
+          <Chip onClick={onUsual}>Start there</Chip>
         </>
       )}
       {choices !== null && choices.length >= 2 && (

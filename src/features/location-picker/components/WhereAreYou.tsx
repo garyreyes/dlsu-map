@@ -165,15 +165,15 @@ function BuildingSteps({ building, step, onStep, onFrom, onBack }: BuildingSteps
   const file = spots.status === 'ready' ? spots.file : null;
   // Lives here, not in FloorStep, so Pick another floor comes back with Change spot still on.
   const [choosing, setChoosing] = useState(false);
-  // Doors on G are known already; an upper floor waits for the file. Null means still loading.
-  const choicesAt = (floor: number) =>
-    floor === 1 || spots.status !== 'loading' ? spotChoices(building.doors, floor, file) : null;
+  // Every floor waits for the file, G too: its stairs join its doors. Null means still loading.
+  const choicesAt = (floor: number) => (spots.status === 'loading' ? null : spotChoices(building.doors, floor, file));
 
   if (step.kind === 'spot') {
     const { floor } = step;
     return (
       <SpotStep
         building={building}
+        floor={floor}
         floorLabel={building.floors.find((f) => f.floor === floor)?.label ?? `${String(floor)}F`}
         choices={choicesAt(floor)}
         onSpot={(c) => {
@@ -195,8 +195,8 @@ function BuildingSteps({ building, step, onStep, onFrom, onBack }: BuildingSteps
       choosing={choosing}
       onChoosing={setChoosing}
       onFloor={(floor) => {
-        const choices = choicesAt(floor);
-        if (choosing && (choices === null || choices.length >= 2)) onStep({ kind: 'spot', slug: building.slug, floor });
+        // With Change spot on, the spot step always opens, and says so when the floor has nothing else to pick.
+        if (choosing) onStep({ kind: 'spot', slug: building.slug, floor });
         else onFrom(atFloor(building.slug, floor));
       }}
       onBack={onBack}

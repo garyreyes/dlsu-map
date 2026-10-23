@@ -148,8 +148,25 @@ function Body({ state, from, to, mode, onMode, doors, onExit, onStart }: BodyPro
       </div>
     );
   }
-  if (!state.result.ok)
-    return <p className="mt-3 text-ink-2">{notOkLine(state.result.reason, from, to, state.names)}</p>;
+  if (!state.result.ok) {
+    // A door the student chose that can't be routed shouldn't leave them stuck: Route options is gone with the route.
+    return (
+      <div className="mt-3">
+        <p className="text-ink-2">{notOkLine(state.result.reason, from, to, state.names)}</p>
+        {doors?.exit !== undefined && (
+          <div className="mt-2">
+            <SecondaryButton
+              onClick={() => {
+                onExit(undefined);
+              }}
+            >
+              Use the quickest door
+            </SecondaryButton>
+          </div>
+        )}
+      </div>
+    );
+  }
   const { route } = state.result;
   return (
     <>
