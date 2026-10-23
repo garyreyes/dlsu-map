@@ -92,6 +92,22 @@ describe('routing on the real campus', () => {
     expect(walk?.meters).toBeLessThanOrEqual(3 * line);
     expect(result.ok && result.route.seconds).toBe(200 + (walk?.seconds ?? 0) + 40);
   });
+
+  it('walks Velasco → STRC on campus through Agno Gate, never out along Taft (owner, 2026-10-23)', () => {
+    // Before the footpath between Velasco's and Agno's covered walks was mapped, this went out by Gate 3, 21 m along
+    // the Taft sidewalk and back in: 253 m. Now about 162 m.
+    const result = route(
+      { kind: 'building', building: 'velasco', floor: 1 },
+      { kind: 'building', building: 'strc' },
+      'auto',
+    );
+    const walk = onlyWalk(result.ok && result.route.legs);
+    const agno = campus.gates.find((g) => g.id === 'agno')?.point ?? -1;
+    const gate = [campus.walk.points[2 * agno], campus.walk.points[2 * agno + 1]];
+    expect(walk.path).toContainEqual(gate);
+    expect(walk.meters).toBeLessThanOrEqual(170);
+    expect(result.ok && result.route.steps.map((s) => s.text).filter((t) => t.includes('Taft'))).toStrictEqual([]);
+  });
 });
 
 // The directions (4c, D35) on the real campus. Gate 1 → ST311 was checked by hand on 2026-10-21, point by point:

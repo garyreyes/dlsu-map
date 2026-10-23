@@ -8,6 +8,17 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-23: OSM snapshot 2026-10-23: Velasco to Agno Gate on campus
+
+- **New snapshot** `data-src/campus/osm/snapshot-2026-10-23.geojson` replaces 2026-10-20's. The only changes in the area
+  are Charles's OSM edits: a 15 m footpath joining Velasco's covered walk to the Agno covered walk
+  (`way/1570964367`), and Agno Gate Exit (`node/14311322337`). The walk network is 515 points and 582 links.
+- **Velasco → STRC stays on campus:** 162 m through Agno Gate, where it went out by Gate 3 along Taft and back in
+  (253 m). Velasco → Miguel is 60 m. A new check in `tests/routing.test.ts` fails if the Taft detour comes back (seen
+  failing on the old snapshot first).
+- Agno Gate Exit is not a gate in the app: students enter by Agno Gate, and gates are only starting points
+  (PROJECT_FACTS).
+
 ## 2026-10-23: D50 agreed
 
 - Gary and Charles agreed D50: no download percentage while saving for offline, and we keep the service worker
