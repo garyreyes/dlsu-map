@@ -653,6 +653,8 @@ and one tap accepts it. The route never starts from a guess (PRD §7, strict). T
 **Alternatives.** Full aliases like `C`→`ST` (silent; the owner chose a visible suggestion instead); ignoring them
 ("No building uses VH", which is wrong, since the sign says it).
 
+**Changed by D54** (2026-10-23): `J` is now an accepted alias for St. Joseph. `VH` stays a suggest prefix.
+
 ---
 
 ## D26. A room's floor is where its source puts it, not always number ÷ 100 (2026-10-20, agreed)
@@ -1343,5 +1345,29 @@ outdoor ribbon swamped the entrance. Offline, with the indoor map still saving, 
 
 **Alternatives.** Tinting the room (needs outlines, see 2). Keeping the ring and recolouring it (still a circle next
 to a circle). Green hallways with a thicker line (the line still disappears into them).
+
+**Agreed** by Gary and Charles (2026-10-23).
+
+---
+
+## D54. One-letter shortcuts for Andrew, Yuchengco, St. Miguel and St. Joseph (2026-10-23, agreed)
+
+**Problem.** After D51 (`V` for Velasco), the owner checked what else students type. They also write Andrew rooms as
+`A1104`, Yuchengco's as `Y305`, St. Miguel's as `M203` and St. Joseph's as `J204`. Only `J` did anything (a "Did you
+mean", D25); the rest gave "No building uses …".
+
+**Decision.** (Owner's call, 2026-10-23.) `A` (Andrew), `Y` (Yuchengco), `M` (St. Miguel) and `J` (St. Joseph) join
+those buildings' accepted prefixes in `data-src/campus/buildings.json`, after the canonical one. Each opens the room,
+"also written J204", exactly as `V` and `C` do, and lists rooms while typing (`J2` as `SJ2`). A building without a
+room list yet (Andrew, Yuchengco) says so, as for its main prefix (D38). Canonical codes don't change, so deep links
+and shared codes keep working. This reverses D25 for `J` only; `VH` stays a suggestion.
+
+**Why aliases.** No other building uses these letters, and the parser reads every letter before the number as the
+prefix, so `M` and `MM` (Mutien-Marie), or `A` and `AG`, never meet: a shortcut can only mean one building.
+
+Tests: `tests/search.test.ts` (each shortcut on the real rooms) and the prefix table in `tests/compile-data.test.ts`,
+seen failing first.
+
+**Alternatives.** Suggest prefixes for all four (one more tap each). Leaving them out.
 
 **Agreed** by Gary and Charles (2026-10-23).

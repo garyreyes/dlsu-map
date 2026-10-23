@@ -8,6 +8,14 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-23: `A`, `Y`, `M` and `J` find their buildings' rooms (D54, agreed)
+
+- **One-letter shortcuts open the room**, as `V` does: `A1104` → AG1104 (Andrew), `Y305` → EY305 (Yuchengco), `M204` →
+  SM204 (St. Miguel), `J204` → SJ204 (St. Joseph, was a "Did you mean", D25). Andrew and Yuchengco say their rooms
+  aren't in the app yet. Only data changed: four `prefixes` lines in `data-src/campus/buildings.json`.
+- **Tests first:** 7 new tests in `tests/search.test.ts` and the prefix table in `tests/compile-data.test.ts`, all 8
+  seen failing before the change.
+
 ## 2026-10-23: 8▸ critique of S4, S5 and the indoor steps; its three P1s fixed (D53, agreed)
 
 - **Critique:** `/impeccable critique` scored S4, S5 and S7 28/40. The full report and its P2s (spot and exit names
