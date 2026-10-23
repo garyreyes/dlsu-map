@@ -1,10 +1,28 @@
+import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import { defineConfig } from 'vitest/config';
 
+/** The short commit being built, for the ⓘ sheet's version line (10b). CI sets APP_COMMIT to the PR's own head,
+ *  because a PR checkout's HEAD is a merge commit nobody can look up. Outside a git checkout it reads "dev". */
+function commit(): string {
+  if (process.env.APP_COMMIT) return process.env.APP_COMMIT.slice(0, 7);
+  try {
+    return execSync('git rev-parse --short HEAD', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+  } catch {
+    return 'dev';
+  }
+}
+
 export default defineConfig({
+  // The version the ⓘ sheet shows (10b): the commit and the build date, so nobody has to remember to bump a number.
+  define: {
+    __APP_COMMIT__: JSON.stringify(commit()),
+    // Manila's date, so a build after midnight there isn't dated the day before.
+    __APP_BUILT__: JSON.stringify(new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' })),
+  },
   plugins: [
     react(),
     tailwindcss(),

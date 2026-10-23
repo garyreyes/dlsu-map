@@ -8,6 +8,23 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-23: 10b ⓘ sheet (S10)
+
+- **ⓘ in the search pill**, after the Beta tag, opens the info sheet in place of what the sheet showed. Back or ✕
+  returns to it, and so do Escape and a tap on the map (which picks nothing). Opening search from the pill closes the
+  sheet first, so a picked room isn't hidden under it.
+- **What it shows:** an offline line that never goes quiet (`infoOffline` in `offline/status.ts`, one exact test
+  per phase): "Ready offline", "Saving for offline…", "Saving paused", "Checking the offline copy…", O3 ("Not
+  saved offline. Open with internet to save again"), or "This browser can't save the map" in private modes. Then
+  "Map data © OpenStreetMap contributors" with the link and the campus.json snapshot date; "Student project, not an
+  official DLSU app." with a beta note; and the version.
+- **Version is the short commit and Manila build date** (Gary's choice), set by `define` in `vite.config.ts` as
+  `__APP_COMMIT__` and `__APP_BUILT__` (declared in `src/build-info.d.ts`). CI passes the PR's head commit as
+  `APP_COMMIT`, since a PR checkout's HEAD is a merge commit nobody can look up. Outside a git checkout it reads
+  "dev". `package.json` stays `0.0.0`; nothing needs bumping. Every commit now changes the bundle, which only
+  matters for builds that get deployed.
+- **Not done here:** Report a problem waits for the team's Google Form (D24). New e2e: `tests/e2e/info-sheet.spec.ts`.
+
 ## 2026-10-23: 8c-2 pickers: Change spot and Leave by (8c-2 done)
 
 - **Change spot in S4** (D42): a "Change spot" link under the floor chips, shown when the building has a real

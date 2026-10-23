@@ -2,6 +2,7 @@
 // together. No parsing, routing or fetching here.
 import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { MapInsets, MapTrip } from '@/features/campus-scene';
+import { InfoSheet } from '@/features/info';
 import { WhereAreYou } from '@/features/location-picker';
 import {
   InstallHint,
@@ -13,6 +14,7 @@ import {
   useInstallHint,
   useOfflineStatus,
   usePersistStorage,
+  useInfoOffline,
   useSavedOffline,
   useUpdate,
   type UpdateScreen,
@@ -85,6 +87,8 @@ const toOf = (picked: Picked): To =>
 export function App() {
   const wide = useIsWide();
   const search = useBackToClose();
+  // The ⓘ sheet (S10) sits over whatever the sheet showed, and Back returns to it.
+  const info = useBackToClose();
   const header = useRef<HTMLElement>(null);
   const [pillBottom, setPillBottom] = useState(62);
   const [sheetHeight, setSheetHeight] = useState(96);
@@ -189,6 +193,7 @@ export function App() {
   }, [openDevSteps]);
   // Offline extras (10a): keep the copy, the iPhone hint (after the first save, until closed) once "Ready offline" has gone, and O4's update.
   const saved = useSavedOffline();
+  const infoOffline = useInfoOffline();
   usePersistStorage(saved);
   const installHint = useInstallHint(saved && offline === 'none');
   const update = useUpdate();
@@ -229,88 +234,89 @@ export function App() {
     ) : selected ? (
       <BuildingLine building={selected.building} />
     ) : null;
-  const sheet =
-    DevSteps && devSteps.isOpen ? (
-      <Suspense fallback={null}>
-        <DevSteps onClose={devSteps.close} />
-      </Suspense>
-    ) : to && route?.status === 'ready' && step.route && trip.arrived.isOpen ? (
-      <Arrived
-        route={step.route}
-        to={to}
-        names={route.names}
-        stillSaving={route.stillSaving}
-        line={line}
-        room={
-          selected?.kind === 'room'
-            ? { code: selected.room.code, building: selected.room.building.slug, floor: selected.room.floor }
-            : null
-        }
-        onNext={findNext}
-        onDone={done}
-        onBack={trip.arrived.close}
-      />
-    ) : to && trip.from && route?.status === 'ready' && step.route && trip.allSteps.isOpen ? (
-      <AllSteps
-        route={step.route}
-        from={trip.from}
-        to={to}
-        names={route.names}
-        stillSaving={route.stillSaving}
-        current={step.index}
-        onPick={(index) => {
-          step.setIndex(index);
-          trip.allSteps.close();
-        }}
-        onClose={trip.allSteps.close}
-      />
-    ) : step.route && trip.player.isOpen ? (
-      <StepPlayer
-        route={step.route}
-        stillSaving={route?.status === 'ready' ? route.stillSaving : undefined}
-        current={step.index}
-        onStep={step.setIndex}
-        onArrive={trip.arrived.open}
-        onChangeFrom={trip.changeFromPlayer}
-        onAllSteps={trip.allSteps.open}
-        onClose={trip.player.close}
-      />
-    ) : to && trip.from && route && trip.preview.isOpen ? (
-      <RoutePreview
-        line={line}
-        state={route}
-        from={trip.from}
-        to={to}
-        mode={mode}
-        onMode={setMode}
-        doors={doors}
-        onExit={setExit}
-        onChangeFrom={trip.changeFrom}
-        onChangeTo={openSearch}
-        onStart={() => {
-          trip.start(step.route?.steps.length ?? 0);
-        }}
-        onClose={trip.preview.close}
-      />
-    ) : selected && to && trip.where.isOpen ? (
-      <WhereAreYou
-        line={line}
-        search={searchData}
-        to={to}
-        mapPick={trip.mapPick}
-        onFrom={trip.chooseFrom}
-        onClose={trip.where.close}
-      />
-    ) : selected?.kind === 'room' ? (
-      <RoomCard key={selected.room.code} room={selected.room} onDirections={trip.directions} onClose={closeCard} />
-    ) : selected ? (
-      <BuildingCard building={selected.building} onDirections={trip.directions} onClose={closeCard} />
-    ) : (
-      <>
-        <HomeRecent data={searchData} recent={recent.entries} onPick={pick} onOpenSearch={openSearch} />
-        <NotOfficialNote />
-      </>
-    );
+  const sheet = info.isOpen ? (
+    <InfoSheet offline={infoOffline} onClose={info.close} />
+  ) : DevSteps && devSteps.isOpen ? (
+    <Suspense fallback={null}>
+      <DevSteps onClose={devSteps.close} />
+    </Suspense>
+  ) : to && route?.status === 'ready' && step.route && trip.arrived.isOpen ? (
+    <Arrived
+      route={step.route}
+      to={to}
+      names={route.names}
+      stillSaving={route.stillSaving}
+      line={line}
+      room={
+        selected?.kind === 'room'
+          ? { code: selected.room.code, building: selected.room.building.slug, floor: selected.room.floor }
+          : null
+      }
+      onNext={findNext}
+      onDone={done}
+      onBack={trip.arrived.close}
+    />
+  ) : to && trip.from && route?.status === 'ready' && step.route && trip.allSteps.isOpen ? (
+    <AllSteps
+      route={step.route}
+      from={trip.from}
+      to={to}
+      names={route.names}
+      stillSaving={route.stillSaving}
+      current={step.index}
+      onPick={(index) => {
+        step.setIndex(index);
+        trip.allSteps.close();
+      }}
+      onClose={trip.allSteps.close}
+    />
+  ) : step.route && trip.player.isOpen ? (
+    <StepPlayer
+      route={step.route}
+      stillSaving={route?.status === 'ready' ? route.stillSaving : undefined}
+      current={step.index}
+      onStep={step.setIndex}
+      onArrive={trip.arrived.open}
+      onChangeFrom={trip.changeFromPlayer}
+      onAllSteps={trip.allSteps.open}
+      onClose={trip.player.close}
+    />
+  ) : to && trip.from && route && trip.preview.isOpen ? (
+    <RoutePreview
+      line={line}
+      state={route}
+      from={trip.from}
+      to={to}
+      mode={mode}
+      onMode={setMode}
+      doors={doors}
+      onExit={setExit}
+      onChangeFrom={trip.changeFrom}
+      onChangeTo={openSearch}
+      onStart={() => {
+        trip.start(step.route?.steps.length ?? 0);
+      }}
+      onClose={trip.preview.close}
+    />
+  ) : selected && to && trip.where.isOpen ? (
+    <WhereAreYou
+      line={line}
+      search={searchData}
+      to={to}
+      mapPick={trip.mapPick}
+      onFrom={trip.chooseFrom}
+      onClose={trip.where.close}
+    />
+  ) : selected?.kind === 'room' ? (
+    <RoomCard key={selected.room.code} room={selected.room} onDirections={trip.directions} onClose={closeCard} />
+  ) : selected ? (
+    <BuildingCard building={selected.building} onDirections={trip.directions} onClose={closeCard} />
+  ) : (
+    <>
+      <HomeRecent data={searchData} recent={recent.entries} onPick={pick} onOpenSearch={openSearch} />
+      <NotOfficialNote />
+    </>
+  );
 
   // Not saved and no signal: the app can't finish loading, so O1 stands in for all of it until signal returns.
   if (offline === 'open-once-online') return <OpenOnceOnline />;
@@ -323,7 +329,14 @@ export function App() {
         ref={header}
         className="fixed top-[calc(env(safe-area-inset-top,0px)+10px)] right-(--gutter-r) left-(--gutter-l) z-5 md:right-auto md:w-100"
       >
-        <SearchPill onOpen={openSearch} />
+        <SearchPill
+          onOpen={() => {
+            // Search leads to a card, so the info sheet closes first rather than hiding what was picked.
+            if (info.isOpen) info.closeThen(openSearch);
+            else openSearch();
+          }}
+          onInfo={info.open}
+        />
         {/* Positioned below the header's box, so the map's top inset doesn't move when the line comes and goes. */}
         <SavingLine view={offline} hint={installHint.show && <InstallHint onDismiss={installHint.dismiss} />} />
       </header>
@@ -337,7 +350,7 @@ export function App() {
             selected={selectedSlug}
             floor={selected?.kind === 'room' ? { floor: selected.room.floor, label: selected.room.floorLabel } : null}
             trip={mapTrip}
-            onSelect={select}
+            onSelect={info.isOpen ? info.close : select}
           />
         </Suspense>
       </ErrorBoundary>

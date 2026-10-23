@@ -1,7 +1,16 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { registerSW } from 'virtual:pwa-register';
 import { create } from 'zustand';
-import { hasSavedCopy, nextPhase, offlineView, type OfflineView, type SaveEvent, type SavePhase } from '../status';
+import {
+  hasSavedCopy,
+  infoOffline,
+  nextPhase,
+  offlineView,
+  type InfoOffline,
+  type OfflineView,
+  type SaveEvent,
+  type SavePhase,
+} from '../status';
 
 /** How long "✓ Ready offline" stays after the first save (user-flows O2). */
 const READY_NOTE_MS = 3000;
@@ -126,6 +135,14 @@ function applyUpdate() {
 /** Whether a finished copy is on this phone (the ⓘ sheet's "Works offline" line). */
 export function useSavedOffline(): boolean {
   return hasSavedCopy(usePhase((s) => s.phase));
+}
+
+/** The ⓘ sheet's offline line (S10, O3). */
+export function useInfoOffline(): InfoOffline {
+  return infoOffline(
+    usePhase((s) => s.phase),
+    useOnline(),
+  );
 }
 
 /** Tries the first save again, as "Saving paused" promises. Registering again restarts a failed install. */

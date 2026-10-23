@@ -2,7 +2,7 @@
 // A wrong answer either hides that the app isn't saved yet (the student walks into a dead zone thinking it's safe)
 // or blocks a working app with a full-screen message. Every phase and every view is reached at least once here.
 import { describe, expect, it } from 'vitest';
-import { nextPhase, offlineView, shouldOfferUpdate, type SaveEvent, type SavePhase } from './status';
+import { infoOffline, nextPhase, offlineView, shouldOfferUpdate, type SaveEvent, type SavePhase } from './status';
 
 describe('shouldOfferUpdate', () => {
   // A reload mid-route would throw away the route (O4), so the prompt waits for home or Arrived.
@@ -127,5 +127,25 @@ describe('offlineView', () => {
     expect([...views].sort()).toEqual(
       ['cannot-save', 'none', 'not-saved', 'open-once-online', 'ready-offline', 'saving', 'saving-paused'].sort(),
     );
+  });
+});
+
+describe('infoOffline', () => {
+  // Every phase, with and without signal, names its exact line, so each of the six lines can be reached.
+  it.each<[SavePhase, boolean, ReturnType<typeof infoOffline>]>([
+    ['saved', true, 'ready'],
+    ['saved', false, 'ready'],
+    ['saved-now', true, 'ready'],
+    ['saved-now', false, 'ready'],
+    ['saving', true, 'saving'],
+    ['saving', false, 'saving-paused'],
+    ['checking', true, 'checking'],
+    ['checking', false, 'checking'],
+    ['not-saved', true, 'not-saved'],
+    ['not-saved', false, 'not-saved'],
+    ['unsupported', true, 'cannot-save'],
+    ['unsupported', false, 'cannot-save'],
+  ])('%s, online %s: %s', (phase, online, line) => {
+    expect(infoOffline(phase, online)).toBe(line);
   });
 });
