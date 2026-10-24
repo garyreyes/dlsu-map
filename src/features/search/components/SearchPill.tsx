@@ -15,7 +15,7 @@ export function SearchPill({ onOpen, onInfo }: { onOpen: () => void; onInfo: () 
         <Search className="size-6 flex-none text-accent" strokeWidth={2} aria-hidden />
         <span className="truncate text-ink-2">Where to?</span>
       </button>
-      <span className="ml-2 rounded-tag bg-accent-wash px-1.5 py-0.5 text-sm font-semibold tracking-[0.02em] text-accent">
+      <span className="ml-2 flex-none rounded-tag bg-accent-wash px-1.5 py-0.5 text-sm font-semibold tracking-[0.02em] text-accent">
         Beta
       </span>
       <IconButton label="About and offline status" onClick={onInfo}>

@@ -163,7 +163,7 @@ describe('routes that go inside a building with labelled floors', () => {
         by: 'stairs',
         at: [0, 115],
         meters: 5,
-        text: 'AL205 is on 2F: take the west stairs up to 2F',
+        text: 'AL205 is on 2F: take the west stairs up',
       },
       { kind: 'turn', leg: 3, at: [0, 110], meters: 55, turn: 'left', text: 'Turn left at AL201' },
       { kind: 'arrive', leg: 3, code: 'AL205', side: 'right', at: [50, 105], text: 'AL205 is on your right' },
@@ -240,7 +240,7 @@ describe('routes that go inside a building with labelled floors', () => {
         by: 'elevator',
         at: [100, 115],
         meters: 50,
-        text: 'AL401 is on 4F: take the elevator up to 4F',
+        text: 'AL401 is on 4F: take the elevator up',
       },
       { kind: 'arrive', leg: 3, code: 'AL401', side: 'left', at: [60, 105], text: 'AL401 is on your left' },
     ]);
@@ -266,7 +266,7 @@ describe('routes that go inside a building with labelled floors', () => {
       ],
       meters: 70,
     });
-    expect(r.steps.at(-2)).toMatchObject({ text: 'AL401 is on 4F: take the west stairs up to 4F', meters: 70 });
+    expect(r.steps.at(-2)).toMatchObject({ text: 'AL401 is on 4F: take the west stairs up', meters: 70 });
     expect(r.steps.at(-1)).toMatchObject({ kind: 'arrive', side: 'right' });
     expect(r.seconds).toBe(Math.round(walking(185) + 60));
   });
@@ -362,7 +362,7 @@ describe('routes that go inside a building with labelled floors', () => {
     ]);
     expect(r.steps.slice(2).map((s) => [s.text, 'meters' in s ? s.meters : null])).toStrictEqual([
       ['Take the elevator up to 2F', 110],
-      ['AL301 is on 3F: take the west stairs up to 3F', 60],
+      ['AL301 is on 3F: take the west stairs up', 60],
       ['AL301 is on your right', null],
     ]);
     expect([r.meters, r.seconds]).toStrictEqual([326, Math.round(walking(diagonal + 185) + 205)]);
@@ -626,7 +626,7 @@ describe('routes where the floor plan is missing', () => {
       },
       { kind: 'floors', building: 'alpha', from: 1, to: 5, by: 'elevator', seconds: 200 },
     ]);
-    expect(r.steps.at(-1)?.text).toBe('AL502 is on 5F: take the elevator up to 5F');
+    expect(r.steps.at(-1)?.text).toBe('AL502 is on 5F: take the elevator up');
     expect(r.noIndoorMap).toStrictEqual(['alpha']);
   });
 

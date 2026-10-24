@@ -8,6 +8,24 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-24: 8▸ P2s: spot and door names on the map, S4's first step, one chip per door
+
+- **The map names what the sheet offers.** While S4's Change spot step shows, each stair, elevator and door it offers
+  gets a small white plate on the map; so does each door under "Leave Velasco by" in Route options. Contract:
+  `shared/data/spot-labels.ts`. Doors sit on their walk point, stairs and elevators on the floor's height in the
+  building file (`campus-scene/spot-anchors.ts`). Crowded plates stack upward (`stackUp` in `campus-scene/labels.ts`)
+  and the ones that can't fit are hidden. New e2e check on Velasco G.
+- **S4 tints the building being picked** on the map, in place of To's, and hides the floor chip meanwhile.
+- **S4's first step:** I'm outside sits under the code box, the sheet stays inside the 54% half snap (the building
+  list scrolls), a "To" label leads the destination line, and Change spot is 48px (D30).
+- **One chip per door:** the separate Quickest chip is gone; the quickest door reads "… (quickest)" and picking it
+  still means Quickest (`exitChips` in `route-player/exits.ts`, tests seen failing first).
+- **The floor is said once:** "ST311 is on 3F: take the east stairs up" (was "… up to 3F" twice).
+- **The Beta tag no longer shrinks** in the pill on narrow phones.
+- **e2e:** "a building tapped on the map" now taps Gokongwei: with the shorter S4 sheet the camera frames STRC closer
+  and Mutien-Marie is off screen.
+- **Not done:** CADS stays as named; a map label for it needs its location in the campus data first (Lane B).
+
 ## 2026-10-23: `A`, `Y`, `M` and `J` find their buildings' rooms (D54, agreed)
 
 - **One-letter shortcuts open the room**, as `V` does: `A1104` → AG1104 (Andrew), `Y305` → EY305 (Yuchengco), `M204` →

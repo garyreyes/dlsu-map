@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Entrance } from '@/shared/data/campus';
 import type { From, Leg, Route, WalkEnd } from '@/shared/data/route';
-import { exitChoices, takenLine } from './exits';
+import { exitChips, exitChoices } from './exits';
 
 const door = (building: string, kind: Entrance['kind'], point: number, name?: string): Entrance => ({
   building,
@@ -134,7 +134,7 @@ describe('exitChoices', () => {
   });
 });
 
-describe('takenLine', () => {
+describe('exitChips', () => {
   const choices = {
     building: 'velasco',
     doors: [
@@ -144,16 +144,25 @@ describe('takenLine', () => {
     taken: 5,
   };
 
-  it('names the door the quickest route took', () => {
-    expect(takenLine(choices, undefined)).toBe('Quickest is the main entrance facing Agno.');
+  it('marks the quickest door and presses it on Quickest', () => {
+    expect(exitChips(choices, 5, undefined)).toEqual([
+      { key: 4, label: 'Main entrance facing CADS', pressed: false, pick: 4 },
+      { key: 5, label: 'Main entrance facing Agno (quickest)', pressed: true, pick: undefined },
+    ]);
   });
 
-  it('is null when a door is chosen', () => {
-    expect(takenLine(choices, 4)).toBeNull();
+  it('presses the chosen door and leaves the quickest one marked', () => {
+    expect(exitChips(choices, 5, 4)).toEqual([
+      { key: 4, label: 'Main entrance facing CADS', pressed: true, pick: 4 },
+      { key: 5, label: 'Main entrance facing Agno (quickest)', pressed: false, pick: undefined },
+    ]);
   });
 
-  it('is null when the taken door is unknown or not listed', () => {
-    expect(takenLine({ ...choices, taken: undefined }, undefined)).toBeNull();
-    expect(takenLine({ ...choices, taken: 99 }, undefined)).toBeNull();
+  it('keeps a Quickest chip when the quickest door is not known', () => {
+    expect(exitChips(choices, undefined, undefined)).toEqual([
+      { key: 'quickest', label: 'Quickest', pressed: true, pick: undefined },
+      { key: 4, label: 'Main entrance facing CADS', pressed: false, pick: 4 },
+      { key: 5, label: 'Main entrance facing Agno', pressed: false, pick: 5 },
+    ]);
   });
 });

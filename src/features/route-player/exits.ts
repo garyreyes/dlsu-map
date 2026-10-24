@@ -29,9 +29,28 @@ export function exitChoices(route: Route, from: From, entrances: readonly Entran
   return doors.length < 2 ? null : { building, doors, taken: entrance };
 }
 
-/** "Quickest is the main entrance facing Agno.", when Quickest is chosen and the route says which door it took. */
-export function takenLine(choices: ExitChoices, exit: number | undefined): string | null {
-  if (exit !== undefined || choices.taken === undefined) return null;
-  const door = choices.doors.find((d) => d.entrance === choices.taken);
-  return door === undefined ? null : `Quickest is the ${door.label.charAt(0).toLowerCase()}${door.label.slice(1)}.`;
+export interface ExitChip {
+  readonly key: number | 'quickest';
+  readonly label: string;
+  readonly pressed: boolean;
+  /** What tapping it passes to `onExit`: undefined is Quickest. */
+  readonly pick: number | undefined;
+}
+
+/** One chip per door; the quickest door's reads "(quickest)", is pressed while Quickest is chosen, and picks Quickest.
+ *  When the quickest door isn't known, a plain Quickest chip comes first so Quickest can still be chosen. */
+export function exitChips(choices: ExitChoices, quickest: number | undefined, exit: number | undefined): ExitChip[] {
+  const known = choices.doors.some((d) => d.entrance === quickest);
+  const doors = choices.doors.map((d): ExitChip => {
+    const isQuickest = known && d.entrance === quickest;
+    return {
+      key: d.entrance,
+      label: isQuickest ? `${d.label} (quickest)` : d.label,
+      pressed: isQuickest ? exit === undefined || exit === d.entrance : exit === d.entrance,
+      pick: isQuickest ? undefined : d.entrance,
+    };
+  });
+  return known
+    ? doors
+    : [{ key: 'quickest', label: 'Quickest', pressed: exit === undefined, pick: undefined }, ...doors];
 }

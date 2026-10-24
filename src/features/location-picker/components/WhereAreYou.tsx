@@ -2,9 +2,11 @@ import { Search, Trees, X } from 'lucide-react';
 import { useEffect, useMemo, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { HitList, NoteLine, searchResults, type Hit, type SearchData, type SearchView } from '@/features/search';
 import type { From, To } from '@/shared/data/route';
+import type { OnSpotLabels } from '@/shared/data/spot-labels';
 import { IconButton } from '@/shared/ui/IconButton';
 import { atFloor, atGate, atSpot, chooseEnter, chooseHit, nextTo, type Choice } from '../choose';
 import type { PickerBuilding, PickerPlaces } from '../places';
+import { spotLabelsOf } from '../spot-labels';
 import { offersSpot, spotChoices } from '../spots';
 import { BuildingRows, FloorStep, OutsideStep, SpotStep } from './Steps';
 import { useBuildingSpots } from './useBuildingSpots';
@@ -23,16 +25,20 @@ interface Props {
   to: To;
   /** A building tapped on the map while this is open: a new object for every tap, so the same building twice counts. */
   mapPick: { slug: string } | null;
+  /** The building whose floors or spots are showing, or null: the map tints it so the pick is visible there too. */
+  onBuilding?: (slug: string | null) => void;
+  /** The spots the Change spot step offers, to be named on the map while it shows; [] when it doesn't (8▸ critique). */
+  onSpotLabels?: OnSpotLabels;
   onFrom: (from: From) => void;
   onClose: () => void;
 }
 
 /**
- * S4 Where are you? (user-flows §3.5, D23, D42): the code box on top, the buildings under it, I'm outside last. A
+ * S4 Where are you? (user-flows §3.5, D23, D42): the code box on top, I'm outside under it, then the buildings. A
  * building goes on to its floors; From is set by a room, a floor, a gate or next to a building. No autofocus: a
  * student who only wanted the floor closes it without the keyboard in the way.
  */
-export function WhereAreYou({ line, search, to, mapPick, onFrom, onClose }: Props) {
+export function WhereAreYou({ line, search, to, mapPick, onBuilding, onSpotLabels, onFrom, onClose }: Props) {
   const places = usePickerPlaces();
   const [step, setStep] = useState<Step>({ kind: 'start' });
   const [query, setQuery] = useState('');
@@ -43,6 +49,14 @@ export function WhereAreYou({ line, search, to, mapPick, onFrom, onClose }: Prop
     setSeenPick(mapPick);
     if (mapPick) setStep({ kind: 'floors', slug: mapPick.slug });
   }
+
+  const building = step.kind === 'floors' || step.kind === 'spot' ? step.slug : null;
+  useEffect(() => {
+    onBuilding?.(building);
+    return () => {
+      onBuilding?.(null);
+    };
+  }, [building, onBuilding]);
 
   useEffect(() => {
     const onKey = (e: globalThis.KeyboardEvent) => {
@@ -64,8 +78,11 @@ export function WhereAreYou({ line, search, to, mapPick, onFrom, onClose }: Prop
   };
 
   return (
-    <section aria-label="Where are you?" className="pb-2">
+    // Phones: the whole section stays inside the half snap (54dvh, DESIGN.md Sheet snaps) less the sheet's 24px handle
+    // and 16px foot; the building list scrolls inside it. md+ is the side panel, which caps itself.
+    <section aria-label="Where are you?" className="flex max-h-[calc(54dvh-40px)] flex-col pb-2 md:max-h-none">
       <div className="flex items-start gap-1">
+        <span className="mt-3.5 flex-none font-normal text-ink-2">To</span>
         {line}
         <IconButton label="Close Where are you" onClick={onClose}>
           <X className="size-6" strokeWidth={2} />
@@ -90,6 +107,7 @@ export function WhereAreYou({ line, search, to, mapPick, onFrom, onClose }: Prop
           }}
           onChoice={apply}
           onStep={setStep}
+          onSpotLabels={onSpotLabels}
           onFrom={onFrom}
           onBack={toStart}
         />
@@ -108,16 +126,17 @@ interface BodyProps {
   onQuery: (query: string) => void;
   onChoice: (choice: Choice) => void;
   onStep: (step: Step) => void;
+  onSpotLabels?: OnSpotLabels;
   onFrom: (from: From) => void;
   onBack: () => void;
 }
 
 const scroll = (children: ReactNode) => (
-  <div className="-mx-2 mt-1 max-h-[50dvh] overflow-y-auto px-2 md:max-h-none">{children}</div>
+  <div className="-mx-2 mt-1 min-h-0 flex-1 overflow-y-auto px-2">{children}</div>
 );
 
 /** The step on screen. Phones: the choices scroll inside the sheet, which sizes to its content, like All steps. */
-function Body({ places, step, onStep, onFrom, onBack, ...start }: BodyProps) {
+function Body({ places, step, onStep, onSpotLabels, onFrom, onBack, ...start }: BodyProps) {
   if (step.kind === 'floors' || step.kind === 'spot') {
     const building = places.buildings.find((b) => b.slug === step.slug);
     if (building) {
@@ -127,6 +146,7 @@ function Body({ places, step, onStep, onFrom, onBack, ...start }: BodyProps) {
           building={building}
           step={step}
           onStep={onStep}
+          onSpotLabels={onSpotLabels}
           onFrom={onFrom}
           onBack={onBack}
         />,
@@ -155,18 +175,35 @@ interface BuildingStepsProps {
   building: PickerBuilding;
   step: Extract<Step, { kind: 'floors' | 'spot' }>;
   onStep: (step: Step) => void;
+  onSpotLabels?: OnSpotLabels;
   onFrom: (from: From) => void;
   onBack: () => void;
 }
 
 /** A building's floors, and with Change spot on, where on the chosen floor. The spot choices need its file. */
-function BuildingSteps({ building, step, onStep, onFrom, onBack }: BuildingStepsProps) {
+function BuildingSteps({ building, step, onStep, onSpotLabels, onFrom, onBack }: BuildingStepsProps) {
   const spots = useBuildingSpots(building.slug);
   const file = spots.status === 'ready' ? spots.file : null;
   // Lives here, not in FloorStep, so Pick another floor comes back with Change spot still on.
   const [choosing, setChoosing] = useState(false);
   // Every floor waits for the file, G too: its stairs join its doors. Null means still loading.
   const choicesAt = (floor: number) => (spots.status === 'loading' ? null : spotChoices(building.doors, floor, file));
+
+  // While the spot step shows its choices, the map names them (8▸ critique, P2); it stops when the step goes.
+  const spotFloor = step.kind === 'spot' ? step.floor : null;
+  const labels = useMemo(
+    () =>
+      spotFloor === null || spots.status === 'loading'
+        ? []
+        : spotLabelsOf(building.slug, spotFloor, spotChoices(building.doors, spotFloor, file)),
+    [building.slug, building.doors, spotFloor, spots.status, file],
+  );
+  useEffect(() => {
+    onSpotLabels?.(labels);
+    return () => {
+      onSpotLabels?.([]);
+    };
+  }, [labels, onSpotLabels]);
 
   if (step.kind === 'spot') {
     const { floor } = step;
@@ -221,6 +258,13 @@ function StartStep({ places, search, query, same, to, onQuery, onChoice, onStep 
           You&rsquo;re already at {same}.
         </p>
       )}
+      {!typed && (
+        <OutsideRow
+          onClick={() => {
+            onStep({ kind: 'outside' });
+          }}
+        />
+      )}
       {scroll(
         view ? (
           <Results view={view} to={to} onChoice={onChoice} />
@@ -235,11 +279,6 @@ function StartStep({ places, search, query, same, to, onQuery, onChoice, onStep 
               buildings={places.buildings}
               onPick={(slug) => {
                 onStep({ kind: 'floors', slug });
-              }}
-            />
-            <OutsideRow
-              onClick={() => {
-                onStep({ kind: 'outside' });
               }}
             />
           </>
@@ -322,13 +361,13 @@ function Results({ view, to, onChoice }: ResultsProps) {
   );
 }
 
-/** The last row: I'm outside, with what it leads to under it. */
+/** I'm outside, right under the code box so it never sits below the fold, with what it leads to under it. */
 function OutsideRow({ onClick }: { onClick: () => void }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="-mx-2 flex min-h-14 w-[calc(100%+1rem)] cursor-pointer items-center gap-3.5 rounded-row px-2 py-1.5 text-left hover:bg-surface-2 focus-visible:-outline-offset-2"
+      className="-mx-2 mt-1 flex min-h-14 w-[calc(100%+1rem)] flex-none cursor-pointer items-center gap-3.5 rounded-row px-2 py-1.5 text-left hover:bg-surface-2 focus-visible:-outline-offset-2"
     >
       <Trees className="size-6 flex-none text-ink-3" strokeWidth={2} aria-hidden />
       <span className="min-w-0 flex-1">

@@ -1,6 +1,7 @@
 import { ArrowRight, X } from 'lucide-react';
 import { useEffect, type ReactNode } from 'react';
 import type { Doors, FloorMode, From, To } from '@/shared/data/route';
+import type { OnSpotLabels } from '@/shared/data/spot-labels';
 import { Chip, PrimaryButton, SecondaryButton } from '@/shared/ui/Button';
 import { IconButton } from '@/shared/ui/IconButton';
 import { noElevatorLines, noIndoorMapLines, notOkLine, summaryLine } from '../preview';
@@ -20,6 +21,8 @@ interface Props {
   /** The exit door chosen in Route options; undefined is Quickest. */
   doors: Doors | undefined;
   onExit: (exit: number | undefined) => void;
+  /** The doors Route options' exit chips offer, while they show (8▸ critique): the map names them. */
+  onSpotLabels?: OnSpotLabels;
   /** The From chip: reopens Where are you (S4). */
   onChangeFrom: () => void;
   /** The To chip: reopens search (S2). */
@@ -42,6 +45,7 @@ export function RoutePreview({
   onMode,
   doors,
   onExit,
+  onSpotLabels,
   onChangeFrom,
   onChangeTo,
   onStart,
@@ -77,6 +81,7 @@ export function RoutePreview({
         onMode={onMode}
         doors={doors}
         onExit={onExit}
+        onSpotLabels={onSpotLabels}
         onStart={onStart}
       />
     </section>
@@ -117,11 +122,12 @@ interface BodyProps {
   onMode: (mode: FloorMode) => void;
   doors: Doors | undefined;
   onExit: (exit: number | undefined) => void;
+  onSpotLabels?: OnSpotLabels;
   onStart: () => void;
 }
 
 /** Everything under the chips, by how far the route has got. Loading keeps Start in place, so nothing jumps. */
-function Body({ state, from, to, mode, onMode, doors, onExit, onStart }: BodyProps) {
+function Body({ state, from, to, mode, onMode, doors, onExit, onSpotLabels, onStart }: BodyProps) {
   if (state.status === 'loading') {
     return (
       <>
@@ -188,6 +194,7 @@ function Body({ state, from, to, mode, onMode, doors, onExit, onStart }: BodyPro
         onMode={onMode}
         doors={doors}
         onExit={onExit}
+        onSpotLabels={onSpotLabels}
       />
     </>
   );

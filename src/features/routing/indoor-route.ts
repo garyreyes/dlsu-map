@@ -134,7 +134,7 @@ function marksOf(
   segments.forEach((s, i) => {
     if (s.kind === 'climb') {
       const leg = legs[i];
-      // The climb to the room's floor says which floor that is: "AL205 is on 2F: take the west stairs up to 2F".
+      // The climb to the room's floor says which floor that is: "AL205 is on 2F: take the west stairs up".
       const room = i === lastClimb ? opts.room : undefined;
       const at = model.at(s.at);
       if (leg?.kind === 'floors') {

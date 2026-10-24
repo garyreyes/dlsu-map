@@ -1,10 +1,12 @@
 import { ChevronDown } from 'lucide-react';
-import { useId, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 import type { Entrance } from '@/shared/data/campus';
 import type { Doors, FloorMode, From, Route } from '@/shared/data/route';
+import type { OnSpotLabels } from '@/shared/data/spot-labels';
 import { Chip } from '@/shared/ui/Button';
 import { Segmented } from '@/shared/ui/Segmented';
-import { exitChoices, takenLine, type ExitChoices } from '../exits';
+import { exitChips, exitChoices, type ExitChoices } from '../exits';
+import { exitSpotLabels } from '../spot-labels';
 import type { PlaceNames } from '../steps-list';
 
 const MODES = [
@@ -22,17 +24,33 @@ interface Props {
   onMode: (mode: FloorMode) => void;
   doors: Doors | undefined;
   onExit: (exit: number | undefined) => void;
+  /** The doors the exit chips offer, to be named on the map while they show; [] when they don't (8▸ critique). */
+  onSpotLabels?: OnSpotLabels;
 }
 
 /**
  * Route options (user-flows §3.6), folded away until wanted. Shown when the route changes floor (Stairs, Auto,
  * Elevator) or has an exit choice (which door to leave by). A choice re-routes at once.
  */
-export function RouteOptions({ route, from, names, entrances, mode, onMode, doors, onExit }: Props) {
+export function RouteOptions({ route, from, names, entrances, mode, onMode, doors, onExit, onSpotLabels }: Props) {
   const [open, setOpen] = useState(false);
   const panel = useId();
   const floors = route.legs.some((l) => l.kind === 'floors');
-  const exits = exitChoices(route, from, entrances);
+  const exits = useMemo(() => exitChoices(route, from, entrances), [route, from, entrances]);
+  // The quickest door is the one the route takes while Quickest is chosen; remember it once another door is picked.
+  // It's per mode: after Stairs → Elevator with another door picked, it's unknown and a plain Quickest chip shows.
+  const [seen, setSeen] = useState<{ mode: FloorMode; door: number | undefined } | null>(null);
+  if (exits !== null && doors?.exit === undefined && (seen?.mode !== mode || seen.door !== exits.taken))
+    setSeen({ mode, door: exits.taken });
+  const quickest = seen?.mode === mode ? seen.door : undefined;
+  // The chips are only on screen while the panel is open; the map names their doors for as long (8▸ critique, P2).
+  const labels = useMemo(() => (open && exits ? exitSpotLabels(exits) : []), [open, exits]);
+  useEffect(() => {
+    onSpotLabels?.(labels);
+    return () => {
+      onSpotLabels?.([]);
+    };
+  }, [labels, onSpotLabels]);
   if (!floors && exits === null) return null;
   return (
     <div className="mt-2">
@@ -55,7 +73,7 @@ export function RouteOptions({ route, from, names, entrances, mode, onMode, door
             <p className="mt-2 text-ink-2">Auto takes the elevator for 3 or more floors.</p>
           </>
         )}
-        {exits && <ExitChips choices={exits} names={names} exit={doors?.exit} onExit={onExit} />}
+        {exits && <ExitChips choices={exits} quickest={quickest} names={names} exit={doors?.exit} onExit={onExit} />}
       </div>
     </div>
   );
@@ -63,39 +81,30 @@ export function RouteOptions({ route, from, names, entrances, mode, onMode, door
 
 interface ExitProps {
   choices: ExitChoices;
+  quickest: number | undefined;
   names: PlaceNames;
   exit: number | undefined;
   onExit: (exit: number | undefined) => void;
 }
 
-/** "Leave Velasco by": Quickest, then one chip per door. Exactly one is pressed. */
-function ExitChips({ choices, names, exit, onExit }: ExitProps) {
-  const taken = takenLine(choices, exit);
+/** "Leave Velasco by": one chip per door, the quickest marked. Exactly one is pressed. */
+function ExitChips({ choices, quickest, names, exit, onExit }: ExitProps) {
   return (
     <div className="mt-2">
       <h3 className="pt-2 pb-1 font-semibold text-ink-2">Leave {names.short(choices.building)} by</h3>
       <div className="flex flex-wrap gap-2">
-        <Chip
-          pressed={exit === undefined}
-          onClick={() => {
-            onExit(undefined);
-          }}
-        >
-          Quickest
-        </Chip>
-        {choices.doors.map((d) => (
+        {exitChips(choices, quickest, exit).map((chip) => (
           <Chip
-            key={d.entrance}
-            pressed={exit === d.entrance}
+            key={chip.key}
+            pressed={chip.pressed}
             onClick={() => {
-              onExit(d.entrance);
+              onExit(chip.pick);
             }}
           >
-            {d.label}
+            {chip.label}
           </Chip>
         ))}
       </div>
-      {taken !== null && <p className="mt-2 text-ink-2">{taken}</p>}
     </div>
   );
 }

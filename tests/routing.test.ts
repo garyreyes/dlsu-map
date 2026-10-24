@@ -123,7 +123,7 @@ describe('directions on the real campus', () => {
       ['left', 'Turn left onto the covered walk'],
       ['right', 'Turn right onto the covered walk'],
       'Enter STRC by the main entrance (approximate)',
-      'ST311 is on 3F: take the stairs up to 3F',
+      'ST311 is on 3F: take the stairs up',
     ]);
   });
   type Leaving = Extract<From, { kind: 'gate' | 'building' }>;

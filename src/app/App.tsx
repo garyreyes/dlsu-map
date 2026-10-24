@@ -46,6 +46,7 @@ import {
 } from '@/features/search';
 import type { CampusBuilding } from '@/shared/data/campus';
 import type { To } from '@/shared/data/route';
+import type { SpotLabel } from '@/shared/data/spot-labels';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import { LOADING_MAP, MapMessage } from '@/shared/ui/MapMessage';
 import { NotOfficialNote } from '@/shared/ui/NotOfficialNote';
@@ -64,6 +65,8 @@ const DevSteps = import.meta.env.DEV
   ? lazy(() => import('@/features/route-player').then((m) => ({ default: m.DevSteps })))
   : null;
 const DEV_LINK = import.meta.env.DEV && new URLSearchParams(window.location.search).has('from');
+
+const NO_LABELS: readonly SpotLabel[] = [];
 
 /** Wide screens: the left panel's right edge (16px gutter + 400px) plus 8px of air. */
 const PANEL_EDGE = 16 + 400 + 8;
@@ -103,6 +106,13 @@ export function App() {
   // Where the route goes: kept as one object per pick, so the route isn't worked out again on every render.
   const to = useMemo(() => (picked ? toOf(picked) : null), [picked]);
   const trip = useTrip();
+  // S4's building, tinted on the map in place of To's while its floors show (8▸ critique).
+  const [whereBuilding, setWhereBuilding] = useState<string | null>(null);
+  const fromPick = trip.where.isOpen ? whereBuilding : null;
+  // The spots S4's Change spot step and Route options' door chips offer, named on the map while their sheet shows.
+  const [whereLabels, setWhereLabels] = useState<readonly SpotLabel[]>(NO_LABELS);
+  const [optionLabels, setOptionLabels] = useState<readonly SpotLabel[]>(NO_LABELS);
+  const spotLabels = trip.where.isOpen ? whereLabels : trip.preview.isOpen ? optionLabels : NO_LABELS;
   const { roomOpened, mapTap } = trip;
   // The route, worked out only while the preview or the screens over it are open; Stairs / Auto / Elevator for this
   // trip. The player's step, and the map's focus on it, belong to the route.
@@ -297,6 +307,7 @@ export function App() {
       onMode={setMode}
       doors={doors}
       onExit={setExit}
+      onSpotLabels={setOptionLabels}
       onChangeFrom={trip.changeFrom}
       onChangeTo={openSearch}
       onStart={() => {
@@ -310,6 +321,8 @@ export function App() {
       search={searchData}
       to={to}
       mapPick={trip.mapPick}
+      onBuilding={setWhereBuilding}
+      onSpotLabels={setWhereLabels}
       onFrom={trip.chooseFrom}
       onClose={trip.where.close}
     />
@@ -353,9 +366,14 @@ export function App() {
             insets={insets}
             sheetHeight={sheetHeight}
             wide={wide}
-            selected={selectedSlug}
-            floor={selected?.kind === 'room' ? { floor: selected.room.floor, label: selected.room.floorLabel } : null}
+            selected={fromPick ?? selectedSlug}
+            floor={
+              fromPick === null && selected?.kind === 'room'
+                ? { floor: selected.room.floor, label: selected.room.floorLabel }
+                : null
+            }
             trip={mapTrip}
+            spotLabels={spotLabels}
             onSelect={info.isOpen ? info.close : select}
           />
         </Suspense>

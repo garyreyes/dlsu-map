@@ -74,7 +74,7 @@ export function FloorStep({ building, offersSpot, choosing, onChoosing, onFloor,
               onClick={() => {
                 onChoosing(!choosing);
               }}
-              className="-my-2.5 inline-block min-h-11 cursor-pointer rounded-row px-1 py-2.5 font-semibold text-accent"
+              className="-my-3 inline-block min-h-12 cursor-pointer rounded-row px-1 py-3 font-semibold text-accent"
             >
               {choosing ? 'Use the usual spot' : 'Change spot'}
             </button>
