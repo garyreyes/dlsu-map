@@ -138,7 +138,7 @@ export type Step =
       readonly approximate?: true;
       readonly meters?: number;
     })
-  /** "Take the elevator down to G", "ST311 is on 3F: take the stairs up to 3F". Matches its floors leg. On labelled
+  /** "Take the elevator down to G", "ST311 is on 3F: take the stairs up". Matches its floors leg. On labelled
    *  floors (8b) it names which one, "Take the east stairs up to 3F", with where it is and the walk after it. */
   | (StepBase & {
       readonly kind: 'floors';

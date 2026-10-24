@@ -46,5 +46,27 @@ export function placeLabels(
   return shown;
 }
 
+/**
+ * Plates for spots that sit close together (two doors of one building) would hide each other, and a plate with no
+ * name beside its chip is no help. Each plate that overlaps an earlier one slides up above it instead, so all of
+ * them can show, in the order given. They also dodge `fixed` rects (the dot, the chip) the same way. Returns new
+ * boxes; the input is left as it was.
+ */
+export function stackUp(boxes: readonly LabelBox[], fixed: readonly Rect[] = []): LabelBox[] {
+  const out: Rect[] = [...fixed];
+  const moved: LabelBox[] = [];
+  for (const box of boxes) {
+    let top = box.top;
+    // Each pass moves above the plate in the way; the list is short and every move goes strictly up.
+    for (let hit = out.find((o) => overlaps({ ...box, top }, o, LABEL_GAP)); hit;) {
+      top = hit.top - box.height - LABEL_GAP;
+      hit = out.find((o) => overlaps({ ...box, top }, o, LABEL_GAP));
+    }
+    out.push({ ...box, top });
+    moved.push({ ...box, top });
+  }
+  return moved;
+}
+
 /** Minor labels (buildings without interiors) only show once the camera is this close to what it looks at, in m. */
 export const MINOR_LABEL_DISTANCE = 550;

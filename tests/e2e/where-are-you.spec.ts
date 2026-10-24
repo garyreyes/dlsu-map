@@ -73,12 +73,12 @@ test('a building with no room list yet goes on to its floors, never to a guessed
 test('a building tapped on the map picks it here, and the card stays the destination', async ({ page }) => {
   await openST311(page);
   // Just under its label plate, which floats over the middle of its roof (as in building-card.spec.ts).
-  const label = page.locator('[data-map-label]').filter({ hasText: 'Mutien-Marie', visible: true });
+  const label = page.locator('[data-map-label]').filter({ hasText: 'Gokongwei', visible: true });
   await expect(label).toBeVisible();
   const box = await label.boundingBox();
-  if (!box) throw new Error('no box for Mutien-Marie');
+  if (!box) throw new Error('no box for Gokongwei');
   await page.mouse.click(box.x + box.width / 2, box.y + box.height + 10);
-  await expect(where(page).getByRole('group', { name: 'Mutien-Marie Hall: which floor?' })).toBeVisible();
+  await expect(where(page).getByRole('group', { name: 'John Gokongwei Hall: which floor?' })).toBeVisible();
   await expect(where(page)).toContainText('ST311 · STRC');
 });
 
@@ -184,4 +184,20 @@ test('From never leaves memory: not in the address bar, history, Recent or stora
   expect(kept.url).toBe(new URL('/', page.url()).href);
   for (const text of [kept.history, kept.local, kept.session]) expect(text).not.toContain('VL305');
   expect(kept.local).toContain('ST311');
+});
+
+test('the Change spot step names its spots on the map, and stops when it goes (8▸ critique, P2)', async ({ page }) => {
+  await openST311(page);
+  await row(page, 'Velasco').click();
+  const floors = where(page).getByRole('group', { name: 'Velasco Hall: which floor?' });
+  await floors.getByRole('button', { name: 'Change spot' }).click();
+  await floors.getByRole('button', { name: 'G', exact: true }).click();
+  const spots = where(page).getByRole('group', { name: 'Velasco G: where on the floor?' });
+  await expect(spots).toBeVisible();
+  const first = (await spots.getByRole('button').first().innerText()).trim();
+  expect(first).toMatch(/^Main entrance/);
+  // The plate is on the map, outside the sheet: same words as the first door's chip.
+  await expect(page.locator('[data-spot-label]').filter({ hasText: first }).first()).toBeVisible();
+  await spots.getByRole('button', { name: 'Pick another floor' }).click();
+  await expect(page.locator('[data-spot-label]')).toHaveCount(0);
 });

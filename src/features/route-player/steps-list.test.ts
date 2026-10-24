@@ -43,7 +43,7 @@ describe('stepGroups', () => {
       },
       {
         label: 'In STRC',
-        rows: [{ index: 4, icon: 'stairs-up', title: 'ST311 is on 3F: take the stairs up to 3F' }],
+        rows: [{ index: 4, icon: 'stairs-up', title: 'ST311 is on 3F: take the stairs up' }],
       },
     ]);
   });
@@ -72,7 +72,7 @@ describe('stepGroups', () => {
       {
         label: 'In STRC',
         rows: [
-          { index: 2, icon: 'stairs-up', title: 'ST311 is on 3F: take the east stairs up to 3F', subtitle: '10 m' },
+          { index: 2, icon: 'stairs-up', title: 'ST311 is on 3F: take the east stairs up', subtitle: '10 m' },
           { index: 3, icon: 'slight-left', title: 'Bear left at ST309', subtitle: '15 m' },
           { index: 4, icon: 'arrive', title: 'ST311 is on your right' },
         ],

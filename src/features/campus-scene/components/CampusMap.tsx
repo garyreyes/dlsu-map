@@ -2,19 +2,21 @@ import { Canvas } from '@react-three/fiber';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { CameraControls } from '@react-three/drei';
 import type { Mesh } from 'three';
-import { FloorRail, useCutaway, type CutawayStep } from '@/features/indoor-view';
+import { FloorRail, useCutaway, useIndoor, type CutawayStep } from '@/features/indoor-view';
 import { MapDidntDownload } from '@/features/offline';
 import { FAR, FOV_DEG, NEAR } from '@/shared/config/camera';
 import { MAP_PALETTE } from '@/shared/config/palette';
 import type { Campus, CampusBuilding } from '@/shared/data/campus';
 import { preloadIndoor } from '@/shared/data/load';
 import type { Route } from '@/shared/data/route';
+import type { SpotLabel } from '@/shared/data/spot-labels';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import { LOADING_MAP, MapMessage } from '@/shared/ui/MapMessage';
 import { useReducedMotion } from '@/shared/ui/useMediaQuery';
 import { headingDeg } from '../gestures';
 import { framing, homeAzimuth, mainCampusCentre } from '../home-view';
 import { showsCity, TIER_DPR, type QualityTier } from '../quality';
+import { spotAnchors } from '../spot-anchors';
 import { CameraRig, goHome, type HomeView, type MapInsets } from './CameraRig';
 import { LabelLayer, LabelProjector, type LabelElements, type MapHere } from './Labels';
 import { MapButtons } from './MapButtons';
@@ -54,6 +56,8 @@ interface Props {
   floor: MapFloor | null;
   /** The trip, while the route preview or its steps are open. */
   trip: MapTrip | null;
+  /** The spots the sheet is offering as choices, named on the map while it offers them (8▸ critique, P2). */
+  spotLabels: readonly SpotLabel[];
   /** A tap chose a campus building, or tapped away from one (null). */
   onSelect: (building: CampusBuilding | null) => void;
 }
@@ -66,7 +70,7 @@ function homeFor(campus: Campus): HomeView {
 }
 
 /** The full-screen 3D campus with its labels, buttons and credit. Nothing of the campus shows until all of it can. */
-export function CampusMap({ insets, sheetHeight, wide, selected, floor, trip, onSelect }: Props) {
+export function CampusMap({ insets, sheetHeight, wide, selected, floor, trip, spotLabels, onSelect }: Props) {
   const campusState = useCampus();
   if (campusState.status === 'failed') return <MapDidntDownload />;
   if (campusState.status === 'loading')
@@ -85,6 +89,7 @@ export function CampusMap({ insets, sheetHeight, wide, selected, floor, trip, on
       selected={selected}
       floor={floor}
       trip={trip}
+      spotLabels={spotLabels}
       onSelect={onSelect}
     />
   );
@@ -121,7 +126,7 @@ const walkLines = (route: Route | null) =>
   (route?.legs ?? []).flatMap((l) => (l.kind === 'walk' ? [l.path.flat()] : []));
 
 function CampusView(props: Props & { campus: Campus }) {
-  const { campus, insets, sheetHeight, wide, selected, floor, trip, onSelect } = props;
+  const { campus, insets, sheetHeight, wide, selected, floor, trip, spotLabels, onSelect } = props;
   const controlsRef = useRef<CameraControls | null>(null);
   const massRef = useRef<Mesh>(null);
   const chipRef = useRef<HTMLElement>(null);
@@ -148,6 +153,14 @@ function CampusView(props: Props & { campus: Campus }) {
     [bySlug, onSelect],
   );
   const building = selected === null ? undefined : bySlug.get(selected);
+  // The stairs and elevators among them sit where the building's file puts them; doors need no file.
+  const stairsBuilding = spotLabels.find((l) => l.spot.kind === 'vertical')?.building ?? null;
+  const spotFile = useIndoor(stairsBuilding);
+  const stairsFile = spotFile.status === 'ready' ? spotFile.indoor : undefined;
+  const spots = useMemo(
+    () => spotAnchors(spotLabels, campus, (slug) => bySlug.get(slug), stairsFile),
+    [spotLabels, campus, bySlug, stairsFile],
+  );
 
   // The trip on the map: the walk's line, the "you are here" dot, and in the player the step it's on.
   const here = trip?.here ?? null;
@@ -218,6 +231,7 @@ function CampusView(props: Props & { campus: Campus }) {
           chipRef={chipRef}
           here={hereAt !== null}
           hereRef={hereRef}
+          spots={spots}
         />
       )}
       <div className="fixed inset-0 touch-none" role="application" aria-label="3D map of the DLSU Manila campus">
@@ -261,6 +275,7 @@ function CampusView(props: Props & { campus: Campus }) {
               hereRef={hereRef}
               placeDot={placeDot}
               cutSlug={cut ? (focusBuilding?.slug ?? null) : null}
+              spots={spots}
             />
           </Canvas>
         </ErrorBoundary>

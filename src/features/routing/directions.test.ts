@@ -423,7 +423,7 @@ describe('floors', () => {
       ['floors', 0, 'Take the stairs down to G'],
       ['start', 1, 'Leave Alpha by the main entrance (approximate)'],
       ['enter', 1, 'Enter Beta by the main entrance (approximate)'],
-      ['floors', 2, 'BE401 is on 4F: take the elevator up to 4F'],
+      ['floors', 2, 'BE401 is on 4F: take the elevator up'],
     ]);
     expect(steps[0]).toStrictEqual({
       kind: 'floors',
@@ -444,7 +444,7 @@ describe('floors', () => {
         building: 'alpha',
         to: 1,
         by: 'stairs',
-        text: 'AL101 is on G: take the stairs down to G',
+        text: 'AL101 is on G: take the stairs down',
       },
     ]);
   });
@@ -462,7 +462,7 @@ describe('floors', () => {
       { kind: 'room', code: 'DE301' },
       'elevator',
     );
-    expect(steps.map((s) => s.text)).toStrictEqual(['DE301 is on 3F: take the stairs up to 3F']);
+    expect(steps.map((s) => s.text)).toStrictEqual(['DE301 is on 3F: take the stairs up']);
   });
 
   it('no legs, no steps', () => {

@@ -1,7 +1,7 @@
 // Which building labels show (DESIGN.md, Map labels): labels hide rather than overlap, the more important one wins,
 // and none sits under the search pill or the sheet. Right or wrong here is exact: a label either shows or it doesn't.
 import { describe, expect, it } from 'vitest';
-import { placeLabels, type LabelBox } from './labels';
+import { LABEL_GAP, placeLabels, stackUp, type LabelBox } from './labels';
 
 const view = { width: 400, height: 800 };
 const box = (id: string, x: number, y: number, rank = 0, w = 80, h = 30): LabelBox => ({
@@ -58,5 +58,32 @@ describe('placeLabels', () => {
 
   it('shows nothing when given nothing', () => {
     expect(placeLabels([], [], view)).toStrictEqual(new Set());
+  });
+});
+
+describe('stackUp', () => {
+  it('leaves plates that do not touch where they are', () => {
+    const boxes = [box('a', 10, 100), box('b', 200, 100)];
+    expect(stackUp(boxes)).toStrictEqual(boxes);
+  });
+
+  it('slides a plate that overlaps an earlier one above it, and keeps sliding past a second', () => {
+    const [a, b, c] = stackUp([box('a', 10, 100), box('b', 20, 105), box('c', 30, 110)]);
+    expect(a?.top).toBe(100);
+    expect(b?.top).toBe(100 - 30 - LABEL_GAP);
+    expect(c?.top).toBe(100 - 2 * (30 + LABEL_GAP));
+  });
+
+  it('also dodges fixed rects, which it does not return', () => {
+    const dot = { left: 0, top: 100, width: 24, height: 24 };
+    const out = stackUp([box('a', 10, 105)], [dot]);
+    expect(out).toHaveLength(1);
+    expect(out[0]?.top).toBe(100 - 30 - LABEL_GAP);
+  });
+
+  it('does not change the boxes it was given', () => {
+    const boxes = [box('a', 10, 100), box('b', 20, 105)];
+    stackUp(boxes);
+    expect(boxes[1]?.top).toBe(105);
   });
 });

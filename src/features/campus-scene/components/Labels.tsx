@@ -1,10 +1,11 @@
 import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, type RefObject } from 'react';
-import { Vector3, type Mesh } from 'three';
+import { Vector3, type Camera, type Mesh } from 'three';
 import type { CameraControls } from '@react-three/drei';
 import type { CampusBuilding } from '@/shared/data/campus';
 import { chipAnchor, floorBand, type BandSample, type ScreenPoint } from '../floor-band';
-import { MINOR_LABEL_DISTANCE, placeLabels, type LabelBox, type Rect } from '../labels';
+import { MINOR_LABEL_DISTANCE, placeLabels, stackUp, type LabelBox, type Rect } from '../labels';
+import type { SpotAnchor } from '../spot-anchors';
 import type { MapInsets } from './CameraRig';
 import { sees, toScene } from './visibility';
 
@@ -18,6 +19,14 @@ export type LabelElements = Map<string, HTMLElement>;
 const CHIP_GAP = 8;
 /** The chip's id among the label boxes. Building slugs never start with a dot. */
 const CHIP_ID = '.floor-chip';
+/** Spot plates (S4's stairs, Route options' doors) rank after the selected building's plate and before every other
+ *  building's: they are what the sheet is asking about (8▸ critique, P2). */
+const SPOT_RANK = -0.5;
+/** A spot plate keeps this far from the screen's sides, in px (the page gutter). */
+const SPOT_EDGE = 8;
+/** A spot plate's bottom edge sits this far above its spot, in px, clear of the dot and the floor chip, which the
+ *  plates also step around. */
+const SPOT_LIFT = 4;
 /** The "you are here" dot's id among the label boxes. */
 const HERE_ID = '.here';
 /** The dot's size with its white ring, in px (DESIGN.md, "You are here" dot: 18px plus a 3px ring). */
@@ -75,6 +84,8 @@ interface LayerProps {
   /** Shows the "you are here" dot, while a route is on the map. */
   here: boolean;
   hereRef: RefObject<HTMLElement | null>;
+  /** The spots the sheet offers, named while it offers them; their elements join `elementsRef` by anchor id. */
+  spots: readonly SpotAnchor[];
 }
 
 /**
@@ -82,7 +93,7 @@ interface LayerProps {
  * places them; decorative for screen readers, since every building is reachable from search and the route preview
  * names From in words.
  */
-export function LabelLayer({ buildings, elementsRef, selected, chip, chipRef, here, hereRef }: LayerProps) {
+export function LabelLayer({ buildings, elementsRef, selected, chip, chipRef, here, hereRef, spots }: LayerProps) {
   return (
     <div className="pointer-events-none fixed inset-0 z-1 overflow-hidden" aria-hidden>
       {buildings.map((b) => (
@@ -101,6 +112,23 @@ export function LabelLayer({ buildings, elementsRef, selected, chip, chipRef, he
           style={{ visibility: 'hidden' }}
         >
           {b.short}
+        </span>
+      ))}
+      {/* Spot names (DESIGN.md, Map labels): the minor plate, one step smaller, so the chips in the sheet can be told
+          apart. */}
+      {spots.map((s) => (
+        <span
+          key={s.id}
+          data-map-label
+          data-spot-label
+          ref={(el) => {
+            if (el) elementsRef.current.set(s.id, el);
+            else elementsRef.current.delete(s.id);
+          }}
+          className="absolute top-0 left-0 rounded-label bg-surface px-2 py-0.75 text-sm font-semibold whitespace-nowrap text-ink-2 shadow-float"
+          style={{ visibility: 'hidden' }}
+        >
+          {s.text}
         </span>
       ))}
       {/* The floor chip (DESIGN.md, Floor band): Label strong, white on Campus Green, beside the band. */}
@@ -145,6 +173,8 @@ interface ProjectorProps {
   placeDot: (here: Vector3 | null, out: Vector3, now: number) => boolean;
   /** The building cut open (7▸): its plate stays off the plan. */
   cutSlug?: string | null;
+  /** The spots to name, placed at any zoom. */
+  spots: readonly SpotAnchor[];
 }
 
 /** The dot's box around its projected point, placed before everything else; null when it's behind the camera. */
@@ -153,6 +183,37 @@ function hereBox(projected: Vector3, size: { width: number; height: number }): L
   const [x, y] = [((projected.x + 1) / 2) * size.width, ((1 - projected.y) / 2) * size.height];
   const half = HERE_SIZE / 2;
   return { id: HERE_ID, rank: -3, left: x - half, top: y - half, width: HERE_SIZE, height: HERE_SIZE };
+}
+
+/** Each spot plate's box above its projected point, slid in from the screen's sides and stacked upward where they
+ *  meet. */
+function spotBoxes(
+  spots: readonly SpotAnchor[],
+  elements: LabelElements,
+  sizes: Map<string, { width: number; height: number }>,
+  scratch: Vector3,
+  camera: Camera,
+  size: { width: number; height: number },
+  placed: readonly Rect[],
+): LabelBox[] {
+  const boxes: LabelBox[] = [];
+  for (const s of spots) {
+    const el = elements.get(s.id);
+    if (!el) continue;
+    scratch.set(s.x, s.height, -s.y).project(camera);
+    if (scratch.z > 1) continue; // behind the camera
+    let plate = sizes.get(s.id);
+    if (!plate) {
+      plate = { width: el.offsetWidth, height: el.offsetHeight };
+      if (plate.width > 0) sizes.set(s.id, plate);
+    }
+    const [x, y] = [((scratch.x + 1) / 2) * size.width, ((1 - scratch.y) / 2) * size.height];
+    if (x < 0 || x > size.width) continue; // the spot itself is off screen
+    // A wide plate on a spot near the edge slides in rather than hiding: the spot is what it names.
+    const left = Math.min(Math.max(x - plate.width / 2, SPOT_EDGE), size.width - plate.width - SPOT_EDGE);
+    boxes.push({ id: s.id, rank: SPOT_RANK, left, top: y - plate.height - SPOT_LIFT, ...plate });
+  }
+  return stackUp(boxes, placed);
 }
 
 /** Each frame the canvas draws: projects every anchor to the screen, then shows the labels that fit (labels.ts). */
@@ -169,6 +230,7 @@ export function LabelProjector(props: ProjectorProps) {
     hereRef,
     placeDot,
     cutSlug = null,
+    spots,
   } = props;
   const anchors = useMemo(() => buildings.map(anchorFor), [buildings]);
   const controls = useThree((s) => s.controls) as CameraControls | null;
@@ -182,6 +244,10 @@ export function LabelProjector(props: ProjectorProps) {
   useEffect(() => {
     invalidate();
   }, [here, invalidate]);
+  // Spot plates come and go with the sheet's choices, so each change asks for a frame to place them.
+  useEffect(() => {
+    invalidate();
+  }, [spots, invalidate]);
   // The band point the chip marks, and when (and for which band) that was worked out. Between checks the chip follows
   // the same point, projected fresh each frame; a skipped check asks for one more frame, so the map never comes to
   // rest on a stale answer (frames only run on demand).
@@ -253,6 +319,17 @@ export function LabelProjector(props: ProjectorProps) {
       const rank = chosen ? -1 : a.minor ? 1 : 0;
       boxes.push({ id: a.id, rank, left: x - s.width / 2, top: y - s.height, ...s });
     }
+    boxes.push(
+      ...spotBoxes(
+        spots,
+        elementsRef.current,
+        sizes.current,
+        scratch,
+        camera,
+        size,
+        boxes.filter((b) => b.id === HERE_ID || b.id === CHIP_ID || b.id === selected),
+      ),
+    );
     const keepOut: Rect[] = [
       { left: 0, top: 0, width: size.width, height: insets.top },
       { left: 0, top: size.height - insets.bottom, width: size.width, height: insets.bottom },

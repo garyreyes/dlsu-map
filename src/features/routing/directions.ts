@@ -58,8 +58,10 @@ export function createDirections(walk: Walk, g: WalkGraph, buildings: readonly D
       const to = label(l.building, l.to);
       // On labelled floors (8b) it names which one: `east-stairs` is "the east stairs".
       const what = l.via === undefined ? l.by : l.via.split('-').join(' ');
-      const how = `take the ${what} ${l.to > l.from ? 'up' : 'down'} to ${to}`;
-      const text = room === undefined ? how.charAt(0).toUpperCase() + how.slice(1) : `${room} is on ${to}: ${how}`;
+      const climb = `take the ${what} ${l.to > l.from ? 'up' : 'down'}`;
+      // With the room named, the floor is said once: "ST311 is on 3F: take the east stairs up".
+      const how = `${climb} to ${to}`;
+      const text = room === undefined ? how.charAt(0).toUpperCase() + how.slice(1) : `${room} is on ${to}: ${climb}`;
       return { kind: 'floors', leg: index, building: l.building, to: l.to, by: l.by, text };
     },
   };

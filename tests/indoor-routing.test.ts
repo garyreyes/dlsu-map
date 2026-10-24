@@ -83,9 +83,7 @@ describe('indoor routing on the real campus', () => {
         expect(Math.hypot(start[0] - end[0], start[1] - end[1])).toBeLessThan(1);
       }
     });
-    expect(r.steps.find((s) => s.kind === 'floors')?.text).toMatch(
-      /^ST311 is on 3F: take the (east|west) stairs up to 3F$/,
-    );
+    expect(r.steps.find((s) => s.kind === 'floors')?.text).toMatch(/^ST311 is on 3F: take the (east|west) stairs up$/);
   });
 
   it('routes from every labelled room to every other building, leaving by a door', () => {
@@ -112,7 +110,7 @@ describe('indoor routing on the real campus', () => {
         .steps[0];
     expect(first(2)?.text).toBe('Start at the elevator');
     expect(first(3)?.text).toBe('Start at the elevator');
-    expect(first(4)?.text).toBe('ST101 is on G: take the elevator down to G');
+    expect(first(4)?.text).toBe('ST101 is on G: take the elevator down');
   });
 
   it('names a turn only after a room within 5 m, and never after the trip’s own rooms', () => {
@@ -130,7 +128,7 @@ describe('indoor routing on the real campus', () => {
     const gate = campus.gates[0]?.id ?? '';
     const up = ok(router({ kind: 'gate', gate }, { kind: 'room', code: 'VL311' }, 'stairs', indoor));
     expect(up.steps.find((s) => s.kind === 'floors')?.text).toMatch(
-      /^VL311 is on 3F: take the (east|main|west) stairs up to 3F$/,
+      /^VL311 is on 3F: take the (east|main|west) stairs up$/,
     );
     for (const room of mezz) {
       const r = ok(router({ kind: 'gate', gate }, { kind: 'room', code: room.code }, 'auto', indoor));
