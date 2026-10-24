@@ -5,13 +5,14 @@ import type { CameraControls } from '@react-three/drei';
 import { BuildingCutaway, cutMarks, useCutSlide, type CutawayView } from '@/features/indoor-view';
 import type { Campus } from '@/shared/data/campus';
 import type { Route } from '@/shared/data/route';
-import { HAZE_FAR, HAZE_NEAR, SKY_LIGHT, SUN_LIGHT, type MapPalette } from '@/shared/config/palette';
+import { hazeTrial, SKY_LIGHT, SUN_LIGHT, type MapPalette } from '@/shared/config/palette';
 import type { FloorBand } from '../floor-band';
 import { FloorBandMesh } from './FloorBand';
 import { CampusMasses, CityMasses, PathLines } from './Masses';
 import { RouteLine } from './RouteLine';
 
 const GROUND_SIZE = 20000;
+const [HAZE_NEAR, HAZE_FAR] = hazeTrial(window.location.search);
 /** The prototype's light values are for three.js's old lighting (before r155), where the same intensity lit π
  *  times brighter. */
 const LEGACY = Math.PI;
