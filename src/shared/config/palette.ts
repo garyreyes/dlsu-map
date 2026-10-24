@@ -40,6 +40,17 @@ export const SUN_LIGHT = { color: '#fff4e6', intensity: 0.46 };
 export const HAZE_NEAR = 0.8;
 export const HAZE_FAR = 1.5;
 
+/** v2 request 2 trial (draft PR, not for merge): `?haze=today`, `far` (the default here) or `none`. */
+const HAZE_FAR_TRIAL: [number, number] = [2.5, 5];
+const HAZE_TRIALS: Record<string, [number, number]> = {
+  today: [HAZE_NEAR, HAZE_FAR],
+  far: HAZE_FAR_TRIAL,
+  none: [1e6, 1e6 + 1],
+};
+export function hazeTrial(search: string): [number, number] {
+  return HAZE_TRIALS[new URLSearchParams(search).get('haze') ?? 'far'] ?? HAZE_FAR_TRIAL;
+}
+
 /** Hallway colour in the cut: the building colour at this fraction of its lightness (scaled in linear RGB), with no
  *  green in it, so the one green on the cut floor is the route (the One Green Rule). On the green palette this gives
  *  #75736e against the #d9dacf slab: 3.36:1 (WCAG contrast; 0.68 gave only 1.18:1). */
