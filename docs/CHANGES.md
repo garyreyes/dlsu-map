@@ -8,6 +8,16 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-24: v2 UX requests proposed for Charles to review
+
+- Added `docs/V2-UX-REQUESTS.md`: Gary's seven v2 requests after testing `main` on a phone. They are a floating search
+  panel, less fog, three colour modes, 2D/3D, smooth camera on Next and Back, building see-through, and a top-down
+  view outdoors. Each request lists what the app does today, open questions, and the decisions it would change.
+- Two questions for Charles to decide: whether Black mode darkens the interface too, and the camera's heading while a
+  route plays.
+- Polish passes (2▸, 3▸, 5▸, 10▸) are paused in favour of the feature changes. Floors (9a–9d) wait on the official
+  floor plans the team requested from the school. Nothing here is decided yet; agreed requests become D55 onward.
+
 ## 2026-10-24: 8▸ P2s: spot and door names on the map, S4's first step, one chip per door
 
 - **The map names what the sheet offers.** While S4's Change spot step shows, each stair, elevator and door it offers
