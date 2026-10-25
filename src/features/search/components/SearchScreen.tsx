@@ -6,6 +6,7 @@ import { useModal } from '@/shared/ui/useModal';
 import { resolveRecent, type RecentEntry } from '../recent';
 import { searchResults, type Hit, type SearchView } from '../search-results';
 import { HitList, NoteLine, noteText } from './HitRow';
+import { SearchCard } from './SearchCard';
 import type { SearchData } from './useSearchData';
 
 interface Props {
@@ -19,7 +20,8 @@ interface Props {
 }
 
 /**
- * Full-screen search (S2, user-flows §3.3): a 64px bar with back and clear over a list that updates as you type.
+ * Search (S2, user-flows §3.3, D55): a card over a dimmed map (SearchCard) holding a 64px bar with back and clear over
+ * a list that updates as you type.
  * Tapping a row is how you pick; the keyboard's Go key opens only an exact room or building, never a suggestion
  * (D38). On a keyboard, Down moves from the field into the rows and Up/Down through them. Closes with its back
  * arrow, Escape or the phone's back button. Modal: the map and chrome behind it are inert while it's open, and focus
@@ -80,49 +82,51 @@ export function SearchScreen({ data, recent, initialQuery = '', onPick, onClose 
       aria-modal="true"
       aria-label="Search"
       onKeyDown={onArrow}
-      className="fixed inset-0 z-10 flex flex-col bg-surface pt-[env(safe-area-inset-top,0px)]"
+      className="fixed inset-0 z-10"
     >
-      {/* Focus shows as a green underline on the bar rather than a ring round the field, which read as an alert. */}
-      <div className="flex h-16 flex-none items-center gap-1 border-b border-line pr-(--gutter-r) pl-2 has-[input:focus-visible]:shadow-[inset_0_-2px_0_var(--color-accent)]">
-        <IconButton label="Back to the map" onClick={onClose}>
-          <ArrowLeft className="size-6" strokeWidth={2} />
-        </IconButton>
-        <input
-          ref={input}
-          value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-          }}
-          onKeyDown={onFieldKey}
-          type="text"
-          placeholder="Room code or building"
-          aria-label="Room code or building"
-          autoComplete="off"
-          autoCapitalize="characters"
-          spellCheck={false}
-          enterKeyHint="go"
-          className="h-12 min-w-0 flex-1 rounded-row bg-transparent px-2 text-lg font-medium text-ink outline-none placeholder:font-normal placeholder:text-ink-3"
-        />
-        {query !== '' && (
-          <IconButton label="Clear" onClick={clear}>
-            <X className="size-6" strokeWidth={2} />
+      <SearchCard onClose={onClose}>
+        {/* Focus shows as a green underline on the bar rather than a ring round the field, which read as an alert. */}
+        <div className="flex h-16 flex-none items-center gap-1 border-b border-line pr-(--gutter-r) pl-2 has-[input:focus-visible]:shadow-[inset_0_-2px_0_var(--color-accent)]">
+          <IconButton label="Back to the map" onClick={onClose}>
+            <ArrowLeft className="size-6" strokeWidth={2} />
           </IconButton>
-        )}
-      </div>
-      {/* What the list now says, for screen readers: the note, then how many rows. */}
-      <p role="status" className="sr-only">
-        {view ? statusLine(view) : ''}
-      </p>
-      <div
-        ref={list}
-        tabIndex={-1}
-        className="min-h-0 flex-1 overflow-y-auto outline-none pt-2 pr-(--gutter-r) pb-[env(safe-area-inset-bottom,0px)] pl-(--gutter-l)"
-      >
-        {/* Wide screens: rows stop at a reading width, so a building's prefix tag stays next to its name. */}
-        <div className="md:max-w-140">
-          <Body data={data} query={query} view={view} recent={recent} onPick={onPick} />
+          <input
+            ref={input}
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+            }}
+            onKeyDown={onFieldKey}
+            type="text"
+            placeholder="Room code or building"
+            aria-label="Room code or building"
+            autoComplete="off"
+            autoCapitalize="characters"
+            spellCheck={false}
+            enterKeyHint="go"
+            className="h-12 min-w-0 flex-1 rounded-row bg-transparent px-2 text-lg font-medium text-ink outline-none placeholder:font-normal placeholder:text-ink-3"
+          />
+          {query !== '' && (
+            <IconButton label="Clear" onClick={clear}>
+              <X className="size-6" strokeWidth={2} />
+            </IconButton>
+          )}
         </div>
-      </div>
+        {/* What the list now says, for screen readers: the note, then how many rows. */}
+        <p role="status" className="sr-only">
+          {view ? statusLine(view) : ''}
+        </p>
+        <div
+          ref={list}
+          tabIndex={-1}
+          className="min-h-0 flex-1 overflow-y-auto outline-none pt-2 pr-(--gutter-r) pl-(--gutter-l)"
+        >
+          {/* Wide screens: rows stop at a reading width, so a building's prefix tag stays next to its name. */}
+          <div className="md:max-w-140">
+            <Body data={data} query={query} view={view} recent={recent} onPick={onPick} />
+          </div>
+        </div>
+      </SearchCard>
     </div>,
     document.body,
   );
