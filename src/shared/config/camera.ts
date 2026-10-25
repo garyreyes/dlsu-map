@@ -39,3 +39,12 @@ export const INDOOR_STEP_RADIUS = 22;
 export const INDOOR_MIN_DISTANCE = 35;
 /** An indoor step looks at the point this far above its floor's slab, meters: about the cut, below eye level. */
 export const INDOOR_TARGET_HEIGHT = 1;
+
+/** The camera follow on Next (D59): 1.2 s per 100 m of walk, never under 1 s or over 3 s. */
+export const FOLLOW_MS_PER_METER = 12;
+export const FOLLOW_MIN_MS = 1000;
+export const FOLLOW_MAX_MS = 3000;
+/** A corner turns over this share of the walk ahead of the dot, held to these meters (D59). */
+export const TURN_WINDOW_SHARE = 0.2;
+export const TURN_WINDOW_MIN = 8;
+export const TURN_WINDOW_MAX = 60;

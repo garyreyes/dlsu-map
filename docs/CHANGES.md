@@ -8,6 +8,26 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-25: v2-B1: the follow math (D59)
+
+- **New `campus-scene/follow.ts`**, pure and test-first (18 tests; the first 15 seen failing before the code existed).
+  Nothing calls it yet: v2-B2 wires it to the dot and the camera, and skips it for a one-point path (the dot jumps).
+  - `planFollow(path, toward, from, to)` once on Next, then `followAt(follow, elapsed, near)` every frame: the camera's
+    target, azimuth, polar and distance, and whether it's done.
+  - **Target = the dot** (`pointAlong`), so it rises through a door with it.
+  - **Heading = walking direction up:** the mean direction over the next `turnWindow` meters (a fifth of the walk,
+    8–60 m), the walk carrying on toward `toward` past the spot. It ends exactly on the resting heading
+    (`facingAzimuth(spot, toward)`), so nothing snaps when the glide stops. A U-turn falls back to the stretch it's on.
+  - **Turns in from wherever the camera was** over the first stretch (after a compass tap or a pan), the short way
+    round; `near` keeps the azimuth from wrapping by 2π frame to frame. The turn's side is fixed once in
+    `planFollow`: worked out every frame, a camera facing about the other way could flip sides halfway and swing
+    up to 180° in one frame (found in review; a test now checks the heading every centimetre along the walk).
+  - **Duration:** `followMs` = 1.2 s per 100 m, held to 1–3 s, eased in and out (`easeInOut`). Tilt and distance move
+    from the start to the step's resting view by the same progress, so the drone view (v2-B3) only changes the end.
+- The tunables live in `shared/config/camera.ts` (`FOLLOW_*`, `TURN_WINDOW_*`).
+- **D59 wording** (as noted on #98): the camera stays centred on the dot and only its heading looks ahead; the title
+  says Back cuts; the rejected "fixed speed" alternative is the one with no upper limit. V2-PLAN §2 matches.
+
 ## 2026-10-25: v2-0: the saved map settings both lanes read
 
 - **New `src/shared/settings/`:** `map-settings.ts` (the types, `DEFAULT_MAP_SETTINGS` green / 3D / solid, and

@@ -38,7 +38,7 @@ makes the glide the one clock both read.
 
 | File | Change |
 |---|---|
-| `campus-scene/follow.ts` (new) + `follow.test.ts` | Pure: from the glide's path and progress, where the camera looks (a few meters ahead) and its heading (walking up). Duration from distance, clamped to 1–3 s. Test-first |
+| `campus-scene/follow.ts` (new) + `follow.test.ts` | Pure: from the glide's path and progress, where the camera looks (the dot) and its heading (walking up, looking ahead). Duration from distance, clamped to 1–3 s. Test-first |
 | `campus-scene/components/useCameraFollow.ts` (new) | Each frame of a glide, sets the camera's target and heading from `follow.ts`. A pan or compass tap pauses it until the next step |
 | `campus-scene/components/useDotGlide.ts`, `glide.ts` | Glide duration comes from `follow.ts` instead of a fixed 600 ms on one level; climbs keep 600 ms |
 | `campus-scene/components/useCameraFlights.ts` | Flights stay for jumps (open/close a building, Back's quick cut, reduced motion); steps hand over to the follow |
