@@ -19,7 +19,7 @@
 | # | Screen | Where | The one primary action |
 |---|---|---|---|
 | S1 | **Map home** | Map + search bar + sheet at peek | Tap the search bar |
-| S2 | **Search (To)** | Full-screen list over the map | Tap a result |
+| S2 | **Search (To)** | A card over the dimmed, frozen map (D55) | Tap a result |
 | S3 | **Room card** | Sheet: "ST311 · Surface Physics Lab · STRC 3F", building highlighted | (Opens S4 at once if From is empty) |
 | S4 | **Where are you?** | Sheet at half, room card line still visible above it | Type your room, or pick a building |
 | S5 | **Route preview** | Sheet: `From → To`, time, distance, route on map | **Start** |
@@ -111,6 +111,9 @@ flowchart TD
 | `Biology` (room names aren't searched in v1) | "Nothing matches "Biology". Search by room code, like ST311, or a building." |
 
 - `C311` is shown and stored as `ST311` (canonical form, ARCHITECTURE §3.3), with "also written C311" under it.
+- **The card (D55):** it rises from the bottom and sits on the keyboard, leaving a strip of the map above it, dimmed
+  and frozen. Back, Escape, the phone's back button or a tap on the map strip close it. Wide screens get a panel at
+  the top left.
 - There is no Search button. Results update as you type, and tapping one is the main action. The keyboard's **Go**
   opens a result only when the text is exactly one room or building; otherwise it hides the keyboard (D38).
 - **Recent** holds the last 5 destinations tapped, rooms and buildings (D38).

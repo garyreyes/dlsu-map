@@ -289,7 +289,7 @@ map palette that the interface never borrows from.
 ### Neutral
 
 - **Sheet White** (`surface`) and **Night Sheet** (`surface-dark`): the search pill, sheet, side panel, map
-  buttons, map label plates and the full-screen search page.
+  buttons, map label plates and the search card.
 - **Pale Leaf** (`surface-2`) and **Night Leaf** (`surface-2-dark`): input fields, the segmented control track,
   code tags, and the hover fill on rows and icon buttons.
 - **Deep Ink** (`ink` / `ink-dark`): titles, room codes, set search text, map label text; also the toast fill.
@@ -338,7 +338,7 @@ comes from weight and size, not from a second family.
 - **Step** (650, 22px, 1.25): the step card's one line (S6), read at a glance while walking.
 - **Headline** (650, 18px): sheet step headings, "Where are you?" and "Your route".
 - **Title** (600, 18px): the room or building name under the code; the info sheet's app name.
-- **Search input** (500, 18px): the full-screen search field; placeholder drops to 400 in Soft Ink.
+- **Search input** (500, 18px): the search card's field; placeholder drops to 400 in Soft Ink.
 - **Body** (400, 16px, 1.4): default text, fields, hints. **Body strong** (600, 16px): row titles, chips, segments.
 - **Button** (700, 17px): the primary button only.
 - **Label** (600, 16px): section labels in lists ("Recent", "Or pick a building", "Did you mean") in Mid Ink, and
@@ -374,7 +374,11 @@ The map is full-bleed and fixed; chrome floats over it.
   phones, right of the panel on wide screens), so a selected building lands in the visible map, never under chrome.
 - **Rhythm:** a 4px base (4, 8, 12, 16, 20, 24). Rows are at least 56px with 14px icon gaps; section labels take
   8px above and 4px below; headlines take 20px above and 8px below.
-- **Full-screen search:** a 64px bar with back and clear buttons and a hairline under it, results scrolling below.
+- **Search card (D55):** on a phone, a Sheet White card rising from the bottom and sitting on the keyboard. Its
+  top is fixed, leaving about a third of the visible height as a strip of map, dimmed and frozen; a tap there closes
+  search. At the top of the card, a 64px bar with back and clear buttons and a hairline under it; results scroll
+  below. On wide screens, a floating panel about 400px wide at the top left, under the pill. It slides up in about
+  200ms; no motion with reduced motion.
 
 ## Elevation & Depth
 
@@ -437,7 +441,7 @@ near-pill.
 ### Search pill
 
 A white 52px pill floating at the top: search icon in green, "Where to?" in Mid Ink (the chosen code in Deep Ink,
-semibold, once set), the Beta tag, and an info icon button. Tapping anywhere on the left opens full-screen search.
+semibold, once set), the Beta tag, and an info icon button. Tapping anywhere on the left opens the search card.
 It is the screen's primary action at home.
 
 ### Buttons
@@ -499,7 +503,7 @@ wide. It rises 8px and fades in over 160ms and leaves after 2.6s. It confirms ("
 ### Navigation
 
 There is no navigation bar. The pill opens search; the sheet's step is the navigation; back and close are icon
-buttons. The full-screen search page closes with its back arrow or Escape.
+buttons. The search card closes with its back arrow, Escape, or a tap on the dimmed map.
 
 ### Map labels
 
