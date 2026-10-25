@@ -25,6 +25,7 @@ sub-phase at a time, starting with 1a, in the lanes of `docs/SPLIT.md`. The fold
 | 7 | `docs/ROADMAP.md` | The build queue: sub-phases with status. Work on one sub-phase at a time |
 | 8 | `docs/SPLIT.md` | Who owns which lane and folders, and how the two lanes meet |
 | 9 | `docs/PLAN.md` | Rendering and data-pipeline detail. Partly history now |
+| — | `docs/ROADMAP-v2.md`, `docs/SPLIT-v2.md`, `docs/V2-PLAN.md` | **The current build (v2, D55–D61):** queue, owners, code changes |
 | — | `docs/PRODUCT.md` | The PRD translated for Impeccable (design work). The PRD wins where they differ |
 | — | `docs/CHANGES.md` | Dated log of what changed. Search it; don't read it all |
 | — | `docs/HANDOVER.md` | The original brief, frozen for history. Everything above wins |
