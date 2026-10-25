@@ -1381,7 +1381,9 @@ they tapped "Where to?" (v2 request 1, `docs/V2-UX-REQUESTS.md`).
 
 **Decision.** (v2 request 1; Charles's answer on #98, Gary agreed.) Search opens as a light card that rises from the
 bottom, like Apple Maps' search card, with the map still showing above it and the keyboard. The map stays frozen
-(inert) while typing. Search behaviour doesn't change: strict matching, Go only on an exact match (D38). The card stays
+(inert) while typing. The card's top is fixed, leaving about a third of the visible height as map; that strip is
+dimmed, and a tap on it closes search. Wide screens get a floating panel at the top left, under the pill (Gary,
+v2-A1). Search behaviour doesn't change: strict matching, Go only on an exact match (D38). The card stays
 light in every colour mode (D57).
 
 **Changes** `docs/user-flows.md` §3.3 (S2) and DESIGN.md's search spec.
