@@ -36,9 +36,9 @@ export const CITY_OPACITY = 0.35;
 /** Light rig from DESIGN.md (Map depth). */
 export const SKY_LIGHT = { color: '#ffffff', intensity: 0.72, groundTint: 0.18 };
 export const SUN_LIGHT = { color: '#fff4e6', intensity: 0.46 };
-/** Haze starts and ends at these multiples of the camera's distance to its target. */
-export const HAZE_NEAR = 0.8;
-export const HAZE_FAR = 1.5;
+/** Haze starts and ends at these multiples of the camera's distance to its target (v2 request 2, was 0.8 and 1.5). */
+export const HAZE_NEAR = 2.5;
+export const HAZE_FAR = 5;
 
 /** Hallway colour in the cut: the building colour at this fraction of its lightness (scaled in linear RGB), with no
  *  green in it, so the one green on the cut floor is the route (the One Green Rule). On the green palette this gives
