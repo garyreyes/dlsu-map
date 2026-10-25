@@ -18,7 +18,9 @@ session needs to know. Search this file; it isn't required reading (the reading 
 - **New `StepFocus.ahead`** (`route-player/player.ts`, Lane A's file, added only): the walk from the step's spot to the
   next step on the same walk, or to the walk's end; `[at]` when nothing follows.
 - **The route preview (S5)** looks down from 8°, turned so the walk's long side runs up the screen with From at the
-  bottom, and fits the turned box rather than a circle. The long side is the walk's principal axis weighed by length
+  bottom, and fits the turned box rather than a circle, 80 px clear of each edge: the flight starts as From is picked,
+  before the preview sheet reaches its full height (56 px taller on a Pixel 7), and From's dot sits at the bottom. The
+  long side is the walk's principal axis weighed by length
   (a stretch drawn with many points counts no more than one drawn with two). A trip with no walk (inside one building)
   keeps the old 58° view, which sees the room's floor band (owner agreed).
 - **New `campus-scene/drone.ts`** (`reachFrom`, `boxAround`, `tripAzimuth`) and `fitReach` in `home-view.ts`

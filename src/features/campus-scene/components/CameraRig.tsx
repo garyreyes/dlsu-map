@@ -92,6 +92,10 @@ export function buildingView(b: Pick<CampusBuilding, 'volumes'>, insets: MapInse
 const TRIP_MIN_RADIUS = 45;
 /** Air around the trip, as a multiple of what it spans. */
 const TRIP_MARGIN = 1.15;
+/** The drone trip view also keeps this many CSS px clear inside each edge of the free screen. From sits at the
+ *  bottom, and the flight starts as From is picked, before the preview sheet has grown to its full height (about 56 px
+ *  taller on a Pixel 7); the room also keeps To's label plate, drawn above its building, on screen. */
+const TRIP_PAD = 80;
 
 /** A whole trip (5b): the walk, the From building and the To building, fitted to the screen the chrome leaves, so
  *  goToBuilding can fly there. `outlines` are flat x, y lists: the lines and the buildings' outlines. With a `heading`
@@ -116,9 +120,11 @@ export function tripView(
     across: Math.max(TRIP_MIN_RADIUS, box.across * TRIP_MARGIN),
     along: Math.max(TRIP_MIN_RADIUS, box.along * TRIP_MARGIN),
   };
+  // Equal pads top and bottom keep the free screen's middle, where the view offset puts the target, where it was.
+  const padded = { top: insets.top + TRIP_PAD, bottom: insets.bottom + TRIP_PAD, left: insets.left + 2 * TRIP_PAD };
   return {
     target: new Vector3(box.centre[0], 0, -box.centre[1]),
-    distance: Math.min(MAX_DISTANCE, Math.max(MIN_DISTANCE, fitReach(reach, { ...size, polar: DRONE_POLAR }, insets))),
+    distance: Math.min(MAX_DISTANCE, Math.max(MIN_DISTANCE, fitReach(reach, { ...size, polar: DRONE_POLAR }, padded))),
   };
 }
 
