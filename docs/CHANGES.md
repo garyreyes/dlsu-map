@@ -8,6 +8,20 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-25: v2-A1: search is a card over the map (D55)
+
+- **Phone:** search opens as a light card that rises from the bottom and sits on the keyboard. Its top is fixed at
+  about a third of the visible height, and the card is at least 260px (`search/card-top.ts`, tested), below the
+  notch. The map above is dimmed 20% and frozen; a tap there closes search.
+- **Wide screens:** a ~400px panel at the top left, under the pill, the same dim around it.
+- **The keyboard:** `shared/ui/useVisibleArea.ts` reads `visualViewport`, because iOS Safari doesn't lift a
+  `position: fixed` element above the keyboard. It also follows rotation and the URL bar. On wide screens the panel
+  stops above the keyboard too (a phone in landscape). Not yet checked on a real iPhone.
+- Taps on the dim are ignored for 350ms after opening, so a double tap on the pill doesn't open and close search at
+  once (`home.spec.ts` caught it).
+- Everything else about search is unchanged; no e2e spec needed changing. Full e2e 81/81.
+- `docs/ROADMAP-v2.md`: v2-A1 done.
+
 ## 2026-10-25: v2-B1: the follow math (D59)
 
 - **New `campus-scene/follow.ts`**, pure and test-first (18 tests; the first 15 seen failing before the code existed).
