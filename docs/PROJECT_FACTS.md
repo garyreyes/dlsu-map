@@ -410,6 +410,9 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   `useTripMarks.ts`): campus-scene doesn't load floor files. Today every traced floor's `base` equals the band's even
   storey split exactly (STRC, Velasco, SJ). A building whose first volume doesn't start at 0 m would put the dot off
   the cut slab by that offset. (7▸, 2026-10-22)
+- **The fog is distance-relative:** `MapScene.tsx` sets its near and far every frame to `HAZE_NEAR`/`HAZE_FAR` × the
+  camera's distance to its target, so zooming never changes how much of the map is hazy. At the home view the 20 km
+  ground reaches the horizon with no visible edge even with no fog at all (draft #99's `none`). (v2, 2026-10-25)
 - **e2e specs that step through camera flights run with `reducedMotion: 'reduce'`:** CI draws the 3D in software, and
   each 650 ms flight made a walk through every step brush the 30 s test limit. (5d, 2026-10-22)
 

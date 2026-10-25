@@ -8,6 +8,14 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-25: The fog sits further out (v2 request 2)
+
+- **Haze now starts at 2.5× and ends at 5× the camera's distance** to its target (was 0.8× and 1.5×):
+  `HAZE_NEAR`/`HAZE_FAR` in `shared/config/palette.ts`. More of campus reads clearly at the home view and on low
+  route angles.
+- Picked from draft #99's phone trial (`today`, `far`, `none`): Charles and Gary chose `far`. The `?haze=` switch
+  stayed on that draft and isn't in the app.
+
 ## 2026-10-24: 8▸ P2s: spot and door names on the map, S4's first step, one chip per door
 
 - **The map names what the sheet offers.** While S4's Change spot step shows, each stair, elevator and door it offers
