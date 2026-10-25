@@ -8,6 +8,14 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-25: v2-0: the saved map settings both lanes read
+
+- **New `src/shared/settings/`:** `map-settings.ts` (the types, `DEFAULT_MAP_SETTINGS` green / 3D / solid, and
+  `parseMapSettings`) and `useMapSettings.ts` (a zustand store, read once on load, saved on every `set`). Nothing
+  reads it yet: v2-A2 (palettes), v2-A3 (map options, 2D blocks), v2-A4 (see-through) and v2-B5 (2D camera) will.
+- `parseMapSettings` tests written first and seen failing (8 tests). The saved format is in PROJECT_FACTS.
+- The v2 plan's draft key `dlsu-map:map-settings` became `dlsu-map.map-settings`, matching `dlsu-map.recent`.
+
 ## 2026-10-25: The fog sits further out (v2 request 2)
 
 - **Haze now starts at 2.5× and ends at 5× the camera's distance** to its target (was 0.8× and 1.5×):
