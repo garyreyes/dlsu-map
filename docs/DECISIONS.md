@@ -1455,18 +1455,20 @@ and a north reset, and "north up" stops being a guarantee).
 
 ---
 
-## D59. The camera follows the dot on Next and Back (2026-10-25, agreed)
+## D59. The camera follows the dot on Next; Back cuts (2026-10-25, agreed)
 
 **Problem.** D52's dot glides, but D52 point 5 left the camera flying straight to each step in 650 ms (D44). The view
 cut across while the dot walked, which read as teleporting, worst at turns (v2 request 5).
 
 **Decision.** (v2 request 5 and question 2; Charles's plan and answers on #98, Gary agreed.)
 
-1. **The camera follows the glide.** The dot and the camera read the same glide each frame: the camera looks a few
-   meters ahead of the dot, so corners turn gradually. When the glide ends, the camera is already at the step.
+1. **The camera follows the glide.** The dot and the camera read the same glide each frame: the camera stays centred
+   on the dot, and its heading looks ahead along the walk, so corners turn gradually. When the glide ends, the camera
+   is already at the step, facing the way the walk goes on.
 2. **Walking direction is up** for the whole trip. A compass tap turns the map north up, and a pan stops the follow,
    but both only until the next Next or Back.
-3. **Duration grows with distance, 1–3 s.** A tap mid-glide starts the next one from where the dot is (as D52).
+3. **Duration grows with distance, 1–3 s:** a fixed 1.2 s per 100 m, held to 1–3 s (v2-B1). A tap mid-glide starts
+   the next one from where the dot is (as D52).
 4. **Back cuts quickly** instead of replaying the walk backwards.
 5. **The walked part of the route goes grey**, built last (`docs/ROADMAP-v2.md`).
 6. **Reduced motion still cuts.**
@@ -1474,7 +1476,8 @@ cut across while the dot walked, which read as teleporting, worst at turns (v2 r
 The follow math is pure and test-first (`campus-scene/follow.ts`).
 
 **Changes** D44 (camera flies to each step) and D52 point 5 ("the camera is unchanged"). **Alternatives.** North up
-with the dot crossing the map (turns are harder to read). A fixed speed per 100 m (long walks take too long).
+with the dot crossing the map (turns are harder to read). A fixed speed per 100 m with no upper limit (long walks take
+too long).
 
 **Agreed** by Gary and Charles (2026-10-25).
 
