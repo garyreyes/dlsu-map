@@ -20,6 +20,28 @@ session needs to know. Search this file; it isn't required reading (the reading 
 - Taps on the dim are ignored for 350ms after opening, so a double tap on the pill doesn't open and close search at
   once (`home.spec.ts` caught it).
 - Everything else about search is unchanged; no e2e spec needed changing. Full e2e 81/81.
+- `docs/ROADMAP-v2.md`: v2-A1 done.
+
+## 2026-10-25: v2-0: the saved map settings both lanes read
+
+- **New `src/shared/settings/`:** `map-settings.ts` (the types, `DEFAULT_MAP_SETTINGS` green / 3D / solid, and
+  `parseMapSettings`) and `useMapSettings.ts` (a zustand store, read once on load, saved on every `set`). Nothing
+  reads it yet: v2-A2 (palettes), v2-A3 (map options, 2D blocks), v2-A4 (see-through) and v2-B5 (2D camera) will.
+- `parseMapSettings` tests written first and seen failing (8 tests). The saved format is in PROJECT_FACTS.
+- The v2 plan's draft key `dlsu-map:map-settings` became `dlsu-map.map-settings`, matching `dlsu-map.recent`
+  (V2-PLAN §1 updated to match).
+- `docs/ROADMAP-v2.md`: v2-0 done.
+
+## 2026-10-25: v2 agreed: D55–D61, the v2 plan, split and roadmap
+
+- **D55–D61** in `docs/DECISIONS.md`: the seven v2 requests as Charles answered them on #98, with Gary's answers to
+  the four questions left open (north up in 2D, the goal building never fades, the walked part grey last, floors and
+  polish as roadmap notes, not decisions).
+- **`docs/V2-PLAN.md`:** what v2 changes in the code: one saved map-settings store, the camera follow, the drone
+  view, the search card, three map palettes, 2D, see-through.
+- **`docs/SPLIT-v2.md`:** Charles (Lane B) owns the camera files; Gary (Lane A) owns search, palettes, the scene's
+  meshes and the map options button. Two meeting points: the settings store and a building-fade hook.
+- **`docs/ROADMAP-v2.md`:** v2-0 (settings contract) first, then the two lanes in parallel.
 
 ## 2026-10-25: The fog sits further out (v2 request 2)
 
@@ -28,6 +50,16 @@ session needs to know. Search this file; it isn't required reading (the reading 
   route angles.
 - Picked from draft #99's phone trial (`today`, `far`, `none`): Charles and Gary chose `far`. The `?haze=` switch
   stayed on that draft and isn't in the app.
+
+## 2026-10-24: v2 UX requests proposed for Charles to review
+
+- Added `docs/V2-UX-REQUESTS.md`: Gary's seven v2 requests after testing `main` on a phone. They are a floating search
+  panel, less fog, three colour modes, 2D/3D, smooth camera on Next and Back, building see-through, and a top-down
+  view outdoors. Each request lists what the app does today, open questions, and the decisions it would change.
+- Two questions for Charles to decide: whether Black mode darkens the interface too, and the camera's heading while a
+  route plays.
+- Polish passes (2▸, 3▸, 5▸, 10▸) are paused in favour of the feature changes. Floors (9a–9d) wait on the official
+  floor plans the team requested from the school. Nothing here is decided yet; agreed requests become D55 onward.
 
 ## 2026-10-24: 8▸ P2s: spot and door names on the map, S4's first step, one chip per door
 

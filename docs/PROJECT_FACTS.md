@@ -283,6 +283,10 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
   `{"kind":"room","code":"ST311"}` or `{"kind":"building","slug":"andrew"}`. Canonical codes only, never From.
   Anything unreadable is dropped on read (`recent.ts`); a room no longer in `rooms.json` simply stops showing.
   Changing the format means a new key, or `parseRecent` dropping the old entries. (2026-10-21)
+- **Map settings** (v2-0, D57/D58/D60) live in `localStorage` under `dlsu-map.map-settings`: one JSON object,
+  `{"colour":"green|black|grey","view":"3d|2d","buildings":"solid|see-through"}`. Each field falls back to its
+  default on its own (`parseMapSettings`), so one bad value never resets the others. Read with
+  `useMapSettings` from `@/shared/settings/useMapSettings`; it's read once when the app loads. (2026-10-25)
 - **uFuzzy can't suggest room codes:** with `intraMode: 1` it returned nothing for `ST350`, `ST904`, `VL599`, even
   with digits allowed in words, and `uFuzzy.IntraMode` exists only in its `.d.ts` (reading it crashes at load). Hence
   the one-typo check in `search-results.ts` (D38). (2026-10-21)

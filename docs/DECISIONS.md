@@ -1371,3 +1371,148 @@ seen failing first.
 **Alternatives.** Suggest prefixes for all four (one more tap each). Leaving them out.
 
 **Agreed** by Gary and Charles (2026-10-23).
+
+---
+
+## D55. Search is a card that rises over the map (2026-10-25, agreed)
+
+**Problem.** Search (S2) replaced the whole screen with a white page. On a phone the student lost the map the moment
+they tapped "Where to?" (v2 request 1, `docs/V2-UX-REQUESTS.md`).
+
+**Decision.** (v2 request 1; Charles's answer on #98, Gary agreed.) Search opens as a light card that rises from the
+bottom, like Apple Maps' search card, with the map still showing above it and the keyboard. The map stays frozen
+(inert) while typing. The card's top is fixed, leaving about a third of the visible height as map; that strip is
+dimmed, and a tap on it closes search. Wide screens get a floating panel at the top left, under the pill (Gary,
+v2-A1). Search behaviour doesn't change: strict matching, Go only on an exact match (D38). The card stays
+light in every colour mode (D57).
+
+**Changes** `docs/user-flows.md` §3.3 (S2) and DESIGN.md's search spec.
+
+**Alternatives.** A strip of map at the top with the panel under the pill (the keyboard leaves almost no map). A
+pannable map behind the card (taps meant for the card move the map).
+
+**Agreed** by Gary and Charles (2026-10-25).
+
+---
+
+## D56. The fog sits at 2.5× to 5× the camera's distance (2026-10-25, agreed)
+
+**Problem.** The haze started at 0.8× the camera's distance to its target and was solid at 1.5× (D13), so the map
+looked washed out even at close zoom (v2 request 2).
+
+**Decision.** (v2 request 2, picked from draft #99's phone trial.) `HAZE_NEAR = 2.5`, `HAZE_FAR = 5`. Only the far
+horizon fades, and the edge of the OpenStreetMap snapshot stays hidden. Shipped in #100. Each colour mode (D57) gets its
+own haze colour, not its own distance.
+
+**Changes** D13's haze. **Alternatives.** No fog (`none` in #99: the world's edge shows at wide zoom). Today's.
+
+**Agreed** by Gary and Charles (2026-10-25).
+
+---
+
+## D57. Three map colour modes: Green, Black, Grey; the interface stays light (2026-10-25, agreed)
+
+**Problem.** D13 picked one green map palette and removed the switch. Gary wants students to pick (v2 request 3).
+
+**Decision.** (v2 request 3 and question 1; Charles's answer on #98, Gary agreed.)
+
+1. **Three map palettes**, from the prototype's (`prototypes/map-home/scene.js`): **Green** (today, the default),
+   **Black** and **Grey**. Only the map changes: search, sheets, panels and the pill stay light in every mode.
+2. **The choice is saved on the phone** (D58's settings store), so it survives closing the app and works offline.
+3. **Everything drawn on the map stays readable in all three:** the route line, the dot, the floor band, labels and
+   spot plates, the cut floor (`cutTones()` already derives from the palette). The WCAG AA checks in
+   `src/shared/config/contrast.ts` (10c) run over all three modes.
+4. **The size budget (D49) still holds:** palettes are data, not new code paths.
+
+**Changes** D13 (one palette, no switch). **Alternatives.** Black as a full night mode with a dark interface (every
+screen re-polished; DESIGN.md has only light tokens).
+
+**Agreed** by Gary and Charles (2026-10-25).
+
+---
+
+## D58. A 2D / 3D toggle and one map options button (2026-10-25, agreed)
+
+**Problem.** The map is always tilted 3D. Some students read a flat map faster, and Gary wants the choice Apple Maps
+gives (v2 request 4).
+
+**Decision.** (v2 request 4; Charles's answers on #98, Gary's on 2026-10-25.)
+
+1. **2D:** the camera looks straight down (polar 0), tilt gestures are off, and **north is always up** while browsing:
+   twisting is off too, and the compass hides. The route player still turns walking direction up (D59). Buildings
+   become very low blocks (they still read as buildings), not flat outlines. Labels stay upright.
+2. **3D:** today's view.
+3. **Route steps ignore the choice outdoors:** they use the drone view in both (D61). Indoor steps keep 40° in 3D and
+   look straight down in 2D.
+4. **One map options button** on the map holds colour mode (D57), 2D/3D and see-through (D60), so all three stay out
+   of the way until wanted.
+5. **One saved settings store** (`src/shared/settings/`) holds all three, saved on the phone. Both lanes read it.
+
+**Alternatives.** Flat footprints in 2D (lose the sense of buildings). 2D with twist allowed (then 2D needs the compass
+and a north reset, and "north up" stops being a guarantee).
+
+**Agreed** by Gary and Charles (2026-10-25).
+
+---
+
+## D59. The camera follows the dot on Next and Back (2026-10-25, agreed)
+
+**Problem.** D52's dot glides, but D52 point 5 left the camera flying straight to each step in 650 ms (D44). The view
+cut across while the dot walked, which read as teleporting, worst at turns (v2 request 5).
+
+**Decision.** (v2 request 5 and question 2; Charles's plan and answers on #98, Gary agreed.)
+
+1. **The camera follows the glide.** The dot and the camera read the same glide each frame: the camera looks a few
+   meters ahead of the dot, so corners turn gradually. When the glide ends, the camera is already at the step.
+2. **Walking direction is up** for the whole trip. A compass tap turns the map north up, and a pan stops the follow,
+   but both only until the next Next or Back.
+3. **Duration grows with distance, 1–3 s.** A tap mid-glide starts the next one from where the dot is (as D52).
+4. **Back cuts quickly** instead of replaying the walk backwards.
+5. **The walked part of the route goes grey**, built last (`docs/ROADMAP-v2.md`).
+6. **Reduced motion still cuts.**
+
+The follow math is pure and test-first (`campus-scene/follow.ts`).
+
+**Changes** D44 (camera flies to each step) and D52 point 5 ("the camera is unchanged"). **Alternatives.** North up
+with the dot crossing the map (turns are harder to read). A fixed speed per 100 m (long walks take too long).
+
+**Agreed** by Gary and Charles (2026-10-25).
+
+---
+
+## D60. See-through buildings; the player fades only what hides the route (2026-10-25, agreed)
+
+**Problem.** Solid campus buildings hide the route, the dot and the goal behind them (v2 request 6).
+
+**Decision.** (v2 request 6 with Charles's change on #98; Gary's answer on 2026-10-25.)
+
+1. **A manual setting, Solid / See-through**, in map options (D58), saved on the phone.
+2. **While a route plays, the app fades only the buildings that stand between the camera and the route**, whatever the
+   setting.
+3. **The goal building and the selected building never fade.** The entered building keeps its cutaway (D45, D46).
+
+**Alternatives.** A slider or a third "outlines only" step (more to choose, little gain). Setting only (puts the work
+on the student).
+
+**Agreed** by Gary and Charles (2026-10-25).
+
+---
+
+## D61. Outdoor route steps use a top-down "drone" view (2026-10-25, agreed)
+
+**Problem.** Outdoor steps were seen from 40° (D44), and tall buildings like Andrew and Razon still covered the path
+(v2 request 7).
+
+**Decision.** (v2 request 7; Charles's answers on #98, Gary agreed.)
+
+1. **Outdoor steps look down from about 8° off vertical**, zoomed so the step's whole stretch fits, walking direction
+   up (D59). Not 0°: straight down, the camera can't tell which way is up and the heading jumps.
+2. **The route overview (S5) is top-down too**, turned so the route's long side runs top to bottom.
+3. **It applies in 3D too** (D58).
+4. **Going inside, the camera tilts from 8° back to 40° at the door** as the floor opens. Climbs keep the 600 ms slide
+   (D45).
+
+**Changes** D44 (outdoor at 40°) and D45 (the going-in transition). **Alternatives.** 10–15° (buildings read as 3D but
+still hide short stretches). Today's 40°.
+
+**Agreed** by Gary and Charles (2026-10-25).
