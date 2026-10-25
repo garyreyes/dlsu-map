@@ -1,6 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import type { XYH } from './glide';
-import { easeInOut, followAt, followMs, planFollow, poseAt, turnWindow, type Follow, type Lens } from './follow';
+import {
+  easeInOut,
+  followAt,
+  followMs,
+  followsStep,
+  isNext,
+  planFollow,
+  poseAt,
+  turnWindow,
+  type Follow,
+  type Lens,
+} from './follow';
 import { facingAzimuth } from './gestures';
 
 const NORTH = 0;
@@ -191,5 +202,42 @@ describe('poseAt: the heading', () => {
     const at = poseAt(g, 40, NORTH);
     expect(Number.isFinite(at.azimuth)).toBe(true);
     expect(at.azimuth).toBeCloseTo(NORTH, 12);
+  });
+});
+
+describe('followsStep', () => {
+  const ALL = { forward: true, sameLevel: true, reduced: false, spotStep: true, moves: true };
+
+  it('follows a Next along one level to a spot, with motion on', () => {
+    expect(followsStep(ALL)).toBe(true);
+  });
+
+  it.each([
+    ['Back or a jump', { forward: false }],
+    ['a climb or a change of building', { sameLevel: false }],
+    ['reduced motion', { reduced: true }],
+    ['a view that is not a spot (a floor whose cut is not open)', { spotStep: false }],
+    ['a glide that goes nowhere', { moves: false }],
+  ])('does not follow %s', (_why, change) => {
+    expect(followsStep({ ...ALL, ...change })).toBe(false);
+  });
+});
+
+describe('isNext', () => {
+  const route = { id: 'a' };
+
+  it('is Next when the step goes up by one on the same route', () => {
+    expect(isNext({ route, step: 2 }, { route, step: 3 })).toBe(true);
+  });
+
+  it.each([
+    ['Back', { route, step: 2 }, { route, step: 1 }],
+    ['a jump ahead from All steps', { route, step: 1 }, { route, step: 5 }],
+    ['the same step again', { route, step: 2 }, { route, step: 2 }],
+    ['a new route (a route option, a new From or To)', { route, step: 2 }, { route: { id: 'a' }, step: 3 }],
+    ['Start from the preview (no step before)', { route, step: undefined }, { route, step: 0 }],
+    ['leaving the player (no step now)', { route, step: 2 }, { route, step: undefined }],
+  ])('is not Next for %s', (_why, was, now) => {
+    expect(isNext(was, now)).toBe(false);
   });
 });

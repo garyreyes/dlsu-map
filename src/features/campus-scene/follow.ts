@@ -125,6 +125,33 @@ export function planFollow(path: readonly XYH[], toward: XY | null, from: Lens, 
   return { path, length, toward, from, to, ms: followMs(length), window, parts, after, turnIn, start, settle };
 }
 
+/** What decides whether the camera rides a step's glide (D59). */
+export interface FollowCase {
+  /** Next: the step number went up within the same route. */
+  readonly forward: boolean;
+  /** The dot stays on one level: the ground, every G included, or one building's upper floor. */
+  readonly sameLevel: boolean;
+  readonly reduced: boolean;
+  /** The step's camera view is a spot: an outdoor step, or an indoor one with its floor cut open. */
+  readonly spotStep: boolean;
+  /** The glide goes somewhere (its path has more than one point). */
+  readonly moves: boolean;
+}
+
+/** Whether the camera follows the dot to this step. Anything else flies or cuts as before (D44, D45). */
+export const followsStep = (c: FollowCase) => c.forward && c.sameLevel && !c.reduced && c.spotStep && c.moves;
+
+/** A step of the player: the route it belongs to (compared by identity) and its number, undefined off the player. */
+export interface StepOf {
+  readonly route: unknown;
+  readonly step: number | undefined;
+}
+
+/** Whether going from one step to another was Next: the next number on the same route. Back, a jump from All steps,
+ *  Start from the preview and a new route are not (D59). */
+export const isNext = (was: StepOf, now: StepOf) =>
+  was.route === now.route && was.step !== undefined && now.step === was.step + 1;
+
 /** The camera `s` meters along the glide. `near` is the azimuth drawn last frame, so the answer never wraps by 2π. */
 export function poseAt(f: Follow, s: number, near: number): FollowPose {
   const ahead = aheadAt(f.parts, f.after, s, f.window);

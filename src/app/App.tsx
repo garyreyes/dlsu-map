@@ -128,6 +128,7 @@ export function App() {
           here: route.here,
           route: step.route,
           focus: trip.player.isOpen ? step.focus : null,
+          step: step.index,
           stillSaving: route.stillSaving,
         }
       : null;

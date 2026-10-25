@@ -8,6 +8,37 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-25: v2-B2: the camera follows the dot on Next (D59)
+
+- **On Next, the camera rides the dot's glide** instead of flying to the new step: it stays on the dot, heading looks
+  ahead along the walk, and it ends on the step's resting view, so nothing snaps when the dot stops. The dot and the
+  camera share one plan (`planFollow`), one clock and one eased progress; the dot's own 600 ms ease-out is used only
+  when the camera doesn't follow.
+- **When it follows** (`followsStep` and `isNext` in `follow.ts`, test-first: the 13 new cases were seen failing
+  first): Next (the next step number on the same route; a jump ahead from All steps flies as before), the dot
+  staying on one level (the ground with every G, or one building's upper floor), motion on, the step's camera view a
+  spot (outdoors, or indoors once the floor is cut open), and a glide with more than one point.
+  Everything else is unchanged: Back, climbs, other buildings, reduced motion, the preview, indoor steps whose cut
+  isn't open (the camera flies as before, and flies to the spot when the cut opens).
+- **Decided at commit time.** `useDotGlide` takes a new target in a `useLayoutEffect`, before `useCameraFlights`'
+  passive effect runs, so `flyToStep` can skip a step the follow took (it compares the shared plan's `focus` with its
+  own). It now takes a fourth argument (`GlideCamera`: the dot's target, the step number, the controls, insets, the
+  flights' focus and building) and returns `{ placeDot, handle }`. `placeDot`'s signature is unchanged, so `Labels.tsx`
+  is untouched. Tapping Next mid-glide plans a new follow from where the dot is drawn and the camera is.
+- **New `components/useCameraFollow.ts`**, called in `CameraRig`: a `useFrame` at priority -2 sets the camera each
+  frame (`setTarget`, `rotateTo`, `dollyTo`, all unanimated) and asks for another frame until it's done. A
+  `'controlstart'` listener (any pan, pinch or twist), the compass button (`unturn`) and Show whole campus (`recenter`)
+  call `pause()`: the camera stops for this step only, the dot walks on, and the next step's plan starts afresh. The
+  flights skip a step only while its follow is still riding.
+- **Coming out from an indoor spot**, the follow lowers the dolly limit to the camera's own distance while it runs and
+  puts the step's limit back when it ends or is paused, so the outdoor limit (90 m) doesn't snap the camera out on the
+  first frame.
+- **`stepRest` / `stepSpotView` in `useCameraFlights.ts`:** the flight and the follow both read the step's spot view
+  from them, so the resting tilt and distance can't disagree.
+- Wiring: `MapTrip.step` (optional) from `App.tsx`'s `step.index`; `CampusMap` passes it and the glide handle on.
+- Left open: if the cut closes and opens again mid-follow, `flightFocus` swaps to a copy without its spot and back, and
+  the flight for that copy (the building view) would run over the follow. Not seen; the cut doesn't do this today.
+
 ## 2026-10-25: v2-A1: search is a card over the map (D55)
 
 - **Phone:** search opens as a light card that rises from the bottom and sits on the keyboard. Its top is fixed at
