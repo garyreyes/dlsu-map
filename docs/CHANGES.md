@@ -8,6 +8,16 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-25: v2-B0: a missing building file is tried again when signal returns (#88); #87 was already fixed
+
+- **#88:** `useBuildingSpots` (S4's Change spot) loads the building's file again when the browser fires `online`, while
+  the file is missing. `loadIndoor` already drops a failed shared load, so the retry really fetches. Before, nothing
+  loaded it again until the student closed the building and opened it. New e2e check (seen failing first): with
+  Velasco's file failing, G offers only the doors; after `online`, its elevator appears.
+- **#87** (S4 8px too wide) was fixed in the 8▸ critique on 2026-10-23 (the gutters moved onto the sheet's scroller,
+  and "the sheet never scrolls sideways, at any step" checks it); only the issue was still open.
+- `docs/ROADMAP-v2.md`: v2-B0 done.
+
 ## 2026-10-25: v2-B2: the camera follows the dot on Next (D59)
 
 - **On Next, the camera rides the dot's glide** instead of flying to the new step: it stays on the dot, heading looks
