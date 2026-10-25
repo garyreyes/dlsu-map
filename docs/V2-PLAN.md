@@ -26,7 +26,7 @@ export function parseMapSettings(saved: string | null): MapSettings;
 export const useMapSettings: UseBoundStore<{ settings: MapSettings; set: (patch: Partial<MapSettings>) => void }>;
 ```
 
-- Saved under one `localStorage` key, `dlsu-map:map-settings`, wrapped in try/catch: private mode or cleared storage
+- Saved under one `localStorage` key, `dlsu-map.map-settings`, wrapped in try/catch: private mode or cleared storage
   gives the defaults, never an error.
 - `parseMapSettings` is test-first (one right answer per input).
 - It's in `shared/`, so `shared/` still imports nothing from features (`eslint.boundaries.js`).

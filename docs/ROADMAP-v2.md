@@ -16,7 +16,7 @@ as `docs/ROADMAP.md` (🧪 = test first; **Lane** A Gary, B Charles).
 
 | ID | Sub-phase | Lane | Depends on | Status |
 |---|---|---|---|---|
-| v2-0 | Map settings store: `src/shared/settings/` types, defaults, `parseMapSettings` 🧪, the saved zustand store (V2-PLAN §1). No UI yet | A (B reviews) | — | not started |
+| v2-0 | Map settings store: `src/shared/settings/` types, defaults, `parseMapSettings` 🧪, the saved zustand store (V2-PLAN §1). No UI yet | A (B reviews) | — | done |
 
 ## Lane A: what the student sees
 

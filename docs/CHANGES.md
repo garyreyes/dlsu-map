@@ -8,6 +8,16 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-25: v2-0: the saved map settings both lanes read
+
+- **New `src/shared/settings/`:** `map-settings.ts` (the types, `DEFAULT_MAP_SETTINGS` green / 3D / solid, and
+  `parseMapSettings`) and `useMapSettings.ts` (a zustand store, read once on load, saved on every `set`). Nothing
+  reads it yet: v2-A2 (palettes), v2-A3 (map options, 2D blocks), v2-A4 (see-through) and v2-B5 (2D camera) will.
+- `parseMapSettings` tests written first and seen failing (8 tests). The saved format is in PROJECT_FACTS.
+- The v2 plan's draft key `dlsu-map:map-settings` became `dlsu-map.map-settings`, matching `dlsu-map.recent`
+  (V2-PLAN §1 updated to match).
+- `docs/ROADMAP-v2.md`: v2-0 done.
+
 ## 2026-10-25: v2 agreed: D55–D61, the v2 plan, split and roadmap
 
 - **D55–D61** in `docs/DECISIONS.md`: the seven v2 requests as Charles answered them on #98, with Gary's answers to
