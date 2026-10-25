@@ -376,6 +376,11 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - **The React Compiler lint rules only recognise refs by name:** a ref passed as a prop must be called `…Ref`, or
   `react-hooks/immutability` flags writes to `.current`. The compiler itself isn't in the build, so stable callbacks
   (like a ref callback that sets the camera up) still need `useCallback`. (2026-10-20)
+- **Frame order for the camera follow (D59):** `useCameraFollow` runs `useFrame` at -2, ahead of drei's
+  `controls.update` (-1) and `LabelProjector`'s dot placement (0), so the controls take the pose and the dot is
+  projected through it. Never use a positive priority: R3F then stops rendering for you. camera-controls emits
+  `'controlstart'` for one-finger pan, pinch and two-finger twist, but not for the wheel, so a wheel zoom doesn't pause
+  a follow. (2026-10-25)
 - **The 3D map is a lazy chunk** (`React.lazy` in `src/app/App.tsx`), so search works before the scene is ready
   (user-flows §3.2). Since 10c the build has three main chunks: the first load (`index` + `vendor`, 179 kB gzipped),
   `three` (three.js, R3F, drei, camera-controls; 249 kB) and `campus-scene` (the map's own code; 15 kB). The

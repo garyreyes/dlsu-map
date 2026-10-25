@@ -40,6 +40,8 @@ export interface MapTrip {
   route: Route | null;
   /** The step the player is on (5d, D44): the dot and the camera follow it. Null on the preview. */
   focus: MapFocus | null;
+  /** The step's number in its route, which goes up on Next: the camera follows the dot only going forward (D59). */
+  step?: number;
   /** Buildings whose indoor map file failed only because the phone is offline (O5). */
   stillSaving?: readonly string[];
 }
@@ -188,8 +190,15 @@ function CampusView(props: Props & { campus: Campus }) {
     cutOn,
     saving,
   );
-  const placeDot = useDotGlide(route, focus, reduced);
   const flightFocus = useMemo(() => (cutOn ? focus : withoutSpot(focus)), [focus, cutOn]);
+  const { placeDot, handle: glide } = useDotGlide(route, focus, reduced, {
+    here: hereAt,
+    step: trip?.step,
+    controlsRef,
+    insets,
+    focus: flightFocus,
+    building: focusBuilding,
+  });
   useCameraFlights({
     controlsRef,
     controlsReady,
@@ -203,14 +212,18 @@ function CampusView(props: Props & { campus: Campus }) {
     lines,
     focus: flightFocus,
     focusBuilding,
+    glide: glide.share,
   });
 
   const recenter = () => {
+    glide.pause();
     if (controlsRef.current) goHome(controlsRef.current, home, insets, !reduced);
   };
   // Turn back to the home heading the short way, keeping zoom and tilt (DESIGN.md, Compass).
   const unturn = () => {
     const c = controlsRef.current;
+    // The student has taken the camera: it stops following the dot for this step.
+    glide.pause();
     if (c)
       void c.rotateAzimuthTo(c.azimuthAngle - (headingDeg(c.azimuthAngle, home.azimuth) * Math.PI) / 180, !reduced);
   };
@@ -262,7 +275,13 @@ function CampusView(props: Props & { campus: Campus }) {
               onTap={tap}
               massRef={massRef}
             />
-            <CameraRig controlsRef={controlsRef} insets={insets} home={home} onAttach={onControlsAttach} />
+            <CameraRig
+              controlsRef={controlsRef}
+              insets={insets}
+              home={home}
+              onAttach={onControlsAttach}
+              glide={glide}
+            />
             <LabelProjector
               buildings={campus.buildings}
               elementsRef={elementsRef}

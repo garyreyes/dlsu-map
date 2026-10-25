@@ -4,6 +4,7 @@ import { Vector3, type Mesh } from 'three';
 import { SELECT_POLAR, STEP_POLAR } from '@/shared/config/camera';
 import type { CampusBuilding } from '@/shared/data/campus';
 import { bestHeading, headingCandidates, type BandSample } from '../floor-band';
+import type { Lens } from '../follow';
 import { facingAzimuth } from '../gestures';
 import {
   buildingView,
@@ -16,6 +17,7 @@ import {
   type MapInsets,
 } from './CameraRig';
 import type { MapHere } from './Labels';
+import type { GlideShare } from './useCameraFollow';
 import { floorHeight, type MapFocus } from './useTripMarks';
 import { cameraAt, insideOutlines, sees, toScene } from './visibility';
 
@@ -64,6 +66,8 @@ interface Flights {
   /** The step the player is on, and its building for an indoor step (D44). */
   focus: MapFocus | null;
   focusBuilding: CampusBuilding | undefined;
+  /** The glide the camera rides on Next (D59): a step it follows is not flown to. */
+  glide: RefObject<GlideShare>;
 }
 
 /**
@@ -78,6 +82,7 @@ interface Flights {
 export function useCameraFlights(f: Flights) {
   const { controlsRef, controlsReady, massRef, reduced, building, samples, here, fromBuilding, focus, focusBuilding } =
     f;
+  const { glide } = f;
   const latest = useRef({ insets: f.insets, lines: f.lines });
   useEffect(() => {
     latest.current = { insets: f.insets, lines: f.lines };
@@ -114,8 +119,30 @@ export function useCameraFlights(f: Flights) {
   useEffect(() => {
     const c = controlsRef.current;
     if (!focus || !c || !controlsReady) return;
+    const g = glide.current;
+    // A follow riding to this step (planned at commit, before this effect) has the camera. Once it ends or the student
+    // takes over, the step flies as before if anything moves it again.
+    if (g.follow && !g.done && !g.paused && g.focus === focus) return;
     flyToStep(c, focus, focusBuilding, samples, massRef.current, latest.current.insets, !reduced);
-  }, [controlsRef, massRef, focus, focusBuilding, samples, controlsReady, reduced]);
+  }, [controlsRef, massRef, glide, focus, focusBuilding, samples, controlsReady, reduced]);
+}
+
+/** A step's spot view: an outdoor step's spot, or an indoor step's spot on its floor (the building must have it). Null
+ *  for a step that frames its building instead. The flight and the follow both go here, so they end on the same view. */
+function stepSpotView(focus: MapFocus, building: CampusBuilding | undefined, insets: MapInsets): BuildingView | null {
+  if (focus.kind === 'ground') return stepView(focus.at, insets);
+  const height = building && focus.at ? floorHeight(building, focus.floor) : null;
+  return focus.at && height !== null ? indoorStepView(focus.at, height, insets) : null;
+}
+
+/** Where the camera rests on a step with a spot view: its tilt and distance. Null for a step that has none. */
+export function stepRest(
+  focus: MapFocus,
+  building: CampusBuilding | undefined,
+  insets: MapInsets,
+): Omit<Lens, 'azimuth'> | null {
+  const view = stepSpotView(focus, building, insets);
+  return view && { polar: STEP_POLAR, distance: view.distance };
 }
 
 /** The player's flight to a step (D44, D46): outdoors to its spot facing the walk; indoors to its spot on the cut floor
@@ -129,19 +156,14 @@ function flyToStep(
   insets: MapInsets,
   animate: boolean,
 ) {
-  if (focus.kind === 'ground') {
-    const azimuth = focus.toward && facingAzimuth(focus.at, focus.toward, c.azimuthAngle);
-    goToBuilding(c, stepView(focus.at, insets), azimuth, animate, STEP_POLAR);
+  const spot = stepSpotView(focus, building, insets);
+  if (spot) {
+    // No band heading: the band isn't drawn while the cut is up. Keep the student's heading when nothing is ahead.
+    const azimuth = focus.at && focus.toward ? facingAzimuth(focus.at, focus.toward, c.azimuthAngle) : null;
+    goToBuilding(c, spot, azimuth, animate, STEP_POLAR);
     return;
   }
   if (!building) return;
-  const height = focus.at ? floorHeight(building, focus.floor) : null;
-  if (focus.at && height !== null) {
-    // No band heading: the band isn't drawn while the cut is up. Keep the student's heading when nothing is ahead.
-    const azimuth = focus.toward ? facingAzimuth(focus.at, focus.toward, c.azimuthAngle) : null;
-    goToBuilding(c, indoorStepView(focus.at, height, insets), azimuth, animate, STEP_POLAR);
-    return;
-  }
   const view = buildingView(building, insets);
   // The building's own walls never hide its band, in the merged mesh or cut out of it (D45).
   const outlines = building.volumes.map((v) => v.outline);

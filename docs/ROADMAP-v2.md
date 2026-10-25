@@ -33,7 +33,7 @@ as `docs/ROADMAP.md` (🧪 = test first; **Lane** A Gary, B Charles).
 |---|---|---|---|---|
 | v2-B0 | Bugs #87 (S4 sheet width) and #88 (retry a failed building file 🧪) | B | — | not started |
 | v2-B1 | Follow math, `follow.ts`: target on the dot, walking-up heading looking ahead, 1–3 s from distance 🧪 | B | — | done |
-| v2-B2 | The camera follows the glide (D59): `useCameraFollow.ts`; a pan or compass tap pauses it until the next step; Back cuts | B | v2-B1 | not started |
+| v2-B2 | The camera follows the glide (D59): `useCameraFollow.ts`; a pan or compass tap pauses it until the next step; Back cuts | B | v2-B1 | done |
 | v2-B3 | Drone view (D61): outdoor steps at 8°, fitted to the stretch; S5 top-down, long side vertical | B | v2-B2 | not started |
 | v2-B4 | Going inside: tilt 8° → 40° at the door as the floor opens; climbs keep 600 ms | B | v2-B3 | not started |
 | v2-B5 | 2D camera (D58): polar 0, north up, tilt and twist off outside the player; indoor steps straight down in 2D | B | v2-0, v2-B3 | not started |

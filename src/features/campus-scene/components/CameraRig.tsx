@@ -21,6 +21,7 @@ import type { CampusBuilding } from '@/shared/data/campus';
 import { headingDeg } from '../gestures';
 import { fitDistance, framing } from '../home-view';
 import { useHeading } from './headingStore';
+import { useCameraFollow, type GlideHandle } from './useCameraFollow';
 import { useTwistTilt } from './useTwistTilt';
 
 /** Screen space the chrome covers, in px, so the camera can centre the map in what's left (DESIGN.md, Layout). */
@@ -47,6 +48,8 @@ interface Props {
   /** The controls attached (true) or went with the canvas (false): a selection made before they attached flies once
    *  they do, and again if the canvas is ever made anew. */
   onAttach: (attached: boolean) => void;
+  /** The dot's glide, which the camera rides on Next (D59). */
+  glide: GlideHandle;
 }
 
 /** Points the camera at the whole campus from the home heading and tilt, framed in the screen the chrome leaves. */
@@ -164,12 +167,13 @@ function configure(c: CameraControls) {
   });
 }
 
-export function CameraRig({ controlsRef, insets, home, onAttach }: Props) {
+export function CameraRig({ controlsRef, insets, home, onAttach, glide }: Props) {
   const camera = useThree((s) => s.camera) as PerspectiveCamera;
   const size = useThree((s) => s.size);
   const invalidate = useThree((s) => s.invalidate);
   const setHeading = useHeading((s) => s.set);
   useTwistTilt(controlsRef);
+  useCameraFollow(controlsRef, glide);
 
   // Read through refs so the attach callback stays the same: a new one would re-attach and jump the camera home
   // every time the sheet moved.
