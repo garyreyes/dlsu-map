@@ -23,7 +23,8 @@ export function parseMapSettings(saved: string | null): MapSettings;
 
 // src/shared/settings/useMapSettings.ts: a zustand store (like campus-scene's headingStore)
 // that loads with parseMapSettings and saves to localStorage on every change.
-export const useMapSettings: UseBoundStore<{ settings: MapSettings; set: (patch: Partial<MapSettings>) => void }>;
+export const useMapSettings: UseBoundStore<{ settings: MapSettings; set: <K extends keyof MapSettings>(patch: Pick<MapSettings, K>) => void;
+  setOne: <K extends keyof MapSettings>(key: K, value: MapSettings[K]) => void }>;
 ```
 
 - Saved under one `localStorage` key, `dlsu-map.map-settings`, wrapped in try/catch: private mode or cleared storage

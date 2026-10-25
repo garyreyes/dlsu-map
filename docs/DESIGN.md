@@ -27,7 +27,7 @@ colors:
   map-b-ground: "#175f3c"
   map-b-building: "#f2eee5"
   map-b-path: "#5f9c7c"
-  map-b-road: "#7fb396"
+  map-b-road: "#99c2ab"
   map-c-ground: "#c4c7c6"
   map-c-building: "#fbfbfa"
   map-c-path: "#ffffff"
@@ -259,8 +259,8 @@ boxes. The signature is the found floor drawn as a solid green band one storey t
 floor chip beside it.
 
 The app ships the light interface only (1c); the dark tokens are kept for a later night mode (ROADMAP notes).
-The map palette is settled on B, green (D13, 2026-10-21). The prototype still ships A as its default and a switcher
-in the info sheet; the app has only green. The interface never changes with the map palette.
+The map has three colour modes, Green (the default), Black and Grey (D57). The student picks one in the map options
+sheet, and it is saved on the phone. The interface never changes with the map palette.
 
 **Key Characteristics:**
 
@@ -302,15 +302,20 @@ map palette that the interface never borrows from.
 
 ### Map palettes
 
-The 3D map has its own four colours per palette (ground, building, path, road), applied in scene.js. Grounds are
-drawn unlit, so the swatch in the info sheet is exactly the colour on screen.
+The 3D map has its own colours per mode (ground, building, path, road, haze), in `MAP_PALETTES` in
+`src/shared/config/palette.ts`. Grounds are drawn unlit, so each swatch is exactly the colour on screen. The frontmatter
+keeps the prototype's letters: `map-a-*` is Black, `map-b-*` Green, `map-c-*` Grey.
 
-- **A, Black** (`map-a-*`): near-black ground like Waze's dark mode (owner's choice), cool white blocks, soft grey
-  paths and roads. Off-campus blocks lean 40% toward the ground.
-- **B, Green** (`map-b-*`): deep green ground, warm white blocks, sage paths. Off-campus blocks lean 50%.
-- **C, Grey** (`map-c-*`): light grey ground, near-white blocks, white paths. Off-campus blocks lean 32%.
+- **Green** (`map-b-*`, the default): deep green ground, warm white blocks, sage paths, lighter sage roads (lightened
+  so the route reads on them, D62). Off-campus blocks lean 50% toward the ground.
+- **Black** (`map-a-*`): near-black ground like Waze's dark mode, cool white blocks, soft grey paths and roads.
+  Off-campus blocks lean 40%.
+- **Grey** (`map-c-*`): light grey ground, near-white blocks, white paths. Off-campus blocks lean 32%.
 
-The app uses **B** only (D13, settled 2026-10-21). A and C stay here because the prototype still has them.
+Everything drawn on the map stays readable in all three: `contrast-pairs.test.ts` checks the label plates over every
+map colour, the route (its green, or its white edge, at 3:1 over ground, path, road and the cut floor) and the cut
+floor's hallways. The one exemption is the dimmed outdoor route while a building is cut open, faint on purpose (Grey
+is lowest at 1.49:1); the test keeps it at 1.4:1 or more.
 
 ### Named Rules
 
@@ -400,8 +405,8 @@ The map has its own depth model, made by light, not by shadows or outlines.
 - **Wall-foot darkening:** the bottom 6m of every wall darkens to 70% and grades up to full, so blocks sit on the
   ground.
 - **Ground:** unlit and flat, exactly the palette colour. A green haze (owner's choice) fades the distance and fills
-  the sky: #163326 (dark green) over black, #4f9a72 over green, #cfe5d7 over grey. It tracks the camera (0.8 to 1.5
-  times its distance).
+  the sky: #163326 (dark green) over black, #4f9a72 over green, #cfe5d7 over grey. It tracks the camera (2.5 to 5
+  times its distance, D56).
 - **Campus leads:** every off-campus building is see-through (35% opacity, owner's choice) and tinted toward the
   ground, so campus buildings show through it and only campus buildings can hide the selection.
 - **Camera:** 40° field of view, about 52° from straight down for the overview with Taft Avenue toward the bottom;
@@ -640,8 +645,8 @@ centred secondary **Done**.
 - **Don't** wrap sheet content in shadowed cards or add dividers between rows; group with spacing and weight.
 - **Don't** add entrance animations or motion that delays reading.
 - **Don't** copy prototype-only scaffolding into the real app: three.js r147 and its OrbitControls from a CDN (the
-  app self-hosts React Three Fiber and works offline), the sample rooms and their "Sample room" marker, the D13
-  palette switcher (the palette is decided: green), the "Prototype:" notes and the Start toast, and the
-  label-collision width estimate.
+  app self-hosts React Three Fiber and works offline), the sample rooms and their "Sample room" marker, the
+  prototype's palette switcher in the info sheet (the colour mode lives in the map options sheet, D58), the
+  "Prototype:" notes and the Start toast, and the label-collision width estimate.
 - **Don't** add new text roles below 16px or tap targets below 48px (D30). Only the Beta tag and the OSM credit
   sit at 14px.

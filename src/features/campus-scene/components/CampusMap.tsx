@@ -5,11 +5,12 @@ import type { Mesh } from 'three';
 import { FloorRail, useCutaway, useIndoor, type CutawayStep } from '@/features/indoor-view';
 import { MapDidntDownload } from '@/features/offline';
 import { FAR, FOV_DEG, NEAR } from '@/shared/config/camera';
-import { MAP_PALETTE } from '@/shared/config/palette';
+import { MAP_PALETTES } from '@/shared/config/palette';
 import type { Campus, CampusBuilding } from '@/shared/data/campus';
 import { preloadIndoor } from '@/shared/data/load';
 import type { Route } from '@/shared/data/route';
 import type { SpotLabel } from '@/shared/data/spot-labels';
+import { useMapSettings } from '@/shared/settings/useMapSettings';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import { LOADING_MAP, MapMessage } from '@/shared/ui/MapMessage';
 import { useReducedMotion } from '@/shared/ui/useMediaQuery';
@@ -142,6 +143,8 @@ function CampusView(props: Props & { campus: Campus }) {
   // A slow phone steps down a tier: fewer pixels, and on the lowest the city goes (quality.ts, 10c).
   const [tier, setTier] = useState<QualityTier>('high');
   const reduced = useReducedMotion();
+  // The saved colour mode (D57): only the map changes, the interface stays light.
+  const colour = useMapSettings((s) => s.settings.colour);
   const home = useMemo(() => homeFor(campus), [campus]);
   const failed = useCallback(() => {
     setStatus('failed');
@@ -263,7 +266,7 @@ function CampusView(props: Props & { campus: Campus }) {
             <MapScene
               controlsRef={controlsRef}
               campus={campus}
-              palette={MAP_PALETTE}
+              palette={MAP_PALETTES[colour]}
               homeAzimuth={home.azimuth}
               selected={selected}
               band={band}

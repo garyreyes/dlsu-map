@@ -23,7 +23,7 @@ as `docs/ROADMAP.md` (🧪 = test first; **Lane** A Gary, B Charles).
 | ID | Sub-phase | Lane | Depends on | Status |
 |---|---|---|---|---|
 | v2-A1 | Search card rising over a frozen map (D55); user-flows §3.3 and DESIGN.md's search spec updated; e2e that opens search | A | — | done |
-| v2-A2 | Three map palettes (D57): `MAP_PALETTES`, every map layer reads the saved mode, contrast checks over all three 🧪 | A | v2-0 | not started |
+| v2-A2 | Three map palettes (D57): `MAP_PALETTES`, every map layer reads the saved mode, contrast checks over all three 🧪 | A | v2-0 | done |
 | v2-A3 | Map options button and sheet: colour mode, 2D/3D, Solid/See-through; 2D low blocks; compass hidden in 2D (D58) | A | v2-0, v2-A2 | not started |
 | v2-A4 | See-through (D60): the manual setting, `fadeStore.ts`, goal and selected building never fade | A | v2-A3 | not started |
 

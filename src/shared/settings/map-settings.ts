@@ -17,6 +17,9 @@ export type MapSettings = {
   readonly buildings: BuildingLook;
 };
 
+/** A change to some of the settings. A field can be left out but never set to undefined, which would wipe it. */
+export type SettingsPatch<K extends keyof MapSettings> = Pick<MapSettings, K>;
+
 export const DEFAULT_MAP_SETTINGS: MapSettings = { colour: 'green', view: '3d', buildings: 'solid' };
 
 // Each field falls back on its own, so one bad value never resets the other two.
@@ -25,6 +28,12 @@ const settingsSchema = z.object({
   view: z.enum(MAP_VIEWS).catch(DEFAULT_MAP_SETTINGS.view),
   buildings: z.enum(BUILDING_LOOKS).catch(DEFAULT_MAP_SETTINGS.buildings),
 });
+
+/** The settings with a patch applied. A field set to undefined anyway (a cast, plain JS) is left as it was. */
+export function applyPatch<K extends keyof MapSettings>(settings: MapSettings, patch: SettingsPatch<K>): MapSettings {
+  const defined = Object.entries(patch).filter(([, value]) => value !== undefined);
+  return { ...settings, ...Object.fromEntries(defined) };
+}
 
 /** What was saved, as settings: anything missing or unreadable is its default, never thrown. */
 export function parseMapSettings(saved: string | null): MapSettings {

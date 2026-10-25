@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber';
 import { useEffect, useMemo, useState } from 'react';
-import { MAP_PALETTE } from '@/shared/config/palette';
+import { MAP_PALETTES } from '@/shared/config/palette';
 import type { Campus, CampusBuilding } from '@/shared/data/campus';
 import type { Indoor, IndoorFloor } from '@/shared/data/indoor';
 import { PreviewScene } from './PreviewScene';
@@ -131,7 +131,7 @@ function Page({ campus, floors, building, indoor, current, onPick }: PageProps) 
             indoor={indoor}
             floor={current.floor}
             base={current.base}
-            palette={MAP_PALETTE}
+            palette={MAP_PALETTES.green}
             route={route}
           />
         </Canvas>

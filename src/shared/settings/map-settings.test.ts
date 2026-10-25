@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_MAP_SETTINGS, parseMapSettings } from './map-settings';
+import {
+  applyPatch,
+  DEFAULT_MAP_SETTINGS,
+  parseMapSettings,
+  type MapSettings,
+  type SettingsPatch,
+} from './map-settings';
 
 describe('parseMapSettings', () => {
   it('gives the defaults when nothing was saved', () => {
@@ -45,5 +51,35 @@ describe('parseMapSettings', () => {
   it('ignores fields it does not know', () => {
     const saved = JSON.stringify({ colour: 'grey', fog: 'none' });
     expect(parseMapSettings(saved)).toEqual({ colour: 'grey', view: '3d', buildings: 'solid' });
+  });
+});
+
+describe('SettingsPatch', () => {
+  // Checked by the typecheck, not at run time: a patch can leave a field out but never set it to undefined.
+  const patch = <K extends keyof MapSettings>(p: SettingsPatch<K>) => p;
+
+  it('takes any mix of real values', () => {
+    expect(patch({ colour: 'black' })).toEqual({ colour: 'black' });
+    expect(patch({ view: '2d', buildings: 'see-through' })).toEqual({ view: '2d', buildings: 'see-through' });
+  });
+
+  it('rejects undefined', () => {
+    // @ts-expect-error a field set to undefined would wipe the saved value
+    expect(patch({ view: undefined })).toEqual({ view: undefined });
+  });
+});
+
+describe('applyPatch', () => {
+  it('changes only the fields in the patch', () => {
+    expect(applyPatch(DEFAULT_MAP_SETTINGS, { colour: 'grey' })).toEqual({
+      colour: 'grey',
+      view: '3d',
+      buildings: 'solid',
+    });
+  });
+
+  it('ignores a field set to undefined, from a cast or plain JS', () => {
+    const patch = { view: undefined, colour: 'black' } as unknown as SettingsPatch<'colour'>;
+    expect(applyPatch(DEFAULT_MAP_SETTINGS, patch)).toEqual({ colour: 'black', view: '3d', buildings: 'solid' });
   });
 });
