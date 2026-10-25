@@ -186,6 +186,24 @@ test('From never leaves memory: not in the address bar, history, Recent or stora
   expect(kept.local).toContain('ST311');
 });
 
+test("a building file that didn't load is tried again when signal comes back (#88)", async ({ page, context }) => {
+  // Stands in for no signal when the floor step opens: the building's file fails.
+  await context.route('**/data/buildings/velasco.json', (route) => route.abort());
+  await openST311(page);
+  await row(page, 'Velasco').click();
+  const floors = where(page).getByRole('group', { name: 'Velasco Hall: which floor?' });
+  await floors.getByRole('button', { name: 'Change spot' }).click();
+  await floors.getByRole('button', { name: 'G', exact: true }).click();
+  const spots = where(page).getByRole('group', { name: 'Velasco G: where on the floor?' });
+  await expect(spots.getByRole('button', { name: /^Main entrance/ }).first()).toBeVisible();
+  // Without the file only the doors show: the stairs and the elevator live in it.
+  await expect(spots.getByRole('button', { name: /elevator/i })).toHaveCount(0);
+
+  await context.unroute('**/data/buildings/velasco.json');
+  await page.evaluate(() => window.dispatchEvent(new Event('online')));
+  await expect(spots.getByRole('button', { name: /elevator/i }).first()).toBeVisible();
+});
+
 test('the Change spot step names its spots on the map, and stops when it goes (8▸ critique, P2)', async ({ page }) => {
   await openST311(page);
   await row(page, 'Velasco').click();
