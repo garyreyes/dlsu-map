@@ -8,6 +8,25 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-25: v2 agreed: D55–D61, the v2 plan, split and roadmap
+
+- **D55–D61** in `docs/DECISIONS.md`: the seven v2 requests as Charles answered them on #98, with Gary's answers to
+  the four questions left open (north up in 2D, the goal building never fades, the walked part grey last, floors and
+  polish as roadmap notes, not decisions).
+- **`docs/V2-PLAN.md`:** what v2 changes in the code: one saved map-settings store, the camera follow, the drone
+  view, the search card, three map palettes, 2D, see-through.
+- **`docs/SPLIT-v2.md`:** Charles (Lane B) owns the camera files; Gary (Lane A) owns search, palettes, the scene's
+  meshes and the map options button. Two meeting points: the settings store and a building-fade hook.
+- **`docs/ROADMAP-v2.md`:** v2-0 (settings contract) first, then the two lanes in parallel.
+
+## 2026-10-25: The fog sits further out (v2 request 2)
+
+- **Haze now starts at 2.5× and ends at 5× the camera's distance** to its target (was 0.8× and 1.5×):
+  `HAZE_NEAR`/`HAZE_FAR` in `shared/config/palette.ts`. More of campus reads clearly at the home view and on low
+  route angles.
+- Picked from draft #99's phone trial (`today`, `far`, `none`): Charles and Gary chose `far`. The `?haze=` switch
+  stayed on that draft and isn't in the app.
+
 ## 2026-10-24: v2 UX requests proposed for Charles to review
 
 - Added `docs/V2-UX-REQUESTS.md`: Gary's seven v2 requests after testing `main` on a phone. They are a floating search
