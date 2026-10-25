@@ -113,7 +113,7 @@ code (it loads three.js from a CDN, which the real app must not do).
 
 Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24 were agreed by the team on
 2026-10-19, D25–D27 and D33 on 2026-10-20, D28–D32 and D34–D37 on 2026-10-21, D38–D49 on 2026-10-22, D50–D54
-on 2026-10-23.
+on 2026-10-23, D55–D61 (v2) on 2026-10-25.
 
 | # | Decision | Why |
 |---|---|---|
@@ -171,6 +171,13 @@ on 2026-10-23.
 | D52 | **The "you are here" dot glides** along the route on Next and Back: through doors, around G and up the stairs, 600 ms with the cut's slide; it jumps into another building's upper floor | A jumping dot read as a teleport while the camera flew; gliding shows the way just walked |
 | D53 | **The cut floor keeps green for "yours"**: grey hallways (3.4:1), a 1.6 m indoor line, an "ST311" label pin at the goal room's door; offline, the chip shows the goal floor | Green hallways, line and goal ring ran together, and the goal ring read as a second dot |
 | D54 | **`A`, `Y`, `M` and `J` are accepted prefixes** for Andrew, Yuchengco, St. Miguel and St. Joseph: `J204` opens SJ204 | Students type them; no other building uses those letters, so none is a guess (`VH` stays a suggestion) |
+| D55 | **Search is a card rising over the map**, frozen while typing, light in every mode | A full white page hid the map the moment you searched |
+| D56 | **The fog sits at 2.5× to 5×** the camera's distance | The old haze washed out the map even close up |
+| D57 | **Three map colour modes**: Green (default), Black, Grey; the interface stays light | Students pick; a dark interface would mean re-polishing every screen |
+| D58 | **A 2D / 3D toggle**, north up in 2D, low blocks; one map options button for colour, view and see-through | Some read a flat map faster; one button keeps all three out of the way |
+| D59 | **The camera follows the dot** on Next, walking direction up, 1–3 s; Back cuts | The camera cutting across while the dot walked read as teleporting |
+| D60 | **See-through buildings**: a Solid / See-through setting, and the player fades only what hides the route | Solid buildings hid the route; the goal building never fades |
+| D61 | **A top-down "drone" view** (8°) for outdoor steps and the route overview | From 40°, tall buildings still covered the path |
 
 ### Things we chose *not* to do
 
