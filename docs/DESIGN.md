@@ -405,8 +405,9 @@ The map has its own depth model, made by light, not by shadows or outlines.
 - **Campus leads:** every off-campus building is see-through (35% opacity, owner's choice) and tinted toward the
   ground, so campus buildings show through it and only campus buildings can hide the selection.
 - **Camera:** 40° field of view, about 52° from straight down for the overview with Taft Avenue toward the bottom;
-  a closer, lower angle (about 58°) for a selected building, from the first heading that sees its floor band; 40°
-  for a step in the player, outdoors about 70 m around its spot, indoors about 22 m (D46). Pinch stops at 90 m, or
+  a closer, lower angle (about 58°) for a selected building, from the first heading that sees its floor band; about
+  8° (the drone view, D61) for an outdoor step and the route preview, fitted to the walk to the next step; 40° for an
+  indoor step, about 22 m around its spot (D46). Pinch stops at 90 m, or
   35 m on an indoor step.
 
 ### Named Rules
@@ -554,7 +555,8 @@ An 18px Campus Green dot with a 3px white ring and the Float shadow, placed at t
 middle of the chosen building, or on the ground at the gate. On an indoor step with a spot, it stands at that spot
 1 m above the floor. It is placed before the floor chip, and building labels
 give way to it. On the route preview the camera frames the whole trip (the walk, the From building or gate, and the
-To building) from a heading that sees the band; a route option redraws the line without moving the camera.
+To building) from about 8° off straight down, turned so the route's long side runs up the screen with From at the
+bottom (D61); a route option redraws the line without moving the camera.
 
 ### Route line
 
@@ -573,9 +575,10 @@ beside the full-width primary **Next** ("I'm here" on the last step), so Next is
 45% on step 1. ⋯ folds two plain 56px rows (Change where I am, All steps) out under the header, with no popover box.
 A sideways swipe on the card steps too.
 
-On the map, an outdoor step flies to its spot from about 40° off straight down, about 70 m around it in view, turned
-so the walk from there points up the screen (it looks 15 m ahead, past small jogs). An indoor step on a labelled
-floor flies to its spot at the floor's height from the same 40°, about 22 m around it, turned the same way; without
+On the map, an outdoor step is seen from about 8° off straight down (the drone view, D61), with the dot in the middle,
+turned so the walk from there points up the screen (it looks 15 m ahead, past small jogs) and zoomed so the walk to
+the next step fits, at least 40 m each way. On Next the camera rides the dot there (D59). An indoor step on a labelled
+floor flies to its spot at the floor's height from 40°, about 22 m around it, turned the same way; without
 a spot it frames the whole building. Either way the building is cut open on that step's floor (7a); until its floor
 file is in, or on an untraced floor, the floor band shows instead. The cut slides over 600 ms with a cubic ease-out:
 down from the roof going in, up to the roof coming out, and from floor to floor on stairs (D45, D46). Reduced motion

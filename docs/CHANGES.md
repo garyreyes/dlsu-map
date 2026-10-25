@@ -8,6 +8,28 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-26: v2-B3: the drone view for outdoor steps and the route preview (D61)
+
+- **Outdoor steps** are seen from 8° off straight down (`DRONE_POLAR`) instead of 40°. The dot stays in the middle
+  (owner's call), the walk points up, and the camera stands back just far enough for the walk to the next step (the
+  next turn, crossing or entrance) to fit, at least 40 m each way, with 15% air. Indoor steps keep 40°. The follow on
+  Next (D59) ends on the same view, since `stepRest` and `flyToStep` share `stepSpotView`, which now returns the tilt
+  too.
+- **New `StepFocus.ahead`** (`route-player/player.ts`, Lane A's file, added only): the walk from the step's spot to the
+  next step on the same walk, or to the walk's end; `[at]` when nothing follows.
+- **The route preview (S5)** looks down from 8°, turned so the walk's long side runs up the screen with From at the
+  bottom, and fits the turned box rather than a circle. The long side is the walk's principal axis weighed by length
+  (a stretch drawn with many points counts no more than one drawn with two). A trip with no walk (inside one building)
+  keeps the old 58° view, which sees the room's floor band (owner agreed).
+- **New `campus-scene/drone.ts`** (`reachFrom`, `boxAround`, `tripAzimuth`) and `fitReach` in `home-view.ts`
+  (`fitDistance` is now `fitReach` with the same reach both ways, unchanged results). Test-first: `drone.test.ts`, the
+  `ahead` cases in `player.test.ts`, and `tests/drone-fit.test.ts`, which checks that every outdoor step's next spot on
+  the sample routes is inside its fitted view.
+- **Known, rare:** a step with no `toward` (a one-point walk) fits its view for the stretch's far end, while the follow
+  ends facing along its last stretch, so the fit can be a little off there. `ahead` snaps a spot to the nearest path
+  point, not a projection; spots sit on path points in practice.
+- `docs/DESIGN.md` (Camera, S5, S6) updated; `docs/ROADMAP-v2.md`: v2-B3 done.
+
 ## 2026-10-25: v2-B0: a missing building file is tried again when signal returns (#88); #87 was already fixed
 
 - **#88:** `useBuildingSpots` (S4's Change spot) loads the building's file again when the browser fires `online`, while

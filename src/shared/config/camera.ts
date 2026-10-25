@@ -32,6 +32,13 @@ export const SELECT_POLAR = (58 * Math.PI) / 180;
 /** An outdoor step in the player is seen from higher, about 40° from straight down, so the campus's tall buildings
  *  don't stand between the camera and the spot (D44). */
 export const STEP_POLAR = (40 * Math.PI) / 180;
+/** Outdoor steps and the route overview (S5) look down from about 8° off vertical, the "drone" view (D61). Not 0°:
+ *  straight down, camera-controls can't tell which way is up and the heading jumps. Indoor steps keep STEP_POLAR. */
+export const DRONE_POLAR = (8 * Math.PI) / 180;
+/** A drone step fits its stretch (the dot to the next turn or entrance) with this much air, and never shows less than
+ *  this many meters each way from the dot, so a short stretch still shows the paths around it (D61). */
+export const STRETCH_MARGIN = 1.15;
+export const STRETCH_MIN_REACH = 40;
 /** An indoor step (7▸) keeps this many meters of its floor around the spot in view: the hallway ahead and the rooms
  *  beside it, large enough to read on a phone. */
 export const INDOOR_STEP_RADIUS = 22;
