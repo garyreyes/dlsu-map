@@ -19,7 +19,10 @@ const LEGACY = Math.PI;
 
 interface Props {
   controlsRef: RefObject<CameraControls | null>;
+  /** The campus as drawn: the 2D view's low blocks, or the real one in 3D. */
   campus: Campus;
+  /** The real campus, for the cut building's stump under the indoor floor (kept real even in 2D). */
+  realCampus: Campus;
   palette: MapPalette;
   /** The home view's azimuth, so the sun comes from the screen's upper left at home (DESIGN.md, Map depth). */
   homeAzimuth: number;
@@ -51,6 +54,7 @@ export function MapScene(props: Props) {
   const {
     controlsRef,
     campus,
+    realCampus,
     palette,
     homeAzimuth,
     selected,
@@ -108,6 +112,7 @@ export function MapScene(props: Props) {
       )}
       <CampusMasses
         campus={campus}
+        stumpFrom={realCampus}
         palette={palette}
         selected={selected}
         onTap={onTap}
@@ -126,7 +131,7 @@ export function MapScene(props: Props) {
       ) : (
         band && <FloorBandMesh band={band} />
       )}
-      {city && <CityMasses campus={campus} palette={palette} />}
+      {city && <CityMasses campus={campus} palette={palette} low={campus !== realCampus} />}
     </>
   );
 }

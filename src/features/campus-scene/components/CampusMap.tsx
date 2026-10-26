@@ -16,9 +16,10 @@ import { LOADING_MAP, MapMessage } from '@/shared/ui/MapMessage';
 import { useReducedMotion } from '@/shared/ui/useMediaQuery';
 import { usualAzimuth } from '../flat';
 import { headingDeg } from '../gestures';
+import { LOW_TOP, lowCampus } from '../massing';
 import { framing, homeAzimuth, mainCampusCentre } from '../home-view';
 import { showsCity, TIER_DPR, type QualityTier } from '../quality';
-import { spotAnchors } from '../spot-anchors';
+import { SPOT_GAP, spotAnchors } from '../spot-anchors';
 import { CameraRig, goHome, type HomeView, type MapInsets } from './CameraRig';
 import { LabelLayer, LabelProjector, type LabelElements, type MapHere } from './Labels';
 import { MapButtons } from './MapButtons';
@@ -146,6 +147,9 @@ function CampusView(props: Props & { campus: Campus }) {
   const reduced = useReducedMotion();
   // The saved colour mode (D57): only the map changes, the interface stays light.
   const colour = useMapSettings((s) => s.settings.colour);
+  // In 2D (D58) every building, bridge and city block is a 3 m block; the cut building's stump keeps the real campus.
+  const low = useMapSettings((s) => s.settings.view) === '2d';
+  const shown = useMemo(() => (low ? lowCampus(campus) : campus), [low, campus]);
   const home = useMemo(() => homeFor(campus), [campus]);
   const failed = useCallback(() => {
     setStatus('failed');
@@ -184,6 +188,11 @@ function CampusView(props: Props & { campus: Campus }) {
   // The camera comes in close to a step's spot only once its floor is cut open: while the floor file loads, or if it
   // fails, the step frames the whole building with the band, on the floor the student is heading for (O5).
   const cutOn = cut !== null;
+  // In 2D the spot plates sit on the low block's roof, unless the building is cut open on its real floor.
+  const shownSpots = useMemo(
+    () => (low && !cutOn ? spots.map((s) => ({ ...s, height: Math.min(s.height, LOW_TOP + SPOT_GAP) })) : spots),
+    [spots, low, cutOn],
+  );
   const saving = focus?.kind === 'floor' && (trip?.stillSaving ?? []).includes(focus.building);
   const { band, samples, chip, hereAt, fromBuilding } = useTripMarks(
     bySlug,
@@ -193,6 +202,7 @@ function CampusView(props: Props & { campus: Campus }) {
     focus,
     cutOn,
     saving,
+    low,
   );
   const flightFocus = useMemo(() => (cutOn ? focus : withoutSpot(focus)), [focus, cutOn]);
   const {
@@ -248,14 +258,14 @@ function CampusView(props: Props & { campus: Campus }) {
           and a layer added later might wait for the next touch. */}
       {status !== 'failed' && (
         <LabelLayer
-          buildings={campus.buildings}
+          buildings={shown.buildings}
           elementsRef={elementsRef}
           selected={selected}
           chip={cut ? null : chip}
           chipRef={chipRef}
           here={hereAt !== null}
           hereRef={hereRef}
-          spots={spots}
+          spots={shownSpots}
         />
       )}
       <div className="fixed inset-0 touch-none" role="application" aria-label="3D map of the DLSU Manila campus">
@@ -273,7 +283,8 @@ function CampusView(props: Props & { campus: Campus }) {
             <QualityMonitor tier={tier} onTier={setTier} />
             <MapScene
               controlsRef={controlsRef}
-              campus={campus}
+              campus={shown}
+              realCampus={campus}
               palette={MAP_PALETTES[colour]}
               homeAzimuth={home.azimuth}
               selected={selected}
@@ -296,7 +307,7 @@ function CampusView(props: Props & { campus: Campus }) {
               inPlayer={focus !== null}
             />
             <LabelProjector
-              buildings={campus.buildings}
+              buildings={shown.buildings}
               elementsRef={elementsRef}
               insets={insets}
               selected={selected}
@@ -307,7 +318,7 @@ function CampusView(props: Props & { campus: Campus }) {
               hereRef={hereRef}
               placeDot={placeDot}
               cutSlug={cut ? (focusBuilding?.slug ?? null) : null}
-              spots={spots}
+              spots={shownSpots}
             />
           </Canvas>
         </ErrorBoundary>
@@ -319,6 +330,8 @@ function CampusView(props: Props & { campus: Campus }) {
           onRecenter={recenter}
           bottom={wide ? 'calc(env(safe-area-inset-bottom, 0px) + 24px)' : sheetHeight + 12}
           above={cut && <FloorRail rows={cut.rail} levels={cut.levels} />}
+          inPlayer={focus !== null}
+          top={insets.top}
         />
       )}
       <Credit sheetHeight={sheetHeight} wide={wide} />

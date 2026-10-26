@@ -500,7 +500,25 @@ section labels; no dividers.
 
 A Pale Leaf track with 4px padding holding 48px segments. The selected segment turns Sheet White with Deep Ink text
 and a Float shadow. Used for Stairs / Auto / Elevator inside the collapsed "Route options" disclosure, and for the
-map colour switcher.
+three rows of the map options card.
+
+### Map options
+
+The map's three saved choices (D57, D58, D60) behind one map button, so they stay out of the way until wanted.
+
+- **Button:** a map button with a layers icon ("Map options"), the top of the right-gutter column, above the
+  compass and recenter. It shows wherever the map buttons do, the route player included.
+- **Card:** Sheet White, 18px radius, Float shadow, 16px padding, opening upward to the left of the button with its
+  bottom edge level with it, so it never covers the sheet; 312px wide, never wider than the space left of the button,
+  and scrolling if it would pass the top of the screen. A 17px semibold "Map options"
+  title and a close icon button head it.
+- **Rows:** three, 16px apart, each a 16px Mid Ink label over a segmented control: **Colour** (Green / Black /
+  Grey), **View** (3D / 2D), **Buildings** (Solid / See-through). A choice applies at once and is saved; there is
+  no Done. Buildings joins in v2-A4, with the fading it controls: a switch that does nothing yet isn't shown.
+- **Closing:** the close button, Escape, a tap anywhere outside the card, or the map button again. Focus goes back
+  to the map button. Its Escape closes only the card, never the sheet under it. It opens and closes with a 160ms
+  fade and 4px rise; instantly under reduced motion.
+- **Not modal:** the map behind stays visible so each change can be seen as it lands.
 
 ### Toast
 
@@ -525,6 +543,10 @@ The found room's floor drawn as a solid Campus Green band one storey tall, set 0
 0.1m top and bottom so the storey lines stay visible. The floor chip (Campus Green plate, white 16px bold, "3F" or
 "G") attaches to the right-most stretch of the band the camera can actually see. The building itself takes a 22%
 green tint and the camera flies to a heading that shows the band.
+
+**In 2D** (D58) every block is 3m tall, so no storey stands apart: the band wraps the whole low block instead, from
+0.1m to 2.9m, and reads from above as a green outline. The floor chip still names the floor. A building cut open on
+an indoor step keeps its real stump, so its floor plan sits where it always does.
 
 ### Floor rail (S7)
 

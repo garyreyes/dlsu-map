@@ -180,7 +180,7 @@ interiors are added one building at a time:
     the same tone, slightly muted, as one extra non-tappable mesh. They make the campus recognizable from above.
   - **Color carries meaning only:** a single accent color marks the route, the selected building and "you are
     here". The palette lives in `shared/config/palette.ts`: a deep green ground with warm white buildings (D13,
-    settled 2026-10-21).
+    settled 2026-10-21); Black and Grey modes since D57, Green's roads lightened by D62.
   - **Default camera** matches the official campus map's orientation (Taft Avenue along the bottom), since that's
     how students already picture the campus. A small north arrow shows the real direction.
 - **Render loop:** `frameloop="demand"`. CameraControls, route animation, and the D-pad call `invalidate()`.

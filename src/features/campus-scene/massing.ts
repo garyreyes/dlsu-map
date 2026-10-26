@@ -208,6 +208,36 @@ export function stumpBlocks(volumes: readonly Block[], slab: number): Block[] {
     .map((v) => ({ ...v, top: Math.min(v.top, slab) }));
 }
 
+/** The height of every block in the 2D view (D58), meters from the ground. */
+export const LOW_TOP = 3;
+
+/**
+ * Every block as a very low one for the 2D view: base 0, top `min(top, LOW_TOP)`. A block that starts above the ground
+ * (an overhang, an upper volume or a skybridge) becomes base 0 too: seen from above it still covers its footprint, so
+ * the map keeps its shape instead of losing it. Blocks under 1 cm go.
+ */
+export function lowBlocks(volumes: readonly Block[]): Block[] {
+  return volumes.flatMap((v) =>
+    Math.min(v.top, LOW_TOP) >= 0.01 ? [{ ...v, base: 0, top: Math.min(v.top, LOW_TOP) }] : [],
+  );
+}
+
+/** A campus with buildings, bridges and city lowered by lowBlocks; everything else is kept by reference. */
+export function lowCampus<
+  C extends {
+    buildings: readonly { volumes: readonly Block[] }[];
+    bridges: readonly Block[];
+    city: readonly { outline: readonly number[]; top: number }[];
+  },
+>(campus: C): C {
+  return {
+    ...campus,
+    buildings: campus.buildings.map((b) => ({ ...b, volumes: lowBlocks(b.volumes) })),
+    bridges: lowBlocks(campus.bridges),
+    city: campus.city.map((c) => ({ ...c, top: Math.min(c.top, LOW_TOP) })),
+  };
+}
+
 /** One group per building, leaving out `without` (the cut building, drawn as a stump instead). Order is kept for the
  *  tap table. */
 export function campusGroups(

@@ -1447,6 +1447,8 @@ gives (v2 request 4).
    look straight down in 2D.
 4. **One map options button** on the map holds colour mode (D57), 2D/3D and see-through (D60), so all three stay out
    of the way until wanted.
+   It opens a small floating card beside the button, not the bottom sheet, so a route step stays in view (Gary,
+   2026-10-27, v2-A3).
 5. **One saved settings store** (`src/shared/settings/`) holds all three, saved on the phone. Both lanes read it.
 
 **Alternatives.** Flat footprints in 2D (lose the sense of buildings). 2D with twist allowed (then 2D needs the compass
@@ -1523,14 +1525,15 @@ still hide short stretches). Today's 40°.
 
 ---
 
-## D62. The Green palette's roads are lighter, so the route reads on them (2026-10-25, proposed)
+## D62. The Green palette's roads are lighter, so the route reads on them (2026-10-25, agreed)
 
 **Problem.** v2-A2's contrast check over all three colour modes (D57) found the route failing on Green's roads: Campus
 Green on road `#7fb396` is 2.60:1 and the white edge 2.39:1, both under the 3:1 for map graphics. Black and Grey
 pass everywhere.
 
-**Decision.** (Gary, in v2-A2.) Green's road goes from `#7fb396` to `#99c2ab`, 20% toward white: the route on roads is
-3.15:1, roads stand further from the ground (3.89:1, was 3.21:1) and stay lighter than paths.
+**Decision.** (Gary, in v2-A2; Charles agreed 2026-10-26.) Green's road goes from `#7fb396` to `#99c2ab`, 20% toward
+white: the route on roads is 3.15:1, roads stand further from the ground (3.89:1, was 3.21:1) and stay lighter than
+paths.
 
 **Changes** D13's road colour. **Alternatives.** Keep it and exempt green roads in the test (the route crosses roads
 only briefly, at gates). Darken the road 15% to `#6c9880` (the white edge reaches 3.26:1, but roads match paths).

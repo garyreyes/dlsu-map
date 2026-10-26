@@ -8,6 +8,23 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-27: v2-A3: map options, 2D low blocks (D58)
+
+- A map options button tops the map buttons. It opens a small floating card beside it, not the sheet, so a route
+  step stays in view (Gary's choice, noted in D58). Colour (Green / Black / Grey) and View (3D / 2D) apply at once
+  and are saved through the settings store. Buildings (Solid / See-through) waits for v2-A4, which makes it do
+  something. The card opens upward and is capped under the pill. Its Escape is caught first, so it never also
+  closes the step player or a card under it (e2e).
+- In 2D every campus building, bridge, city block and the LRT viaduct is a 3 m block on the ground (`lowCampus`,
+  `lowBlocks`). Labels, the "you are here" dot and spot plates sit on those roofs. The floor band wraps the whole
+  low block (`lowBand`) and the chip still names the floor. A building cut open on an indoor step keeps its real
+  stump, so its floor plan sits where it always did.
+- The compass hides in 2D outside the route player (`compassShown`).
+- Checked: lint, typecheck, unit 1846/1846, e2e 87/87, first load 184.7 kB gzipped. Screenshots on a 375 px phone:
+  the card, the first live switch to Black, and 2D with ST311 selected.
+- Left for Lane B: camera framing for a selected building still uses its real height in 2D, so the zoom is a little
+  loose there.
+
 ## 2026-10-26: v2-B7: the walked part of the route in grey (D59 point 5)
 
 - **In the player** the outdoor route behind the "you are here" dot is grey instead of Campus Green. The grey grows
@@ -103,7 +120,7 @@ session needs to know. Search this file; it isn't required reading (the reading 
   floor's hallways against the slab at 3:1, and the route over the cut floor; one palette per colour mode. The dimmed
   route (a building cut open) is exempt from 3:1 by design and gets a 1.4:1 floor; Grey is lowest at 1.49:1.
 - **The check found Green's roads too close to the route** (green 2.60:1, white edge 2.39:1). Gary picked
-  lightening the road from `#7fb396` to `#99c2ab` (3.15:1). D62, proposed, for Charles.
+  lightening the road from `#7fb396` to `#99c2ab` (3.15:1). D62, agreed by Gary and Charles on 2026-10-26.
 - **`set` in `useMapSettings` takes `SettingsPatch<K>`** (`Pick<MapSettings, K>`), so `set({ view: undefined })` no
   longer typechecks (Charles's #101 review). A `@ts-expect-error` in `map-settings.test.ts` pins it.
 - DESIGN.md: the map palettes section and overview describe the three modes; the haze distance now says D56's 2.5 to 5.
