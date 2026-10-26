@@ -5,8 +5,9 @@ import { SLIDE_MS } from '@/features/indoor-view';
 import type { CampusBuilding } from '@/shared/data/campus';
 import type { Route, XY } from '@/shared/data/route';
 import { useMapSettings } from '@/shared/settings/useMapSettings';
-import { followAt, followsStep, isNext, planFollow, throughDoor, type Follow } from '../follow';
+import { easeInOut, followAt, followsStep, isNext, planFollow, throughDoor, type Follow } from '../follow';
 import { climbPath, easeOut, GLIDE_MS, levelPath, pointAlong, type XYH } from '../glide';
+import { stepsWalked, walkedToward } from '../walked';
 import type { MapInsets } from './CameraRig';
 import { stepRest } from './useCameraFlights';
 import type { GlideHandle, GlideShare } from './useCameraFollow';
@@ -43,6 +44,14 @@ function pathBetween(route: Route | null, from: XYH, to: XYH, was: Level, now: L
 /** A scene point back to campus meters: x east, y north (the scene's z points south), h up (the scene's y). */
 const toXYH = (v: Vector3): XYH => [v.x, -v.z, v.y];
 
+/** How far along the outdoor walk the route line is grey, in meters: a three.js uniform object, so the line's shader
+ *  reads it at draw time, however the frame's own callbacks are ordered. 0 is no grey. */
+export type WalkedUniform = { value: number };
+
+/** The length of a path, meters, a climb counting its height (as pointAlong). */
+const lengthOf = (path: readonly XYH[]) =>
+  path.slice(1).reduce((sum, p, i) => sum + Math.hypot(...p.map((v, k) => v - (path[i]?.[k] ?? v))), 0);
+
 interface Glide {
   /** The dot's target the glide was set for; a new object means a new step. */
   target: Vector3 | null;
@@ -57,8 +66,13 @@ interface Glide {
   path: XYH[] | null;
   /** The camera's follow of this walk, when it has one: the dot then keeps the follow's pace. */
   follow: Follow | null;
+  /** The walk's length, meters (the follow's, or the path's). */
+  meters: number;
   /** Where the dot was last drawn, so a restart begins there. */
   drawn: XYH | null;
+  /** The grey's walked distance when the glide began (what was drawn then) and where the step puts it. */
+  walkedFrom: number;
+  walkedTo: number;
 }
 
 /** What the glide needs to know about the step and the camera, to decide whether the camera follows the dot (D59). */
@@ -83,6 +97,9 @@ interface StepInputs {
   level: Level;
   reduced: boolean;
   cam: GlideCamera;
+  /** The route line's walked distance as drawn now, and the step's (0 off the player). */
+  shown: number;
+  goal: number;
 }
 
 /** The camera's follow of the walk the dot is about to take, or null when the camera flies or cuts to the step. `g` is
@@ -106,14 +123,18 @@ function planCameraFollow(g: Glide, walk: XYH[] | null, k: StepInputs): Follow |
   return planFollow(walk, focus.toward ?? null, from, rest, throughDoor(g.inside, focus.kind) ? SLIDE_MS : null);
 }
 
-/** Where the dot is `elapsed` ms into its walk, and whether the walk is over: at the follow's pace, or its own. */
-function pointAt(path: XYH[], follow: Follow | null, elapsed: number, near: number | null) {
+/** Where the dot is `elapsed` ms into its walk, whether the walk is over, and how many meters of it the dot has covered:
+ *  at the follow's pace, or its own. */
+function pointAt(path: XYH[], s: Pick<Glide, 'follow' | 'meters'>, elapsed: number, near: number | null) {
+  const { follow, meters } = s;
   if (follow) {
     const p = followAt(follow, elapsed, near ?? follow.from.azimuth);
-    return { at: p.target, done: p.done };
+    // The follow's own progress (followAt), eased as it eases the camera's target along the walk.
+    const covered = meters * easeInOut(Number.isFinite(elapsed) ? elapsed / follow.ms : 1);
+    return { at: p.target, done: p.done, covered };
   }
   const p = Math.min(1, elapsed / GLIDE_MS);
-  return { at: pointAlong(path, easeOut(p)), done: p >= 1 };
+  return { at: pointAlong(path, easeOut(p)), done: p >= 1, covered: meters * easeOut(p) };
 }
 
 const freshShare = (follow: Follow | null, focus: MapFocus | null): GlideShare => ({
@@ -137,28 +158,33 @@ function takeStep(s: Glide, to: Vector3 | null, k: StepInputs): GlideShare {
   const follow = planCameraFollow(s, walk, k);
   const step = k.focus ? k.cam.step : undefined;
   const inside = k.focus?.kind === 'floor';
-  Object.assign(s, { path: walk, follow, target: to, level: k.level, inside, route: k.route, step });
+  const meters = follow?.length ?? (walk ? lengthOf(walk) : 0);
+  const grey = { walkedFrom: k.shown, walkedTo: k.goal };
+  Object.assign(s, { path: walk, follow, meters, target: to, level: k.level, inside, route: k.route, step, ...grey });
   if (!s.path) s.drawn = target;
   return freshShare(follow, follow ? k.cam.focus : null);
 }
 
-/** Writes where to draw the dot now into `out`. True while it is still walking. */
-function drawDot(s: Glide, sh: GlideShare, to: Vector3 | null, out: Vector3, now: number): boolean {
-  if (!to) return false;
-  if (!s.path) {
-    out.copy(to);
+/** Writes where to draw the dot now into `out`, and how far the route line is grey into `walked`. True while the dot is
+ *  still walking. The grey keeps the dot's pace: it moves by the meters the dot has covered, and ends at the step's. */
+function drawDot(s: Glide, sh: GlideShare, to: Vector3 | null, out: Vector3, walked: WalkedUniform, now: number) {
+  if (!to || !s.path) {
+    if (to) out.copy(to);
+    walked.value = s.walkedTo;
     return false;
   }
   sh.startedAt ??= now;
-  const p = pointAt(s.path, s.follow, now - sh.startedAt, sh.near);
+  const p = pointAt(s.path, s, now - sh.startedAt, sh.near);
   if (p.done) {
     s.path = null;
     s.drawn = toXYH(to);
     out.copy(to);
+    walked.value = s.walkedTo;
     return false;
   }
   s.drawn = [...p.at];
   out.set(p.at[0], p.at[2], -p.at[1]);
+  walked.value = walkedToward(s.walkedFrom, s.walkedTo, p.covered);
   return true;
 }
 
@@ -170,6 +196,9 @@ function drawDot(s: Glide, sh: GlideShare, to: Vector3 | null, out: Vector3, now
  * A new target is taken in at commit time, in a layout effect, before the camera's flight effect runs: a Next along one
  * level to a spot view plans the camera's follow, and the flight to that step is skipped. The dot then walks at the
  * follow's pace instead of its own 600 ms, and the camera reads the same plan and clock through `handle`.
+ *
+ * `walked` is how far along the outdoor walk the route line is grey (D59): it grows with the dot between steps, shrinks
+ * on Back, and is 0 off the player. It is a uniform object the line's shader reads, written wherever the dot is placed.
  */
 export function useDotGlide(route: Route | null, focus: MapFocus | null, reduced: boolean, cam: GlideCamera) {
   const state = useRef<Glide>({
@@ -180,19 +209,33 @@ export function useDotGlide(route: Route | null, focus: MapFocus | null, reduced
     step: undefined,
     path: null,
     follow: null,
+    meters: 0,
     drawn: null,
+    walkedFrom: 0,
+    walkedTo: 0,
   });
   const share = useRef<GlideShare>(freshShare(null, null));
+  // The route line's grey, drawn by RouteLine from this very object (see WalkedUniform).
+  const walked = useMemo<WalkedUniform>(() => ({ value: 0 }), []);
   const level = useMemo(() => levelOf(focus), [focus]);
   const { here, step, controlsRef, insets, focus: flightFocus, building } = cam;
+  // Where the step stands along the outdoor walk, meters; the trip's step is its index in `route.steps`. 0 off the player.
+  const distances = useMemo(() => (route ? stepsWalked(route) : []), [route]);
+  const goal = focus && step !== undefined ? (distances[step] ?? 0) : 0;
 
   const begin = useCallback(
     (to: Vector3 | null) => {
-      if (to === state.current.target) return;
+      const s = state.current;
+      if (to === s.target) {
+        // The same spot on a new step (or none): the grey jumps to the step's. A glide still running keeps counting from
+        // its own start, so moving from here would count those meters twice.
+        if (goal !== s.walkedTo) Object.assign(s, { walkedFrom: goal, walkedTo: goal });
+        return;
+      }
       const camera = { here, step, controlsRef, insets, focus: flightFocus, building };
-      share.current = takeStep(state.current, to, { route, focus, level, reduced, cam: camera });
+      share.current = takeStep(s, to, { route, focus, level, reduced, cam: camera, shown: walked.value, goal });
     },
-    [route, focus, level, reduced, here, step, controlsRef, insets, flightFocus, building],
+    [route, focus, level, reduced, here, step, controlsRef, insets, flightFocus, building, walked, goal],
   );
   useLayoutEffect(() => {
     begin(here);
@@ -201,14 +244,14 @@ export function useDotGlide(route: Route | null, focus: MapFocus | null, reduced
   const placeDot = useCallback(
     (to: Vector3 | null, out: Vector3, now: number): boolean => {
       begin(to);
-      return drawDot(state.current, share.current, to, out, now);
+      return drawDot(state.current, share.current, to, out, walked, now);
     },
-    [begin],
+    [begin, walked],
   );
 
   const pause = useCallback(() => {
     share.current.paused = true;
   }, []);
   const handle = useMemo<GlideHandle>(() => ({ share, pause }), [pause]);
-  return { placeDot, handle };
+  return { placeDot, handle, walked };
 }

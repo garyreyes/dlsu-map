@@ -8,6 +8,23 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-26: v2-B7: the walked part of the route in grey (D59 point 5)
+
+- **In the player** the outdoor route behind the "you are here" dot is grey instead of Campus Green. The grey grows
+  with the dot as it glides (at the follow's pace, or the dot's own 600 ms), and goes back on Back. Nothing is grey on
+  the route preview; on Arrived the whole walk is. The white edge, the see-through copy and the dimmed ribbon follow
+  the same split. Outdoor only (owner's choice): the cut floor's `CutRoute.tsx` line stays green.
+- **A grey per palette** (owner's choice): `MapPalette.walked`, Green `#5f5f5f`, Black `#737373`, Grey `#686b6a`.
+  `contrast-pairs.test.ts` checks it like the green: 3:1 over ground, path, road and the cut floor (grey or its white
+  edge), and 1.4:1 dimmed. Lighter greys failed 3:1 over Green's roads and the cut slab.
+- New pure `campus-scene/walked.ts` (`stepsWalked`, `walkedToward`) and `ribbonAlong` in `shared/three/ribbons.ts`,
+  test-first with exact values. `useDotGlide` writes the walked distance into a uniform object the line's shader
+  reads at draw time; a `useFrame` in RouteLine could run before the dot's on the glide's last frame (the canvas draws
+  on demand) and leave the grey short. `shared/three/walked-shader.ts` patches the basic material, so the haze still
+  works; its test runs the patch on the installed three's shader and fails if an upgrade moves the anchor lines.
+- `glide.ts` now exports `project`. `MapScene.tsx` (Gary's) only passes the uniform and the colour through.
+  `docs/ROADMAP-v2.md`: v2-B7 done.
+
 ## 2026-10-26: v2-B5: the 2D camera (D58)
 
 - **In 2D** the home view, recenter, a selected building and the route preview of a trip inside one building look down
