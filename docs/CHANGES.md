@@ -8,6 +8,21 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-26: v2-B4: through a door, the camera tilts with the cut (D61 point 4, D63 proposed)
+
+- **On Next through a door**, from the drone view outside to an indoor step or back out, the camera's tilt and
+  distance now take the cut slide's own `SLIDE_MS` (600 ms, read from indoor-view's index) with its cubic ease-out,
+  starting with it. The dot's walk and the heading keep the follow's own 1–3 s clock. Before, the
+  tilt and zoom were spread over the whole walk, so the floor opened long before the camera finished tipping.
+- **Leaving is the same** (Charles's choice, D63 proposed for Gary): the camera goes back to the drone view as the cut
+  slides out.
+- `follow.ts`: `planFollow` takes `lensMs`, `Follow.lensMs`; `followAt` uses it for polar and distance. Test-first: the
+  3 new cases (87.5% at 300 ms, at the indoor lens from 600 ms while the dot walks on, no lens = the walk's clock) were
+  seen failing first. `useDotGlide.ts`: the glide remembers whether its step was inside; a follow whose step changes
+  side (`throughDoor`, test-first) gets the door clock. Climbs, Back, reduced motion and non-follow steps are
+  unchanged.
+- `docs/DESIGN.md` (S6 camera) updated; `docs/ROADMAP-v2.md`: v2-B4 done.
+
 ## 2026-10-26: v2-B3: the drone view for outdoor steps and the route preview (D61)
 
 - **Outdoor steps** are seen from 8° off straight down (`DRONE_POLAR`) instead of 40°. The dot stays in the middle

@@ -10,7 +10,7 @@ import {
   TURN_WINDOW_SHARE,
 } from '@/shared/config/camera';
 import type { XY } from '@/shared/data/route';
-import { pointAlong, type XYH } from './glide';
+import { easeOut, pointAlong, type XYH } from './glide';
 import { angleDelta } from './gestures';
 
 /** The camera's angles and distance: camera-controls' azimuth and polar in radians, the distance in meters. */
@@ -44,6 +44,9 @@ export interface Follow {
   readonly turnIn: number;
   readonly start: number;
   readonly settle: number;
+  /** Through a door (B4, D63): the tilt and distance take this many ms, eased out like the cut's slide, instead of the
+   *  walk's progress. Null keeps them on the walk. */
+  readonly lensMs: number | null;
 }
 
 export type FollowPose = Lens & { readonly target: XYH };
@@ -110,9 +113,16 @@ function aheadAt(parts: readonly Stretch[], after: XY | null, s: number, window:
 
 /**
  * Works out a glide's follow: the path, where the walk goes after it, and the camera at the start and the end. A path
- * that goes nowhere (one point) has nothing to follow: the caller flies or cuts instead, as the dot jumps.
+ * that goes nowhere (one point) has nothing to follow: the caller flies or cuts instead, as the dot jumps. `lensMs`
+ * puts the tilt and distance on their own clock, for a step through a door (B4).
  */
-export function planFollow(path: readonly XYH[], toward: XY | null, from: Lens, to: Omit<Lens, 'azimuth'>): Follow {
+export function planFollow(
+  path: readonly XYH[],
+  toward: XY | null,
+  from: Lens,
+  to: Omit<Lens, 'azimuth'>,
+  lensMs: number | null = null,
+): Follow {
   const parts = stretches(path);
   const after = beyond(path, toward, parts);
   const length = parts.reduce((sum, p) => sum + p.length, 0);
@@ -122,7 +132,8 @@ export function planFollow(path: readonly XYH[], toward: XY | null, from: Lens, 
   const ahead = aheadAt(parts, after, turnIn, window);
   const settle = ahead ? azimuthOf(ahead) : from.azimuth;
   const start = settle - angleDelta(from.azimuth, settle);
-  return { path, length, toward, from, to, ms: followMs(length), window, parts, after, turnIn, start, settle };
+  const ms = followMs(length);
+  return { path, length, toward, from, to, ms, window, parts, after, turnIn, start, settle, lensMs };
 }
 
 /** What decides whether the camera rides a step's glide (D59). */
@@ -140,6 +151,10 @@ export interface FollowCase {
 
 /** Whether the camera follows the dot to this step. Anything else flies or cuts as before (D44, D45). */
 export const followsStep = (c: FollowCase) => c.forward && c.sameLevel && !c.reduced && c.spotStep && c.moves;
+
+/** Whether a step goes through a door (B4, D63): the step before was inside a building and this one is outside, or the
+ *  other way round. The camera's tilt and zoom then move with the cut sliding in or out. */
+export const throughDoor = (wasInside: boolean, now: 'ground' | 'floor') => wasInside !== (now === 'floor');
 
 /** A step of the player: the route it belongs to (compared by identity) and its number, undefined off the player. */
 export interface StepOf {
@@ -167,8 +182,19 @@ export function poseAt(f: Follow, s: number, near: number): FollowPose {
   };
 }
 
-/** The camera `elapsed` ms into the follow, eased, and whether it's over. A bad clock (NaN) ends it at the step. */
+/** The camera `elapsed` ms into the follow, eased, and whether it's over. A bad clock (NaN) ends it at the step. Through
+ *  a door the tilt and distance keep their own, shorter clock (`lensMs`). */
 export function followAt(f: Follow, elapsed: number, near: number): FollowPose & { readonly done: boolean } {
   const p = Number.isFinite(elapsed) ? elapsed / f.ms : 1;
-  return { ...poseAt(f, f.length * easeInOut(p), near), done: p >= 1 };
+  const pose = poseAt(f, f.length * easeInOut(p), near);
+  if (f.lensMs === null) return { ...pose, done: p >= 1 };
+  // The cut slide's cubic ease-out (indoor-view/slide.ts, the same curve as the dot's), so the tilt moves with the cut.
+  // A clock of 0 ms, or a bad one, is already there.
+  const k = easeOut(Number.isFinite(elapsed) && f.lensMs > 0 ? elapsed / f.lensMs : 1);
+  return {
+    ...pose,
+    polar: f.from.polar + (f.to.polar - f.from.polar) * k,
+    distance: f.from.distance + (f.to.distance - f.from.distance) * k,
+    done: p >= 1,
+  };
 }

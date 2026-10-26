@@ -582,7 +582,8 @@ floor flies to its spot at the floor's height from 40°, about 22 m around it, t
 a spot it frames the whole building. Either way the building is cut open on that step's floor (7a); until its floor
 file is in, or on an untraced floor, the floor band shows instead. The cut slides over 600 ms with a cubic ease-out:
 down from the roof going in, up to the roof coming out, and from floor to floor on stairs (D45, D46). Reduced motion
-cuts. The "you are here" dot moves to each step (D44).
+cuts. Through a door on Next, going in or coming out, the camera's tilt and distance move with the slide, the same
+600 ms ease-out, while it rides the dot on at the walk's pace (D63). The "you are here" dot moves to each step (D44).
 
 ### Arrived (S9)
 

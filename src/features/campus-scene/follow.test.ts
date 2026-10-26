@@ -8,6 +8,7 @@ import {
   isNext,
   planFollow,
   poseAt,
+  throughDoor,
   turnWindow,
   type Follow,
   type Lens,
@@ -110,6 +111,58 @@ describe('followAt', () => {
     const half = followAt(f, f.ms / 2, NORTH);
     expect(half.polar).toBeCloseTo(deg(24), 12);
     expect(half.distance).toBeCloseTo(250, 12);
+  });
+
+  describe('through a door (B4): the tilt and zoom keep the cut slide’s 600 ms clock', () => {
+    // Out of the drone view into a building: 8° from 800 m to 40° at 60 m, while the dot walks 200 m (2.4 s).
+    const inside = planFollow(
+      CORNER,
+      [200, 100],
+      { azimuth: NORTH, polar: deg(8), distance: 800 },
+      { polar: deg(40), distance: 60 },
+      600,
+    );
+
+    it('starts where the camera was', () => {
+      const start = followAt(inside, 0, NORTH);
+      expect(start.polar).toBeCloseTo(deg(8), 12);
+      expect(start.distance).toBeCloseTo(800, 12);
+    });
+
+    it('eases out like the slide: 87.5% of the way at 300 ms', () => {
+      const p = followAt(inside, 300, NORTH);
+      expect(p.polar).toBeCloseTo(deg(36), 12);
+      expect(p.distance).toBeCloseTo(152.5, 9);
+    });
+
+    it('is at the indoor tilt and distance at 600 ms, while the dot walks on', () => {
+      expect(inside.ms).toBe(2400);
+      for (const t of [600, 1200, 2000]) {
+        const p = followAt(inside, t, NORTH);
+        expect(p.polar).toBeCloseTo(deg(40), 12);
+        expect(p.distance).toBeCloseTo(60, 9);
+      }
+      const half = followAt(inside, 1200, NORTH);
+      expect(half.target).toStrictEqual([0, 100, 0]);
+      expect(half.done).toBe(false);
+    });
+
+    it('ends on the step on a bad clock', () => {
+      expect(followAt(inside, Number.NaN, NORTH)).toMatchObject({ polar: deg(40), distance: 60, done: true });
+    });
+
+    it('keeps the walk’s clock without one', () => {
+      expect(inside.lensMs).toBe(600);
+      const plain = planFollow(CORNER, [200, 100], inside.from, inside.to);
+      expect(plain.lensMs).toBeNull();
+      expect(followAt(plain, 300, NORTH).polar).toBeCloseTo(deg(8) + deg(32) * easeInOut(300 / 2400), 12);
+    });
+  });
+
+  it('treats a lens clock of 0 ms as already there, never NaN', () => {
+    const from = { azimuth: NORTH, polar: deg(8), distance: 800 };
+    const now = planFollow(CORNER, [200, 100], from, { polar: deg(40), distance: 60 }, 0);
+    expect(followAt(now, 0, NORTH)).toMatchObject({ polar: deg(40), distance: 60 });
   });
 
   it('rises with the dot through a door', () => {
@@ -220,6 +273,15 @@ describe('followsStep', () => {
     ['a glide that goes nowhere', { moves: false }],
   ])('does not follow %s', (_why, change) => {
     expect(followsStep({ ...ALL, ...change })).toBe(false);
+  });
+});
+
+describe('throughDoor', () => {
+  it('is a door only when the step changes side: outside to a floor, or a floor to outside', () => {
+    expect(throughDoor(false, 'floor')).toBe(true);
+    expect(throughDoor(true, 'ground')).toBe(true);
+    expect(throughDoor(true, 'floor')).toBe(false);
+    expect(throughDoor(false, 'ground')).toBe(false);
   });
 });
 
