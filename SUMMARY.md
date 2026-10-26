@@ -113,7 +113,7 @@ code (it loads three.js from a CDN, which the real app must not do).
 
 Full reasoning and evidence: [`docs/DECISIONS.md`](docs/DECISIONS.md). D15–D24 were agreed by the team on
 2026-10-19, D25–D27 and D33 on 2026-10-20, D28–D32 and D34–D37 on 2026-10-21, D38–D49 on 2026-10-22, D50–D54
-on 2026-10-23, D55–D61 (v2) on 2026-10-25.
+on 2026-10-23, D55–D61 (v2) on 2026-10-25, D62 on 2026-10-26.
 
 | # | Decision | Why |
 |---|---|---|
@@ -178,6 +178,7 @@ on 2026-10-23, D55–D61 (v2) on 2026-10-25.
 | D59 | **The camera follows the dot** on Next, walking direction up, 1–3 s; Back cuts | The camera cutting across while the dot walked read as teleporting |
 | D60 | **See-through buildings**: a Solid / See-through setting, and the player fades only what hides the route | Solid buildings hid the route; the goal building never fades |
 | D61 | **A top-down "drone" view** (8°) for outdoor steps and the route overview | From 40°, tall buildings still covered the path |
+| D62 | **Green's roads are lighter**: `#7fb396` → `#99c2ab`, 20% toward white | The route was 2.60:1 on green roads, under the 3:1 for map graphics; now 3.15:1 |
 
 ### Things we chose *not* to do
 
