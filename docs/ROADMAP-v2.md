@@ -38,7 +38,7 @@ as `docs/ROADMAP.md` (🧪 = test first; **Lane** A Gary, B Charles).
 | v2-B4 | Going inside: tilt 8° → 40° at the door as the floor opens; climbs keep 600 ms | B | v2-B3 | done |
 | v2-B5 | 2D camera (D58): 1° off vertical, north up outside the player, tilt off, twist off outside the player; indoor steps straight down in 2D | B | v2-0, v2-B3 | done |
 | v2-B6 | Fade what hides the route (D60): during a route, fill `fadeStore` with the buildings between the camera and the route | B | v2-B3, v2-A4 | not started |
-| v2-B7 | The walked part of the route in grey (D59 point 5), in `RouteLine.tsx` | B | v2-A2, v2-B2 | not started |
+| v2-B7 | The walked part of the route in grey (D59 point 5), in `RouteLine.tsx` | B | v2-A2, v2-B2 | done |
 
 ## Closing v2
 

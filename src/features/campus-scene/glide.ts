@@ -20,7 +20,7 @@ interface OnLine {
   readonly off: number;
 }
 
-function project(line: readonly XY[], [px, py]: XY): OnLine {
+export function project(line: readonly XY[], [px, py]: XY): OnLine {
   let best: OnLine = { along: 0, off: Infinity };
   let walked = 0;
   for (let i = 1; i < line.length; i++) {

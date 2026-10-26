@@ -170,7 +170,8 @@ describe('map colour modes (D57)', () => {
 
   // The route is a Campus Green ribbon on a white edge (RouteLine.tsx, and CutRoute.tsx on the cut floor). It reads
   // where the green stands out from what's under it, or where the white edge does and the green stands out from the
-  // edge. The "you are here" dot is the same two colours.
+  // edge. The "you are here" dot is the same two colours. The walked part is grey on the same white edge (v2-B7),
+  // so it is checked with the same function and the same edge.
   function routeContrast(green: string, edge: string, under: string) {
     const g = contrastRatio(green, under);
     const e = Math.min(contrastRatio(edge, under), contrastRatio(green, edge));
@@ -187,11 +188,19 @@ describe('map colour modes (D57)', () => {
       'cut slab': `#${slab.getHexString()}`,
       'cut hallway': `#${hall.getHexString()}`,
     };
-    return Object.entries(under).map(([name, colour]) => ({ name: `${mode} route over ${name}`, under: colour }));
+    return Object.entries(under).map(([name, colour]) => ({
+      name: `${mode} route over ${name}`,
+      walked: p.walked,
+      under: colour,
+    }));
   });
   it.each(routeRows)('$name: the route reads (green or its white edge at 3:1)', ({ name, under }) => {
     const { best, text } = routeContrast(CAMPUS_GREEN, '#ffffff', under);
     expect(best, `${name}: ${text}`).toBeGreaterThanOrEqual(AA_UI);
+  });
+  it.each(routeRows)('$name: the walked route reads (grey or its white edge at 3:1)', ({ name, walked, under }) => {
+    const { best, text } = routeContrast(walked, '#ffffff', under);
+    expect(best, `${name} walked: ${text}`).toBeGreaterThanOrEqual(AA_UI);
   });
 
   // While a building is cut open the outdoor route fades 45% into the ground on purpose (RouteLine.tsx, `dimmed`), so
@@ -206,12 +215,17 @@ describe('map colour modes (D57)', () => {
     return Object.entries({ ground: p.ground, path: p.path, road: p.road }).map(([name, under]) => ({
       name: `${mode} dimmed route over ${name}`,
       ground: p.ground,
+      walked: p.walked,
       under,
     }));
   });
   it.each(dimmedRows)('$name: still shows (1.4:1)', ({ name, ground, under }) => {
     const { best, text } = routeContrast(faded(CAMPUS_GREEN, ground), faded('#ffffff', ground), under);
     expect(best, `${name}: ${text}`).toBeGreaterThanOrEqual(DIMMED_FLOOR);
+  });
+  it.each(dimmedRows)('$name: the dimmed walked route still shows (1.4:1)', ({ name, ground, walked, under }) => {
+    const { best, text } = routeContrast(faded(walked, ground), faded('#ffffff', ground), under);
+    expect(best, `${name} walked: ${text}`).toBeGreaterThanOrEqual(DIMMED_FLOOR);
   });
 
   it.each(COLOUR_MODES)('%s: cut hallways stand out from the slab at 3:1', (mode) => {

@@ -313,9 +313,9 @@ keeps the prototype's letters: `map-a-*` is Black, `map-b-*` Green, `map-c-*` Gr
 - **Grey** (`map-c-*`): light grey ground, near-white blocks, white paths. Off-campus blocks lean 32%.
 
 Everything drawn on the map stays readable in all three: `contrast-pairs.test.ts` checks the label plates over every
-map colour, the route (its green, or its white edge, at 3:1 over ground, path, road and the cut floor) and the cut
-floor's hallways. The one exemption is the dimmed outdoor route while a building is cut open, faint on purpose (Grey
-is lowest at 1.49:1); the test keeps it at 1.4:1 or more.
+map colour, the route (its green or walked grey, or its white edge, at 3:1 over ground, path, road and the cut
+floor) and the cut floor's hallways. The one exemption is the dimmed outdoor route while a building is cut open,
+faint on purpose (Grey is lowest at 1.49:1); the test keeps it at 1.4:1 or more.
 
 ### Named Rules
 
@@ -593,6 +593,12 @@ the edge does for the line what the white ring does for the dot, so it reads on 
 building stands in front of it, the line shows through at 45%, so the whole way stays traceable. While a building is
 cut open, the outdoor ribbon fades to 45%, so it doesn't swamp the entrance. Indoor legs are drawn on the cut floor
 (8c-1, D46): a 1.6 m Campus Green line on a 2.9 m white casing.
+
+**The walked part is grey** (D59 point 5, v2-B7): in the player, the outdoor ribbon behind the "you are here" dot
+takes the palette's `walked` grey (Green `#5f5f5f`, Black `#737373`, Grey `#686b6a`); the white edge stays white. The
+grey grows with the dot as it glides, at the dot's pace, and goes back on Back. Nothing is grey on the route preview;
+on Arrived the whole walk is. The see-through copy and the dimmed ribbon go grey the same way. The cut floor's indoor
+line stays green for now.
 
 ### Step card (S6)
 

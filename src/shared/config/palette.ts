@@ -9,6 +9,8 @@ export interface MapPalette {
   building: string;
   path: string;
   road: string;
+  /** The part of the route already walked, in place of Campus Green (D59 point 5, v2-B7). Keeps the white edge. */
+  walked: string;
   /** Distance haze and sky colour. */
   haze: string;
   /** How far off-campus blocks lean from the building colour toward the ground, 0–1. */
@@ -17,11 +19,35 @@ export interface MapPalette {
 
 export const MAP_PALETTES: Record<ColourMode, MapPalette> = {
   /** Deep green ground, warm white blocks (D13). Roads lightened from #7fb396 so the route reads on them (D62). */
-  green: { ground: '#175f3c', building: '#f2eee5', path: '#5f9c7c', road: '#99c2ab', haze: '#4f9a72', cityMix: 0.5 },
+  green: {
+    ground: '#175f3c',
+    building: '#f2eee5',
+    path: '#5f9c7c',
+    road: '#99c2ab',
+    walked: '#5f5f5f',
+    haze: '#4f9a72',
+    cityMix: 0.5,
+  },
   /** Near-black ground like Waze's dark mode, cool white blocks, a dark green haze so the horizon doesn't glow. */
-  black: { ground: '#121614', building: '#e8edf3', path: '#56645d', road: '#77857e', haze: '#163326', cityMix: 0.4 },
+  black: {
+    ground: '#121614',
+    building: '#e8edf3',
+    path: '#56645d',
+    road: '#77857e',
+    walked: '#737373',
+    haze: '#163326',
+    cityMix: 0.4,
+  },
   /** Light grey ground, near-white blocks, white paths. */
-  grey: { ground: '#c4c7c6', building: '#fbfbfa', path: '#ffffff', road: '#ffffff', haze: '#cfe5d7', cityMix: 0.32 },
+  grey: {
+    ground: '#c4c7c6',
+    building: '#fbfbfa',
+    path: '#ffffff',
+    road: '#ffffff',
+    walked: '#686b6a',
+    haze: '#cfe5d7',
+    cityMix: 0.32,
+  },
 };
 
 /** The interface accent (DESIGN.md, `accent`). On the map it marks only the selection and the floor band. */

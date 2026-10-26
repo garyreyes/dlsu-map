@@ -205,7 +205,11 @@ function CampusView(props: Props & { campus: Campus }) {
     low,
   );
   const flightFocus = useMemo(() => (cutOn ? focus : withoutSpot(focus)), [focus, cutOn]);
-  const { placeDot, handle: glide } = useDotGlide(route, focus, reduced, {
+  const {
+    placeDot,
+    handle: glide,
+    walked,
+  } = useDotGlide(route, focus, reduced, {
     here: hereAt,
     step: trip?.step,
     controlsRef,
@@ -288,6 +292,7 @@ function CampusView(props: Props & { campus: Campus }) {
               route={lines}
               cut={cut}
               fullRoute={route}
+              walked={walked}
               reduced={reduced}
               city={showsCity(tier)}
               onTap={tap}

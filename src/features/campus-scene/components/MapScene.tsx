@@ -10,6 +10,7 @@ import type { FloorBand } from '../floor-band';
 import { FloorBandMesh } from './FloorBand';
 import { CampusMasses, CityMasses, PathLines } from './Masses';
 import { RouteLine } from './RouteLine';
+import type { WalkedUniform } from './useDotGlide';
 
 const GROUND_SIZE = 20000;
 /** The prototype's light values are for three.js's old lighting (before r155), where the same intensity lit π
@@ -36,6 +37,8 @@ interface Props {
   /** The whole route, for the line and goal room on the cut floor (8c). Marked against the cut being shown, which
    *  trails `cut` during a slide. */
   fullRoute: Route | null;
+  /** How far along the outdoor walk the route line is grey, meters (useDotGlide). */
+  walked: WalkedUniform;
   reduced: boolean;
   /** Whether the see-through city around the campus draws; the lowest quality tier drops it (10c). */
   city: boolean;
@@ -59,6 +62,7 @@ export function MapScene(props: Props) {
     route,
     cut,
     fullRoute,
+    walked,
     reduced,
     city,
     onTap,
@@ -97,7 +101,15 @@ export function MapScene(props: Props) {
         <meshBasicMaterial color={palette.ground} />
       </mesh>
       <PathLines campus={campus} palette={palette} />
-      {route.length > 0 && <RouteLine lines={route} dimmed={!!shown} ground={palette.ground} />}
+      {route.length > 0 && (
+        <RouteLine
+          lines={route}
+          dimmed={!!shown}
+          ground={palette.ground}
+          walked={walked}
+          walkedColor={palette.walked}
+        />
+      )}
       <CampusMasses
         campus={campus}
         stumpFrom={realCampus}
