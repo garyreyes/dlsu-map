@@ -42,7 +42,7 @@ makes the glide the one clock both read.
 | `campus-scene/components/useCameraFollow.ts` (new) | Each frame of a glide, sets the camera's target and heading from `follow.ts`. A pan or compass tap pauses it until the next step |
 | `campus-scene/components/useDotGlide.ts`, `glide.ts` | Glide duration comes from `follow.ts` instead of a fixed 600 ms on one level; climbs keep 600 ms |
 | `campus-scene/components/useCameraFlights.ts` | Flights stay for jumps (open/close a building, Back's quick cut, reduced motion); steps hand over to the follow |
-| `campus-scene/components/CameraRig.tsx` | `stepView` for outdoor steps at 8° from vertical, fitted to the step's stretch; `tripView` (S5) top-down, long side vertical; the door tilt 8° → 40°; 2D locks polar 0 and north up outside the player |
+| `campus-scene/components/CameraRig.tsx` | `stepView` for outdoor steps at 8° from vertical, fitted to the step's stretch; `tripView` (S5) top-down, long side vertical; the door tilt 8° → 40°; 2D looks down from 1° off vertical, north up outside the player |
 | `campus-scene/components/useTwistTilt.ts`, `gestures.ts` | Tilt and twist off in 2D |
 | `shared/config/camera.ts` | `DRONE_POLAR` (8°), follow look-ahead and duration limits |
 

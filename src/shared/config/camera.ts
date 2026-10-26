@@ -39,6 +39,11 @@ export const DRONE_POLAR = (8 * Math.PI) / 180;
  *  this many meters each way from the dot, so a short stretch still shows the paths around it (D61). */
 export const STRETCH_MARGIN = 1.15;
 export const STRETCH_MIN_REACH = 40;
+/** In 2D (D58) the camera looks down from 1° off vertical: as good as straight down, but not 0°, where camera-controls
+ *  can't tell which way is up (as DRONE_POLAR). */
+export const FLAT_POLAR = (1 * Math.PI) / 180;
+/** camera-controls' azimuth with north up the screen: the camera due south of its target. */
+export const NORTH_UP = 0;
 /** An indoor step (7▸) keeps this many meters of its floor around the spot in view: the hallway ahead and the rooms
  *  beside it, large enough to read on a phone. */
 export const INDOOR_STEP_RADIUS = 22;

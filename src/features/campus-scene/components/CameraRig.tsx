@@ -1,13 +1,12 @@
 import { CameraControls } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
-import { useCallback, useLayoutEffect, useRef, type RefObject } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, type RefObject } from 'react';
 import { Vector3, type PerspectiveCamera } from 'three';
 import type CameraControlsImpl from 'camera-controls';
 import {
   DRAGGING_SMOOTH_TIME,
   DRONE_POLAR,
   FOV_DEG,
-  HOME_POLAR,
   INDOOR_MIN_DISTANCE,
   INDOOR_STEP_RADIUS,
   INDOOR_TARGET_HEIGHT,
@@ -22,8 +21,11 @@ import {
 } from '@/shared/config/camera';
 import type { CampusBuilding } from '@/shared/data/campus';
 import type { XY } from '@/shared/data/route';
+import type { MapView } from '@/shared/settings/map-settings';
+import { useMapSettings } from '@/shared/settings/useMapSettings';
 import { headingDeg } from '../gestures';
 import { boxAround, pointsOf, reachFrom } from '../drone';
+import { gesturesFor, northFrom, shotLens, usualAzimuth } from '../flat';
 import { fitDistance, fitReach, framing } from '../home-view';
 import { useHeading } from './headingStore';
 import { useCameraFollow, type GlideHandle } from './useCameraFollow';
@@ -55,15 +57,19 @@ interface Props {
   onAttach: (attached: boolean) => void;
   /** The dot's glide, which the camera rides on Next (D59). */
   glide: GlideHandle;
+  /** The route player is open: in 2D, two-finger twist stays on there, to turn to the walk. */
+  inPlayer: boolean;
 }
 
-/** Points the camera at the whole campus from the home heading and tilt, framed in the screen the chrome leaves. */
+/** Points the camera at the whole campus, framed in the screen the chrome leaves: in 3D from the home heading and tilt,
+ *  in 2D (D58) from straight above with north up, turned the short way round. */
 export function goHome(c: CameraControls, home: HomeView, insets: MapInsets, animate: boolean) {
+  const { polar, northUp } = shotLens(useMapSettings.getState().settings.view, 'home');
   // The canvas fills the window (CampusMap), so the window is the view.
-  const view = { width: window.innerWidth, height: window.innerHeight, fovDeg: FOV_DEG, polar: HOME_POLAR };
+  const view = { width: window.innerWidth, height: window.innerHeight, fovDeg: FOV_DEG, polar };
   const distance = Math.min(MAX_DISTANCE, Math.max(MIN_DISTANCE, fitDistance(home.radius, view, insets)));
   void c.setTarget(home.x, 0, home.z, animate);
-  void c.rotateTo(home.azimuth, HOME_POLAR, animate);
+  void c.rotateTo(northUp ? northFrom(c.azimuthAngle) : home.azimuth, polar, animate);
   void c.dollyTo(distance, animate);
 }
 
@@ -76,11 +82,16 @@ export interface BuildingView {
   distance: number;
 }
 
-/** The whole building and some of its neighbours, fitted to the screen the chrome leaves, at the closer angle. */
-export function buildingView(b: Pick<CampusBuilding, 'volumes'>, insets: MapInsets): BuildingView {
+/** The whole building and some of its neighbours, fitted to the screen the chrome leaves, seen from `polar` (the closer
+ *  angle unless told otherwise). */
+export function buildingView(
+  b: Pick<CampusBuilding, 'volumes'>,
+  insets: MapInsets,
+  polar = SELECT_POLAR,
+): BuildingView {
   const { centre, radius } = framing(b.volumes.map((v) => v.outline));
   const top = Math.max(...b.volumes.map((v) => v.top));
-  const view = { width: window.innerWidth, height: window.innerHeight, fovDeg: FOV_DEG, polar: SELECT_POLAR };
+  const view = { width: window.innerWidth, height: window.innerHeight, fovDeg: FOV_DEG, polar };
   const fit = fitDistance(Math.max(radius, top / 2) * SELECT_CONTEXT, view, insets);
   return {
     target: new Vector3(centre[0], 0, -centre[1]),
@@ -100,17 +111,19 @@ const TRIP_PAD = 80;
 /** A whole trip (5b): the walk, the From building and the To building, fitted to the screen the chrome leaves, so
  *  goToBuilding can fly there. `outlines` are flat x, y lists: the lines and the buildings' outlines. With a `heading`
  *  (the camera's azimuth, from tripAzimuth) it is the drone view (D61): from nearly straight down, fitted to the box the
- *  trip fills on the turned screen. Without one, the closer angle and a circle that takes everything in. */
+ *  trip fills on the turned screen. Without one, a circle that takes everything in, seen from `polar` (the closer angle
+ *  unless told otherwise). */
 export function tripView(
   outlines: readonly (readonly number[])[],
   insets: MapInsets,
   heading: number | null = null,
+  polar = SELECT_POLAR,
 ): BuildingView {
   const size = { width: window.innerWidth, height: window.innerHeight, fovDeg: FOV_DEG };
   const box = heading === null ? null : boxAround(pointsOf(outlines), heading);
   if (!box) {
     const { centre, radius } = framing(outlines);
-    const fit = fitDistance(Math.max(TRIP_MIN_RADIUS, radius * TRIP_MARGIN), { ...size, polar: SELECT_POLAR }, insets);
+    const fit = fitDistance(Math.max(TRIP_MIN_RADIUS, radius * TRIP_MARGIN), { ...size, polar }, insets);
     return {
       target: new Vector3(centre[0], 0, -centre[1]),
       distance: Math.min(MAX_DISTANCE, Math.max(MIN_DISTANCE, fit)),
@@ -150,9 +163,15 @@ export function stepView(
 }
 
 /** An indoor step in the player (7▸): its spot on the cut floor and the hallway round it, close enough to read the plan
- *  on a phone, seen from the step angle. `floorHeight` is the floor's height above the ground, in meters. */
-export function indoorStepView(at: readonly [number, number], floorHeight: number, insets: MapInsets): BuildingView {
-  const view = { width: window.innerWidth, height: window.innerHeight, fovDeg: FOV_DEG, polar: STEP_POLAR };
+ *  on a phone, seen from `polar` (the step angle unless told otherwise). `floorHeight` is the floor's height above the
+ *  ground, in meters. */
+export function indoorStepView(
+  at: readonly [number, number],
+  floorHeight: number,
+  insets: MapInsets,
+  polar = STEP_POLAR,
+): BuildingView {
+  const view = { width: window.innerWidth, height: window.innerHeight, fovDeg: FOV_DEG, polar };
   const fit = fitDistance(INDOOR_STEP_RADIUS, view, insets);
   return {
     target: new Vector3(at[0], floorHeight + INDOOR_TARGET_HEIGHT, -at[1]),
@@ -181,17 +200,19 @@ export function goToBuilding(
   void c.dollyTo(view.distance, animate);
 }
 
-/** Map-style gestures: one finger pans along the ground, pinch zooms toward the fingers, mouse right-drag turns. */
-function configure(c: CameraControls) {
+/** Mouse right-drag turns the map, and tilts it with the drag's other axis: so only in 3D (phones are the target). */
+function setRightButton(c: CameraControls, view: MapView) {
+  const { ACTION } = c.constructor as typeof CameraControlsImpl;
+  c.mouseButtons.right = view === '3d' ? ACTION.ROTATE : ACTION.NONE;
+}
+
+/** Map-style gestures: one finger pans along the ground, pinch zooms toward the fingers, mouse right-drag turns (3D). */
+function configure(c: CameraControls, view: MapView) {
   // drei doesn't re-export camera-controls' ACTION values, so read them from the class itself. In camera-controls 3,
   // SCREEN_PAN is the map-style pan (a vertical drag moves along the ground); TRUCK slides in the screen's plane.
   const { ACTION } = c.constructor as typeof CameraControlsImpl;
-  Object.assign(c.mouseButtons, {
-    left: ACTION.SCREEN_PAN,
-    middle: ACTION.DOLLY,
-    right: ACTION.ROTATE,
-    wheel: ACTION.DOLLY,
-  });
+  Object.assign(c.mouseButtons, { left: ACTION.SCREEN_PAN, middle: ACTION.DOLLY, wheel: ACTION.DOLLY });
+  setRightButton(c, view);
   Object.assign(c.touches, { one: ACTION.TOUCH_SCREEN_PAN, two: ACTION.TOUCH_DOLLY, three: ACTION.NONE });
   Object.assign(c, {
     dollyToCursor: true,
@@ -203,12 +224,40 @@ function configure(c: CameraControls) {
   });
 }
 
-export function CameraRig({ controlsRef, insets, home, onAttach, glide }: Props) {
+/** The right mouse button follows the view live: it is set on attach too, but the setting can change after. */
+function useRightButton(controlsRef: RefObject<CameraControls | null>, view: MapView) {
+  // TEMPORARY (v2-B5 phone test, removed before merge): ?view=2d or ?view=3d saves that view on the phone, until
+  // A3's map options button exists.
+  useEffect(() => {
+    const asked = new URLSearchParams(window.location.search).get('view');
+    if (asked === '2d' || asked === '3d') useMapSettings.getState().set({ view: asked });
+  }, []);
+
+  useEffect(() => {
+    if (controlsRef.current) setRightButton(controlsRef.current, view);
+  }, [controlsRef, view]);
+}
+
+/** Tells the compass how far the map is turned from the view's usual heading. A change of view says so at once, even
+ *  if the camera hasn't moved. Returns the report, for the controls' change event. */
+function useHeadingReport(controlsRef: RefObject<CameraControls | null>, view: MapView, homeAzimuth: number) {
+  const setHeading = useHeading((s) => s.set);
+  const report = useCallback(() => {
+    const c = controlsRef.current;
+    if (c) setHeading(Math.round(headingDeg(c.azimuthAngle, usualAzimuth(view, homeAzimuth))));
+  }, [controlsRef, setHeading, homeAzimuth, view]);
+  useEffect(() => {
+    report();
+  }, [report]);
+  return report;
+}
+
+export function CameraRig({ controlsRef, insets, home, onAttach, glide, inPlayer }: Props) {
   const camera = useThree((s) => s.camera) as PerspectiveCamera;
   const size = useThree((s) => s.size);
   const invalidate = useThree((s) => s.invalidate);
-  const setHeading = useHeading((s) => s.set);
-  useTwistTilt(controlsRef);
+  const view = useMapSettings((s) => s.settings.view);
+  useTwistTilt(controlsRef, gesturesFor(view, inPlayer));
   useCameraFollow(controlsRef, glide);
 
   // Read through refs so the attach callback stays the same: a new one would re-attach and jump the camera home
@@ -227,12 +276,14 @@ export function CameraRig({ controlsRef, insets, home, onAttach, glide }: Props)
         onAttach(false);
         return;
       }
-      configure(c);
+      configure(c, useMapSettings.getState().settings.view);
       goHome(c, homeRef.current, insetsRef.current, false);
       onAttach(true);
     },
     [controlsRef, onAttach],
   );
+
+  useRightButton(controlsRef, view);
 
   // Shift the projection so the camera target sits in the middle of the uncovered map (the prototype's formula).
   useLayoutEffect(() => {
@@ -244,10 +295,7 @@ export function CameraRig({ controlsRef, insets, home, onAttach, glide }: Props)
     invalidate();
   }, [camera, size, insets.top, insets.bottom, insets.left, invalidate]);
 
-  const report = useCallback(() => {
-    const c = controlsRef.current;
-    if (c) setHeading(Math.round(headingDeg(c.azimuthAngle, home.azimuth)));
-  }, [controlsRef, setHeading, home.azimuth]);
+  const report = useHeadingReport(controlsRef, view, home.azimuth);
 
   return <CameraControls ref={attach} makeDefault onChange={report} />;
 }

@@ -408,7 +408,8 @@ The map has its own depth model, made by light, not by shadows or outlines.
   a closer, lower angle (about 58°) for a selected building, from the first heading that sees its floor band; about
   8° (the drone view, D61) for an outdoor step and the route preview, fitted to the walk to the next step; 40° for an
   indoor step, about 22 m around its spot (D46). Pinch stops at 90 m, or
-  35 m on an indoor step.
+  35 m on an indoor step. **In 2D** (D58) the overview, a selected building and an indoor step look down from 1° off
+  vertical; outside the player north is up. Outdoor steps and the route preview keep the drone view.
 
 ### Named Rules
 
@@ -456,7 +457,7 @@ It is the screen's primary action at home.
 - **Map button:** 48px white circle with Float shadow, Deep Ink icon (recenter: "Show the whole campus"). Buttons
   stack in a column, 12px apart.
 - **Compass:** a map button that appears above recenter only while the map is turned more than 4°. Its needle (green
-  tip) points where the usual "up" now is; tapping it turns the map back in 400ms, keeping zoom and tilt.
+  tip) points where the usual "up" (north in 2D) now is; tapping it turns the map back in 400ms, keeping zoom and tilt.
 - **Focus:** a 2px outline in green ink, offset 2px, on every control.
 
 ### Chips
@@ -602,7 +603,8 @@ centred secondary **Done**.
   the cut slide's ease-out: outside, through doors and around G as one level, and up or down at the stairs between
   floors of one building, alongside the cut's slide. It jumps into another building's upper floor (D52).
 - **Gestures (phone):** one finger pans, pinch zooms, a two-finger twist turns the map with the fingers (as in Google
-  Maps), and two fingers dragged up or down tilt it.
+  Maps), and two fingers dragged up or down tilt it. In 2D (D58) the tilt is off, and so is the twist outside the
+  player.
 - **Toast:** 160ms ease-out fade and 8px rise.
 - **Reduced motion:** every transition is removed and camera flights become cuts.
 
