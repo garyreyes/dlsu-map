@@ -91,6 +91,11 @@ flowchart TD
 - **Loading:** the search bar works before the 3D scene finishes. `rooms.json` loads first. If the student types
   before it's ready, S2 shows "Loading rooms…" and fills in when ready.
 - **O2** runs at the same time. The app is usable at once and never makes a student wait for the full download.
+- **Map options** (D58): a layers map button above the compass and recenter opens a small card beside it, on
+  every screen with the map: Colour (Green / Black / Grey), View (3D / 2D), and from v2-A4 Buildings (Solid /
+  See-through). Each choice applies at once and is saved on the phone. The card closes with ✕, Escape, a tap
+  outside, or the button.
+  In 2D the map is north up and the compass stays hidden outside the route player.
 
 ### 3.3 S2 Search (To)
 
@@ -276,7 +281,7 @@ Photos → tools/floor-extract → Claude cleanup → P1 Floor preview (npm run 
 | One primary action per screen | Passes (table in §2). **Watch S4:** it offers three ways in (type, list, outside). Keep the code box on top and "I'm outside" last so they don't compete |
 | Nothing to remember | Passes. The room line stays above S4. S5 shows both chips. S9 restates the room. From carries to the next search |
 | Honest step count | First trip 3–4 actions; repeat trips 3. The building and floor answer comes at action 2 |
-| Advanced options hidden | Route options, Change spot and the ⋯ menu are all collapsed until wanted |
+| Advanced options hidden | Route options, Change spot, the ⋯ menu and map options are all collapsed until wanted |
 | Empty, loading, error states | Listed for every screen above. **Risk:** S4 "tap on the map" is hard on small screens, so the list is the main way |
 | Words a freshman knows | Building list shows the full name *and* the prefix ("Science & Technology Research Center · ST") |
 

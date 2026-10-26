@@ -2,7 +2,8 @@ import { useMemo } from 'react';
 import { Vector3 } from 'three';
 import { INDOOR_TARGET_HEIGHT } from '@/shared/config/camera';
 import type { CampusBuilding } from '@/shared/data/campus';
-import { bandSamples, floorBand } from '../floor-band';
+import { bandSamples, floorBand, lowBand } from '../floor-band';
+import { LOW_TOP } from '../massing';
 import { bandFloorOf, floorLabelOf } from '../trip-band';
 import { herePoint, type MapHere } from './Labels';
 
@@ -67,15 +68,17 @@ export function useTripMarks(
   focus: MapFocus | null,
   cutOn: boolean,
   saving: boolean,
+  low = false,
 ) {
   const onFloor = focus?.kind === 'floor' ? focus : null;
   const focusBuilding = onFloor ? bySlug.get(onFloor.building) : undefined;
   const bandBuilding = onFloor ? focusBuilding : building;
   const bandFloor = onFloor ? bandFloorOf(onFloor, cutOn, saving) : (floor?.floor ?? null);
-  const band = useMemo(
-    () => (bandBuilding && bandFloor !== null ? floorBand(bandBuilding, bandFloor) : null),
-    [bandBuilding, bandFloor],
-  );
+  const band = useMemo(() => {
+    const real = bandBuilding && bandFloor !== null ? floorBand(bandBuilding, bandFloor) : null;
+    // In 2D (D58) the building is a 3 m block, so the band wraps all of it; the floor chip still names the floor.
+    return real && bandBuilding && low ? lowBand(bandBuilding) : real;
+  }, [bandBuilding, bandFloor, low]);
   const samples = useMemo(() => (band ? bandSamples(band) : []), [band]);
   const chip = !band
     ? null
@@ -88,10 +91,11 @@ export function useTripMarks(
     return focus.kind === 'ground' ? { kind: 'ground', at: focus.at } : focus;
   }, [focus, here]);
   const dotBuilding = dot?.kind === 'floor' ? bySlug.get(dot.building) : undefined;
-  const hereAt = useMemo(
-    () => (dot ? (spotPoint(focus, dotBuilding) ?? herePoint(dot, dotBuilding)) : null),
-    [dot, focus, dotBuilding],
-  );
+  const hereAt = useMemo(() => {
+    const at = dot ? (spotPoint(focus, dotBuilding) ?? herePoint(dot, dotBuilding)) : null;
+    // In 2D (D58) the building is a low block, so the dot sits on its roof; a cut building keeps its real floors.
+    return at && low && !cutOn ? new Vector3(at.x, Math.min(at.y, LOW_TOP), at.z) : at;
+  }, [dot, focus, dotBuilding, low, cutOn]);
   const fromBuilding = here?.kind === 'floor' ? bySlug.get(here.building) : undefined;
 
   return { band, samples, chip, hereAt, fromBuilding, focusBuilding };

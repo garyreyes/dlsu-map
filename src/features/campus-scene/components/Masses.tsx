@@ -5,7 +5,7 @@ import type { Cutaway } from '@/features/indoor-view';
 import type { Campus } from '@/shared/data/campus';
 import { CITY_OPACITY, cutTones, type MapPalette } from '@/shared/config/palette';
 import { ribbonPositions } from '@/shared/three/ribbons';
-import { buildMassing, campusGroups, selectionGroups, stumpBlocks, type Massing } from '../massing';
+import { buildMassing, campusGroups, lowBlocks, selectionGroups, stumpBlocks, type Massing } from '../massing';
 import { useTapPick } from './useTapPick';
 import { RIBBON_WIDTH, viaductBlocks } from '../ribbons';
 
@@ -32,18 +32,13 @@ const linesOf = (campus: Campus, kind: Campus['paths'][number]['kind']) =>
 
 // One builder per mesh, at module level so useCampusGeometry's memo only reruns when the campus changes.
 const bridges = (c: Campus) => massGeometry(buildMassing([{ id: 'bridges', volumes: c.bridges }]));
-const city = (c: Campus) =>
-  massGeometry(
-    buildMassing([
-      {
-        id: 'city',
-        volumes: [
-          ...c.city.map((b) => ({ outline: b.outline, base: 0, top: b.top })),
-          ...viaductBlocks(linesOf(c, 'rail')),
-        ],
-      },
-    ]),
-  );
+const cityBlocks = (c: Campus) => [
+  ...c.city.map((b) => ({ outline: b.outline, base: 0, top: b.top })),
+  ...viaductBlocks(linesOf(c, 'rail')),
+];
+const city = (c: Campus) => massGeometry(buildMassing([{ id: 'city', volumes: cityBlocks(c) }]));
+// The viaduct isn't campus data, so lowCampus can't lower it: 2D lowers it here, with the rest of the city.
+const lowCity = (c: Campus) => massGeometry(buildMassing([{ id: 'city', volumes: lowBlocks(cityBlocks(c)) }]));
 const roads = (c: Campus) => ribbonGeometry(linesOf(c, 'road'), RIBBON_WIDTH.road, 0.05);
 const streets = (c: Campus) => ribbonGeometry(linesOf(c, 'street'), RIBBON_WIDTH.street, 0.06);
 const footpaths = (c: Campus) => ribbonGeometry(linesOf(c, 'foot'), RIBBON_WIDTH.foot, 0.08);
@@ -76,6 +71,8 @@ interface CampusProps extends Props {
   massRef: RefObject<Mesh | null>;
   /** The building the step player is inside: out of the campus mesh, a stump up to the cut floor's slab instead. */
   cutaway?: Cutaway | null;
+  /** The campus the stump is cut from: the real one even when `campus` is the 2D view's low blocks. */
+  stumpFrom?: Campus;
 }
 
 /** The cut building's stump, rebuilt only when the building or the slab height changes; null with no cutaway. */
@@ -99,7 +96,7 @@ function useStumpGeometry(campus: Campus, slug: string | undefined, base: number
  * shading with the wall-foot darkening baked into vertex colours; no outlines, windows or textures. The selected
  * building is the one exception, a 22% lean toward Campus Green, drawn through a second material on its triangles.
  */
-export function CampusMasses({ campus, palette, selected, onTap, massRef, cutaway = null }: CampusProps) {
+export function CampusMasses({ campus, palette, selected, onTap, massRef, cutaway = null, stumpFrom }: CampusProps) {
   const cutSlug = cutaway?.building;
   const { geometry, owners } = useMemo(() => {
     const m = buildMassing(campusGroups(campus.buildings, cutSlug ?? null));
@@ -137,7 +134,7 @@ export function CampusMasses({ campus, palette, selected, onTap, massRef, cutawa
   useTapPick(massRef, owners, onTap);
   const bridgeGeometry = useCampusGeometry(bridges, campus);
   const tones = useMemo(() => cutTones(palette), [palette]);
-  const stumpGeometry = useStumpGeometry(campus, cutSlug, cutaway?.base);
+  const stumpGeometry = useStumpGeometry(stumpFrom ?? campus, cutSlug, cutaway?.base);
   return (
     <>
       <mesh ref={massRef} geometry={geometry} material={materials} />
@@ -157,8 +154,8 @@ export function CampusMasses({ campus, palette, selected, onTap, massRef, cutawa
  * The city around the campus, see-through and tinted toward the ground so the campus leads (DESIGN.md), plus the
  * LRT viaduct over Taft Avenue. Drawn after the campus so campus buildings show through it; never tappable.
  */
-export function CityMasses({ campus, palette }: Props) {
-  const geometry = useCampusGeometry(city, campus);
+export function CityMasses({ campus, palette, low = false }: Props & { low?: boolean }) {
+  const geometry = useCampusGeometry(low ? lowCity : city, campus);
   const color = useMemo(() => new Color(palette.building).lerp(new Color(palette.ground), palette.cityMix), [palette]);
   return (
     <mesh geometry={geometry} renderOrder={5} raycast={noHit}>

@@ -7,6 +7,9 @@ import {
   campusGroups,
   FOOT_HEIGHT,
   FOOT_SHADE,
+  LOW_TOP,
+  lowBlocks,
+  lowCampus,
   ownerOf,
   selectionGroups,
   stumpBlocks,
@@ -273,5 +276,54 @@ describe('campusGroups', () => {
     const m = buildMassing(campusGroups(buildings, null));
     expect(m.owners.map((o) => o.id)).toStrictEqual(['first', 'mid', 'last']);
     expect(ownerOf(m.owners, 18)).toBe('mid');
+  });
+});
+
+describe('lowBlocks: the 2D view draws every block 3 m tall from the ground', () => {
+  it('LOW_TOP is 3 m', () => {
+    expect(LOW_TOP).toBe(3);
+  });
+
+  it('cuts a tall block to 3 m and keeps a shorter one as it is', () => {
+    const tall = { outline: SQUARE_CCW, base: 0, top: 20 };
+    const short = { outline: SQUARE_CW, base: 0, top: 2 };
+    expect(lowBlocks([tall, short])).toStrictEqual([
+      { outline: SQUARE_CCW, base: 0, top: 3 },
+      { outline: SQUARE_CW, base: 0, top: 2 },
+    ]);
+  });
+
+  it('a block that starts above the ground (overhang or skybridge) still covers its footprint: base 0, top 3', () => {
+    expect(lowBlocks([{ outline: SQUARE_CCW, base: 12, top: 20 }])).toStrictEqual([
+      { outline: SQUARE_CCW, base: 0, top: 3 },
+    ]);
+  });
+
+  it('drops a block under 1 cm', () => {
+    expect(lowBlocks([{ outline: SQUARE_CCW, base: 0, top: 0.005 }])).toStrictEqual([]);
+  });
+});
+
+describe('lowCampus: a new campus with buildings, bridges and city lowered', () => {
+  const campus = {
+    paths: ['p'],
+    buildings: [{ slug: 'a', levels: 4, volumes: [{ outline: SQUARE_CCW, base: 0, top: 13.6 }] }],
+    bridges: [{ outline: SQUARE_CW, base: 8, top: 11 }],
+    city: [{ outline: SQUARE_CCW, top: 40 }],
+  };
+
+  it('lowers all three and keeps the rest by reference', () => {
+    const low = lowCampus(campus);
+    expect(low.buildings[0]?.volumes).toStrictEqual([{ outline: SQUARE_CCW, base: 0, top: 3 }]);
+    expect(low.buildings[0]?.levels).toBe(4);
+    expect(low.bridges).toStrictEqual([{ outline: SQUARE_CW, base: 0, top: 3 }]);
+    expect(low.city).toStrictEqual([{ outline: SQUARE_CCW, top: 3 }]);
+    expect(low.paths).toBe(campus.paths);
+  });
+
+  it('never mutates its input', () => {
+    lowCampus(campus);
+    expect(campus.buildings[0]?.volumes[0]?.top).toBe(13.6);
+    expect(campus.city[0]?.top).toBe(40);
   });
 });

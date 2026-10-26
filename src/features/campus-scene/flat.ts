@@ -2,7 +2,7 @@
 // three.js. In 3D every cell is what the camera always did. Tests: flat.test.ts.
 import { DRONE_POLAR, FLAT_POLAR, HOME_POLAR, NORTH_UP, SELECT_POLAR, STEP_POLAR } from '@/shared/config/camera';
 import type { MapView } from '@/shared/settings/map-settings';
-import { angleDelta } from './gestures';
+import { angleDelta, showCompass } from './gestures';
 
 /** Every kind of view the camera is flown to. */
 export type Shot =
@@ -64,4 +64,10 @@ export function usualAzimuth(view: MapView, homeAzimuth: number): number {
 /** North up reached the short way round from `current`. Never a raw NORTH_UP: from 2π + 0.3 that spins a whole turn. */
 export function northFrom(current: number): number {
   return current + angleDelta(current, NORTH_UP);
+}
+
+/** Whether the compass shows: only while the map is turned past COMPASS_MIN_DEG, and never in 2D outside the route
+ *  player, where north is always up (D58). */
+export function compassShown(headingDeg: number, view: MapView, inPlayer: boolean): boolean {
+  return showCompass(headingDeg) && !(view === '2d' && !inPlayer);
 }

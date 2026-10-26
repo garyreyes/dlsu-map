@@ -2,7 +2,7 @@
 // tall, 0.6 m outside the walls and inset 0.1 m top and bottom, with a floor chip on the stretch the camera can see.
 // Pure: no React, no three.js. Data coordinates (x east, y north, meters). Tests: floor-band.test.ts.
 import type { CampusBuilding } from '@/shared/data/campus';
-import { signedArea } from './massing';
+import { LOW_TOP, signedArea } from './massing';
 
 /** How far the band stands out from the walls. */
 export const BAND_OFFSET = 0.6;
@@ -35,6 +35,15 @@ export function floorBand(b: Pick<CampusBuilding, 'levels' | 'volumes'>, floor: 
     outlines: holding.map((v) => offsetOutline(v.outline, BAND_OFFSET)),
     bottom: lo + BAND_INSET,
     top: hi - BAND_INSET,
+  };
+}
+
+/** The 2D view's band (D58): every volume is a 3 m block there, so the band wraps all of it, 0.1 m clear top and bottom. */
+export function lowBand(b: Pick<CampusBuilding, 'volumes'>): FloorBand {
+  return {
+    outlines: b.volumes.map((v) => offsetOutline(v.outline, BAND_OFFSET)),
+    bottom: BAND_INSET,
+    top: LOW_TOP - BAND_INSET,
   };
 }
 
