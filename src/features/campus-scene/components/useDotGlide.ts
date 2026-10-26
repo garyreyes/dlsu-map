@@ -1,9 +1,10 @@
 import { useCallback, useLayoutEffect, useMemo, useRef, type RefObject } from 'react';
 import type { CameraControls } from '@react-three/drei';
 import type { Vector3 } from 'three';
+import { SLIDE_MS } from '@/features/indoor-view';
 import type { CampusBuilding } from '@/shared/data/campus';
 import type { Route, XY } from '@/shared/data/route';
-import { followAt, followsStep, isNext, planFollow, type Follow } from '../follow';
+import { followAt, followsStep, isNext, planFollow, throughDoor, type Follow } from '../follow';
 import { climbPath, easeOut, GLIDE_MS, levelPath, pointAlong, type XYH } from '../glide';
 import type { MapInsets } from './CameraRig';
 import { stepRest } from './useCameraFlights';
@@ -45,6 +46,9 @@ interface Glide {
   /** The dot's target the glide was set for; a new object means a new step. */
   target: Vector3 | null;
   level: Level;
+  /** Whether its step was inside a building (a floor step): a follow from outside in, or inside out, goes through a
+   *  door, where the camera tilts with the cut (B4). */
+  inside: boolean;
   /** The route and step the glide was set for, to tell Next from Back. */
   route: Route | null;
   step: number | undefined;
@@ -96,7 +100,8 @@ function planCameraFollow(g: Glide, walk: XYH[] | null, k: StepInputs): Follow |
   });
   if (!follows || !rest) return null;
   const from = { azimuth: c.azimuthAngle, polar: c.polarAngle, distance: c.distance };
-  return planFollow(walk, focus.toward ?? null, from, rest);
+  // Through a door the cut slides in or out over 600 ms, and the tilt and zoom go with it (D61, D63).
+  return planFollow(walk, focus.toward ?? null, from, rest, throughDoor(g.inside, focus.kind) ? SLIDE_MS : null);
 }
 
 /** Where the dot is `elapsed` ms into its walk, and whether the walk is over: at the follow's pace, or its own. */
@@ -129,7 +134,8 @@ function takeStep(s: Glide, to: Vector3 | null, k: StepInputs): GlideShare {
   const walk = path && path.length > 1 ? path : null;
   const follow = planCameraFollow(s, walk, k);
   const step = k.focus ? k.cam.step : undefined;
-  Object.assign(s, { path: walk, follow, target: to, level: k.level, route: k.route, step });
+  const inside = k.focus?.kind === 'floor';
+  Object.assign(s, { path: walk, follow, target: to, level: k.level, inside, route: k.route, step });
   if (!s.path) s.drawn = target;
   return freshShare(follow, follow ? k.cam.focus : null);
 }
@@ -167,6 +173,7 @@ export function useDotGlide(route: Route | null, focus: MapFocus | null, reduced
   const state = useRef<Glide>({
     target: null,
     level: null,
+    inside: false,
     route: null,
     step: undefined,
     path: null,
