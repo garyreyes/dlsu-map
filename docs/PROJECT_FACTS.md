@@ -41,7 +41,8 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 - Files under `tests/` and `scripts/` (tsconfig.node, `module: nodenext`) import JSON with
   `with { type: 'json' }`; src files don't need it. (2026-10-20)
 - Before a PR: `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, then `npm run e2e` (it serves the
-  build), which are the same commands CI runs.
+  build), which are the same commands CI runs. Skip the build and e2e silently tests whatever `dist/` holds: on v2-B3
+  (2026-10-26) a local run passed on main's old build while CI, building fresh, failed.
 - **TypeScript (D1):** `@typescript/typescript6@6.0.2` is the package version but it contains compiler 6.0.3; ESLint
   and the editor use it. `@typescript/native` is `typescript@7`, and `npm run typecheck` calls its `tsc` by full
   path. `tsc` 7 runs in build mode (`-b`) over `tsconfig.app.json` (src/) and `tsconfig.node.json` (configs, tests,

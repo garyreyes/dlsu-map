@@ -1,7 +1,7 @@
 // The step player (S6) and Arrived (S9), user-flows §3.7–3.8: which step the card shows, where the camera and the
 // "you are here" dot go for it (D44), and what Arrived says. Pure: no React, no fetch.
 import type { From, Route, To, XY } from '@/shared/data/route';
-import { emptyRouteLine, goalFloor, rowOf, toName, type PlaceNames, type StepIconKey } from './steps-list';
+import { emptyRouteLine, goalFloor, rowOf, toName, type PlaceNames, type StepIconKey } from './steps-list.ts';
 
 /** The step as the card shows it. */
 export interface StepCard {
@@ -22,7 +22,14 @@ export interface StepCard {
  * close and facing the walk like outdoors (7▸); without a spot the whole building.
  */
 export type StepFocus =
-  | { readonly kind: 'ground'; readonly at: XY; readonly toward: XY | null }
+  | {
+      readonly kind: 'ground';
+      readonly at: XY;
+      readonly toward: XY | null;
+      /** The walk from `at` to the next step (a turn, a crossing, the entrance), or to the walk's end: what the drone
+       *  view fits on screen (D61). Starts with `at`; just `[at]` when nothing follows on this walk. */
+      readonly ahead: readonly XY[];
+    }
   | {
       readonly kind: 'floor';
       readonly building: string;
@@ -81,7 +88,9 @@ export function stepFocus(route: Route, index: number): StepFocus | null {
       return at ? { ...floor, at, toward: towardOf(leg.path, at) } : floor;
     }
     case 'walk':
-      return at ? { kind: 'ground', at, toward: towardOf(leg.path, at) } : null;
+      return at
+        ? { kind: 'ground', at, toward: towardOf(leg.path, at), ahead: aheadOf(route, index, leg.path, at) }
+        : null;
   }
 }
 
@@ -106,6 +115,28 @@ function towardOf(path: readonly XY[], at: XY): XY | null {
   const end = path[nearest];
   if (!before || !end) return null;
   return [round(2 * end[0] - before[0]), round(2 * end[1] - before[1])];
+}
+
+/** The index of the point of `path` nearest `at`, looking only from index `from` on (`from` itself if none is nearer). */
+function nearestFrom(path: readonly XY[], at: XY, from: number): number {
+  let nearest = from;
+  for (let i = from; i < path.length; i++) {
+    const p = path[i];
+    if (p && dist2(p, at) < dist2(path[nearest] ?? p, at)) nearest = i;
+  }
+  return nearest;
+}
+
+/** The walk from a step's spot to the next step on the same leg (a turn, a crossing, the entrance), or to the leg's end
+ *  when the next step is on another leg or there is none: the stretch the drone view fits (D61). It starts at the spot
+ *  itself, and is just that when nothing follows. */
+function aheadOf(route: Route, index: number, path: readonly XY[], at: XY): readonly XY[] {
+  const step = route.steps[index];
+  const next = route.steps[index + 1];
+  const start = nearestFrom(path, at, 0);
+  const nextAt = step && next && next.leg === step.leg && 'at' in next ? next.at : undefined;
+  const end = nextAt ? nearestFrom(path, nextAt, Math.min(start + 1, path.length - 1)) : path.length - 1;
+  return [at, ...path.slice(start + 1, Math.max(start, end) + 1)];
 }
 
 const dist2 = (a: XY, b: XY) => (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2;

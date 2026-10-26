@@ -21,6 +21,8 @@ export type MapFocus =
       readonly kind: 'ground';
       readonly at: readonly [number, number];
       readonly toward: readonly [number, number] | null;
+      /** The walk from `at` to the next step, which the drone view fits (StepFocus.ahead, D61). */
+      readonly ahead: readonly (readonly [number, number])[];
     }
   | {
       readonly kind: 'floor';

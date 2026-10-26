@@ -1438,9 +1438,10 @@ gives (v2 request 4).
 
 **Decision.** (v2 request 4; Charles's answers on #98, Gary's on 2026-10-25.)
 
-1. **2D:** the camera looks straight down (polar 0), tilt gestures are off, and **north is always up** while browsing:
-   twisting is off too, and the compass hides. The route player still turns walking direction up (D59). Buildings
-   become very low blocks (they still read as buildings), not flat outlines. Labels stay upright.
+1. **2D:** the camera looks straight down (1° off vertical, `FLAT_POLAR`: at exactly 0° camera-controls can't tell
+   which way is up, v2-B5), tilt gestures are off, and **north is always up** while browsing: twisting is off too,
+   and the compass hides. The route player still turns walking direction up (D59). Buildings become very low blocks
+   (they still read as buildings), not flat outlines. Labels stay upright.
 2. **3D:** today's view.
 3. **Route steps ignore the choice outdoors:** they use the drone view in both (D61). Indoor steps keep 40° in 3D and
    look straight down in 2D.
@@ -1533,3 +1534,24 @@ pass everywhere.
 
 **Changes** D13's road colour. **Alternatives.** Keep it and exempt green roads in the test (the route crosses roads
 only briefly, at gates). Darken the road 15% to `#6c9880` (the white edge reaches 3.26:1, but roads match paths).
+
+---
+
+## D63. Through a door, the camera's tilt and zoom move with the cut, both ways (2026-10-26, proposed)
+
+**Problem.** D61 point 4 says the camera tilts from 8° back to 40° at the door as the floor opens. On Next the camera
+rides the dot (D59), and the follow changed tilt and zoom evenly over the whole walk, 1–3 s, while the cut slides in
+over 600 ms (D45). The floor was open long before the camera finished tipping. D61 says nothing about leaving.
+
+**Decision.** (Charles, v2-B4.)
+
+1. **When a followed step goes from outside to inside a building, or from inside to out**, the tilt and distance move
+   over 600 ms with the cut slide's cubic ease-out, starting with it. The dot's walk and the heading keep the walk's own
+   1–3 s clock.
+2. **Leaving works the same way** (Charles's choice): as the cut slides out to the roof, the camera goes back to the
+   drone view in the same 600 ms, then rides the dot to the door.
+3. Every other step is unchanged: climbs keep the 600 ms flight and slide (D45); Back, reduced motion and steps that
+   don't follow fly or cut as before.
+
+**Changes** D61 point 4 (adds leaving). **Alternatives.** Only going inside (leaving tilts over the whole walk out).
+The tilt over the whole walk, as before B4.

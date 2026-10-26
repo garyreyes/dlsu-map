@@ -14,6 +14,7 @@ import { useMapSettings } from '@/shared/settings/useMapSettings';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import { LOADING_MAP, MapMessage } from '@/shared/ui/MapMessage';
 import { useReducedMotion } from '@/shared/ui/useMediaQuery';
+import { usualAzimuth } from '../flat';
 import { headingDeg } from '../gestures';
 import { framing, homeAzimuth, mainCampusCentre } from '../home-view';
 import { showsCity, TIER_DPR, type QualityTier } from '../quality';
@@ -215,20 +216,23 @@ function CampusView(props: Props & { campus: Campus }) {
     lines,
     focus: flightFocus,
     focusBuilding,
-    glide: glide.share,
+    glide,
+    homeAzimuth: home.azimuth,
   });
 
   const recenter = () => {
     glide.pause();
     if (controlsRef.current) goHome(controlsRef.current, home, insets, !reduced);
   };
-  // Turn back to the home heading the short way, keeping zoom and tilt (DESIGN.md, Compass).
+  // Turn back to the view's usual heading (home's in 3D, north up in 2D) the short way, keeping zoom and tilt (DESIGN.md,
+  // Compass).
   const unturn = () => {
     const c = controlsRef.current;
     // The student has taken the camera: it stops following the dot for this step.
     glide.pause();
-    if (c)
-      void c.rotateAzimuthTo(c.azimuthAngle - (headingDeg(c.azimuthAngle, home.azimuth) * Math.PI) / 180, !reduced);
+    if (!c) return;
+    const usual = usualAzimuth(useMapSettings.getState().settings.view, home.azimuth);
+    void c.rotateAzimuthTo(c.azimuthAngle - (headingDeg(c.azimuthAngle, usual) * Math.PI) / 180, !reduced);
   };
 
   // No Canvas `fallback`: R3F puts it inside <canvas>, where it never shows. A WebGL failure is rethrown to the
@@ -284,6 +288,7 @@ function CampusView(props: Props & { campus: Campus }) {
               home={home}
               onAttach={onControlsAttach}
               glide={glide}
+              inPlayer={focus !== null}
             />
             <LabelProjector
               buildings={campus.buildings}

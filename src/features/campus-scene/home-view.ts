@@ -2,6 +2,8 @@
 // square to the street, so Taft runs along the bottom of the screen like the official campus map. No React, no DOM.
 // Data coordinates: meters, x east, y north. Tests: home-view.test.ts.
 
+import type { Reach } from './drone';
+
 type XY = readonly [number, number];
 
 /**
@@ -74,11 +76,12 @@ export function framing(outlines: readonly (readonly number[])[]): { centre: [nu
 }
 
 /**
- * How far back the camera stands so a ground circle of `radius` fits the part of the screen the chrome leaves free.
- * A first fit, tuned by eye on phones: the circle is foreshortened by the tilt toward the screen's top and bottom.
+ * How far back the camera stands so a ground reach fits the part of the screen the chrome leaves, with the camera's
+ * target (the middle of that part) in the middle of the reach: `across` is how far it reaches left and right, `along`
+ * up and down. A first fit, tuned by eye on phones: what lies up and down is foreshortened by the tilt.
  */
-export function fitDistance(
-  radius: number,
+export function fitReach(
+  reach: Reach,
   view: { width: number; height: number; fovDeg: number; polar: number },
   insets: { top: number; bottom: number; left: number },
 ): number {
@@ -87,7 +90,16 @@ export function fitDistance(
   const perPixel = Math.tan((view.fovDeg * Math.PI) / 360) / (full / 2);
   const freeW = Math.max(120, view.width - insets.left);
   const freeH = Math.max(120, view.height - insets.top - insets.bottom);
-  const across = radius / (perPixel * (freeW / 2));
-  const upDown = (radius * Math.cos(view.polar)) / (perPixel * (freeH / 2));
+  const across = reach.across / (perPixel * (freeW / 2));
+  const upDown = (reach.along * Math.cos(view.polar)) / (perPixel * (freeH / 2));
   return Math.max(across, upDown) * 1.05;
+}
+
+/** How far back the camera stands so a ground circle of `radius` fits the part of the screen the chrome leaves. */
+export function fitDistance(
+  radius: number,
+  view: { width: number; height: number; fovDeg: number; polar: number },
+  insets: { top: number; bottom: number; left: number },
+): number {
+  return fitReach({ across: radius, along: radius }, view, insets);
 }

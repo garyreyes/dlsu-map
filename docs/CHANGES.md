@@ -8,6 +8,73 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-26: v2-B5: the 2D camera (D58)
+
+- **In 2D** the home view, recenter, a selected building and the route preview of a trip inside one building look down
+  from 1° off vertical (`FLAT_POLAR`; at 0° camera-controls can't tell which way is up) with **north up**, turned the
+  short way round. Indoor steps look down from 1° too but keep facing the walk. The route preview with a walk and
+  outdoor steps keep the drone view (owner: S5 the same as in 3D). 3D is unchanged.
+- **Gestures in 2D:** two-finger tilt is off everywhere; two-finger twist is off outside the player and on in it
+  (D58 only stops twisting while browsing); desktop right-drag is off. The compass's usual heading is north in 2D.
+- **Switching view** re-flies whatever is on the map; with nothing on it the camera turns in place (north up and flat
+  in 2D, the home tilt and heading in 3D). The follow's end lens (and B4's door tilt) uses the view the step was taken
+  in; a switch mid-follow stops the follow and flies the step in the new view (reviewer's catch).
+- New pure `campus-scene/flat.ts` (`shotLens`, `gesturesFor`, `usualAzimuth`, `northFrom`), test-first: 24 exact-value
+  tests, every shot in both views. `buildingView`, `tripView` and `indoorStepView` take a `polar`. `CampusMap.tsx`
+  only gained plumbing (`inPlayer`, the compass's usual heading).
+- The 2D/3D button comes with Gary's A3. Until then the camera reads the saved setting only (the owner phone-tested
+  through a temporary `?view=2d` switch, removed before merging). D58's "polar 0" now says 1° off vertical;
+  DESIGN.md (Camera, Compass, Gestures) and V2-PLAN updated; `docs/ROADMAP-v2.md`: v2-B5 done.
+
+## 2026-10-26: v2-B4: through a door, the camera tilts with the cut (D61 point 4, D63 proposed)
+
+- **On Next through a door**, from the drone view outside to an indoor step or back out, the camera's tilt and
+  distance now take the cut slide's own `SLIDE_MS` (600 ms, read from indoor-view's index) with its cubic ease-out,
+  starting with it. The dot's walk and the heading keep the follow's own 1–3 s clock. Before, the
+  tilt and zoom were spread over the whole walk, so the floor opened long before the camera finished tipping.
+- **Leaving is the same** (Charles's choice, D63 proposed for Gary): the camera goes back to the drone view as the cut
+  slides out.
+- `follow.ts`: `planFollow` takes `lensMs`, `Follow.lensMs`; `followAt` uses it for polar and distance. Test-first: the
+  3 new cases (87.5% at 300 ms, at the indoor lens from 600 ms while the dot walks on, no lens = the walk's clock) were
+  seen failing first. `useDotGlide.ts`: the glide remembers whether its step was inside; a follow whose step changes
+  side (`throughDoor`, test-first) gets the door clock. Climbs, Back, reduced motion and non-follow steps are
+  unchanged.
+- `docs/DESIGN.md` (S6 camera) updated; `docs/ROADMAP-v2.md`: v2-B4 done.
+
+## 2026-10-26: v2-B3: the drone view for outdoor steps and the route preview (D61)
+
+- **Outdoor steps** are seen from 8° off straight down (`DRONE_POLAR`) instead of 40°. The dot stays in the middle
+  (owner's call), the walk points up, and the camera stands back just far enough for the walk to the next step (the
+  next turn, crossing or entrance) to fit, at least 40 m each way, with 15% air. Indoor steps keep 40°. The follow on
+  Next (D59) ends on the same view, since `stepRest` and `flyToStep` share `stepSpotView`, which now returns the tilt
+  too.
+- **New `StepFocus.ahead`** (`route-player/player.ts`, Lane A's file, added only): the walk from the step's spot to the
+  next step on the same walk, or to the walk's end; `[at]` when nothing follows.
+- **The route preview (S5)** looks down from 8°, turned so the walk's long side runs up the screen with From at the
+  bottom, and fits the turned box rather than a circle, 80 px clear of each edge: the flight starts as From is picked,
+  before the preview sheet reaches its full height (56 px taller on a Pixel 7), and From's dot sits at the bottom. The
+  long side is the walk's principal axis weighed by length
+  (a stretch drawn with many points counts no more than one drawn with two). A trip with no walk (inside one building)
+  keeps the old 58° view, which sees the room's floor band (owner agreed).
+- **New `campus-scene/drone.ts`** (`reachFrom`, `boxAround`, `tripAzimuth`) and `fitReach` in `home-view.ts`
+  (`fitDistance` is now `fitReach` with the same reach both ways, unchanged results). Test-first: `drone.test.ts`, the
+  `ahead` cases in `player.test.ts`, and `tests/drone-fit.test.ts`, which checks that every outdoor step's next spot on
+  the sample routes is inside its fitted view.
+- **Known, rare:** a step with no `toward` (a one-point walk) fits its view for the stretch's far end, while the follow
+  ends facing along its last stretch, so the fit can be a little off there. `ahead` snaps a spot to the nearest path
+  point, not a projection; spots sit on path points in practice.
+- `docs/DESIGN.md` (Camera, S5, S6) updated; `docs/ROADMAP-v2.md`: v2-B3 done.
+
+## 2026-10-25: v2-B0: a missing building file is tried again when signal returns (#88); #87 was already fixed
+
+- **#88:** `useBuildingSpots` (S4's Change spot) loads the building's file again when the browser fires `online`, while
+  the file is missing. `loadIndoor` already drops a failed shared load, so the retry really fetches. Before, nothing
+  loaded it again until the student closed the building and opened it. New e2e check (seen failing first): with
+  Velasco's file failing, G offers only the doors; after `online`, its elevator appears.
+- **#87** (S4 8px too wide) was fixed in the 8▸ critique on 2026-10-23 (the gutters moved onto the sheet's scroller,
+  and "the sheet never scrolls sideways, at any step" checks it); only the issue was still open.
+- `docs/ROADMAP-v2.md`: v2-B0 done.
+
 ## 2026-10-25: v2-A2: three map colour modes (D57, D62)
 
 - **The map draws in the saved colour mode**: Green (the default), Black or Grey, from the prototype's palettes.

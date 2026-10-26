@@ -2,7 +2,7 @@
 // (D44), and what Find next room sets From to. A wrong answer flies the camera to the wrong floor or sends the next
 // search from the wrong place, and looks just as plausible on screen. Exact values throughout.
 import { describe, expect, it } from 'vitest';
-import type { Route } from '@/shared/data/route';
+import type { Route, Step } from '@/shared/data/route';
 import {
   sampleGateRoute,
   sampleIndoorRoute,
@@ -77,14 +77,30 @@ describe('stepCard', () => {
 
 describe('stepFocus', () => {
   it('flies to a walk step’s spot, facing the next point of the walk', () => {
-    expect(stepFocus(sampleRoute, 1)).toEqual({ kind: 'ground', at: [-93.8, 250.2], toward: [-100, 205] });
-    expect(stepFocus(sampleRoute, 2)).toEqual({ kind: 'ground', at: [-100, 205], toward: [-85.6, 196] });
+    expect(stepFocus(sampleRoute, 1)).toEqual({
+      kind: 'ground',
+      at: [-93.8, 250.2],
+      toward: [-100, 205],
+      ahead: [
+        [-93.8, 250.2],
+        [-100, 205],
+      ],
+    });
+    expect(stepFocus(sampleRoute, 2)).toEqual({
+      kind: 'ground',
+      at: [-100, 205],
+      toward: [-85.6, 196],
+      ahead: [
+        [-100, 205],
+        [-85.6, 196],
+      ],
+    });
   });
 
   it('faces on through the door at the walk’s end, the way the student walks in', () => {
     // The last stretch runs from the bend (-100, 205) to the door (-85.6, 196); it carries on the same again.
     const focus = stepFocus(sampleRoute, 3);
-    expect(focus).toEqual({ kind: 'ground', at: [-85.6, 196], toward: [-71.2, 187] });
+    expect(focus).toEqual({ kind: 'ground', at: [-85.6, 196], toward: [-71.2, 187], ahead: [[-85.6, 196]] });
   });
 
   it('frames a floors step on the floor it leaves from, with no spot when the floor is not labelled', () => {
@@ -214,7 +230,16 @@ describe('stepFocus', () => {
   });
 
   it('starts a gate route on the ground at the gate', () => {
-    expect(stepFocus(sampleGateRoute, 0)).toEqual({ kind: 'ground', at: [66.5, 50.4], toward: [-40, 120] });
+    expect(stepFocus(sampleGateRoute, 0)).toEqual({
+      kind: 'ground',
+      at: [66.5, 50.4],
+      toward: [-40, 120],
+      ahead: [
+        [66.5, 50.4],
+        [-40, 120],
+        [-85.6, 196],
+      ],
+    });
   });
 
   it('faces past a short jog at the start, to the first point at least 15 m along the walk', () => {
@@ -234,7 +259,17 @@ describe('stepFocus', () => {
       ],
       steps: [{ kind: 'start', leg: 0, at: [0, 0], meters: 30, text: 'Start at Gate 2 (North)' }],
     };
-    expect(stepFocus(route, 0)).toEqual({ kind: 'ground', at: [0, 0], toward: [-30, 2] });
+    expect(stepFocus(route, 0)).toEqual({
+      kind: 'ground',
+      at: [0, 0],
+      toward: [-30, 2],
+      ahead: [
+        [0, 0],
+        [0, 2],
+        [-30, 2],
+        [-30, -40],
+      ],
+    });
   });
 
   it('uses the nearest point of the walk when a step’s spot is not exactly on it', () => {
@@ -242,7 +277,15 @@ describe('stepFocus', () => {
       ...sampleGateRoute,
       steps: [{ kind: 'cross', leg: 0, at: [-40.2, 119.9], meters: 30, street: 'Taft Avenue', text: 'Cross' }],
     };
-    expect(stepFocus(route, 0)).toEqual({ kind: 'ground', at: [-40.2, 119.9], toward: [-85.6, 196] });
+    expect(stepFocus(route, 0)).toEqual({
+      kind: 'ground',
+      at: [-40.2, 119.9],
+      toward: [-85.6, 196],
+      ahead: [
+        [-40.2, 119.9],
+        [-85.6, 196],
+      ],
+    });
   });
 
   it('is null for a step whose leg is missing, and for a route with no steps', () => {
@@ -256,6 +299,66 @@ describe('stepFocus', () => {
       [sampleRoute, sampleIndoorRoute].flatMap((r) => r.steps.map((_, i) => stepFocus(r, i)?.kind)),
     );
     expect([...kinds].sort()).toEqual<StepFocus['kind'][]>(['floor', 'ground']);
+  });
+});
+
+describe('stepFocus ahead (the stretch the drone view fits, D61)', () => {
+  const [a, b, c, d] = [
+    [0, 0],
+    [0, 50],
+    [40, 50],
+    [40, 100],
+  ] as const;
+  const walk: Route = {
+    legs: [
+      {
+        kind: 'walk',
+        from: { kind: 'gate', gate: 'gate-2', name: 'Gate 2 (North)', at: a },
+        to: sampleRoute.legs[1].to,
+        path: [a, b, c, d],
+        meters: 140,
+        seconds: 100,
+      },
+      { kind: 'floors', building: 'strc', from: 1, to: 3, by: 'stairs', seconds: 40 },
+    ],
+    steps: [
+      { kind: 'start', leg: 0, at: a, meters: 50, text: 'Start' },
+      { kind: 'turn', leg: 0, at: b, meters: 40, turn: 'right', text: 'Turn right' },
+      { kind: 'turn', leg: 0, at: c, meters: 50, turn: 'left', text: 'Turn left' },
+      { kind: 'enter', leg: 0, building: 'strc', at: d, text: 'Enter STRC' },
+      { kind: 'floors', leg: 1, building: 'strc', to: 3, by: 'stairs', text: 'Take the stairs up' },
+    ],
+    meters: 140,
+    seconds: 140,
+  };
+
+  it('runs from the step to the next turn, and no further', () => {
+    expect(stepFocus(walk, 0)).toMatchObject({ ahead: [a, b] });
+    expect(stepFocus(walk, 1)).toMatchObject({ ahead: [b, c] });
+  });
+
+  it('runs from the last turn to the entrance', () => {
+    expect(stepFocus(walk, 2)).toMatchObject({ ahead: [c, d] });
+  });
+
+  it('is just the step’s spot at the entrance, where nothing follows on the walk', () => {
+    expect(stepFocus(walk, 3)).toMatchObject({ ahead: [d] });
+  });
+
+  it('runs to the walk’s end when the next step is in another leg', () => {
+    const route: Route = { ...walk, steps: [walk.steps[0] as Step, walk.steps[4] as Step] };
+    expect(stepFocus(route, 0)).toMatchObject({ ahead: [a, b, c, d] });
+  });
+
+  it('starts at the step’s own spot even when it is off the path', () => {
+    const route: Route = {
+      ...walk,
+      steps: [
+        { kind: 'turn', leg: 0, at: [1, 49], meters: 40, turn: 'right', text: 'Turn right' },
+        walk.steps[2] as Step,
+      ],
+    };
+    expect(stepFocus(route, 0)).toMatchObject({ ahead: [[1, 49], c] });
   });
 });
 

@@ -410,9 +410,11 @@ The map has its own depth model, made by light, not by shadows or outlines.
 - **Campus leads:** every off-campus building is see-through (35% opacity, owner's choice) and tinted toward the
   ground, so campus buildings show through it and only campus buildings can hide the selection.
 - **Camera:** 40° field of view, about 52° from straight down for the overview with Taft Avenue toward the bottom;
-  a closer, lower angle (about 58°) for a selected building, from the first heading that sees its floor band; 40°
-  for a step in the player, outdoors about 70 m around its spot, indoors about 22 m (D46). Pinch stops at 90 m, or
-  35 m on an indoor step.
+  a closer, lower angle (about 58°) for a selected building, from the first heading that sees its floor band; about
+  8° (the drone view, D61) for an outdoor step and the route preview, fitted to the walk to the next step; 40° for an
+  indoor step, about 22 m around its spot (D46). Pinch stops at 90 m, or
+  35 m on an indoor step. **In 2D** (D58) the overview, a selected building and an indoor step look down from 1° off
+  vertical; outside the player north is up. Outdoor steps and the route preview keep the drone view.
 
 ### Named Rules
 
@@ -460,7 +462,7 @@ It is the screen's primary action at home.
 - **Map button:** 48px white circle with Float shadow, Deep Ink icon (recenter: "Show the whole campus"). Buttons
   stack in a column, 12px apart.
 - **Compass:** a map button that appears above recenter only while the map is turned more than 4°. Its needle (green
-  tip) points where the usual "up" now is; tapping it turns the map back in 400ms, keeping zoom and tilt.
+  tip) points where the usual "up" (north in 2D) now is; tapping it turns the map back in 400ms, keeping zoom and tilt.
 - **Focus:** a 2px outline in green ink, offset 2px, on every control.
 
 ### Chips
@@ -559,7 +561,8 @@ An 18px Campus Green dot with a 3px white ring and the Float shadow, placed at t
 middle of the chosen building, or on the ground at the gate. On an indoor step with a spot, it stands at that spot
 1 m above the floor. It is placed before the floor chip, and building labels
 give way to it. On the route preview the camera frames the whole trip (the walk, the From building or gate, and the
-To building) from a heading that sees the band; a route option redraws the line without moving the camera.
+To building) from about 8° off straight down, turned so the route's long side runs up the screen with From at the
+bottom (D61); a route option redraws the line without moving the camera.
 
 ### Route line
 
@@ -578,13 +581,15 @@ beside the full-width primary **Next** ("I'm here" on the last step), so Next is
 45% on step 1. ⋯ folds two plain 56px rows (Change where I am, All steps) out under the header, with no popover box.
 A sideways swipe on the card steps too.
 
-On the map, an outdoor step flies to its spot from about 40° off straight down, about 70 m around it in view, turned
-so the walk from there points up the screen (it looks 15 m ahead, past small jogs). An indoor step on a labelled
-floor flies to its spot at the floor's height from the same 40°, about 22 m around it, turned the same way; without
+On the map, an outdoor step is seen from about 8° off straight down (the drone view, D61), with the dot in the middle,
+turned so the walk from there points up the screen (it looks 15 m ahead, past small jogs) and zoomed so the walk to
+the next step fits, at least 40 m each way. On Next the camera rides the dot there (D59). An indoor step on a labelled
+floor flies to its spot at the floor's height from 40°, about 22 m around it, turned the same way; without
 a spot it frames the whole building. Either way the building is cut open on that step's floor (7a); until its floor
 file is in, or on an untraced floor, the floor band shows instead. The cut slides over 600 ms with a cubic ease-out:
 down from the roof going in, up to the roof coming out, and from floor to floor on stairs (D45, D46). Reduced motion
-cuts. The "you are here" dot moves to each step (D44).
+cuts. Through a door on Next, going in or coming out, the camera's tilt and distance move with the slide, the same
+600 ms ease-out, while it rides the dot on at the walk's pace (D63). The "you are here" dot moves to each step (D44).
 
 ### Arrived (S9)
 
@@ -603,7 +608,8 @@ centred secondary **Done**.
   the cut slide's ease-out: outside, through doors and around G as one level, and up or down at the stairs between
   floors of one building, alongside the cut's slide. It jumps into another building's upper floor (D52).
 - **Gestures (phone):** one finger pans, pinch zooms, a two-finger twist turns the map with the fingers (as in Google
-  Maps), and two fingers dragged up or down tilt it.
+  Maps), and two fingers dragged up or down tilt it. In 2D (D58) the tilt is off, and so is the twist outside the
+  player.
 - **Toast:** 160ms ease-out fade and 8px rise.
 - **Reduced motion:** every transition is removed and camera flights become cuts.
 

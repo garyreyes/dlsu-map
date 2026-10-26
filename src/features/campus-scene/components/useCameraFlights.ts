@@ -1,11 +1,15 @@
 import { useEffect, useRef, type RefObject } from 'react';
 import type { CameraControls } from '@react-three/drei';
 import { Vector3, type Mesh } from 'three';
-import { SELECT_POLAR, STEP_POLAR } from '@/shared/config/camera';
+import { DRONE_POLAR, SELECT_POLAR } from '@/shared/config/camera';
 import type { CampusBuilding } from '@/shared/data/campus';
+import type { MapView } from '@/shared/settings/map-settings';
+import { useMapSettings } from '@/shared/settings/useMapSettings';
 import { bestHeading, headingCandidates, type BandSample } from '../floor-band';
+import { pointsOf, tripAzimuth } from '../drone';
+import { northFrom, shotLens } from '../flat';
 import type { Lens } from '../follow';
-import { facingAzimuth } from '../gestures';
+import { angleDelta, facingAzimuth } from '../gestures';
 import {
   buildingView,
   goToBuilding,
@@ -17,7 +21,7 @@ import {
   type MapInsets,
 } from './CameraRig';
 import type { MapHere } from './Labels';
-import type { GlideShare } from './useCameraFollow';
+import type { GlideHandle } from './useCameraFollow';
 import { floorHeight, type MapFocus } from './useTripMarks';
 import { cameraAt, insideOutlines, sees, toScene } from './visibility';
 
@@ -67,7 +71,38 @@ interface Flights {
   focus: MapFocus | null;
   focusBuilding: CampusBuilding | undefined;
   /** The glide the camera rides on Next (D59): a step it follows is not flown to. */
-  glide: RefObject<GlideShare>;
+  glide: GlideHandle;
+  /** The home view's heading, which 3D turns back to when the view changes with nothing on the map. */
+  homeAzimuth: number;
+}
+
+/** What the view switch reads as it is now, not as it was when the view last changed. */
+interface Latest {
+  idle: boolean;
+  reduced: boolean;
+  homeAzimuth: number;
+}
+
+/** A change of view with nothing on the map to re-fly turns the camera in place: flat and north up in 2D, back to the
+ *  home tilt and heading in 3D, both the short way round. Not on the first view, which attach goes home to, and only
+ *  once the controls are there to turn. */
+function useViewSwitch(
+  controlsRef: RefObject<CameraControls | null>,
+  controlsReady: boolean,
+  view: MapView,
+  latest: RefObject<Latest>,
+) {
+  const shownView = useRef(view);
+  useEffect(() => {
+    const c = controlsRef.current;
+    if (shownView.current === view || !c || !controlsReady) return;
+    shownView.current = view;
+    if (!latest.current.idle) return;
+    const lens = shotLens(view, 'home');
+    const at = c.azimuthAngle;
+    const azimuth = lens.northUp ? northFrom(at) : at + angleDelta(at, latest.current.homeAzimuth);
+    void c.rotateTo(azimuth, lens.polar, !latest.current.reduced);
+  }, [controlsRef, controlsReady, view, latest]);
 }
 
 /**
@@ -78,24 +113,30 @@ interface Flights {
  * again, and nor must any later pan. In the player each step flies to its spot, facing the walk (D44). An indoor step
  * flies close to its spot on the cut floor, facing the way along the hallway, and lets the camera dolly closer (7▸);
  * one without a spot flies to its building with the band on its floor. Leaving the player frames the trip again.
+ *
+ * In 2D (D58) the building, the walkless trip and home look straight down with north up, and an indoor step looks
+ * straight down facing its walk (flat.ts). Changing the view re-flies whatever is on screen; with nothing selected the
+ * camera turns in place, keeping its target and distance.
  */
 export function useCameraFlights(f: Flights) {
-  const { controlsRef, controlsReady, massRef, reduced, building, samples, here, fromBuilding, focus, focusBuilding } =
-    f;
-  const { glide } = f;
-  const latest = useRef({ insets: f.insets, lines: f.lines });
-  useEffect(() => {
-    latest.current = { insets: f.insets, lines: f.lines };
-  });
+  const { controlsRef, controlsReady, massRef, reduced, building, samples, here, fromBuilding, focus } = f;
+  const view = useMapSettings((s) => s.settings.view);
   const tripOn = here !== null;
   const focused = focus !== null;
+  const idle = !building && !tripOn && !focused;
+  const latest = useRef({ insets: f.insets, lines: f.lines, idle, reduced, homeAzimuth: f.homeAzimuth });
+  useEffect(() => {
+    latest.current = { insets: f.insets, lines: f.lines, idle, reduced, homeAzimuth: f.homeAzimuth };
+  });
 
   useEffect(() => {
     const c = controlsRef.current;
     if (!building || !c || !controlsReady || tripOn) return;
-    const view = buildingView(building, latest.current.insets);
-    goToBuilding(c, view, bandHeading(c, view, samples, massRef.current), !reduced);
-  }, [controlsRef, massRef, building, samples, controlsReady, reduced, tripOn]);
+    const lens = shotLens(view, 'building');
+    const target = buildingView(building, latest.current.insets, lens.polar);
+    const heading = lens.northUp ? northFrom(c.azimuthAngle) : bandHeading(c, target, samples, massRef.current);
+    goToBuilding(c, target, heading, !reduced, lens.polar);
+  }, [controlsRef, massRef, building, samples, controlsReady, reduced, tripOn, view]);
 
   useEffect(() => {
     const c = controlsRef.current;
@@ -105,48 +146,68 @@ export function useCameraFlights(f: Flights) {
       ...[fromBuilding, building].flatMap((b) => b?.volumes.map((v) => v.outline) ?? []),
       ...(here.kind === 'ground' ? [here.at] : []),
     ];
-    const view = tripView(outlines, latest.current.insets);
-    goToBuilding(c, view, bandHeading(c, view, samples, massRef.current), !reduced);
-  }, [controlsRef, massRef, here, fromBuilding, building, samples, controlsReady, reduced, focused]);
+    // The walk's lines are the route's walk legs in order, From to To: the overview turns to run along them (D61). A
+    // trip with no walk (inside one building) keeps the closer angle and the heading that sees its band in 3D, and
+    // looks straight down with north up in 2D.
+    const heading = tripAzimuth(pointsOf(latest.current.lines), c.azimuthAngle);
+    if (heading !== null) {
+      goToBuilding(c, tripView(outlines, latest.current.insets, heading), heading, !reduced, DRONE_POLAR);
+      return;
+    }
+    const lens = shotLens(view, 'trip-no-walk');
+    const target = tripView(outlines, latest.current.insets, null, lens.polar);
+    const faces = lens.northUp ? northFrom(c.azimuthAngle) : bandHeading(c, target, samples, massRef.current);
+    goToBuilding(c, target, faces, !reduced, lens.polar);
+  }, [controlsRef, massRef, here, fromBuilding, building, samples, controlsReady, reduced, focused, view]);
 
-  // The closer dolly limit goes on before the step's flight, which is held to it, and off again on any other view.
-  const indoorSpot = focus?.kind === 'floor' && focus.at !== undefined;
-  useEffect(() => {
-    const c = controlsRef.current;
-    if (c && controlsReady) limitDolly(c, indoorSpot);
-  }, [controlsRef, controlsReady, indoorSpot]);
+  useViewSwitch(controlsRef, controlsReady, view, latest);
 
-  useEffect(() => {
-    const c = controlsRef.current;
-    if (!focus || !c || !controlsReady) return;
-    const g = glide.current;
-    // A follow riding to this step (planned at commit, before this effect) has the camera. Once it ends or the student
-    // takes over, the step flies as before if anything moves it again.
-    if (g.follow && !g.done && !g.paused && g.focus === focus) return;
-    flyToStep(c, focus, focusBuilding, samples, massRef.current, latest.current.insets, !reduced);
-  }, [controlsRef, massRef, glide, focus, focusBuilding, samples, controlsReady, reduced]);
+  useStepFlight(f, view, latest);
 }
 
-/** A step's spot view: an outdoor step's spot, or an indoor step's spot on its floor (the building must have it). Null
- *  for a step that frames its building instead. The flight and the follow both go here, so they end on the same view. */
-function stepSpotView(focus: MapFocus, building: CampusBuilding | undefined, insets: MapInsets): BuildingView | null {
-  if (focus.kind === 'ground') return stepView(focus.at, insets);
+/** The heading a step with a spot faces: the way the walk goes on from it, or null to keep the camera's heading. An
+ *  outdoor step with nothing ahead of it to face (no `toward`) faces its stretch's far end, if that is anywhere else. */
+function stepHeading(focus: MapFocus, current: number): number | null {
+  if (focus.kind === 'ground') return facingAzimuth(focus.at, focus.toward ?? focus.ahead.at(-1) ?? focus.at, current);
+  return focus.at && focus.toward ? facingAzimuth(focus.at, focus.toward, current) : null;
+}
+
+/** A step's spot view with the tilt it is seen at: an outdoor step's drone view of its stretch (D61), or an indoor
+ *  step's spot on its floor (the building must have it; flat in 2D). Null for a step that frames its building instead.
+ *  `current` is the camera's heading, `mapView` the 2D or 3D setting. The flight and the follow both go here, so they
+ *  end on the same view. */
+function stepSpotView(
+  focus: MapFocus,
+  building: CampusBuilding | undefined,
+  insets: MapInsets,
+  current: number,
+  mapView: MapView,
+): { readonly view: BuildingView; readonly polar: number } | null {
+  if (focus.kind === 'ground') {
+    const azimuth = stepHeading(focus, current) ?? current;
+    return { view: stepView(focus.at, focus.ahead, azimuth, insets), polar: DRONE_POLAR };
+  }
   const height = building && focus.at ? floorHeight(building, focus.floor) : null;
-  return focus.at && height !== null ? indoorStepView(focus.at, height, insets) : null;
+  if (!focus.at || height === null) return null;
+  const { polar } = shotLens(mapView, 'indoor-step');
+  return { view: indoorStepView(focus.at, height, insets, polar), polar };
 }
 
-/** Where the camera rests on a step with a spot view: its tilt and distance. Null for a step that has none. */
+/** Where the camera rests on a step with a spot view: its tilt and distance. Null for a step that has none. `current`
+ *  is the camera's azimuth when the step is taken, `mapView` the 2D or 3D setting. */
 export function stepRest(
   focus: MapFocus,
   building: CampusBuilding | undefined,
   insets: MapInsets,
+  current: number,
+  mapView: MapView,
 ): Omit<Lens, 'azimuth'> | null {
-  const view = stepSpotView(focus, building, insets);
-  return view && { polar: STEP_POLAR, distance: view.distance };
+  const spot = stepSpotView(focus, building, insets, current, mapView);
+  return spot && { polar: spot.polar, distance: spot.view.distance };
 }
 
-/** The player's flight to a step (D44, D46): outdoors to its spot facing the walk; indoors to its spot on the cut floor
- *  facing the walk, or without a spot to its building with the band on its floor. */
+/** The player's flight to a step (D44, D46): outdoors to its spot from above, facing the walk (D61); indoors to its spot
+ *  on the cut floor facing the walk, or without a spot to its building with the band on its floor. */
 function flyToStep(
   c: CameraControls,
   focus: MapFocus,
@@ -155,18 +216,46 @@ function flyToStep(
   mass: Mesh | null,
   insets: MapInsets,
   animate: boolean,
+  mapView: MapView,
 ) {
-  const spot = stepSpotView(focus, building, insets);
+  const spot = stepSpotView(focus, building, insets, c.azimuthAngle, mapView);
   if (spot) {
     // No band heading: the band isn't drawn while the cut is up. Keep the student's heading when nothing is ahead.
-    const azimuth = focus.at && focus.toward ? facingAzimuth(focus.at, focus.toward, c.azimuthAngle) : null;
-    goToBuilding(c, spot, azimuth, animate, STEP_POLAR);
+    goToBuilding(c, spot.view, stepHeading(focus, c.azimuthAngle), animate, spot.polar);
     return;
   }
   if (!building) return;
-  const view = buildingView(building, insets);
+  // The band's floor is seen from the step's tilt; in 3D the building is still fitted at the closer angle, as ever.
+  const { polar } = shotLens(mapView, 'indoor-band');
+  const view = buildingView(building, insets, mapView === '3d' ? SELECT_POLAR : polar);
   // The building's own walls never hide its band, in the merged mesh or cut out of it (D45).
   const outlines = building.volumes.map((v) => v.outline);
   const ignore = (hit: Vector3) => insideOutlines(hit, outlines, WALL_MARGIN);
-  goToBuilding(c, view, bandHeading(c, view, samples, mass, STEP_POLAR, ignore), animate, STEP_POLAR);
+  goToBuilding(c, view, bandHeading(c, view, samples, mass, polar, ignore), animate, polar);
+}
+
+/** The player's flight to each step (D44), unless the camera is riding the dot's glide to it (D59). */
+function useStepFlight(f: Flights, view: MapView, latest: RefObject<{ insets: MapInsets }>) {
+  const { controlsRef, controlsReady, massRef, reduced, samples, focus, focusBuilding, glide } = f;
+  // The closer dolly limit goes on before the step's flight, which is held to it, and off again on any other view.
+  const indoorSpot = focus?.kind === 'floor' && focus.at !== undefined;
+  useEffect(() => {
+    const c = controlsRef.current;
+    if (c && controlsReady) limitDolly(c, indoorSpot);
+  }, [controlsRef, controlsReady, indoorSpot]);
+
+  const flownView = useRef(view);
+  useEffect(() => {
+    const switched = flownView.current !== view;
+    flownView.current = view;
+    const c = controlsRef.current;
+    if (!focus || !c || !controlsReady) return;
+    const g = glide.share.current;
+    // A follow riding to this step (planned at commit, before this effect) has the camera. Once it ends or the student
+    // takes over, the step flies as before if anything moves it again. A change of view mid-follow takes the camera
+    // back, since the follow ends on the old view's lens.
+    if (switched) glide.pause();
+    else if (g.follow && !g.done && !g.paused && g.focus === focus) return;
+    flyToStep(c, focus, focusBuilding, samples, massRef.current, latest.current.insets, !reduced, view);
+  }, [controlsRef, massRef, glide, focus, focusBuilding, samples, controlsReady, reduced, view]);
 }
