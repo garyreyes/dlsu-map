@@ -226,13 +226,6 @@ function configure(c: CameraControls, view: MapView) {
 
 /** The right mouse button follows the view live: it is set on attach too, but the setting can change after. */
 function useRightButton(controlsRef: RefObject<CameraControls | null>, view: MapView) {
-  // TEMPORARY (v2-B5 phone test, removed before merge): ?view=2d or ?view=3d saves that view on the phone, until
-  // A3's map options button exists.
-  useEffect(() => {
-    const asked = new URLSearchParams(window.location.search).get('view');
-    if (asked === '2d' || asked === '3d') useMapSettings.getState().set({ view: asked });
-  }, []);
-
   useEffect(() => {
     if (controlsRef.current) setRightButton(controlsRef.current, view);
   }, [controlsRef, view]);

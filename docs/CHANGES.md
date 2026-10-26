@@ -22,8 +22,9 @@ session needs to know. Search this file; it isn't required reading (the reading 
 - New pure `campus-scene/flat.ts` (`shotLens`, `gesturesFor`, `usualAzimuth`, `northFrom`), test-first: 24 exact-value
   tests, every shot in both views. `buildingView`, `tripView` and `indoorStepView` take a `polar`. `CampusMap.tsx`
   only gained plumbing (`inPlayer`, the compass's usual heading).
-- The 2D/3D button comes with Gary's A3. Until then the camera reads the saved setting only. D58's "polar 0" now says
-  1° off vertical; DESIGN.md (Camera, Compass, Gestures) and V2-PLAN updated; `docs/ROADMAP-v2.md`: v2-B5 done.
+- The 2D/3D button comes with Gary's A3. Until then the camera reads the saved setting only (the owner phone-tested
+  through a temporary `?view=2d` switch, removed before merging). D58's "polar 0" now says 1° off vertical;
+  DESIGN.md (Camera, Compass, Gestures) and V2-PLAN updated; `docs/ROADMAP-v2.md`: v2-B5 done.
 
 ## 2026-10-26: v2-B4: through a door, the camera tilts with the cut (D61 point 4, D63 proposed)
 
