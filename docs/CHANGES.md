@@ -86,7 +86,7 @@ session needs to know. Search this file; it isn't required reading (the reading 
   floor's hallways against the slab at 3:1, and the route over the cut floor; one palette per colour mode. The dimmed
   route (a building cut open) is exempt from 3:1 by design and gets a 1.4:1 floor; Grey is lowest at 1.49:1.
 - **The check found Green's roads too close to the route** (green 2.60:1, white edge 2.39:1). Gary picked
-  lightening the road from `#7fb396` to `#99c2ab` (3.15:1). D62, proposed, for Charles.
+  lightening the road from `#7fb396` to `#99c2ab` (3.15:1). D62, agreed by Gary and Charles on 2026-10-26.
 - **`set` in `useMapSettings` takes `SettingsPatch<K>`** (`Pick<MapSettings, K>`), so `set({ view: undefined })` no
   longer typechecks (Charles's #101 review). A `@ts-expect-error` in `map-settings.test.ts` pins it.
 - DESIGN.md: the map palettes section and overview describe the three modes; the haze distance now says D56's 2.5 to 5.
