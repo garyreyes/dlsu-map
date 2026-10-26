@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import { DRONE_POLAR, FLAT_POLAR, HOME_POLAR, NORTH_UP, SELECT_POLAR, STEP_POLAR } from '@/shared/config/camera';
 import type { MapView } from '@/shared/settings/map-settings';
-import { gesturesFor, northFrom, shotLens, usualAzimuth, type Shot } from './flat';
+import { compassShown, gesturesFor, northFrom, shotLens, usualAzimuth, type Shot } from './flat';
 
 const TURN = 2 * Math.PI;
 
@@ -52,6 +52,25 @@ describe('usualAzimuth', () => {
 
   it('is north up in 2D, whatever the home heading', () => {
     expect(usualAzimuth('2d', 1.234)).toBe(NORTH_UP);
+  });
+});
+
+describe('compassShown', () => {
+  it('shows in 3D only while turned', () => {
+    expect(compassShown(30, '3d', false)).toBe(true);
+    expect(compassShown(0, '3d', false)).toBe(false);
+    expect(compassShown(30, '3d', true)).toBe(true);
+    expect(compassShown(0, '3d', true)).toBe(false);
+  });
+
+  it('never shows in 2D while browsing, turned or not', () => {
+    expect(compassShown(30, '2d', false)).toBe(false);
+    expect(compassShown(0, '2d', false)).toBe(false);
+  });
+
+  it('shows in 2D in the route player only while turned', () => {
+    expect(compassShown(30, '2d', true)).toBe(true);
+    expect(compassShown(0, '2d', true)).toBe(false);
   });
 });
 

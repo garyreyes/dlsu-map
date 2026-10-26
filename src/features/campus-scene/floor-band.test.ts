@@ -1,7 +1,15 @@
 // The floor band answers "which floor" on the map, so a band one storey off is a wrong answer that looks right. Each
 // case asserts exact heights and points (DESIGN.md, Floor band; 3d).
 import { describe, expect, it } from 'vitest';
-import { bandSamples, bestHeading, chipAnchor, floorBand, headingCandidates, offsetOutline } from './floor-band';
+import {
+  bandSamples,
+  bestHeading,
+  chipAnchor,
+  floorBand,
+  headingCandidates,
+  lowBand,
+  offsetOutline,
+} from './floor-band';
 
 /** A 10 × 20 m box, anticlockwise (x east, y north). */
 const BOX = [0, 0, 10, 0, 10, 20, 0, 20];
@@ -183,5 +191,21 @@ describe('bestHeading', () => {
 
   it('nothing to try keeps the current heading', () => {
     expect(bestHeading([], () => 0, 5)).toBeNull();
+  });
+});
+
+describe('lowBand: the 2D band wraps the whole 3 m block', () => {
+  it('runs 0.1 m to 2.9 m, whatever the building looks like in 3D', () => {
+    const band = lowBand(STRC);
+    expect([band.bottom, band.top].map((v) => Math.round(v * 1000) / 1000)).toStrictEqual([0.1, 2.9]);
+  });
+
+  it('has one outline per volume, each pushed out 0.6 m', () => {
+    const upper = { outline: [0, 0, 4, 0, 4, 4, 0, 4], base: 10, top: 14 };
+    const band = lowBand({ volumes: [...STRC.volumes, upper] });
+    expect(band.outlines.map(rounded)).toStrictEqual([
+      [-0.6, -0.6, 10.6, -0.6, 10.6, 20.6, -0.6, 20.6],
+      [-0.6, -0.6, 4.6, -0.6, 4.6, 4.6, -0.6, 4.6],
+    ]);
   });
 });

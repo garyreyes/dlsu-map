@@ -8,6 +8,23 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-27: v2-A3: map options, 2D low blocks (D58)
+
+- A map options button tops the map buttons. It opens a small floating card beside it, not the sheet, so a route
+  step stays in view (Gary's choice, noted in D58). Colour (Green / Black / Grey) and View (3D / 2D) apply at once
+  and are saved through the settings store. Buildings (Solid / See-through) waits for v2-A4, which makes it do
+  something. The card opens upward and is capped under the pill. Its Escape is caught first, so it never also
+  closes the step player or a card under it (e2e).
+- In 2D every campus building, bridge, city block and the LRT viaduct is a 3 m block on the ground (`lowCampus`,
+  `lowBlocks`). Labels, the "you are here" dot and spot plates sit on those roofs. The floor band wraps the whole
+  low block (`lowBand`) and the chip still names the floor. A building cut open on an indoor step keeps its real
+  stump, so its floor plan sits where it always did.
+- The compass hides in 2D outside the route player (`compassShown`).
+- Checked: lint, typecheck, unit 1846/1846, e2e 87/87, first load 184.7 kB gzipped. Screenshots on a 375 px phone:
+  the card, the first live switch to Black, and 2D with ST311 selected.
+- Left for Lane B: camera framing for a selected building still uses its real height in 2D, so the zoom is a little
+  loose there.
+
 ## 2026-10-26: v2-B5: the 2D camera (D58)
 
 - **In 2D** the home view, recenter, a selected building and the route preview of a trip inside one building look down

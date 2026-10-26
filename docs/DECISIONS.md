@@ -1447,6 +1447,8 @@ gives (v2 request 4).
    look straight down in 2D.
 4. **One map options button** on the map holds colour mode (D57), 2D/3D and see-through (D60), so all three stay out
    of the way until wanted.
+   It opens a small floating card beside the button, not the bottom sheet, so a route step stays in view (Gary,
+   2026-10-27, v2-A3).
 5. **One saved settings store** (`src/shared/settings/`) holds all three, saved on the phone. Both lanes read it.
 
 **Alternatives.** Flat footprints in 2D (lose the sense of buildings). 2D with twist allowed (then 2D needs the compass

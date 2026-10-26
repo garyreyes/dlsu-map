@@ -1,8 +1,10 @@
 import { LocateFixed } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { useMapSettings } from '@/shared/settings/useMapSettings';
 import { MapButton } from '@/shared/ui/MapButton';
-import { showCompass } from '../gestures';
+import { compassShown } from '../flat';
 import { useHeading } from './headingStore';
+import { MapOptions } from './MapOptions';
 
 interface Props {
   onCompass: () => void;
@@ -11,18 +13,24 @@ interface Props {
   bottom: number | string;
   /** Stacked on top of the buttons: the floor rail on an indoor step (7a). */
   above?: ReactNode;
+  /** Whether the route player is open: the compass stays in 2D there (D58). */
+  inPlayer: boolean;
+  /** The map's top inset in px, under the pill: the map options card never reaches above it. */
+  top: number;
 }
 
-/** Compass (only while the map is turned) above recenter, at the right gutter (DESIGN.md, Map button, Compass). */
-export function MapButtons({ onCompass, onRecenter, bottom, above }: Props) {
+/** Map options, compass (only while the map is turned) above recenter, at the right gutter (DESIGN.md, Map button, Compass). */
+export function MapButtons({ onCompass, onRecenter, bottom, above, inPlayer, top }: Props) {
   const heading = useHeading((s) => s.deg);
+  const view = useMapSettings((s) => s.settings.view);
   return (
     <div
       className="fixed right-(--gutter-r) z-3 flex flex-col gap-3 transition-[bottom] duration-260 ease-snap motion-reduce:transition-none"
       style={{ bottom }}
     >
       {above}
-      {showCompass(heading) && (
+      <MapOptions top={top} />
+      {compassShown(heading, view, inPlayer) && (
         <MapButton label="Turn the map back to its usual direction" onClick={onCompass}>
           {/* The needle's green tip points where "up" usually is: the map turned by `heading`, so it did too. */}
           <svg viewBox="0 0 24 24" className="size-6" style={{ transform: `rotate(${String(heading)}deg)` }}>
