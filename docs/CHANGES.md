@@ -75,6 +75,22 @@ session needs to know. Search this file; it isn't required reading (the reading 
   and "the sheet never scrolls sideways, at any step" checks it); only the issue was still open.
 - `docs/ROADMAP-v2.md`: v2-B0 done.
 
+## 2026-10-25: v2-A2: three map colour modes (D57, D62)
+
+- **The map draws in the saved colour mode**: Green (the default), Black or Grey, from the prototype's palettes.
+  `MAP_PALETTES: Record<ColourMode, MapPalette>` in `shared/config/palette.ts` replaces `MAP_PALETTE`; `CampusMap`
+  reads `useMapSettings` and passes the palette down (everything under it already took `palette` as a prop). The
+  floor preview stays on Green. There's no switch yet: the map options sheet is v2-A3.
+- **Contrast checks over all three modes** (`contrast-pairs.test.ts`, test-first): label and credit plates over every
+  map colour of every mode; the route reads over ground, path and road (its green or its white edge at 3:1); the cut
+  floor's hallways against the slab at 3:1, and the route over the cut floor; one palette per colour mode. The dimmed
+  route (a building cut open) is exempt from 3:1 by design and gets a 1.4:1 floor; Grey is lowest at 1.49:1.
+- **The check found Green's roads too close to the route** (green 2.60:1, white edge 2.39:1). Gary picked
+  lightening the road from `#7fb396` to `#99c2ab` (3.15:1). D62, proposed, for Charles.
+- **`set` in `useMapSettings` takes `SettingsPatch<K>`** (`Pick<MapSettings, K>`), so `set({ view: undefined })` no
+  longer typechecks (Charles's #101 review). A `@ts-expect-error` in `map-settings.test.ts` pins it.
+- DESIGN.md: the map palettes section and overview describe the three modes; the haze distance now says D56's 2.5 to 5.
+
 ## 2026-10-25: v2-B2: the camera follows the dot on Next (D59)
 
 - **On Next, the camera rides the dot's glide** instead of flying to the new step: it stays on the dot, heading looks

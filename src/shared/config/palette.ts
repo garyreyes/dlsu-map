@@ -1,7 +1,9 @@
 import { Color } from 'three';
+import type { ColourMode } from '@/shared/settings/map-settings';
 
 // Map colours (DESIGN.md, "Map palettes"). The interface never samples these and the map never uses interface
-// neutrals (the Two Worlds Rule). D13 settled on the green palette, the owner's pick in 2c.
+// neutrals (the Two Worlds Rule). Three colour modes from the prototype (D57); the student's pick is saved in
+// useMapSettings, Green by default.
 export interface MapPalette {
   ground: string;
   building: string;
@@ -13,14 +15,13 @@ export interface MapPalette {
   cityMix: number;
 }
 
-/** Green: deep green ground, warm white blocks (D13). */
-export const MAP_PALETTE: MapPalette = {
-  ground: '#175f3c',
-  building: '#f2eee5',
-  path: '#5f9c7c',
-  road: '#7fb396',
-  haze: '#4f9a72',
-  cityMix: 0.5,
+export const MAP_PALETTES: Record<ColourMode, MapPalette> = {
+  /** Deep green ground, warm white blocks (D13). Roads lightened from #7fb396 so the route reads on them (D62). */
+  green: { ground: '#175f3c', building: '#f2eee5', path: '#5f9c7c', road: '#99c2ab', haze: '#4f9a72', cityMix: 0.5 },
+  /** Near-black ground like Waze's dark mode, cool white blocks, a dark green haze so the horizon doesn't glow. */
+  black: { ground: '#121614', building: '#e8edf3', path: '#56645d', road: '#77857e', haze: '#163326', cityMix: 0.4 },
+  /** Light grey ground, near-white blocks, white paths. */
+  grey: { ground: '#c4c7c6', building: '#fbfbfa', path: '#ffffff', road: '#ffffff', haze: '#cfe5d7', cityMix: 0.32 },
 };
 
 /** The interface accent (DESIGN.md, `accent`). On the map it marks only the selection and the floor band. */
@@ -42,7 +43,8 @@ export const HAZE_FAR = 5;
 
 /** Hallway colour in the cut: the building colour at this fraction of its lightness (scaled in linear RGB), with no
  *  green in it, so the one green on the cut floor is the route (the One Green Rule). On the green palette this gives
- *  #75736e against the #d9dacf slab: 3.36:1 (WCAG contrast; 0.68 gave only 1.18:1). */
+ *  #75736e against the #d9dacf slab: 3.36:1 (WCAG contrast; 0.68 gave only 1.18:1).
+ *  contrast-pairs.test.ts checks every mode. */
 const CUT_HALL_SHADE = 0.2;
 /** Cut walls are this fraction of the slab's lightness: the one named exception to the Shaped-by-Light Rule. */
 const CUT_WALL_SHADE = 0.8;

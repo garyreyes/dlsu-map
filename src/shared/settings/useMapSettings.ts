@@ -1,5 +1,11 @@
 import { create } from 'zustand';
-import { DEFAULT_MAP_SETTINGS, parseMapSettings, type MapSettings } from './map-settings';
+import {
+  applyPatch,
+  DEFAULT_MAP_SETTINGS,
+  parseMapSettings,
+  type MapSettings,
+  type SettingsPatch,
+} from './map-settings';
 
 /** localStorage key. The format is in PROJECT_FACTS. */
 const KEY = 'dlsu-map.map-settings';
@@ -28,11 +34,16 @@ function write(settings: MapSettings) {
  */
 export const useMapSettings = create<{
   settings: MapSettings;
-  set: (patch: Partial<MapSettings>) => void;
+  set: <K extends keyof MapSettings>(patch: SettingsPatch<K>) => void;
+  /** One setting by name, for a sheet that loops over the keys (a computed `{ [key]: value }` won't typecheck). */
+  setOne: <K extends keyof MapSettings>(key: K, value: MapSettings[K]) => void;
 }>((set, get) => ({
   settings: read(),
   set: (patch) => {
-    set({ settings: { ...get().settings, ...patch } });
+    set({ settings: applyPatch(get().settings, patch) });
     write(get().settings);
+  },
+  setOne: (key, value) => {
+    get().set({ [key]: value } as SettingsPatch<typeof key>);
   },
 }));
