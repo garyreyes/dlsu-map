@@ -1438,9 +1438,10 @@ gives (v2 request 4).
 
 **Decision.** (v2 request 4; Charles's answers on #98, Gary's on 2026-10-25.)
 
-1. **2D:** the camera looks straight down (polar 0), tilt gestures are off, and **north is always up** while browsing:
-   twisting is off too, and the compass hides. The route player still turns walking direction up (D59). Buildings
-   become very low blocks (they still read as buildings), not flat outlines. Labels stay upright.
+1. **2D:** the camera looks straight down (1° off vertical, `FLAT_POLAR`: at exactly 0° camera-controls can't tell
+   which way is up, v2-B5), tilt gestures are off, and **north is always up** while browsing: twisting is off too,
+   and the compass hides. The route player still turns walking direction up (D59). Buildings become very low blocks
+   (they still read as buildings), not flat outlines. Labels stay upright.
 2. **3D:** today's view.
 3. **Route steps ignore the choice outdoors:** they use the drone view in both (D61). Indoor steps keep 40° in 3D and
    look straight down in 2D.

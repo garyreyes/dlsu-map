@@ -8,6 +8,24 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-26: v2-B5: the 2D camera (D58)
+
+- **In 2D** the home view, recenter, a selected building and the route preview of a trip inside one building look down
+  from 1° off vertical (`FLAT_POLAR`; at 0° camera-controls can't tell which way is up) with **north up**, turned the
+  short way round. Indoor steps look down from 1° too but keep facing the walk. The route preview with a walk and
+  outdoor steps keep the drone view (owner: S5 the same as in 3D). 3D is unchanged.
+- **Gestures in 2D:** two-finger tilt is off everywhere; two-finger twist is off outside the player and on in it
+  (D58 only stops twisting while browsing); desktop right-drag is off. The compass's usual heading is north in 2D.
+- **Switching view** re-flies whatever is on the map; with nothing on it the camera turns in place (north up and flat
+  in 2D, the home tilt and heading in 3D). The follow's end lens (and B4's door tilt) uses the view the step was taken
+  in; a switch mid-follow stops the follow and flies the step in the new view (reviewer's catch).
+- New pure `campus-scene/flat.ts` (`shotLens`, `gesturesFor`, `usualAzimuth`, `northFrom`), test-first: 24 exact-value
+  tests, every shot in both views. `buildingView`, `tripView` and `indoorStepView` take a `polar`. `CampusMap.tsx`
+  only gained plumbing (`inPlayer`, the compass's usual heading).
+- The 2D/3D button comes with Gary's A3. Until then the camera reads the saved setting only (the owner phone-tested
+  through a temporary `?view=2d` switch, removed before merging). D58's "polar 0" now says 1° off vertical;
+  DESIGN.md (Camera, Compass, Gestures) and V2-PLAN updated; `docs/ROADMAP-v2.md`: v2-B5 done.
+
 ## 2026-10-26: v2-B4: through a door, the camera tilts with the cut (D61 point 4, D63 proposed)
 
 - **On Next through a door**, from the drone view outside to an indoor step or back out, the camera's tilt and

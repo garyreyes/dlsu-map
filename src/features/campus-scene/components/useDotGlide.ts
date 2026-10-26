@@ -4,6 +4,7 @@ import type { Vector3 } from 'three';
 import { SLIDE_MS } from '@/features/indoor-view';
 import type { CampusBuilding } from '@/shared/data/campus';
 import type { Route, XY } from '@/shared/data/route';
+import { useMapSettings } from '@/shared/settings/useMapSettings';
 import { followAt, followsStep, isNext, planFollow, throughDoor, type Follow } from '../follow';
 import { climbPath, easeOut, GLIDE_MS, levelPath, pointAlong, type XYH } from '../glide';
 import type { MapInsets } from './CameraRig';
@@ -90,7 +91,8 @@ function planCameraFollow(g: Glide, walk: XYH[] | null, k: StepInputs): Follow |
   const c = k.cam.controlsRef.current;
   const focus = k.cam.focus;
   if (!walk || !c || !focus) return null;
-  const rest = stepRest(focus, k.cam.building, k.cam.insets, c.azimuthAngle);
+  // The view as it is when the step is taken: the follow's end lens matches the flight it stands in for.
+  const rest = stepRest(focus, k.cam.building, k.cam.insets, c.azimuthAngle, useMapSettings.getState().settings.view);
   const follows = followsStep({
     forward: isNext({ route: g.route, step: g.step }, { route: k.route, step: k.focus ? k.cam.step : undefined }),
     sameLevel: g.level !== null && k.level !== null && g.level.key === k.level.key,
