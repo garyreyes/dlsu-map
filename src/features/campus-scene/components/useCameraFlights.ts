@@ -1,9 +1,10 @@
 import { useEffect, useRef, type RefObject } from 'react';
 import type { CameraControls } from '@react-three/drei';
 import { Vector3, type Mesh } from 'three';
-import { SELECT_POLAR, STEP_POLAR } from '@/shared/config/camera';
+import { DRONE_POLAR, SELECT_POLAR, STEP_POLAR } from '@/shared/config/camera';
 import type { CampusBuilding } from '@/shared/data/campus';
 import { bestHeading, headingCandidates, type BandSample } from '../floor-band';
+import { pointsOf, tripAzimuth } from '../drone';
 import type { Lens } from '../follow';
 import { facingAzimuth } from '../gestures';
 import {
@@ -105,8 +106,12 @@ export function useCameraFlights(f: Flights) {
       ...[fromBuilding, building].flatMap((b) => b?.volumes.map((v) => v.outline) ?? []),
       ...(here.kind === 'ground' ? [here.at] : []),
     ];
-    const view = tripView(outlines, latest.current.insets);
-    goToBuilding(c, view, bandHeading(c, view, samples, massRef.current), !reduced);
+    // The walk's lines are the route's walk legs in order, From to To: the overview turns to run along them (D61). A
+    // trip with no walk (inside one building) keeps the closer angle and the heading that sees its band.
+    const heading = tripAzimuth(pointsOf(latest.current.lines), c.azimuthAngle);
+    const view = tripView(outlines, latest.current.insets, heading);
+    if (heading === null) goToBuilding(c, view, bandHeading(c, view, samples, massRef.current), !reduced);
+    else goToBuilding(c, view, heading, !reduced, DRONE_POLAR);
   }, [controlsRef, massRef, here, fromBuilding, building, samples, controlsReady, reduced, focused]);
 
   // The closer dolly limit goes on before the step's flight, which is held to it, and off again on any other view.
@@ -127,26 +132,44 @@ export function useCameraFlights(f: Flights) {
   }, [controlsRef, massRef, glide, focus, focusBuilding, samples, controlsReady, reduced]);
 }
 
-/** A step's spot view: an outdoor step's spot, or an indoor step's spot on its floor (the building must have it). Null
- *  for a step that frames its building instead. The flight and the follow both go here, so they end on the same view. */
-function stepSpotView(focus: MapFocus, building: CampusBuilding | undefined, insets: MapInsets): BuildingView | null {
-  if (focus.kind === 'ground') return stepView(focus.at, insets);
-  const height = building && focus.at ? floorHeight(building, focus.floor) : null;
-  return focus.at && height !== null ? indoorStepView(focus.at, height, insets) : null;
+/** The heading a step with a spot faces: the way the walk goes on from it, or null to keep the camera's heading. An
+ *  outdoor step with nothing ahead of it to face (no `toward`) faces its stretch's far end, if that is anywhere else. */
+function stepHeading(focus: MapFocus, current: number): number | null {
+  if (focus.kind === 'ground') return facingAzimuth(focus.at, focus.toward ?? focus.ahead.at(-1) ?? focus.at, current);
+  return focus.at && focus.toward ? facingAzimuth(focus.at, focus.toward, current) : null;
 }
 
-/** Where the camera rests on a step with a spot view: its tilt and distance. Null for a step that has none. */
+/** A step's spot view with the tilt it is seen at: an outdoor step's drone view of its stretch (D61), or an indoor
+ *  step's spot on its floor (the building must have it). Null for a step that frames its building instead. `current`
+ *  is the camera's heading. The flight and the follow both go here, so they end on the same view. */
+function stepSpotView(
+  focus: MapFocus,
+  building: CampusBuilding | undefined,
+  insets: MapInsets,
+  current: number,
+): { readonly view: BuildingView; readonly polar: number } | null {
+  if (focus.kind === 'ground') {
+    const azimuth = stepHeading(focus, current) ?? current;
+    return { view: stepView(focus.at, focus.ahead, azimuth, insets), polar: DRONE_POLAR };
+  }
+  const height = building && focus.at ? floorHeight(building, focus.floor) : null;
+  return focus.at && height !== null ? { view: indoorStepView(focus.at, height, insets), polar: STEP_POLAR } : null;
+}
+
+/** Where the camera rests on a step with a spot view: its tilt and distance. Null for a step that has none. `current`
+ *  is the camera's azimuth when the step is taken. */
 export function stepRest(
   focus: MapFocus,
   building: CampusBuilding | undefined,
   insets: MapInsets,
+  current: number,
 ): Omit<Lens, 'azimuth'> | null {
-  const view = stepSpotView(focus, building, insets);
-  return view && { polar: STEP_POLAR, distance: view.distance };
+  const spot = stepSpotView(focus, building, insets, current);
+  return spot && { polar: spot.polar, distance: spot.view.distance };
 }
 
-/** The player's flight to a step (D44, D46): outdoors to its spot facing the walk; indoors to its spot on the cut floor
- *  facing the walk, or without a spot to its building with the band on its floor. */
+/** The player's flight to a step (D44, D46): outdoors to its spot from above, facing the walk (D61); indoors to its spot
+ *  on the cut floor facing the walk, or without a spot to its building with the band on its floor. */
 function flyToStep(
   c: CameraControls,
   focus: MapFocus,
@@ -156,11 +179,10 @@ function flyToStep(
   insets: MapInsets,
   animate: boolean,
 ) {
-  const spot = stepSpotView(focus, building, insets);
+  const spot = stepSpotView(focus, building, insets, c.azimuthAngle);
   if (spot) {
     // No band heading: the band isn't drawn while the cut is up. Keep the student's heading when nothing is ahead.
-    const azimuth = focus.at && focus.toward ? facingAzimuth(focus.at, focus.toward, c.azimuthAngle) : null;
-    goToBuilding(c, spot, azimuth, animate, STEP_POLAR);
+    goToBuilding(c, spot.view, stepHeading(focus, c.azimuthAngle), animate, spot.polar);
     return;
   }
   if (!building) return;

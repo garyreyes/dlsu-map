@@ -5,6 +5,7 @@ import { Vector3, type PerspectiveCamera } from 'three';
 import type CameraControlsImpl from 'camera-controls';
 import {
   DRAGGING_SMOOTH_TIME,
+  DRONE_POLAR,
   FOV_DEG,
   HOME_POLAR,
   INDOOR_MIN_DISTANCE,
@@ -16,10 +17,14 @@ import {
   SELECT_POLAR,
   SMOOTH_TIME,
   STEP_POLAR,
+  STRETCH_MARGIN,
+  STRETCH_MIN_REACH,
 } from '@/shared/config/camera';
 import type { CampusBuilding } from '@/shared/data/campus';
+import type { XY } from '@/shared/data/route';
 import { headingDeg } from '../gestures';
-import { fitDistance, framing } from '../home-view';
+import { boxAround, pointsOf, reachFrom } from '../drone';
+import { fitDistance, fitReach, framing } from '../home-view';
 import { useHeading } from './headingStore';
 import { useCameraFollow, type GlideHandle } from './useCameraFollow';
 import { useTwistTilt } from './useTwistTilt';
@@ -87,29 +92,60 @@ export function buildingView(b: Pick<CampusBuilding, 'volumes'>, insets: MapInse
 const TRIP_MIN_RADIUS = 45;
 /** Air around the trip, as a multiple of what it spans. */
 const TRIP_MARGIN = 1.15;
+/** The drone trip view also keeps this many CSS px clear inside each edge of the free screen. From sits at the
+ *  bottom, and the flight starts as From is picked, before the preview sheet has grown to its full height (about 56 px
+ *  taller on a Pixel 7); the room also keeps To's label plate, drawn above its building, on screen. */
+const TRIP_PAD = 80;
 
-/** A whole trip (5b): the walk, the From building and the To building, fitted to the screen the chrome leaves, at the
- *  closer angle, so goToBuilding can fly there. `outlines` are flat x, y lists: the lines and the buildings' outlines. */
-export function tripView(outlines: readonly (readonly number[])[], insets: MapInsets): BuildingView {
-  const { centre, radius } = framing(outlines);
-  const view = { width: window.innerWidth, height: window.innerHeight, fovDeg: FOV_DEG, polar: SELECT_POLAR };
-  const fit = fitDistance(Math.max(TRIP_MIN_RADIUS, radius * TRIP_MARGIN), view, insets);
+/** A whole trip (5b): the walk, the From building and the To building, fitted to the screen the chrome leaves, so
+ *  goToBuilding can fly there. `outlines` are flat x, y lists: the lines and the buildings' outlines. With a `heading`
+ *  (the camera's azimuth, from tripAzimuth) it is the drone view (D61): from nearly straight down, fitted to the box the
+ *  trip fills on the turned screen. Without one, the closer angle and a circle that takes everything in. */
+export function tripView(
+  outlines: readonly (readonly number[])[],
+  insets: MapInsets,
+  heading: number | null = null,
+): BuildingView {
+  const size = { width: window.innerWidth, height: window.innerHeight, fovDeg: FOV_DEG };
+  const box = heading === null ? null : boxAround(pointsOf(outlines), heading);
+  if (!box) {
+    const { centre, radius } = framing(outlines);
+    const fit = fitDistance(Math.max(TRIP_MIN_RADIUS, radius * TRIP_MARGIN), { ...size, polar: SELECT_POLAR }, insets);
+    return {
+      target: new Vector3(centre[0], 0, -centre[1]),
+      distance: Math.min(MAX_DISTANCE, Math.max(MIN_DISTANCE, fit)),
+    };
+  }
+  const reach = {
+    across: Math.max(TRIP_MIN_RADIUS, box.across * TRIP_MARGIN),
+    along: Math.max(TRIP_MIN_RADIUS, box.along * TRIP_MARGIN),
+  };
+  // Equal pads top and bottom keep the free screen's middle, where the view offset puts the target, where it was.
+  const padded = { top: insets.top + TRIP_PAD, bottom: insets.bottom + TRIP_PAD, left: insets.left + 2 * TRIP_PAD };
   return {
-    target: new Vector3(centre[0], 0, -centre[1]),
-    distance: Math.min(MAX_DISTANCE, Math.max(MIN_DISTANCE, fit)),
+    target: new Vector3(box.centre[0], 0, -box.centre[1]),
+    distance: Math.min(MAX_DISTANCE, Math.max(MIN_DISTANCE, fitReach(reach, { ...size, polar: DRONE_POLAR }, padded))),
   };
 }
 
-/** An outdoor step's spot keeps this many meters around it in view: the paths it joins and the buildings beside it. */
-const STEP_RADIUS = 70;
-
-/** An outdoor step in the player (D44): its spot and the paths around it, seen from the higher step angle. */
-export function stepView(at: readonly [number, number], insets: MapInsets): BuildingView {
-  const view = { width: window.innerWidth, height: window.innerHeight, fovDeg: FOV_DEG, polar: STEP_POLAR };
-  const fit = fitDistance(STEP_RADIUS, view, insets);
+/** An outdoor step in the player (D44, D61): from nearly straight down, its spot in the middle of the screen and the
+ *  stretch `ahead` of it (to the next turn, crossing or entrance) in view, facing `azimuth`. It shows at least
+ *  STRETCH_MIN_REACH meters each way, so a short stretch still shows the paths around it. */
+export function stepView(
+  at: readonly [number, number],
+  ahead: readonly XY[],
+  azimuth: number,
+  insets: MapInsets,
+): BuildingView {
+  const view = { width: window.innerWidth, height: window.innerHeight, fovDeg: FOV_DEG, polar: DRONE_POLAR };
+  const stretch = reachFrom(ahead, at, azimuth);
+  const reach = {
+    across: Math.max(STRETCH_MIN_REACH, stretch.across * STRETCH_MARGIN),
+    along: Math.max(STRETCH_MIN_REACH, stretch.along * STRETCH_MARGIN),
+  };
   return {
     target: new Vector3(at[0], 0, -at[1]),
-    distance: Math.min(MAX_DISTANCE, Math.max(MIN_DISTANCE, fit)),
+    distance: Math.min(MAX_DISTANCE, Math.max(MIN_DISTANCE, fitReach(reach, view, insets))),
   };
 }
 

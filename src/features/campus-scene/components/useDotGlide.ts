@@ -86,7 +86,7 @@ function planCameraFollow(g: Glide, walk: XYH[] | null, k: StepInputs): Follow |
   const c = k.cam.controlsRef.current;
   const focus = k.cam.focus;
   if (!walk || !c || !focus) return null;
-  const rest = stepRest(focus, k.cam.building, k.cam.insets);
+  const rest = stepRest(focus, k.cam.building, k.cam.insets, c.azimuthAngle);
   const follows = followsStep({
     forward: isNext({ route: g.route, step: g.step }, { route: k.route, step: k.focus ? k.cam.step : undefined }),
     sameLevel: g.level !== null && k.level !== null && g.level.key === k.level.key,
