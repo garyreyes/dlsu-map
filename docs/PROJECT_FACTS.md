@@ -479,9 +479,9 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
 
 ## Tool versions pinned in CI
 
-- `markdownlint-cli2@0.23.3`: an exact-pinned devDependency since 1a, and CI's `npx` step uses the same version. Bump
-  both together. Its dependencies carry dev-only `npm audit` warnings (braces, katex, smol-toml); the shipped app has
-  none (`npm audit --omit=dev` is clean). (2026-10-19)
+- `markdownlint-cli2@0.24.0`: an exact-pinned devDependency since 1a, and CI's `npx` step uses the same version. Bump
+  both together (0.23.3 → 0.24.0 on 2026-10-27). Its dependencies carry dev-only `npm audit` warnings (katex among
+  them); the shipped app has none (`npm audit --omit=dev` is clean). (2026-10-19)
 - `impeccable@4.6.0` for the design detector, to match the locally installed Impeccable plugin. Bump both together.
   Exit 0 = clean, 2 = findings (fails CI), 1 = couldn't scan. Telemetry is off in CI (`DO_NOT_TRACK=1`).
   (2026-10-19)

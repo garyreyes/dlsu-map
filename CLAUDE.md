@@ -103,7 +103,7 @@ One CI job, **`gates`** (`.github/workflows/ci.yml`), runs on every PR and every
 to its trigger, and never rename the job without updating the ruleset in the same change.
 
 - **Every PR:** markdown lint (`.markdownlint-cli2.jsonc`). Locally: `npx markdownlint-cli2 "**/*.md"` (add `--fix`
-  for blank-line issues); it's a devDependency pinned to the same 0.23.3 as CI.
+  for blank-line issues); it's a devDependency pinned to the same 0.24.0 as CI.
 - **PRs that touch code** (anything not `.md` and not under `docs/`), once `package-lock.json` exists: `npm ci`,
   `npm ls --all` (fails on peer conflicts), `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, then
   the Impeccable design detector on `src/` and `index.html`.

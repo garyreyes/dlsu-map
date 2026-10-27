@@ -8,6 +8,11 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-10-27: markdownlint-cli2 0.24.0 (Dependabot #117)
+
+- The devDependency and CI's `npx` step move to 0.24.0 together, so the commit hook and `gates` lint with the same
+  version. 0.24.0 finds 0 issues in the 23 linted files. `CLAUDE.md` and `PROJECT_FACTS.md` name the new version.
+
 ## 2026-10-27: v2-A3: map options, 2D low blocks (D58)
 
 - A map options button tops the map buttons. It opens a small floating card beside it, not the sheet, so a route
