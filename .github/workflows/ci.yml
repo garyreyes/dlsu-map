@@ -57,7 +57,7 @@ jobs:
 
       # Runs on every PR: it takes seconds and is the only gate until app code exists.
       - name: Lint markdown
-        run: npx --yes markdownlint-cli2@0.23.3 "**/*.md"
+        run: npx --yes markdownlint-cli2@0.24.0 "**/*.md"
 
       - name: Note skipped app gates
         if: steps.changes.outputs.code == 'true' && hashFiles('package-lock.json') == ''
