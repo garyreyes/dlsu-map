@@ -362,6 +362,10 @@ in `docs/CHANGES.md`. Add a fact with the date you learned it. Delete it when it
     whose content type isn't JSON; `res.ok` alone passes. Same in `wrangler dev`.
 - The account's workers.dev subdomain is `gary-reyes`, so preview links contain the owner's name. They are public to
   anyone with the link and carry `noindex` (D19). (2026-10-20)
+- **Dependabot PRs get no preview link.** GitHub gives Dependabot runs no repo secrets, so the `preview` job has no
+  Cloudflare token and posts nothing. Check a bump that can change the picture (three, R3F, drei) with a local A/B
+  instead: build `main` and the PR, `vite preview` each on its own port, screenshot the same screens, diff the
+  pixels. (2026-11-03)
 - On Gary's laptop, `npx playwright install chromium` times out (Playwright's downloader; plain `curl` of the same
   file works). Run the e2e tests on the installed Chrome instead: `PLAYWRIGHT_CHANNEL=chrome npm run e2e`. CI
   downloads its own Chromium. (2026-10-20)
