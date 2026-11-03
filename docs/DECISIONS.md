@@ -1580,3 +1580,23 @@ around DLSU at 35%, most of all on Green. The campus no longer leads, and a stud
 
 **Alternatives.** Hide the city whenever See-through is on (no new switch, but a student who wants a clean map in
 Solid can't have one). No 3D city at all (campus always leads, but the area loses its landmarks for everyone).
+
+---
+
+## D65. The Grey palette looks like Apple Maps' light map (2026-11-03, proposed)
+
+**Problem.** Grey's near-white blocks (`#fbfbfa`) on a mid-grey ground glare, and the map reads too bright (Gary, on
+the PR #127 preview).
+
+**Decision.** (Gary, 2026-11-03, v2▸; proposed until Charles agrees.)
+
+1. **Grey follows Apple Maps' light map:** ground `#e3e4e2` (was `#c4c7c6`), blocks `#c3c6c9` (was `#fbfbfa`), a step
+   darker than the ground, roads white, paths `#f4f4f3`, and a neutral haze `#e7e8e7` in place of the green
+   `#cfe5d7`. Off-campus blocks lean 85% toward the ground (was 32%).
+2. **The walked route goes to `#5c5f5e`** (was `#686b6a`), so it reads at 3:1 on the darker cut floor (3.15:1; the
+   old grey gave 2.63:1). Every other check in `contrast-pairs.test.ts` passes unchanged; the dimmed route's lowest
+   is now 1.56:1 (was 1.49:1).
+3. Green and Black don't change.
+
+**Changes** D57's Grey values (from the prototype). **Alternatives.** Apple Maps' dark map (charcoal ground, grey
+blocks): campus stands out more, but all three modes would then be dark, with no light map left.

@@ -28,13 +28,13 @@ colors:
   map-b-building: "#f2eee5"
   map-b-path: "#5f9c7c"
   map-b-road: "#99c2ab"
-  map-c-ground: "#c4c7c6"
-  map-c-building: "#fbfbfa"
-  map-c-path: "#ffffff"
+  map-c-ground: "#e3e4e2"
+  map-c-building: "#c3c6c9"
+  map-c-path: "#f4f4f3"
   map-c-road: "#ffffff"
   map-a-haze: "#163326"
   map-b-haze: "#4f9a72"
-  map-c-haze: "#cfe5d7"
+  map-c-haze: "#e7e8e7"
   map-sun: "#fff4e6"
 typography:
   display:
@@ -310,12 +310,14 @@ keeps the prototype's letters: `map-a-*` is Black, `map-b-*` Green, `map-c-*` Gr
   so the route reads on them, D62). Off-campus blocks lean 50% toward the ground.
 - **Black** (`map-a-*`): near-black ground like Waze's dark mode, cool white blocks, soft grey paths and roads.
   Off-campus blocks lean 40%.
-- **Grey** (`map-c-*`): light grey ground, near-white blocks, white paths. Off-campus blocks lean 32%.
+- **Grey** (`map-c-*`): like Apple Maps' light map (D65): pale grey ground, mid-grey blocks a step darker than it,
+  white roads and near-white paths. Off-campus blocks lean 85%, but the two greys are close, so the city's walls
+  still show.
 
 Everything drawn on the map stays readable in all three: `contrast-pairs.test.ts` checks the label plates over every
 map colour, the route (its green or walked grey, or its white edge, at 3:1 over ground, path, road and the cut
 floor) and the cut floor's hallways. The one exemption is the dimmed outdoor route while a building is cut open,
-faint on purpose (Grey is lowest at 1.49:1); the test keeps it at 1.4:1 or more.
+faint on purpose (Grey is lowest at 1.56:1); the test keeps it at 1.4:1 or more.
 
 ### Named Rules
 
@@ -405,8 +407,8 @@ The map has its own depth model, made by light, not by shadows or outlines.
   (#fff4e6, 0.46) from the upper left. Buildings use Lambert shading with no texture, windows or edge lines.
 - **Wall-foot darkening:** the bottom 6m of every wall darkens to 70% and grades up to full, so blocks sit on the
   ground.
-- **Ground:** unlit and flat, exactly the palette colour. A green haze (owner's choice) fades the distance and fills
-  the sky: #163326 (dark green) over black, #4f9a72 over green, #cfe5d7 over grey. It tracks the camera (2.5 to 5
+- **Ground:** unlit and flat, exactly the palette colour. A haze fades the distance and fills the sky: green (owner's
+  choice) over black (#163326) and green (#4f9a72), pale grey over grey (#e7e8e7, D65). It tracks the camera (2.5 to 5
   times its distance, D56).
 - **Campus leads:** every off-campus building is see-through (35% opacity, owner's choice) and tinted toward the
   ground, so campus buildings show through it and only campus buildings can hide the selection. **Surroundings
@@ -606,7 +608,7 @@ cut open, the outdoor ribbon fades to 45%, so it doesn't swamp the entrance. Ind
 (8c-1, D46): a 1.6 m Campus Green line on a 2.9 m white casing.
 
 **The walked part is grey** (D59 point 5, v2-B7): in the player, the outdoor ribbon behind the "you are here" dot
-takes the palette's `walked` grey (Green `#5f5f5f`, Black `#737373`, Grey `#686b6a`); the white edge stays white. The
+takes the palette's `walked` grey (Green `#5f5f5f`, Black `#737373`, Grey `#5c5f5e`); the white edge stays white. The
 grey grows with the dot as it glides, at the dot's pace, and goes back on Back. Nothing is grey on the route preview;
 on Arrived the whole walk is. The see-through copy and the dimmed ribbon go grey the same way. The cut floor's indoor
 line stays green for now.

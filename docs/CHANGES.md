@@ -8,6 +8,22 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-11-03: Grey palette like Apple Maps' light map (D65, proposed)
+
+Gary, on the PR #127 preview: Grey "too bright", the white blocks glare. Two Apple Maps-style versions were rendered
+side by side (light: pale ground, mid-grey blocks; dark: charcoal ground, grey blocks); Gary picked light.
+
+- **`MAP_PALETTES.grey`:** ground `#e3e4e2`, blocks `#c3c6c9`, path `#f4f4f3`, road white, haze `#e7e8e7` (neutral,
+  no longer green), walked `#5c5f5e`, cityMix 0.85. Values and reasons in D65; DESIGN.md (frontmatter, Map palettes,
+  haze, walked grey) updated. The Colour swatch in map options follows on its own.
+- **Contrast:** the first try failed one check (walked route on the cut floor's slab, 2.63:1), fixed by the darker
+  walked grey (3.15:1). All 141 checks pass; the dimmed route's lowest is now 1.56:1.
+- **Left open:** with Surroundings on, campus doesn't stand out from the city much on Grey. Its blocks and ground are
+  only 32 levels apart, so cityMix moves the city by a few levels at most (0.6 → 0.85 changed no pixel by more than
+  8/255). A real fix is a per-palette city opacity, not done here.
+
+---
+
 ## 2026-11-03: v2▸ first pass: a shorter map options card, and the search card's audit fixes
 
 - **Critique and audit:** `/impeccable critique` scored the map options card 22/36 (snapshot in
