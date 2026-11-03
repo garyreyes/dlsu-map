@@ -13,7 +13,7 @@ export function IconButton({ label, onClick, children }: Props) {
       type="button"
       aria-label={label}
       onClick={onClick}
-      className="grid size-12 flex-none cursor-pointer place-items-center rounded-full text-ink-2 hover:bg-surface-2"
+      className="grid size-12 flex-none cursor-pointer place-items-center rounded-full text-ink-2 hover:bg-surface-2 active:bg-surface-2"
     >
       {children}
     </button>

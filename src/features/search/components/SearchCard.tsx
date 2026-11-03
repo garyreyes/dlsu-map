@@ -65,7 +65,7 @@ export function SearchCard({ onClose, children }: { onClose: () => void; childre
   return (
     <>
       {/* black at 20%: enough to say "map is behind this" while still showing it */}
-      <div ref={dim} aria-hidden="true" onClick={onDimTap} className="absolute inset-0 bg-black/20" />
+      <div ref={dim} aria-hidden="true" onClick={onDimTap} className="absolute inset-0 cursor-pointer bg-black/20" />
       <div
         ref={card}
         style={wide ? wideStyle(area) : phoneStyle(area)}

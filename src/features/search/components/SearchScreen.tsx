@@ -102,6 +102,7 @@ export function SearchScreen({ data, recent, initialQuery = '', onPick, onClose 
             aria-label="Room code or building"
             autoComplete="off"
             autoCapitalize="characters"
+            autoCorrect="off"
             spellCheck={false}
             enterKeyHint="go"
             className="h-12 min-w-0 flex-1 rounded-row bg-transparent px-2 text-lg font-medium text-ink outline-none placeholder:font-normal placeholder:text-ink-3"
@@ -119,7 +120,7 @@ export function SearchScreen({ data, recent, initialQuery = '', onPick, onClose 
         <div
           ref={list}
           tabIndex={-1}
-          className="min-h-0 flex-1 overflow-y-auto outline-none pt-2 pr-(--gutter-r) pl-(--gutter-l)"
+          className="min-h-0 flex-1 overflow-y-auto overscroll-contain outline-none pt-2 pr-(--gutter-r) pl-(--gutter-l)"
         >
           {/* Wide screens: rows stop at a reading width, so a building's prefix tag stays next to its name. */}
           <div className="md:max-w-140">
@@ -150,11 +151,18 @@ const HEADINGS = { 'did-you-mean': 'Did you mean', buildings: 'Or pick a buildin
 
 const plural = (n: number, word: string) => `${String(n)} ${word}${n === 1 ? '' : 's'}`;
 
+const FAR_OFF_HELP = 'Check the code on your schedule. Codes look like ST311 or AG1104.';
+
+/** A code with no near neighbours to suggest: say how codes look instead of leaving a bare error. */
+const farOff = (view: SearchView) => view.note?.kind === 'not-in-list' && view.hits.length === 0;
+
 /** "ST350 isn't in our list. 2 suggestions." */
 function statusLine(view: SearchView): string {
   const rows = view.hits.length;
   const count = rows === 0 ? '' : plural(rows, view.heading === 'did-you-mean' ? 'suggestion' : 'result') + '.';
-  return [view.note ? noteText(view.note) : '', count].filter((part) => part !== '').join(' ');
+  return [view.note ? noteText(view.note) : '', farOff(view) ? FAR_OFF_HELP : '', count]
+    .filter((part) => part !== '')
+    .join(' ');
 }
 
 /** What's under the bar: Recent or the hint when nothing is typed, then loading, failure, or the results. */
@@ -184,6 +192,7 @@ function Body({ data, query, view, recent, onPick }: BodyProps) {
   return (
     <>
       {view.note && <NoteLine note={view.note} />}
+      {farOff(view) && <p className="pb-3 text-ink-2">{FAR_OFF_HELP}</p>}
       {view.hits.length > 0 && (
         <HitList heading={view.heading ? HEADINGS[view.heading] : undefined} hits={view.hits} onPick={onPick} />
       )}

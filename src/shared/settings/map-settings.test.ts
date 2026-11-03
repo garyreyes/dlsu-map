@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   applyPatch,
   DEFAULT_MAP_SETTINGS,
+  isDefaultSettings,
   parseMapSettings,
   type MapSettings,
   type SettingsPatch,
@@ -88,6 +89,25 @@ describe('SettingsPatch', () => {
   it('rejects undefined', () => {
     // @ts-expect-error a field set to undefined would wipe the saved value
     expect(patch({ view: undefined })).toEqual({ view: undefined });
+  });
+});
+
+describe('isDefaultSettings', () => {
+  it('is true for the defaults, and for a fresh object with the same values', () => {
+    expect(isDefaultSettings(DEFAULT_MAP_SETTINGS)).toBe(true);
+    expect(isDefaultSettings({ colour: 'green', view: '3d', buildings: 'solid', surroundings: 'show' })).toBe(true);
+  });
+
+  it('is false when any one field differs', () => {
+    const changes: Partial<MapSettings>[] = [
+      { colour: 'black' },
+      { view: '2d' },
+      { buildings: 'see-through' },
+      { surroundings: 'hide' },
+    ];
+    for (const change of changes) {
+      expect(isDefaultSettings({ ...DEFAULT_MAP_SETTINGS, ...change })).toBe(false);
+    }
   });
 });
 

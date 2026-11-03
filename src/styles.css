@@ -42,7 +42,7 @@
     overflow: hidden;
     background: var(--color-surface);
     color: var(--color-ink);
-    font: 16px/1.4 var(--font-sans);
+    font: 1rem/1.4 var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -webkit-tap-highlight-color: transparent;
   }

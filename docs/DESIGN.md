@@ -326,7 +326,8 @@ It never decorates, and no map palette may change it or add a second accent.
 `accent-ink-dark` on dark surfaces. Never put `accent` text on a dark surface.
 
 **The Two Worlds Rule.** Interface colours live in CSS tokens; map colours live in the palette table. The interface
-never samples the map palette, and the map never uses interface neutrals except the accent.
+never samples the map palette, and the map never uses interface neutrals except the accent. The one exception is the
+Colour swatches in map options, which preview each map palette.
 
 ## Typography
 
@@ -506,7 +507,7 @@ section labels; no dividers.
 
 A Pale Leaf track with 4px padding holding 48px segments. The selected segment turns Sheet White with Deep Ink text
 and a Float shadow. Used for Stairs / Auto / Elevator inside the collapsed "Route options" disclosure, and for the
-three rows of the map options card.
+four choices in the map options card. A segment may carry a small lead mark before its label (the Colour swatches).
 
 ### Map options
 
@@ -514,16 +515,20 @@ The map's four saved choices (D57, D58, D60, D64) behind one map button, so they
 
 - **Button:** a map button with a layers icon ("Map options"), the top of the right-gutter column, above the
   compass and recenter. It shows wherever the map buttons do, the route player included.
-- **Card:** Sheet White, 18px radius, Float shadow, 16px padding, opening upward to the left of the button with its
-  bottom edge level with it, so it never covers the sheet; 312px wide, never wider than the space left of the button,
-  and scrolling if it would pass the top of the screen. A 17px semibold "Map options"
-  title and a close icon button head it.
-- **Rows:** four, 16px apart, each a 16px Mid Ink label over a segmented control: **Colour** (Green / Black /
-  Grey), **View** (3D / 2D), **Buildings** (Solid / See-through, Map depth), **Surroundings** (Show / Hide, D64).
-  A choice applies at once and is saved; there is no Done.
-- **Closing:** the close button, Escape, a tap anywhere outside the card, or the map button again. Focus goes back
-  to the map button. Its Escape closes only the card, never the sheet under it. It opens and closes with a 160ms
-  fade and 4px rise; instantly under reduced motion.
+- **Card:** Sheet White, 18px radius, Float shadow, 12px padding, no title row. It opens upward to the left of the
+  button with its bottom edge level with it, so it never covers the sheet; 312px wide, never wider than the space left
+  of the button, and scrolling if it would pass the top of the screen. A 24px fade to Sheet White shows at the
+  bottom edge while there is more below. While it is open, the layers button turns into a ✕ and closes it.
+- **Rows:** three lines, 12px apart, each with a 16px Mid Ink label over a segmented control. **Colour** (Green /
+  Black / Grey) is full width, and each segment carries a 14px swatch, half the palette's ground and half its
+  building colour. **View** (3D / 2D) and **Surroundings** (Show / Hide, D64) sit side by side. **Buildings** (Solid /
+  See-through, Map depth) is full width. A choice applies at once and is saved; there is no Done. Under 360px wide,
+  View and Surroundings stack and the swatches drop, so no word is crowded.
+- **Changed dot:** when any setting isn't its default and the card is closed, a 12px Campus Green dot with a 2px Sheet
+  White ring sits at the top right of the button.
+- **Closing:** the layers button (now a ✕), Escape, a tap anywhere outside the card, or focus leaving it. Focus goes
+  back to the map button. Its Escape closes only the card, never the sheet under it. It opens and closes with a
+  160ms fade and 4px rise; instantly under reduced motion.
 - **Not modal:** the map behind stays visible so each change can be seen as it lands.
 
 ### Toast

@@ -35,7 +35,7 @@ export function HitList({ heading, hits, recent = false, onPick }: ListProps) {
               onClick={() => {
                 onPick(hit);
               }}
-              className="flex min-h-14 w-full cursor-pointer items-center gap-3.5 rounded-row px-2 py-1.5 text-left hover:bg-surface-2 focus-visible:-outline-offset-2"
+              className="flex min-h-14 w-full cursor-pointer items-center gap-3.5 rounded-row px-2 py-1.5 text-left hover:bg-surface-2 active:bg-surface-2 focus-visible:-outline-offset-2"
             >
               <HitContent hit={hit} recent={recent} />
             </button>

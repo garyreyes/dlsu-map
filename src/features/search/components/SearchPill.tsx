@@ -8,7 +8,7 @@ export function SearchPill({ onOpen, onInfo }: { onOpen: () => void; onInfo: () 
     <div className="flex h-13 items-center rounded-pill bg-surface pr-0.5 shadow-float">
       <button
         type="button"
-        aria-label="Search for a room or building"
+        aria-label="Where to? Search for a room or building"
         onClick={onOpen}
         className="flex h-full min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-l-pill pl-4 text-left"
       >

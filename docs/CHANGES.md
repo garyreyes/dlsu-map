@@ -8,6 +8,31 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-11-03: v2▸ first pass: a shorter map options card, and the search card's audit fixes
+
+- **Critique and audit:** `/impeccable critique` scored the map options card 22/36 (snapshot in
+  `.impeccable/critique/`); `/impeccable audit` scored the search card 16/20, no P0 or P1. Both ran before B6, on
+  surfaces B6 doesn't touch.
+- **Map options card (the critique's two P1s):** on a 375×812 phone it covered the campus (about 472 px tall), so
+  See-through and Hide seemed to do nothing, and over a half sheet it was cut to one and a half rows. It is now about
+  295 px: no title row, three lines (Colour; View and Surroundings side by side; Buildings), 12 px padding. The layers
+  button turns into ✕ while it's open. A fade shows at the bottom when it scrolls. Over a half sheet three of the four
+  choices show whole; at 375×600 all four fit. Under 360 px wide View and Surroundings stack and the swatches drop.
+- **Swatches and a changed dot:** each Colour segment carries a half-ground, half-building swatch from `MAP_PALETTES`
+  (a new optional `lead` on `Segmented`; the Two Worlds Rule gained this one exception). A green dot sits on the
+  closed button when any setting isn't its default (`isDefaultSettings`, unit-tested first).
+- **Search card (the audit's P2s):** body text is `1rem`, so it follows the root font size; rows and icon buttons
+  get a pressed fill on touch; the pill's name starts with its visible "Where to?" (WCAG 2.5.3); the field has
+  `autoCorrect="off"`; the list has `overscroll-contain`; the dim has `cursor-pointer` for iOS Safari. A code not in
+  the list with no near rooms (ST999) now adds "Check the code on your schedule. Codes look like ST311 or AG1104.",
+  read out by the status line too.
+- Checked: lint, typecheck, unit 1919/1919, e2e 90/90 (one new: the changed dot), build within budget, Impeccable
+  detector clean. The reviewer found no bugs. Screenshots at 375×812, 375×600 and 320×568.
+- **Left open:** on the 3D home view at 375×812 the card still covers the lower part of the campus. The full fix is
+  to frame the map above the card while it's open (the "map frames what's left" rule), which is camera code.
+  The From picker shows the same bare "isn't in our list." for far-off codes. Two iPhone checks for the phone test:
+  autocorrect on the field and a tap on the dim strip.
+
 ## 2026-11-03: Dependabot bumps: three 0.187, lucide-react 1.66, vite 8.3.5, eslint 10.14, typescript-eslint 8.72.1
 
 - Merged #120, #122, #123, #121 and #119, lowest risk first. Each had `gates` green right before merge.

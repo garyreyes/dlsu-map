@@ -39,6 +39,13 @@ const settingsSchema = z.object({
   surroundings: z.enum(SURROUNDINGS).catch(DEFAULT_MAP_SETTINGS.surroundings),
 });
 
+/** True when every setting is its default. Walks the schema's keys, so a fifth setting is covered automatically. */
+export function isDefaultSettings(settings: MapSettings): boolean {
+  return Object.keys(settingsSchema.shape).every(
+    (key) => settings[key as keyof MapSettings] === DEFAULT_MAP_SETTINGS[key as keyof MapSettings],
+  );
+}
+
 /** The settings with a patch applied. A field set to undefined anyway (a cast, plain JS) is left as it was. */
 export function applyPatch<K extends keyof MapSettings>(settings: MapSettings, patch: SettingsPatch<K>): MapSettings {
   const defined = Object.entries(patch).filter(([, value]) => value !== undefined);
