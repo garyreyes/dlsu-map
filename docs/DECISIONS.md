@@ -1583,12 +1583,12 @@ Solid can't have one). No 3D city at all (campus always leads, but the area lose
 
 ---
 
-## D65. The Grey palette looks like Apple Maps' light map (2026-11-03, proposed)
+## D65. The Grey palette looks like Apple Maps' light map (2026-11-03, agreed)
 
 **Problem.** Grey's near-white blocks (`#fbfbfa`) on a mid-grey ground glare, and the map reads too bright (Gary, on
 the PR #127 preview).
 
-**Decision.** (Gary, 2026-11-03, v2▸; proposed until Charles agrees.)
+**Decision.** (Gary, 2026-11-03, v2▸; Charles agreed 2026-11-03, Gary relayed it in chat.)
 
 1. **Grey follows Apple Maps' light map:** ground `#e3e4e2` (was `#c4c7c6`), blocks `#c3c6c9` (was `#fbfbfa`), a step
    darker than the ground, roads white, paths `#f4f4f3`, and a neutral haze `#e7e8e7` in place of the green
