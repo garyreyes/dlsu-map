@@ -8,7 +8,9 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
-## 2026-11-03: Grey palette like Apple Maps' light map (D65, proposed)
+## 2026-11-03: Grey palette like Apple Maps' light map (D65, agreed)
+
+Merged in #127. D65 agreed the same day (Gary relayed Charles's yes in chat); SUMMARY.md and PLAN.md updated.
 
 Gary, on the PR #127 preview: Grey "too bright", the white blocks glare. Two Apple Maps-style versions were rendered
 side by side (light: pale ground, mid-grey blocks; dark: charcoal ground, grey blocks); Gary picked light.
