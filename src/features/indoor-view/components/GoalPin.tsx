@@ -10,8 +10,8 @@ import { CAMPUS_GREEN } from '@/shared/config/palette';
 
 const noHit = () => null;
 
-/** Drawn after the route line (12, 13). */
-const PIN_ORDER = 14;
+/** Drawn after the route line (12, 13) and the faded buildings' ghost (15, 16), so a faded building never veils it. */
+const PIN_ORDER = 20;
 /** Plate and stem, CSS px on screen; the plate is a map label's 8px radius and 16px bold text (DESIGN.md). */
 const PIN = { padX: 8, padY: 3, text: 16, radius: 8, stem: 22, stemWidth: 2, shadow: 6 } as const;
 /** Canvas pixels per CSS px, so the text stays sharp on a phone screen. */

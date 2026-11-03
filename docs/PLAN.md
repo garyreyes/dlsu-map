@@ -178,6 +178,7 @@ interiors are added one building at a time:
     `<ContactShadows frames={1}>` if it still looks weightless.
   - **Surrounding city blocks** (OSM footprints within about 300 m, plus Taft Avenue and the LRT line) are drawn in
     the same tone, slightly muted, as one extra non-tappable mesh. They make the campus recognizable from above.
+    A student can hide them and the LRT viaduct in map options; roads stay (Surroundings, D64).
   - **Color carries meaning only:** a single accent color marks the route, the selected building and "you are
     here". The palette lives in `shared/config/palette.ts`: a deep green ground with warm white buildings (D13,
     settled 2026-10-21); Black and Grey modes since D57, Green's roads lightened by D62.
@@ -196,7 +197,8 @@ interiors are added one building at a time:
   3. **Enter transition:** animate the plane from the roof down to `floorY + 1.2` over about 600 ms while the camera
      tilts in. This is the signature moment of the app. The same slide plays out to the roof on the way out and from
      floor to floor on the stairs; indoor steps are seen from 40° (D45), close around the step's spot, and the slide
-     eases with a cubic curve (D46).
+     eases with a cubic curve (D46). On a followed step through a door, in or out, the camera's tilt and zoom take
+     the same 600 ms and curve (D63).
   4. Wall caps: each wall is a 0.2 m thick box, not a flat panel (D37), so a cut wall reads as solid with no
      darker-backface trick.
   5. Floors below show as flat outlines only (no transparency, which avoids sorting cost and overdraw).

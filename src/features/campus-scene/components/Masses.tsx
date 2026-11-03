@@ -1,11 +1,12 @@
 import { useThree } from '@react-three/fiber';
 import { useEffect, useLayoutEffect, useMemo, type RefObject } from 'react';
-import { BufferAttribute, BufferGeometry, Color, MeshLambertMaterial, type Mesh } from 'three';
+import { BufferAttribute, BufferGeometry, Color, MeshBasicMaterial, MeshLambertMaterial, type Mesh } from 'three';
 import type { Cutaway } from '@/features/indoor-view';
 import type { Campus } from '@/shared/data/campus';
 import { CITY_OPACITY, cutTones, type MapPalette } from '@/shared/config/palette';
 import { ribbonPositions } from '@/shared/three/ribbons';
 import { buildMassing, campusGroups, lowBlocks, selectionGroups, stumpBlocks, type Massing } from '../massing';
+import { Ghost } from './Ghost';
 import { useTapPick } from './useTapPick';
 import { RIBBON_WIDTH, viaductBlocks } from '../ribbons';
 
@@ -73,7 +74,13 @@ interface CampusProps extends Props {
   cutaway?: Cutaway | null;
   /** The campus the stump is cut from: the real one even when `campus` is the 2D view's low blocks. */
   stumpFrom?: Campus;
+  /** The buildings drawn faded, near side only (D60, fade.ts). Never the selected or the cut one. */
+  faded?: ReadonlySet<string>;
+  /** The bridges fade too: with the see-through setting, not with the route's list. */
+  bridgesFaded?: boolean;
 }
+
+const NO_FADED: ReadonlySet<string> = new Set();
 
 /** The cut building's stump, rebuilt only when the building or the slab height changes; null with no cutaway. */
 function useStumpGeometry(campus: Campus, slug: string | undefined, base: number | undefined) {
@@ -91,12 +98,60 @@ function useStumpGeometry(campus: Campus, slug: string | undefined, base: number
   return geometry;
 }
 
+/** The campus mesh's materials, by index (massing.ts): plain, the selected tint, and faded. Freed when replaced. */
+function useCampusMaterials(palette: MapPalette) {
+  const materials = useMemo(() => {
+    const tint = cutTones(palette).slab;
+    return [
+      new MeshLambertMaterial({ vertexColors: true, color: palette.building }),
+      new MeshLambertMaterial({ vertexColors: true, color: tint }),
+      // Faded triangles aren't drawn here but stay tappable: Mesh.raycast ignores material.visible. The Ghost draws them.
+      new MeshBasicMaterial({ visible: false }),
+    ];
+  }, [palette]);
+  useEffect(
+    () => () => {
+      for (const m of materials) m.dispose();
+    },
+    [materials],
+  );
+  return materials;
+}
+
+/** Points each building's triangles at its material. With several materials, three.js draws only what the groups
+ *  cover, so they're set before the first frame; frames run on demand, so a change asks for one. */
+function useDrawGroups(
+  geometry: BufferGeometry,
+  owners: Massing['owners'],
+  selected: string | null,
+  faded: ReadonlySet<string>,
+) {
+  const invalidate = useThree((s) => s.invalidate);
+  useLayoutEffect(() => {
+    geometry.clearGroups();
+    const triangles = geometry.getAttribute('position').count / 3;
+    for (const g of selectionGroups(owners, selected, triangles, faded))
+      geometry.addGroup(g.start, g.count, g.materialIndex);
+    invalidate();
+  }, [geometry, owners, selected, faded, invalidate]);
+}
+
 /**
  * The campus as a massing model (D13): every building one pale colour shaped by light, bridges the same. Lambert
  * shading with the wall-foot darkening baked into vertex colours; no outlines, windows or textures. The selected
  * building is the one exception, a 22% lean toward Campus Green, drawn through a second material on its triangles.
  */
-export function CampusMasses({ campus, palette, selected, onTap, massRef, cutaway = null, stumpFrom }: CampusProps) {
+export function CampusMasses({
+  campus,
+  palette,
+  selected,
+  onTap,
+  massRef,
+  cutaway = null,
+  stumpFrom,
+  faded = NO_FADED,
+  bridgesFaded = false,
+}: CampusProps) {
   const cutSlug = cutaway?.building;
   const { geometry, owners } = useMemo(() => {
     const m = buildMassing(campusGroups(campus.buildings, cutSlug ?? null));
@@ -108,28 +163,8 @@ export function CampusMasses({ campus, palette, selected, onTap, massRef, cutawa
     },
     [geometry],
   );
-  const materials = useMemo(() => {
-    const tint = cutTones(palette).slab;
-    return [
-      new MeshLambertMaterial({ vertexColors: true, color: palette.building }),
-      new MeshLambertMaterial({ vertexColors: true, color: tint }),
-    ];
-  }, [palette]);
-  useEffect(
-    () => () => {
-      for (const m of materials) m.dispose();
-    },
-    [materials],
-  );
-
-  // With two materials, three.js draws only what the groups cover, so they're set before the first frame.
-  const invalidate = useThree((s) => s.invalidate);
-  useLayoutEffect(() => {
-    geometry.clearGroups();
-    const triangles = geometry.getAttribute('position').count / 3;
-    for (const g of selectionGroups(owners, selected, triangles)) geometry.addGroup(g.start, g.count, g.materialIndex);
-    invalidate();
-  }, [geometry, owners, selected, invalidate]);
+  const materials = useCampusMaterials(palette);
+  useDrawGroups(geometry, owners, selected, faded);
 
   useTapPick(massRef, owners, onTap);
   const bridgeGeometry = useCampusGeometry(bridges, campus);
@@ -138,9 +173,14 @@ export function CampusMasses({ campus, palette, selected, onTap, massRef, cutawa
   return (
     <>
       <mesh ref={massRef} geometry={geometry} material={materials} />
-      <mesh geometry={bridgeGeometry} raycast={noHit}>
-        <meshLambertMaterial vertexColors color={palette.building} />
-      </mesh>
+      {faded.size > 0 && <Ghost geometry={geometry} color={palette.building} grouped />}
+      {bridgesFaded ? (
+        <Ghost geometry={bridgeGeometry} color={palette.building} />
+      ) : (
+        <mesh geometry={bridgeGeometry} raycast={noHit}>
+          <meshLambertMaterial vertexColors color={palette.building} />
+        </mesh>
+      )}
       {stumpGeometry && (
         <mesh geometry={stumpGeometry} raycast={noHit}>
           <meshLambertMaterial vertexColors color={tones.slab} />

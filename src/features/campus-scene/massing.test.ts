@@ -231,6 +231,55 @@ describe('selectionGroups', () => {
   it('draws everything plainly for a slug with no triangles', () => {
     expect(selectionGroups(owners, 'velasco', total)).toStrictEqual([{ start: 0, count: 168, materialIndex: 0 }]);
   });
+
+  it('puts one group on material 2 when every building is faded', () => {
+    const faded = new Set(['strc', 'henry-sy', 'connon']);
+    expect(selectionGroups(owners, null, total, faded)).toStrictEqual([{ start: 0, count: 168, materialIndex: 2 }]);
+  });
+
+  it('merges two adjacent faded buildings into one group', () => {
+    expect(selectionGroups(owners, null, total, new Set(['strc', 'henry-sy']))).toStrictEqual([
+      { start: 0, count: 138, materialIndex: 2 },
+      { start: 138, count: 30, materialIndex: 0 },
+    ]);
+  });
+
+  it('keeps a plain building between two faded ones as its own group', () => {
+    expect(selectionGroups(owners, null, total, new Set(['strc', 'connon']))).toStrictEqual([
+      { start: 0, count: 54, materialIndex: 2 },
+      { start: 54, count: 84, materialIndex: 0 },
+      { start: 138, count: 30, materialIndex: 2 },
+    ]);
+  });
+
+  it('lets selected win over faded, with the others faded', () => {
+    const faded = new Set(['strc', 'henry-sy', 'connon']);
+    expect(selectionGroups(owners, 'henry-sy', total, faded)).toStrictEqual([
+      { start: 0, count: 54, materialIndex: 2 },
+      { start: 54, count: 84, materialIndex: 1 },
+      { start: 138, count: 30, materialIndex: 2 },
+    ]);
+  });
+
+  it('ignores a faded slug with no triangles', () => {
+    expect(selectionGroups(owners, null, total, new Set(['velasco']))).toStrictEqual([
+      { start: 0, count: 168, materialIndex: 0 },
+    ]);
+  });
+
+  it('keeps triangles outside any owner on material 0', () => {
+    const gappy: Owner[] = [
+      { id: 'a', first: 2, count: 3 },
+      { id: 'b', first: 8, count: 2 },
+    ];
+    expect(selectionGroups(gappy, 'b', 12, new Set(['a']))).toStrictEqual([
+      { start: 0, count: 6, materialIndex: 0 },
+      { start: 6, count: 9, materialIndex: 2 },
+      { start: 15, count: 9, materialIndex: 0 },
+      { start: 24, count: 6, materialIndex: 1 },
+      { start: 30, count: 6, materialIndex: 0 },
+    ]);
+  });
 });
 
 // The cutaway swaps one building's full volume for a stump up to the cut floor's slab. A wrong cut leaves a gap or a

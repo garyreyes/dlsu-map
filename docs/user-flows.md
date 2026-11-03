@@ -92,8 +92,9 @@ flowchart TD
   before it's ready, S2 shows "Loading rooms…" and fills in when ready.
 - **O2** runs at the same time. The app is usable at once and never makes a student wait for the full download.
 - **Map options** (D58): a layers map button above the compass and recenter opens a small card beside it, on
-  every screen with the map: Colour (Green / Black / Grey), View (3D / 2D), and from v2-A4 Buildings (Solid /
-  See-through). Each choice applies at once and is saved on the phone. The card closes with ✕, Escape, a tap
+  every screen with the map: Colour (Green / Black / Grey), View (3D / 2D), Buildings (Solid / See-through,
+  D60) and Surroundings (Show / Hide the city around DLSU, D64). Each choice applies at once and is saved on the
+  phone. The card closes with ✕, Escape, a tap
   outside, or the button.
   In 2D the map is north up and the compass stays hidden outside the route player.
 

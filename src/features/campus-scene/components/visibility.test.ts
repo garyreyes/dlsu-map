@@ -1,7 +1,8 @@
-import { BoxGeometry, Mesh, Vector3 } from 'three';
+import { BoxGeometry, BufferAttribute, BufferGeometry, Mesh, Vector3 } from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { describe, expect, it } from 'vitest';
-import { insideOutlines, sees } from './visibility';
+import { FADED_MATERIAL, PLAIN_MATERIAL } from '../massing';
+import { insideOutlines, isFadedFace, sees } from './visibility';
 
 /** A box centred on scene (x, 5, z), 4 wide and deep, 10 tall. */
 function box(x: number, z: number) {
@@ -39,6 +40,40 @@ describe('sees', () => {
     blockers.updateMatrixWorld();
     const outline = [square(0, 0)];
     expect(sees(blockers, from, to, (hit) => insideOutlines(hit, outline))).toBe(false);
+  });
+});
+
+describe('isFadedFace', () => {
+  // Non-indexed: 6 triangles = 18 vertices. Triangles 0-1 plain, 2-3 faded, 4-5 plain.
+  const geometry = new BufferGeometry();
+  geometry.setAttribute('position', new BufferAttribute(new Float32Array(54), 3));
+  geometry.addGroup(0, 6, PLAIN_MATERIAL);
+  geometry.addGroup(6, 6, FADED_MATERIAL);
+  geometry.addGroup(12, 6, PLAIN_MATERIAL);
+
+  it('is true for the triangles in a faded group', () => {
+    expect(isFadedFace(geometry, 2)).toBe(true);
+    expect(isFadedFace(geometry, 3)).toBe(true);
+  });
+
+  it('is false just before and just after the faded group', () => {
+    expect(isFadedFace(geometry, 1)).toBe(false);
+    expect(isFadedFace(geometry, 4)).toBe(false);
+  });
+
+  it('is false for no face', () => {
+    expect(isFadedFace(geometry, undefined)).toBe(false);
+  });
+
+  it('lets a ray through a faded building to the band behind it', () => {
+    // The box's 12 triangles are all faded: 36 vertices.
+    const mesh = new Mesh(new BoxGeometry(4, 10, 4).toNonIndexed());
+    mesh.geometry.clearGroups();
+    mesh.geometry.addGroup(0, 36, FADED_MATERIAL);
+    mesh.position.set(0, 5, 0);
+    mesh.updateMatrixWorld();
+    expect(sees(mesh, from, to)).toBe(false);
+    expect(sees(mesh, from, to, (_, face) => isFadedFace(mesh.geometry, face))).toBe(true);
   });
 });
 

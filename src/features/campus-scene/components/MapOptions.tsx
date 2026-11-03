@@ -1,6 +1,15 @@
 import { Layers, X } from 'lucide-react';
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type RefObject } from 'react';
-import { COLOUR_MODES, MAP_VIEWS, type ColourMode, type MapView } from '@/shared/settings/map-settings';
+import {
+  BUILDING_LOOKS,
+  COLOUR_MODES,
+  MAP_VIEWS,
+  SURROUNDINGS,
+  type BuildingLook,
+  type ColourMode,
+  type MapView,
+  type Surroundings,
+} from '@/shared/settings/map-settings';
 import { useMapSettings } from '@/shared/settings/useMapSettings';
 import { IconButton } from '@/shared/ui/IconButton';
 import { MapButton } from '@/shared/ui/MapButton';
@@ -8,6 +17,8 @@ import { Segmented } from '@/shared/ui/Segmented';
 
 const COLOUR_LABELS: Record<ColourMode, string> = { green: 'Green', black: 'Black', grey: 'Grey' };
 const VIEW_LABELS: Record<MapView, string> = { '3d': '3D', '2d': '2D' };
+const LOOK_LABELS: Record<BuildingLook, string> = { solid: 'Solid', 'see-through': 'See-through' };
+const SURROUNDINGS_LABELS: Record<Surroundings, string> = { show: 'Show', hide: 'Hide' };
 
 const options = <T extends string>(values: readonly T[], labels: Record<T, string>) =>
   values.map((value) => ({ value, label: labels[value] }));
@@ -139,7 +150,26 @@ export function MapOptions({ top }: Props) {
               }}
             />
           </Row>
-          {/* Buildings (Solid / See-through) joins in v2-A4, with the fading that makes it do something (D60). */}
+          <Row title="Buildings">
+            <Segmented
+              label="Buildings"
+              options={options(BUILDING_LOOKS, LOOK_LABELS)}
+              value={settings.buildings}
+              onChange={(v) => {
+                setOne('buildings', v);
+              }}
+            />
+          </Row>
+          <Row title="Surroundings">
+            <Segmented
+              label="Surroundings"
+              options={options(SURROUNDINGS, SURROUNDINGS_LABELS)}
+              value={settings.surroundings}
+              onChange={(v) => {
+                setOne('surroundings', v);
+              }}
+            />
+          </Row>
         </div>
       )}
     </div>

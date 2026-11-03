@@ -1496,6 +1496,9 @@ too long).
 2. **While a route plays, the app fades only the buildings that stand between the camera and the route**, whatever the
    setting.
 3. **The goal building and the selected building never fade.** The entered building keeps its cutaway (D45, D46).
+4. **A faded building is a ghost:** only its near side shows, at 40% opacity in the campus colour, not every wall
+   blended like the city (Gary, 2026-11-03, v2-A4). Overlapping walls would stack into darker bands, and campus would
+   look the same as the city.
 
 **Alternatives.** A slider or a third "outlines only" step (more to choose, little gain). Setting only (puts the work
 on the student).
@@ -1540,13 +1543,13 @@ only briefly, at gates). Darken the road 15% to `#6c9880` (the white edge reache
 
 ---
 
-## D63. Through a door, the camera's tilt and zoom move with the cut, both ways (2026-10-26, proposed)
+## D63. Through a door, the camera's tilt and zoom move with the cut, both ways (2026-10-26, agreed)
 
 **Problem.** D61 point 4 says the camera tilts from 8° back to 40° at the door as the floor opens. On Next the camera
 rides the dot (D59), and the follow changed tilt and zoom evenly over the whole walk, 1–3 s, while the cut slides in
 over 600 ms (D45). The floor was open long before the camera finished tipping. D61 says nothing about leaving.
 
-**Decision.** (Charles, v2-B4.)
+**Decision.** (Charles, v2-B4; Gary agreed 2026-11-03.)
 
 1. **When a followed step goes from outside to inside a building, or from inside to out**, the tilt and distance move
    over 600 ms with the cut slide's cubic ease-out, starting with it. The dot's walk and the heading keep the walk's own
@@ -1558,3 +1561,22 @@ over 600 ms (D45). The floor was open long before the camera finished tipping. D
 
 **Changes** D61 point 4 (adds leaving). **Alternatives.** Only going inside (leaving tilts over the whole walk out).
 The tilt over the whole walk, as before B4.
+
+---
+
+## D64. A Surroundings switch hides the 3D city around DLSU (2026-11-03, agreed)
+
+**Problem.** With Buildings set to See-through (D60), the campus ghosts at 40% look almost the same as the city
+around DLSU at 35%, most of all on Green. The campus no longer leads, and a student can't tell DLSU from the rest
+(Gary, on the v2-A4 screenshots).
+
+**Decision.** (Gary, 2026-11-03, v2-A4; Charles agreed 2026-11-03.)
+
+1. **A fourth row in map options, Surroundings (Show / Hide)**, saved on the phone like the other three (D58 point 5).
+   Show is the default, so the map looks as before until a student changes it.
+2. **Hide drops the city blocks and the LRT viaduct** in 3D and 2D. Roads, streets and paths stay, so the area still
+   has its shape. The lowest quality tier drops the city whatever the setting (10c).
+3. It is its own switch, not tied to See-through, so the city can go in Solid too.
+
+**Alternatives.** Hide the city whenever See-through is on (no new switch, but a student who wants a clean map in
+Solid can't have one). No 3D city at all (campus always leads, but the area loses its landmarks for everyone).

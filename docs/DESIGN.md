@@ -408,7 +408,13 @@ The map has its own depth model, made by light, not by shadows or outlines.
   the sky: #163326 (dark green) over black, #4f9a72 over green, #cfe5d7 over grey. It tracks the camera (2.5 to 5
   times its distance, D56).
 - **Campus leads:** every off-campus building is see-through (35% opacity, owner's choice) and tinted toward the
-  ground, so campus buildings show through it and only campus buildings can hide the selection.
+  ground, so campus buildings show through it and only campus buildings can hide the selection. **Surroundings
+  Hide** (D64) drops the city and the LRT viaduct, leaving only DLSU standing on the streets.
+- **See-through campus** (D60): with Buildings set to See-through, and on a route for the buildings that hide it
+  (v2-B6), a campus building turns to a ghost: only its near side, at 40% opacity in the campus building colour, so
+  it still reads apart from the city. The route, the dot and the ground show through it. Bridges follow the setting.
+  The selected, goal and entered buildings never fade. A faded building stays tappable, and a tap selects it, which
+  makes it solid again. The change lands at once, with no fade animation.
 - **Camera:** 40° field of view, about 52° from straight down for the overview with Taft Avenue toward the bottom;
   a closer, lower angle (about 58°) for a selected building, from the first heading that sees its floor band; about
   8° (the drone view, D61) for an outdoor step and the route preview, fitted to the walk to the next step; 40° for an
@@ -504,7 +510,7 @@ three rows of the map options card.
 
 ### Map options
 
-The map's three saved choices (D57, D58, D60) behind one map button, so they stay out of the way until wanted.
+The map's four saved choices (D57, D58, D60, D64) behind one map button, so they stay out of the way until wanted.
 
 - **Button:** a map button with a layers icon ("Map options"), the top of the right-gutter column, above the
   compass and recenter. It shows wherever the map buttons do, the route player included.
@@ -512,9 +518,9 @@ The map's three saved choices (D57, D58, D60) behind one map button, so they sta
   bottom edge level with it, so it never covers the sheet; 312px wide, never wider than the space left of the button,
   and scrolling if it would pass the top of the screen. A 17px semibold "Map options"
   title and a close icon button head it.
-- **Rows:** three, 16px apart, each a 16px Mid Ink label over a segmented control: **Colour** (Green / Black /
-  Grey), **View** (3D / 2D), **Buildings** (Solid / See-through). A choice applies at once and is saved; there is
-  no Done. Buildings joins in v2-A4, with the fading it controls: a switch that does nothing yet isn't shown.
+- **Rows:** four, 16px apart, each a 16px Mid Ink label over a segmented control: **Colour** (Green / Black /
+  Grey), **View** (3D / 2D), **Buildings** (Solid / See-through, Map depth), **Surroundings** (Show / Hide, D64).
+  A choice applies at once and is saved; there is no Done.
 - **Closing:** the close button, Escape, a tap anywhere outside the card, or the map button again. Focus goes back
   to the map button. Its Escape closes only the card, never the sheet under it. It opens and closes with a 160ms
   fade and 4px rise; instantly under reduced motion.

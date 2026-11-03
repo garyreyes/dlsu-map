@@ -1,5 +1,6 @@
-import { Raycaster, Vector3, type Object3D } from 'three';
+import { Raycaster, Vector3, type BufferGeometry, type Object3D } from 'three';
 import type { BandSample } from '../floor-band';
+import { FADED_MATERIAL } from '../massing';
 
 const ray = new Raycaster();
 const dir = new Vector3();
@@ -41,17 +42,34 @@ export function insideOutlines(p: Vector3, outlines: readonly (readonly number[]
 }
 
 /**
- * True when nothing in `blockers` stands between `from` and `to`. A hit `ignore` accepts doesn't count: the focus
- * building's own walls never block its band.
+ * True when the triangle `face` of a non-indexed geometry is in a draw group on the faded material (D60): a faded
+ * building is see-through, so it blocks nothing. False for no face, or a face outside every group.
  */
-export function sees(blockers: Object3D, from: Vector3, to: Vector3, ignore?: (hit: Vector3) => boolean): boolean {
+export function isFadedFace(geometry: BufferGeometry, face: number | undefined): boolean {
+  if (face === undefined) return false;
+  const vertex = face * 3;
+  return geometry.groups.some(
+    (g) => g.materialIndex === FADED_MATERIAL && vertex >= g.start && vertex < g.start + g.count,
+  );
+}
+
+/**
+ * True when nothing in `blockers` stands between `from` and `to`. A hit `ignore` accepts doesn't count: the focus
+ * building's own walls never block its band. `ignore` gets the hit's point and the triangle it struck.
+ */
+export function sees(
+  blockers: Object3D,
+  from: Vector3,
+  to: Vector3,
+  ignore?: (hit: Vector3, face?: number) => boolean,
+): boolean {
   dir.subVectors(to, from);
   const far = dir.length() - SLACK;
   if (far <= 0) return true;
   ray.set(from, dir.normalize());
   ray.far = far;
   const hits = ray.intersectObject(blockers, false);
-  return ignore ? hits.every((h) => ignore(h.point)) : hits.length === 0;
+  return ignore ? hits.every((h) => ignore(h.point, h.faceIndex ?? undefined)) : hits.length === 0;
 }
 
 /** Where camera-controls puts the camera for this target, azimuth, polar angle and distance. */
