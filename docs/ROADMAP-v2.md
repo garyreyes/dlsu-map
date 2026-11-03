@@ -44,7 +44,7 @@ as `docs/ROADMAP.md` (🧪 = test first; **Lane** A Gary, B Charles).
 
 | ID | Sub-phase | Lane | Depends on | Status |
 |---|---|---|---|---|
-| v2▸ | Impeccable critique + polish over everything v2 touched, in all three colour modes and both views; phone test on iPhone and Android | A | all above | not started |
+| v2▸ | Impeccable critique + polish over everything v2 touched, in all three colour modes and both views; phone test on iPhone and Android | A | all above | in progress (map options and search card done; the rest waits on B6) |
 
 ## Notes
 

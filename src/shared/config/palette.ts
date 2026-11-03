@@ -38,15 +38,16 @@ export const MAP_PALETTES: Record<ColourMode, MapPalette> = {
     haze: '#163326',
     cityMix: 0.4,
   },
-  /** Light grey ground, near-white blocks, white paths. */
+  /** Like Apple Maps' light map (D65): pale grey ground, mid-grey blocks darker than it, white roads. The walked grey
+   *  is dark enough to read on the cut floor's slab. */
   grey: {
-    ground: '#c4c7c6',
-    building: '#fbfbfa',
-    path: '#ffffff',
+    ground: '#e3e4e2',
+    building: '#c3c6c9',
+    path: '#f4f4f3',
     road: '#ffffff',
-    walked: '#686b6a',
-    haze: '#cfe5d7',
-    cityMix: 0.32,
+    walked: '#5c5f5e',
+    haze: '#e7e8e7',
+    cityMix: 0.85,
   },
 };
 

@@ -28,13 +28,13 @@ colors:
   map-b-building: "#f2eee5"
   map-b-path: "#5f9c7c"
   map-b-road: "#99c2ab"
-  map-c-ground: "#c4c7c6"
-  map-c-building: "#fbfbfa"
-  map-c-path: "#ffffff"
+  map-c-ground: "#e3e4e2"
+  map-c-building: "#c3c6c9"
+  map-c-path: "#f4f4f3"
   map-c-road: "#ffffff"
   map-a-haze: "#163326"
   map-b-haze: "#4f9a72"
-  map-c-haze: "#cfe5d7"
+  map-c-haze: "#e7e8e7"
   map-sun: "#fff4e6"
 typography:
   display:
@@ -310,12 +310,14 @@ keeps the prototype's letters: `map-a-*` is Black, `map-b-*` Green, `map-c-*` Gr
   so the route reads on them, D62). Off-campus blocks lean 50% toward the ground.
 - **Black** (`map-a-*`): near-black ground like Waze's dark mode, cool white blocks, soft grey paths and roads.
   Off-campus blocks lean 40%.
-- **Grey** (`map-c-*`): light grey ground, near-white blocks, white paths. Off-campus blocks lean 32%.
+- **Grey** (`map-c-*`): like Apple Maps' light map (D65): pale grey ground, mid-grey blocks a step darker than it,
+  white roads and near-white paths. Off-campus blocks lean 85%, but the two greys are close, so the city's walls
+  still show.
 
 Everything drawn on the map stays readable in all three: `contrast-pairs.test.ts` checks the label plates over every
 map colour, the route (its green or walked grey, or its white edge, at 3:1 over ground, path, road and the cut
 floor) and the cut floor's hallways. The one exemption is the dimmed outdoor route while a building is cut open,
-faint on purpose (Grey is lowest at 1.49:1); the test keeps it at 1.4:1 or more.
+faint on purpose (Grey is lowest at 1.56:1); the test keeps it at 1.4:1 or more.
 
 ### Named Rules
 
@@ -326,7 +328,8 @@ It never decorates, and no map palette may change it or add a second accent.
 `accent-ink-dark` on dark surfaces. Never put `accent` text on a dark surface.
 
 **The Two Worlds Rule.** Interface colours live in CSS tokens; map colours live in the palette table. The interface
-never samples the map palette, and the map never uses interface neutrals except the accent.
+never samples the map palette, and the map never uses interface neutrals except the accent. The one exception is the
+Colour swatches in map options, which preview each map palette.
 
 ## Typography
 
@@ -404,8 +407,8 @@ The map has its own depth model, made by light, not by shadows or outlines.
   (#fff4e6, 0.46) from the upper left. Buildings use Lambert shading with no texture, windows or edge lines.
 - **Wall-foot darkening:** the bottom 6m of every wall darkens to 70% and grades up to full, so blocks sit on the
   ground.
-- **Ground:** unlit and flat, exactly the palette colour. A green haze (owner's choice) fades the distance and fills
-  the sky: #163326 (dark green) over black, #4f9a72 over green, #cfe5d7 over grey. It tracks the camera (2.5 to 5
+- **Ground:** unlit and flat, exactly the palette colour. A haze fades the distance and fills the sky: green (owner's
+  choice) over black (#163326) and green (#4f9a72), pale grey over grey (#e7e8e7, D65). It tracks the camera (2.5 to 5
   times its distance, D56).
 - **Campus leads:** every off-campus building is see-through (35% opacity, owner's choice) and tinted toward the
   ground, so campus buildings show through it and only campus buildings can hide the selection. **Surroundings
@@ -506,7 +509,7 @@ section labels; no dividers.
 
 A Pale Leaf track with 4px padding holding 48px segments. The selected segment turns Sheet White with Deep Ink text
 and a Float shadow. Used for Stairs / Auto / Elevator inside the collapsed "Route options" disclosure, and for the
-three rows of the map options card.
+four choices in the map options card. A segment may carry a small lead mark before its label (the Colour swatches).
 
 ### Map options
 
@@ -514,16 +517,20 @@ The map's four saved choices (D57, D58, D60, D64) behind one map button, so they
 
 - **Button:** a map button with a layers icon ("Map options"), the top of the right-gutter column, above the
   compass and recenter. It shows wherever the map buttons do, the route player included.
-- **Card:** Sheet White, 18px radius, Float shadow, 16px padding, opening upward to the left of the button with its
-  bottom edge level with it, so it never covers the sheet; 312px wide, never wider than the space left of the button,
-  and scrolling if it would pass the top of the screen. A 17px semibold "Map options"
-  title and a close icon button head it.
-- **Rows:** four, 16px apart, each a 16px Mid Ink label over a segmented control: **Colour** (Green / Black /
-  Grey), **View** (3D / 2D), **Buildings** (Solid / See-through, Map depth), **Surroundings** (Show / Hide, D64).
-  A choice applies at once and is saved; there is no Done.
-- **Closing:** the close button, Escape, a tap anywhere outside the card, or the map button again. Focus goes back
-  to the map button. Its Escape closes only the card, never the sheet under it. It opens and closes with a 160ms
-  fade and 4px rise; instantly under reduced motion.
+- **Card:** Sheet White, 18px radius, Float shadow, 12px padding, no title row. It opens upward to the left of the
+  button with its bottom edge level with it, so it never covers the sheet; 312px wide, never wider than the space left
+  of the button, and scrolling if it would pass the top of the screen. A 24px fade to Sheet White shows at the
+  bottom edge while there is more below. While it is open, the layers button turns into a ✕ and closes it.
+- **Rows:** three lines, 12px apart, each with a 16px Mid Ink label over a segmented control. **Colour** (Green /
+  Black / Grey) is full width, and each segment carries a 14px swatch, half the palette's ground and half its
+  building colour. **View** (3D / 2D) and **Surroundings** (Show / Hide, D64) sit side by side. **Buildings** (Solid /
+  See-through, Map depth) is full width. A choice applies at once and is saved; there is no Done. Under 360px wide,
+  View and Surroundings stack and the swatches drop, so no word is crowded.
+- **Changed dot:** when any setting isn't its default and the card is closed, a 12px Campus Green dot with a 2px Sheet
+  White ring sits at the top right of the button.
+- **Closing:** the layers button (now a ✕), Escape, a tap anywhere outside the card, or focus leaving it. Focus goes
+  back to the map button. Its Escape closes only the card, never the sheet under it. It opens and closes with a
+  160ms fade and 4px rise; instantly under reduced motion.
 - **Not modal:** the map behind stays visible so each change can be seen as it lands.
 
 ### Toast
@@ -601,7 +608,7 @@ cut open, the outdoor ribbon fades to 45%, so it doesn't swamp the entrance. Ind
 (8c-1, D46): a 1.6 m Campus Green line on a 2.9 m white casing.
 
 **The walked part is grey** (D59 point 5, v2-B7): in the player, the outdoor ribbon behind the "you are here" dot
-takes the palette's `walked` grey (Green `#5f5f5f`, Black `#737373`, Grey `#686b6a`); the white edge stays white. The
+takes the palette's `walked` grey (Green `#5f5f5f`, Black `#737373`, Grey `#5c5f5e`); the white edge stays white. The
 grey grows with the dot as it glides, at the dot's pace, and goes back on Back. Nothing is grey on the route preview;
 on Arrived the whole walk is. The see-through copy and the dimmed ribbon go grey the same way. The cut floor's indoor
 line stays green for now.

@@ -1,6 +1,10 @@
+import type { ReactNode } from 'react';
+
 interface Option<T extends string> {
   value: T;
   label: string;
+  /** A small mark before the label (the Colour swatches). Should be aria-hidden. */
+  lead?: ReactNode;
 }
 
 interface Props<T extends string> {
@@ -29,9 +33,10 @@ export function Segmented<T extends string>({ label, options, value, onChange }:
               onChange(o.value);
             }}
             className={`h-12 flex-1 cursor-pointer rounded-segment font-semibold ${
-              chosen ? 'bg-surface text-ink shadow-float' : 'text-ink-2 hover:text-ink'
-            }`}
+              o.lead ? 'inline-flex items-center justify-center gap-1.5' : ''
+            } ${chosen ? 'bg-surface text-ink shadow-float' : 'text-ink-2 hover:text-ink'}`}
           >
+            {o.lead}
             {o.label}
           </button>
         );

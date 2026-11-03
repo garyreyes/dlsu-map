@@ -204,7 +204,7 @@ describe('map colour modes (D57)', () => {
   });
 
   // While a building is cut open the outdoor route fades 45% into the ground on purpose (RouteLine.tsx, `dimmed`), so
-  // it is exempt from 3:1. This floor only stops it fading further: Grey's ground is the closest at 1.49:1. three.js
+  // it is exempt from 3:1. This floor only stops it fading further: Grey's ground is the closest at 1.56:1. three.js
   // lerps in linear RGB, as here.
   const DIMMED_OPACITY = 0.45;
   const DIMMED_FLOOR = 1.4;

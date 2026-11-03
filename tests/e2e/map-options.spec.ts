@@ -79,3 +79,22 @@ test('Escape on the card closes only the card, not the route under it', async ({
   await expect(card(page)).toHaveCount(0);
   await expect(steps).toBeVisible();
 });
+
+test('a changed setting shows a dot on the closed button, and it goes when all are back to default', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const dot = page.locator('[data-changed="true"]');
+  await expect(dot).toHaveCount(0);
+  await optionsButton(page).click();
+  await card(page).getByRole('button', { name: '2D' }).click();
+  await expect(dot).toHaveCount(0); // hidden while the card is open
+  await optionsButton(page).click();
+  await expect(card(page)).toHaveCount(0);
+  await expect(dot).toBeVisible();
+  await optionsButton(page).click();
+  await card(page).getByRole('button', { name: '3D' }).click();
+  await optionsButton(page).click();
+  await expect(card(page)).toHaveCount(0);
+  await expect(dot).toHaveCount(0);
+});
