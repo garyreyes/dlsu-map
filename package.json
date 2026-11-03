@@ -40,7 +40,7 @@
     "react": "~19.3.1",
     "react-dom": "~19.3.1",
     "react-modal-sheet": "^5.6.0",
-    "three": "^0.186.1",
+    "three": "^0.187.0",
     "zod": "^4.6.7",
     "zustand": "^5.0.16"
   },
@@ -51,7 +51,7 @@
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "@types/three": "^0.186.0",
+    "@types/three": "^0.187.0",
     "@typescript/native": "npm:typescript@^7.0.2",
     "@vitejs/plugin-react": "^6.1.2",
     "eslint": "^10.14.0",
