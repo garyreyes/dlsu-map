@@ -8,6 +8,16 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-11-03: Dependabot bumps: three 0.187, lucide-react 1.66, vite 8.3.5, eslint 10.14, typescript-eslint 8.72.1
+
+- Merged #120, #122, #123, #121 and #119, lowest risk first. Each had `gates` green right before merge.
+- **three and @types/three 0.187.0:** the release notes and migration guide name nothing we use (no PMREM, envMap,
+  render targets, `setViewport` or reversed depth). A local A/B of `main` on 0.186 against the PR, five screens at
+  375 px (Green solid, Black see-through, Grey 2D, a route step, a later step), was pixel-identical (largest channel
+  difference 2/255).
+- **lucide-react 1.66.0:** none of our 24 icons appear in the 1.53–1.66 release notes.
+- Merged branches now delete themselves (the repo's "Automatically delete head branches" is on).
+
 ## 2026-11-03: v2-A4: see-through buildings (D60) and a Surroundings switch (D64, agreed)
 
 - **Buildings (Solid / See-through)** is back in map options. See-through turns every campus building into a ghost:
