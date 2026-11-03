@@ -30,6 +30,7 @@ import { QualityMonitor } from './QualityMonitor';
 import { useCameraFlights } from './useCameraFlights';
 import { useCampus } from './useCampus';
 import { useDotGlide } from './useDotGlide';
+import { useFaded } from './useFaded';
 import { useTripMarks, type MapFloor, type MapFocus } from './useTripMarks';
 
 export type { MapFloor, MapFocus };
@@ -149,6 +150,8 @@ function CampusView(props: Props & { campus: Campus }) {
   const colour = useMapSettings((s) => s.settings.colour);
   // In 2D (D58) every building, bridge and city block is a 3 m block; the cut building's stump keeps the real campus.
   const low = useMapSettings((s) => s.settings.view) === '2d';
+  // The city around DLSU can be hidden (D64), so only the campus stands up; slow phones drop it anyway.
+  const cityShown = useMapSettings((s) => s.settings.surroundings) === 'show';
   const shown = useMemo(() => (low ? lowCampus(campus) : campus), [low, campus]);
   const home = useMemo(() => homeFor(campus), [campus]);
   const failed = useCallback(() => {
@@ -204,6 +207,9 @@ function CampusView(props: Props & { campus: Campus }) {
     saving,
     low,
   );
+  // Faded buildings (D60): all of them when see-through, else only what hides the route; never the selected, the
+  // entered or the goal building.
+  const { faded, bridgesFaded } = useFaded(campus, { selected, entered: focusBuilding?.slug, route });
   const flightFocus = useMemo(() => (cutOn ? focus : withoutSpot(focus)), [focus, cutOn]);
   const {
     placeDot,
@@ -294,9 +300,11 @@ function CampusView(props: Props & { campus: Campus }) {
               fullRoute={route}
               walked={walked}
               reduced={reduced}
-              city={showsCity(tier)}
+              city={cityShown && showsCity(tier)}
               onTap={tap}
               massRef={massRef}
+              faded={faded}
+              bridgesFaded={bridgesFaded}
             />
             <CameraRig
               controlsRef={controlsRef}

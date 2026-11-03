@@ -7,7 +7,7 @@ import { chipAnchor, floorBand, type BandSample, type ScreenPoint } from '../flo
 import { MINOR_LABEL_DISTANCE, placeLabels, stackUp, type LabelBox, type Rect } from '../labels';
 import type { SpotAnchor } from '../spot-anchors';
 import type { MapInsets } from './CameraRig';
-import { sees, toScene } from './visibility';
+import { isFadedFace, sees, toScene } from './visibility';
 
 /** Plates sit this far above the roof, in meters. */
 const ROOF_GAP = 2;
@@ -282,7 +282,10 @@ export function LabelProjector(props: ProjectorProps) {
       if (last.band !== band || now - last.at >= CHIP_CHECK_MS) {
         const index = chipAnchor(points, view, (i) => {
           const p = band[i];
-          return !mass || !p || sees(mass, camera.position, toScene(p, seen));
+          // A faded building is see-through, so its triangles don't hide the band.
+          return (
+            !mass || !p || sees(mass, camera.position, toScene(p, seen), (_, face) => isFadedFace(mass.geometry, face))
+          );
         });
         anchor.current = { band, index, at: now, retry: last.retry };
       } else if (!last.retry) {

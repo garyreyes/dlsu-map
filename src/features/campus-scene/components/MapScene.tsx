@@ -40,10 +40,14 @@ interface Props {
   /** How far along the outdoor walk the route line is grey, meters (useDotGlide). */
   walked: WalkedUniform;
   reduced: boolean;
-  /** Whether the see-through city around the campus draws; the lowest quality tier drops it (10c). */
+  /** Whether the see-through city around the campus draws: Surroundings Hide (D64) and the lowest quality tier (10c)
+   *  drop it. */
   city: boolean;
   onTap: (slug: string | null) => void;
   massRef: RefObject<Mesh | null>;
+  /** The campus buildings drawn faded, near side only (D60); the bridges with them when `bridgesFaded`. */
+  faded: ReadonlySet<string>;
+  bridgesFaded: boolean;
 }
 
 /**
@@ -67,6 +71,8 @@ export function MapScene(props: Props) {
     city,
     onTap,
     massRef,
+    faded,
+    bridgesFaded,
   } = props;
   const shown = useCutSlide(cut, reduced);
   const marks = useMemo(() => (shown ? cutMarks(fullRoute, shown.cutaway) : undefined), [fullRoute, shown]);
@@ -118,6 +124,8 @@ export function MapScene(props: Props) {
         onTap={onTap}
         massRef={massRef}
         cutaway={shown?.cutaway ?? null}
+        faded={faded}
+        bridgesFaded={bridgesFaded}
       />
       {shown ? (
         <BuildingCutaway

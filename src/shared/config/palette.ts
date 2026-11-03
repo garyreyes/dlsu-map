@@ -60,6 +60,10 @@ export const SELECTED_TINT = { color: CAMPUS_GREEN, mix: 0.22 };
 /** Off-campus buildings are see-through (DESIGN.md, Campus leads), so campus buildings show through them. */
 export const CITY_OPACITY = 0.35;
 
+/** A faded campus building (D60): its near side only, at this opacity, in the campus colour so it still reads apart
+ *  from the city. */
+export const CAMPUS_FADED_OPACITY = 0.4;
+
 /** Light rig from DESIGN.md (Map depth). */
 export const SKY_LIGHT = { color: '#ffffff', intensity: 0.72, groundTint: 0.18 };
 export const SUN_LIGHT = { color: '#fff4e6', intensity: 0.46 };
