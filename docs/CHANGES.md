@@ -8,7 +8,7 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
-## 2026-11-03: v2-A4: see-through buildings (D60) and a Surroundings switch (D64, proposed)
+## 2026-11-03: v2-A4: see-through buildings (D60) and a Surroundings switch (D64, agreed)
 
 - **Buildings (Solid / See-through)** is back in map options. See-through turns every campus building into a ghost:
   only its near side, at 40% in the campus colour (Gary's choice, D60 point 4). A depth-only prepass keeps the near
@@ -21,8 +21,8 @@ session needs to know. Search this file; it isn't required reading (the reading 
   each frame is cheap. `selectionGroups` gained a third, faded material.
 - **Surroundings (Show / Hide)**, a fourth row: on the v2-A4 screenshots the campus ghosts looked like the 35% city
   on Green, so Gary asked for a way to drop the city. Hide removes the city blocks and the LRT viaduct; roads stay.
-  Show is the default. The saved settings gained `surroundings`; an older save reads as `show`. D64 is proposed
-  until Charles agrees.
+  Show is the default. The saved settings gained `surroundings`; an older save reads as `show`. D64 agreed by
+  Charles on 2026-11-03.
 - Checked: lint, typecheck, unit 1917/1917, e2e 89/89, first load 184.7 kB gzipped. The reviewer found no bugs; its
   four small points are fixed (prepass polygon offset against z-fighting on phones, the store's no-change check,
   `CampusMasses` back under 50 lines, stable material arrays). Screenshots at 375 px in Green, Black and Grey, 2D,
@@ -87,13 +87,13 @@ session needs to know. Search this file; it isn't required reading (the reading 
   through a temporary `?view=2d` switch, removed before merging). D58's "polar 0" now says 1° off vertical;
   DESIGN.md (Camera, Compass, Gestures) and V2-PLAN updated; `docs/ROADMAP-v2.md`: v2-B5 done.
 
-## 2026-10-26: v2-B4: through a door, the camera tilts with the cut (D61 point 4, D63 proposed)
+## 2026-10-26: v2-B4: through a door, the camera tilts with the cut (D61 point 4, D63 agreed)
 
 - **On Next through a door**, from the drone view outside to an indoor step or back out, the camera's tilt and
   distance now take the cut slide's own `SLIDE_MS` (600 ms, read from indoor-view's index) with its cubic ease-out,
   starting with it. The dot's walk and the heading keep the follow's own 1–3 s clock. Before, the
   tilt and zoom were spread over the whole walk, so the floor opened long before the camera finished tipping.
-- **Leaving is the same** (Charles's choice, D63 proposed for Gary): the camera goes back to the drone view as the cut
+- **Leaving is the same** (Charles's choice, D63 agreed): the camera goes back to the drone view as the cut
   slides out.
 - `follow.ts`: `planFollow` takes `lensMs`, `Follow.lensMs`; `followAt` uses it for polar and distance. Test-first: the
   3 new cases (87.5% at 300 ms, at the indoor lens from 600 ms while the dot walks on, no lens = the walk's clock) were
