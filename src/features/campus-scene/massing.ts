@@ -185,19 +185,38 @@ export interface DrawGroup {
   materialIndex: number;
 }
 
+/** The campus mesh's materials, by index: plain, the selected tint, and see-through (D60). */
+export const PLAIN_MATERIAL = 0;
+export const SELECTED_MATERIAL = 1;
+export const FADED_MATERIAL = 2;
+
 /**
- * Draw groups that put the `selected` building's triangles on material 1 (the tinted one) and everything else on
- * material 0. `total` is the geometry's triangle count. No selection, or one with no triangles, is one plain group.
+ * Draw groups that put the `selected` building's triangles on material 1 (the tinted one), the `faded` buildings' on
+ * material 2 (see-through, D60) and everything else on material 0. Selected wins over faded. `total` is the geometry's
+ * triangle count. No selection and nothing faded, or slugs with no triangles, is one plain group.
  */
-export function selectionGroups(owners: readonly Owner[], selected: string | null, total: number): DrawGroup[] {
-  const o = selected === null ? undefined : owners.find((x) => x.id === selected);
-  if (!o) return [{ start: 0, count: total * 3, materialIndex: 0 }];
-  const parts: DrawGroup[] = [
-    { start: 0, count: o.first * 3, materialIndex: 0 },
-    { start: o.first * 3, count: o.count * 3, materialIndex: 1 },
-    { start: (o.first + o.count) * 3, count: (total - o.first - o.count) * 3, materialIndex: 0 },
-  ];
-  return parts.filter((g) => g.count > 0);
+export function selectionGroups(
+  owners: readonly Owner[],
+  selected: string | null,
+  total: number,
+  faded: ReadonlySet<string> = new Set(),
+): DrawGroup[] {
+  const parts: DrawGroup[] = [];
+  const push = (from: number, to: number, materialIndex: number) => {
+    if (to <= from) return;
+    const last = parts[parts.length - 1];
+    if (last && last.materialIndex === materialIndex) last.count += (to - from) * 3;
+    else parts.push({ start: from * 3, count: (to - from) * 3, materialIndex });
+  };
+  let next = 0;
+  for (const o of owners) {
+    push(next, o.first, PLAIN_MATERIAL);
+    const material = o.id === selected ? SELECTED_MATERIAL : faded.has(o.id) ? FADED_MATERIAL : PLAIN_MATERIAL;
+    push(o.first, o.first + o.count, material);
+    next = Math.max(next, o.first + o.count);
+  }
+  push(next, total, PLAIN_MATERIAL);
+  return parts;
 }
 
 /** A building's blocks cut off at height `slab` (the cutaway's stump); blocks that start at or above it, or end up

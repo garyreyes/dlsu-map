@@ -1496,6 +1496,9 @@ too long).
 2. **While a route plays, the app fades only the buildings that stand between the camera and the route**, whatever the
    setting.
 3. **The goal building and the selected building never fade.** The entered building keeps its cutaway (D45, D46).
+4. **A faded building is a ghost:** only its near side shows, at 40% opacity in the campus colour, not every wall
+   blended like the city (Gary, 2026-11-03, v2-A4). Overlapping walls would stack into darker bands, and campus would
+   look the same as the city.
 
 **Alternatives.** A slider or a third "outlines only" step (more to choose, little gain). Setting only (puts the work
 on the student).
@@ -1558,3 +1561,22 @@ over 600 ms (D45). The floor was open long before the camera finished tipping. D
 
 **Changes** D61 point 4 (adds leaving). **Alternatives.** Only going inside (leaving tilts over the whole walk out).
 The tilt over the whole walk, as before B4.
+
+---
+
+## D64. A Surroundings switch hides the 3D city around DLSU (2026-11-03, proposed)
+
+**Problem.** With Buildings set to See-through (D60), the campus ghosts at 40% look almost the same as the city
+around DLSU at 35%, most of all on Green. The campus no longer leads, and a student can't tell DLSU from the rest
+(Gary, on the v2-A4 screenshots).
+
+**Decision.** (Gary, 2026-11-03, v2-A4.)
+
+1. **A fourth row in map options, Surroundings (Show / Hide)**, saved on the phone like the other three (D58 point 5).
+   Show is the default, so the map looks as before until a student changes it.
+2. **Hide drops the city blocks and the LRT viaduct** in 3D and 2D. Roads, streets and paths stay, so the area still
+   has its shape. The lowest quality tier drops the city whatever the setting (10c).
+3. It is its own switch, not tied to See-through, so the city can go in Solid too.
+
+**Alternatives.** Hide the city whenever See-through is on (no new switch, but a student who wants a clean map in
+Solid can't have one). No 3D city at all (campus always leads, but the area loses its landmarks for everyone).

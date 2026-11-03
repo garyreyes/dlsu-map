@@ -8,6 +8,28 @@ session needs to know. Search this file; it isn't required reading (the reading 
 
 ---
 
+## 2026-11-03: v2-A4: see-through buildings (D60) and a Surroundings switch (D64, proposed)
+
+- **Buildings (Solid / See-through)** is back in map options. See-through turns every campus building into a ghost:
+  only its near side, at 40% in the campus colour (Gary's choice, D60 point 4). A depth-only prepass keeps the near
+  side, then a transparent film draws it (`Ghost.tsx`, draw orders 15 and 16). The route, the dot and the ground
+  show through. Bridges follow the setting. The selected, goal (`goalBuilding`) and entered buildings never fade.
+  Faded buildings stay tappable, and the floor chip isn't hidden by them (`isFadedFace`). The goal pin moved to
+  draw order 20, so a ghost never veils it.
+- **`fadeStore.ts` (`useFade`)** holds the buildings the route wants faded on Solid. Lane B fills it in v2-B6.
+  `fadedSlugs` (`fade.ts`) combines it with the setting. Setting the same list again changes nothing, so filling it
+  each frame is cheap. `selectionGroups` gained a third, faded material.
+- **Surroundings (Show / Hide)**, a fourth row: on the v2-A4 screenshots the campus ghosts looked like the 35% city
+  on Green, so Gary asked for a way to drop the city. Hide removes the city blocks and the LRT viaduct; roads stay.
+  Show is the default. The saved settings gained `surroundings`; an older save reads as `show`. D64 is proposed
+  until Charles agrees.
+- Checked: lint, typecheck, unit 1917/1917, e2e 89/89, first load 184.7 kB gzipped. The reviewer found no bugs; its
+  four small points are fixed (prepass polygon offset against z-fighting on phones, the store's no-change check,
+  `CampusMasses` back under 50 lines, stable material arrays). Screenshots at 375 px in Green, Black and Grey, 2D,
+  a route step, an indoor step, and the four-row card.
+- Left for Lane B: `useCameraFlights`' heading search still counts faded buildings as blockers; it can add
+  `isFadedFace` to its `ignore`.
+
 ## 2026-10-27: markdownlint-cli2 0.24.0 (Dependabot #117)
 
 - The devDependency and CI's `npx` step move to 0.24.0 together, so the commit hook and `gates` lint with the same

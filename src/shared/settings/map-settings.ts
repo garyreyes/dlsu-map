@@ -1,32 +1,42 @@
-// The map's saved choices (v2-0; D57 colour mode, D58 2D/3D, D60 see-through). Both lanes read them: Lane A for the
-// palette, blocks and see-through, Lane B for the 2D camera. Saved on this phone only.
+// The map's saved choices (v2-0; D57 colour mode, D58 2D/3D, D60 see-through, D64 surroundings). Both lanes read
+// them: Lane A for the palette, blocks, see-through and city, Lane B for the 2D camera. Saved on this phone only.
 // Pure: the localStorage read and write live in useMapSettings.ts. Tests: map-settings.test.ts.
 import { z } from '@/shared/data/zod';
 
 export const COLOUR_MODES = ['green', 'black', 'grey'] as const;
 export const MAP_VIEWS = ['3d', '2d'] as const;
 export const BUILDING_LOOKS = ['solid', 'see-through'] as const;
+export const SURROUNDINGS = ['show', 'hide'] as const;
 
 export type ColourMode = (typeof COLOUR_MODES)[number];
 export type MapView = (typeof MAP_VIEWS)[number];
 export type BuildingLook = (typeof BUILDING_LOOKS)[number];
+export type Surroundings = (typeof SURROUNDINGS)[number];
 
 export type MapSettings = {
   readonly colour: ColourMode;
   readonly view: MapView;
   readonly buildings: BuildingLook;
+  /** The 3D city around the campus (D64): shown, or hidden so only DLSU stands up. */
+  readonly surroundings: Surroundings;
 };
 
 /** A change to some of the settings. A field can be left out but never set to undefined, which would wipe it. */
 export type SettingsPatch<K extends keyof MapSettings> = Pick<MapSettings, K>;
 
-export const DEFAULT_MAP_SETTINGS: MapSettings = { colour: 'green', view: '3d', buildings: 'solid' };
+export const DEFAULT_MAP_SETTINGS: MapSettings = {
+  colour: 'green',
+  view: '3d',
+  buildings: 'solid',
+  surroundings: 'show',
+};
 
-// Each field falls back on its own, so one bad value never resets the other two.
+// Each field falls back on its own, so one bad value never resets the others.
 const settingsSchema = z.object({
   colour: z.enum(COLOUR_MODES).catch(DEFAULT_MAP_SETTINGS.colour),
   view: z.enum(MAP_VIEWS).catch(DEFAULT_MAP_SETTINGS.view),
   buildings: z.enum(BUILDING_LOOKS).catch(DEFAULT_MAP_SETTINGS.buildings),
+  surroundings: z.enum(SURROUNDINGS).catch(DEFAULT_MAP_SETTINGS.surroundings),
 });
 
 /** The settings with a patch applied. A field set to undefined anyway (a cast, plain JS) is left as it was. */

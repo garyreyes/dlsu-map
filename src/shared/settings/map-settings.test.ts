@@ -9,8 +9,8 @@ import {
 
 describe('parseMapSettings', () => {
   it('gives the defaults when nothing was saved', () => {
-    expect(parseMapSettings(null)).toEqual({ colour: 'green', view: '3d', buildings: 'solid' });
-    expect(DEFAULT_MAP_SETTINGS).toEqual({ colour: 'green', view: '3d', buildings: 'solid' });
+    expect(parseMapSettings(null)).toEqual({ colour: 'green', view: '3d', buildings: 'solid', surroundings: 'show' });
+    expect(DEFAULT_MAP_SETTINGS).toEqual({ colour: 'green', view: '3d', buildings: 'solid', surroundings: 'show' });
   });
 
   it('gives the defaults for anything that is not a saved object', () => {
@@ -20,8 +20,29 @@ describe('parseMapSettings', () => {
   });
 
   it('reads back every saved choice', () => {
-    const saved = JSON.stringify({ colour: 'grey', view: '2d', buildings: 'see-through' });
-    expect(parseMapSettings(saved)).toEqual({ colour: 'grey', view: '2d', buildings: 'see-through' });
+    const saved = JSON.stringify({ colour: 'grey', view: '2d', buildings: 'see-through', surroundings: 'hide' });
+    expect(parseMapSettings(saved)).toEqual({
+      colour: 'grey',
+      view: '2d',
+      buildings: 'see-through',
+      surroundings: 'hide',
+    });
+  });
+
+  it('reads a v2-A4 save, from before Surroundings, with the city shown', () => {
+    const saved = JSON.stringify({ colour: 'black', view: '2d', buildings: 'see-through' });
+    expect(parseMapSettings(saved)).toEqual({
+      colour: 'black',
+      view: '2d',
+      buildings: 'see-through',
+      surroundings: 'show',
+    });
+  });
+
+  it('accepts both surroundings choices', () => {
+    for (const surroundings of ['show', 'hide'] as const) {
+      expect(parseMapSettings(JSON.stringify({ surroundings })).surroundings).toBe(surroundings);
+    }
   });
 
   it('accepts each colour mode', () => {
@@ -35,22 +56,23 @@ describe('parseMapSettings', () => {
       colour: 'black',
       view: '3d',
       buildings: 'solid',
+      surroundings: 'show',
     });
   });
 
   it('replaces only the unknown field, never the whole lot', () => {
-    const saved = JSON.stringify({ colour: 'black', view: '4d', buildings: 7 });
-    expect(parseMapSettings(saved)).toEqual({ colour: 'black', view: '3d', buildings: 'solid' });
+    const saved = JSON.stringify({ colour: 'black', view: '4d', buildings: 7, surroundings: 'none' });
+    expect(parseMapSettings(saved)).toEqual({ colour: 'black', view: '3d', buildings: 'solid', surroundings: 'show' });
   });
 
   it('is strict about spelling', () => {
-    const saved = JSON.stringify({ colour: 'Black', view: '2D', buildings: 'see through' });
+    const saved = JSON.stringify({ colour: 'Black', view: '2D', buildings: 'see through', surroundings: 'Hide' });
     expect(parseMapSettings(saved)).toEqual(DEFAULT_MAP_SETTINGS);
   });
 
   it('ignores fields it does not know', () => {
     const saved = JSON.stringify({ colour: 'grey', fog: 'none' });
-    expect(parseMapSettings(saved)).toEqual({ colour: 'grey', view: '3d', buildings: 'solid' });
+    expect(parseMapSettings(saved)).toEqual({ colour: 'grey', view: '3d', buildings: 'solid', surroundings: 'show' });
   });
 });
 
@@ -75,11 +97,17 @@ describe('applyPatch', () => {
       colour: 'grey',
       view: '3d',
       buildings: 'solid',
+      surroundings: 'show',
     });
   });
 
   it('ignores a field set to undefined, from a cast or plain JS', () => {
     const patch = { view: undefined, colour: 'black' } as unknown as SettingsPatch<'colour'>;
-    expect(applyPatch(DEFAULT_MAP_SETTINGS, patch)).toEqual({ colour: 'black', view: '3d', buildings: 'solid' });
+    expect(applyPatch(DEFAULT_MAP_SETTINGS, patch)).toEqual({
+      colour: 'black',
+      view: '3d',
+      buildings: 'solid',
+      surroundings: 'show',
+    });
   });
 });
